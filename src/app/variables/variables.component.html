@@ -1,0 +1,40 @@
+<h2>Variables</h2>
+
+<div class="container">
+  <div class="row font-weight-bold mb-2">
+    <div class="col-2">Label</div>
+    <div class="col-2">Type</div>
+    <div class="col-8">FHIRPath Question/Expression</div>
+  </div>
+  <div cdkDropList (cdkDropListDropped)="drop($event)">
+    <div class="drag-variable row py-2" *ngFor="let variable of variables; index as i" cdkDrag>
+      <div class="col-2 form-inline">
+        <img width="20" height="20" class="mr-2 handle" src="assets/grip-vertical.svg" cdkDragHandle />
+        <input class="form-control w-75" [(ngModel)]="variable.label" />
+      </div>
+      <div class="col-2">
+        <div class="form-inline">
+          <select class="form-control" [(ngModel)]="variable.type">
+            <option>Select...</option>
+            <option *ngFor="let type of variableType | keyvalue" value="{{type.key}}">{{type.value}}</option>
+          </select>
+        </div>
+      </div>
+      <div class="col-7" [ngSwitch]="variable.type">
+        <app-question [questionId]="variable.questionId" *ngSwitchCase="'question'"></app-question>
+        <div class="form-inline" *ngSwitchCase="'expression'">
+          <input class="form-control mr-2 w-100" [(ngModel)]="variable.expression" />
+        </div>
+      </div>
+      <div class="col-1">
+        <button class="btn btn-danger" (click)="onRemove(i)">x</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<button class="btn btn-secondary mt-2" (click)="onAdd()">Add variable</button>
+
+<pre *ngIf="!environment.production">
+  {{variables|json}}
+</pre>

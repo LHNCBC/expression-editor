@@ -1,0 +1,10 @@
+<div class="form-inline">
+  <select class="form-control mr-2" [(ngModel)]="questionId">
+    <option *ngFor="let question of questions" [value]="question.id">
+      {{question.name}}
+    </option>
+  </select>
+  <select class="form-control" *ngIf="questionId && canConvertUnits(questionId)">
+    <option>Keep form units</option>
+  </select>
+</div>
