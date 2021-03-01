@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { VariableService } from '../variable.service';
+import { UneditableVariable } from '../variable';
 
 @Component({
   selector: 'app-uneditable-variables',
@@ -7,15 +8,20 @@ import { VariableService } from '../variable.service';
   styleUrls: ['./uneditable-variables.component.css']
 })
 export class UneditableVariablesComponent implements OnInit {
-  uneditableVariables;
+  uneditableVariables: UneditableVariable[];
+  uneditableVariablesSubscription;
 
-  constructor(private variableService: VariableService) { }
+  constructor(private variableService: VariableService) {}
 
   ngOnInit(): void {
-    this.getUneditableVariables();
+    this.uneditableVariables = this.variableService.uneditableVariables;
+    this.uneditableVariablesSubscription =
+        this.variableService.uneditableVariablesChange.subscribe((variables) => {
+      this.uneditableVariables = variables;
+    });
   }
 
-  getUneditableVariables(): void {
-    this.uneditableVariables = this.variableService.getUneditableVariables();
+  ngDestroy(): void {
+    this.uneditableVariablesSubscription.unsubscribe();
   }
 }

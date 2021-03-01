@@ -1,13 +1,15 @@
-<h2>Un-editable Variables</h2>
+<div *ngIf="uneditableVariables.length">
+  <h2>Un-editable Variables</h2>
 
-<div class="container mb-4">
-  <div class="row font-weight-bold">
-    <div class="col-2">Label</div>
-    <div class="col-10">Description</div>
-  </div>
-  <hr>
-  <div class="row" *ngFor="let variable of uneditableVariables">
-    <div class="col-2">{{variable.label}}</div>
-    <div class="col-10">{{variable.description}}</div>
+  <div class="container mb-4">
+    <div class="row font-weight-bold" aria-hidden="true">
+      <div class="col-2">Label</div>
+      <div class="col-10">Description</div>
+    </div>
+    <hr>
+    <div class="row" *ngFor="let variable of uneditableVariables">
+      <div class="col-2"><span class="sr-only">Label</span>{{variable.label}}</div>
+      <div class="col-10"><span class="sr-only">Description</span>{{variable.description}}</div>
+    </div>
   </div>
 </div>

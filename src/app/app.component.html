@@ -1,17 +1,26 @@
 <h1>{{title}}</h1>
 
-<section>
+<section *ngIf="!environment.production" class="mb-3">
+  <label>LinkId: <input class="form-control" [(ngModel)]="linkIdContext"></label>
+  <input type="file" class="file-import btn btn-secondary toolbar-button mx-2" accept=".json" (change)="import($event)">
+  <button type="button" class="btn btn-secondary toolbar-button mr-2" (click)="export()">Export</button>
+  <div class="form-check form-check-inline">
+    <input class="form-check-input" type="checkbox" id="showFhirPath" [(ngModel)]="showFhirPath">
+    <label class="form-check-label" for="showFhirPath">Show FHIRPath</label>
+  </div>
+</section>
+
+<section class="mb-3">
   <app-uneditable-variables></app-uneditable-variables>
 </section>
 
-<section>
-  <app-variables></app-variables>
+<section class="mb-3">
+  <app-variables [showFhirPath]="showFhirPath"></app-variables>
 </section>
 
-<br>
-
-<section>
+<section class="mb-3">
   <h2>Final Expression</h2>
 
-  <input class="form-control" value="%bmi + 12">
+  <label for="final-expression" class="sr-only">Final Expression</label>
+  <input id="final-expression" class="form-control" [(ngModel)]="finalExpression">
 </section>

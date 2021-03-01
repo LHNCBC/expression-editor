@@ -1,0 +1,16 @@
+.toolbar-button {
+  height: 2.7rem;
+}
+.file-import {
+  width: 4.6rem;
+  color: transparent;
+}
+.file-import::-webkit-file-upload-button {
+  visibility: hidden;
+}
+.file-import::before {
+  content: 'Import';
+  display: inline-block;
+  cursor: pointer;
+  color: #fff;
+}

@@ -4,7 +4,7 @@
   "newProjectRoot": "projects",
   "projects": {
     "fhirpath-editor": {
-      "projectType": "application",
+      "projectType": "library",
       "schematics": {},
       "root": "",
       "sourceRoot": "src",

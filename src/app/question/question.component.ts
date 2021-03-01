@@ -1,13 +1,7 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { Question } from '../variable';
 import { VariableService } from '../variable.service';
-
-// Conversion table for simple units
-const UNIT_CONVERSION = {
-  kg: [{ unit: 'lbs', factor: 2.20462 }],
-  lbs: [{ unit: 'kg', factor: 0.453592 }],
-  '[in_i]': [{ unit: 'cm', factor: 2.54 }, { unit: 'm', factor: 0.0254 }]
-};
+import { Unit, UNIT_CONVERSION } from '../units';
 
 @Component({
   selector: 'app-question',
@@ -15,20 +9,56 @@ const UNIT_CONVERSION = {
   styleUrls: ['./question.component.css']
 })
 export class QuestionComponent implements OnInit {
-  @Input() questionId: string;
+  @Input() variable;
+  @Output() expression = new EventEmitter<string>();
+  linkId = '';  // TODO we can probably make this the initial value only and remove two way data binding
   questions: Question[];
+  isScore = false;  // TODO
+  isNonConvertibleUnit = false;
+  toUnit: string;
+  unit: string;
+  conversionOptions: Unit[];
 
-  constructor(private variableService: VariableService) { }
+  constructor(private variableService: VariableService) {}
 
   ngOnInit(): void {
-    this.getQuestions();
+    this.linkId = this.variable.linkId ? this.variable.linkId : '';
+    this.toUnit = this.variable.unit ? this.variable.unit : '';
+    this.questions = this.variableService.questions;
+
+    this.onQuestionChange();
+    this.variableService.questionsChange.subscribe((questions) => {
+      this.questions = questions;
+    });
   }
 
-  getQuestions(): void {
-    this.questions = this.variableService.getQuestions();
+  // TODO check question group behavior
+  getQuestionUnit(linkId): string {
+    const currentQuestion = this.questions.find((q) => {
+      return q.linkId === linkId;
+    });
+
+    if (currentQuestion) {
+      return currentQuestion.unit;
+    } else {
+      return null;
+    }
   }
 
-  canConvertUnits(units: string): boolean {
-    return UNIT_CONVERSION.hasOwnProperty(units);
+  getConversionOptions(units: string): Unit[] {
+    return UNIT_CONVERSION[units];
+  }
+
+  onQuestionChange(): void {
+    this.unit = this.getQuestionUnit(this.linkId);
+    this.conversionOptions = this.getConversionOptions(this.unit);
+    this.isNonConvertibleUnit = this.unit && !this.conversionOptions;
+
+    // Check if this is a score
+    if (!this.conversionOptions && !this.isNonConvertibleUnit) {
+      // TODO
+    } else {
+      this.isScore = false;
+    }
   }
 }

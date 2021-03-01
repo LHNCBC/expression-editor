@@ -1,9 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 
 import { Variable, VariableType } from '../variable';
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { VariableService } from '../variable.service';
-import { environment } from '../../environments/environment';
 
 @Component({
   selector: 'app-variables',
@@ -11,18 +10,22 @@ import { environment } from '../../environments/environment';
   styleUrls: ['./variables.component.css']
 })
 export class VariablesComponent implements OnInit {
+  @Input() showFhirPath;
   variableType = VariableType;
+  variableSubscription;
   variables: Variable[];
-  environment = environment;
 
-  constructor(private variableService: VariableService) { }
+  constructor(private variableService: VariableService) {}
 
   ngOnInit(): void {
-    this.getVariables();
+    this.variables = this.variableService.variables;
+    this.variableSubscription = this.variableService.variablesChange.subscribe((variables) => {
+      this.variables = variables;
+    });
   }
 
-  getVariables(): void {
-    this.variables = this.variableService.getVariables();
+  ngDestroy(): void {
+    this.variableSubscription.unsubscribe();
   }
 
   onAdd(): void {

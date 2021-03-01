@@ -1,18 +1,24 @@
+export interface UneditableVariable {
+  label: string;
+  description: string;
+}
+
 export interface Variable {
   label: string;
   type: string;
-  expression?: string;
-  questionId?: string;
+  expression: string;
+  linkId?: string;
+  unit?: string;
 }
 
 export interface Question {
-  id: string;
-  name: string;
+  linkId: string;
+  text: string;
   isScore?: boolean;
-  units?: string;
+  unit?: string;
 }
 
 export enum VariableType {
   question = 'Question',
-  expression = 'Expression'
+  expression = 'FHIRPath Expression'
 }

@@ -1,10 +1,16 @@
 <div class="form-inline">
-  <select class="form-control mr-2" [(ngModel)]="questionId">
-    <option *ngFor="let question of questions" [value]="question.id">
-      {{question.name}}
+  <select class="form-control mr-2" [(ngModel)]="linkId" (change)="onQuestionChange()" aria-label="Question">
+    <option value="" disabled hidden>Select...</option>
+    <option *ngFor="let question of questions" [value]="question.linkId">
+      {{question.text}}
     </option>
   </select>
-  <select class="form-control" *ngIf="questionId && canConvertUnits(questionId)">
-    <option>Keep form units</option>
+  <!--  {{linkId}} [{{unit}} > {{toUnit}}] {{conversionOptions|json}}-->
+  <!--  TODO disable the select if the unit cannot be converted (just show the unit)-->
+  <select class="form-control" *ngIf="conversionOptions" [(ngModel)]="toUnit">
+    <option value="">Keep form units ({{unit}})</option>
+    <option *ngFor="let u of conversionOptions" value="{{u.unit}}">Convert to {{u.unit}}</option>
   </select>
+  <span *ngIf="isNonConvertibleUnit">{{unit}}</span>
+  <span *ngIf="isScore">Score</span>
 </div>
