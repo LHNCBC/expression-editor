@@ -1,6 +1,7 @@
 export interface UneditableVariable {
-  label: string;
-  description: string;
+  name: string;
+  type?: string;
+  description?: string;
 }
 
 export interface Variable {

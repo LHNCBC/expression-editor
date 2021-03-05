@@ -5,15 +5,14 @@ import { Unit, UNIT_CONVERSION } from '../units';
 
 @Component({
   selector: 'app-question',
-  templateUrl: './question.component.html',
-  styleUrls: ['./question.component.css']
+  templateUrl: './question.component.html'
 })
 export class QuestionComponent implements OnInit {
   @Input() variable;
-  @Output() expression = new EventEmitter<string>();
-  linkId = '';  // TODO we can probably make this the initial value only and remove two way data binding
+  @Input() advancedInterface;
+  linkId = '';
   questions: Question[];
-  isScore = false;  // TODO
+  isScore = false;
   isNonConvertibleUnit = false;
   toUnit: string;
   unit: string;
@@ -26,39 +25,55 @@ export class QuestionComponent implements OnInit {
     this.toUnit = this.variable.unit ? this.variable.unit : '';
     this.questions = this.variableService.questions;
 
-    this.onQuestionChange();
     this.variableService.questionsChange.subscribe((questions) => {
       this.questions = questions;
     });
   }
 
   // TODO check question group behavior
-  getQuestionUnit(linkId): string {
-    const currentQuestion = this.questions.find((q) => {
+  getQuestion(linkId): Question {
+    return this.questions.find((q) => {
       return q.linkId === linkId;
     });
-
-    if (currentQuestion) {
-      return currentQuestion.unit;
-    } else {
-      return null;
-    }
   }
 
   getConversionOptions(units: string): Unit[] {
     return UNIT_CONVERSION[units];
   }
 
-  onQuestionChange(): void {
-    this.unit = this.getQuestionUnit(this.linkId);
-    this.conversionOptions = this.getConversionOptions(this.unit);
-    this.isNonConvertibleUnit = this.unit && !this.conversionOptions;
+  onChange(isQuestion): void {
+    if (isQuestion) {
+      // Reset the conversion options when the question changes
+      this.toUnit = '';
+    }
 
-    // Check if this is a score
-    if (!this.conversionOptions && !this.isNonConvertibleUnit) {
-      // TODO
+    if (this.linkId) {
+      const question = this.getQuestion(this.linkId);
+      this.unit = question?.unit;
+      this.conversionOptions = this.getConversionOptions(this.unit);
+      this.isNonConvertibleUnit = this.unit && !this.conversionOptions;
+
+      // Check if this is a score
+      if (!this.conversionOptions && !this.isNonConvertibleUnit) {
+        this.isScore = this.variableService.isItemScore(this.linkId);
+      } else {
+        this.isScore = false;
+      }
+
+      this.variable.expression = this.calculateExpression(this.linkId, this.isScore, !this.isNonConvertibleUnit, this.unit, this.toUnit);
+    }
+  }
+
+  calculateExpression(linkId: string, isScore: boolean, convertible: boolean, unit: string, toUnit: string): string {
+    if (isScore) {
+      return `%questionnaire.item.where(linkId = '${linkId}').answerOption` +
+        `.where(valueCoding.code=%resource.item.where(linkId = '${linkId}').answer.valueCoding.code).extension` +
+        `.where(url='http://hl7.org/fhir/StructureDefinition/ordinalValue').valueDecimal`;
+    } else if (convertible && unit && toUnit) {
+      const factor = UNIT_CONVERSION[unit].find((e) => e.unit === toUnit).factor;
+      return `%resource.item.where(linkId='${linkId}').answer.value*${factor}`;
     } else {
-      this.isScore = false;
+      return `%resource.item.where(linkId='${linkId}').answer.value`;
     }
   }
 }

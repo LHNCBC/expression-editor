@@ -17,10 +17,17 @@ export class AppComponent implements OnInit {
   datePipe = new DatePipe('en-US');
   linkIdContext: string;
   private finalExpressionSubscription;
+  private calculateSumSubscription;
+  advancedInterface = false;
+  calculateSum: boolean;
 
   constructor(private variableService: VariableService) {}
 
   ngOnInit(): void {
+    this.calculateSum = this.variableService.mightBeScore;
+    this.calculateSumSubscription = this.variableService.mightBeScoreChange.subscribe((mightBeScore) => {
+      this.calculateSum = mightBeScore;
+    });
     this.linkIdContext = this.variableService.linkIdContext;
     this.finalExpression = this.variableService.finalExpression;
     this.finalExpressionSubscription = this.variableService.finalExpressionChange.subscribe((finalExpression) => {

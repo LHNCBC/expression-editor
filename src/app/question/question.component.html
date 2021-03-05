@@ -1,13 +1,13 @@
 <div class="form-inline">
-  <select class="form-control mr-2" [(ngModel)]="linkId" (change)="onQuestionChange()" aria-label="Question">
+  <select class="form-control mr-2 w-50" [(ngModel)]="linkId" (change)="onChange(true)" aria-label="Question">
     <option value="" disabled hidden>Select...</option>
     <option *ngFor="let question of questions" [value]="question.linkId">
-      {{question.text}}
+      {{question.text}}{{advancedInterface ? ' (' + question.linkId + ')' : ''}}
     </option>
   </select>
-  <!--  {{linkId}} [{{unit}} > {{toUnit}}] {{conversionOptions|json}}-->
-  <!--  TODO disable the select if the unit cannot be converted (just show the unit)-->
-  <select class="form-control" *ngIf="conversionOptions" [(ngModel)]="toUnit">
+
+  <select class="form-control w-25" *ngIf="conversionOptions" [(ngModel)]="toUnit"
+          (change)="onChange(false)" aria-label="Unit conversion">
     <option value="">Keep form units ({{unit}})</option>
     <option *ngFor="let u of conversionOptions" value="{{u.unit}}">Convert to {{u.unit}}</option>
   </select>

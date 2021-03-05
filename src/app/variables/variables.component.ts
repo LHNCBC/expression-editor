@@ -1,7 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 
 import { Variable, VariableType } from '../variable';
-import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
+import { CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
 import { VariableService } from '../variable.service';
 
 @Component({
@@ -11,9 +11,15 @@ import { VariableService } from '../variable.service';
 })
 export class VariablesComponent implements OnInit {
   @Input() showFhirPath;
+  @Input() advancedInterface;
   variableType = VariableType;
   variableSubscription;
   variables: Variable[];
+  levels = [{
+      level: 0,
+      name: 'Top Level Scope'
+    }
+  ];
 
   constructor(private variableService: VariableService) {}
 
@@ -37,6 +43,13 @@ export class VariablesComponent implements OnInit {
   }
 
   drop(event: CdkDragDrop<Variable[]>): void {
-    moveItemInArray(this.variables, event.previousIndex, event.currentIndex);
+    if (event.previousContainer === event.container) {
+      moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
+    } else {
+      transferArrayItem(event.previousContainer.data,
+        event.container.data,
+        event.previousIndex,
+        event.currentIndex);
+    }
   }
 }

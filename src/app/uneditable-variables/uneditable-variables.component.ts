@@ -4,8 +4,7 @@ import { UneditableVariable } from '../variable';
 
 @Component({
   selector: 'app-uneditable-variables',
-  templateUrl: './uneditable-variables.component.html',
-  styleUrls: ['./uneditable-variables.component.css']
+  templateUrl: './uneditable-variables.component.html'
 })
 export class UneditableVariablesComponent implements OnInit {
   uneditableVariables: UneditableVariable[];

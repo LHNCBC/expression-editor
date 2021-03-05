@@ -8,13 +8,15 @@ import { UneditableVariablesComponent } from './uneditable-variables/uneditable-
 import { QuestionComponent } from './question/question.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { DragDropModule } from '@angular/cdk/drag-drop';
+import { CalculateSumPromptComponent } from './calculate-sum-prompt/calculate-sum-prompt.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     VariablesComponent,
     UneditableVariablesComponent,
-    QuestionComponent
+    QuestionComponent,
+    CalculateSumPromptComponent
   ],
   imports: [
     BrowserModule,

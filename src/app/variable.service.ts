@@ -15,6 +15,7 @@ export class VariableService {
     new Subject<UneditableVariable[]>();
   variablesChange: Subject<Variable[]> = new Subject<Variable[]>();
   questionsChange: Subject<Question[]> = new Subject<Question[]>();
+  mightBeScoreChange: Subject<boolean> = new Subject<boolean>();
   finalExpressionChange: Subject<string> = new Subject<string>();
 
   linkIdContext: string;
@@ -23,6 +24,7 @@ export class VariableService {
   finalExpression: string;
   questions: Question[];
   fhir;
+  mightBeScore = false;
 
   constructor() {
     // TODO remove demo data
@@ -49,6 +51,74 @@ export class VariableService {
     this.variables.splice(i, 1);
   }
 
+  getUneditableVariables(fhir): UneditableVariable[] {
+    if (fhir.extension) {
+      return fhir.extension.reduce((accumulator, extension) => {
+        if (extension.url === 'http://hl7.org/fhir/StructureDefinition/questionnaire-launchContext' && extension.extension) {
+          const uneditableVariable = {
+            name: extension.extension.find((e) => e.url === 'name').valueId,
+            type: extension.extension.filter((e) => e.url === 'type').map((e) => e.valueCode).join('|'),
+            description: extension.extension.find((e) => e.url === 'descripton').valueString
+          };
+
+          accumulator.push(uneditableVariable);
+        }
+        return accumulator;
+      }, []);
+    }
+
+    return [];
+  }
+
+  getVariables(fhir): Variable[] {
+    // Look at the top level fhirpath related extensions to populate the editable variables
+    if (fhir.extension) {
+      return fhir.extension.reduce((accumulator, extension) => {
+        if (extension.url === 'http://hl7.org/fhir/StructureDefinition/variable' &&
+          extension.valueExpression && extension.valueExpression.language === LANGUAGE_FHIRPATH) {
+          accumulator.push(
+            this.processVariable(fhir, extension.valueExpression.name, extension.valueExpression.expression));
+        }
+        return accumulator;
+      }, []);
+    }
+
+    return [];
+  }
+
+  isItemScore(item): boolean {
+    if (typeof item === 'string') {
+      item = this.fhir.item.find((e) => e.linkId === item);
+    }
+
+    return (item.answerOption || []).some((answerOption) => {
+      return (answerOption.extension || []).some((extension) => {
+        return extension.url === 'http://hl7.org/fhir/StructureDefinition/ordinalValue';
+      });
+    });
+  }
+
+  // TODO check if this is already a score calculation
+  isProbablyScore(fhir, linkIdContext): boolean {
+    const THRESHOLD = 0.6;  // Percent of questions (minus the one we're editing)
+    // which need to be scores to determine we want to sum them up
+
+    let totalQuestions = fhir.item.length;  // TODO check children too? Not sure how scores would work for that
+    let scoreQuestions = 0;
+
+    fhir.item.forEach((item) => {
+      if (this.isItemScore(item)) {
+        scoreQuestions++;
+      }
+
+      if (item.linkId === linkIdContext) {
+        totalQuestions--;
+      }
+    });
+
+    return scoreQuestions / totalQuestions >= THRESHOLD;
+  }
+
   /**
    * Import a FHIR Questionnaire to populate questions
    * @param fhir - FHIR Questionnaire
@@ -59,39 +129,35 @@ export class VariableService {
     this.fhir = fhir;
 
     if (fhir.resourceType === 'Questionnaire' && fhir.item && fhir.item.length) {
-      this.uneditableVariables = [];  // TODO
-      this.variables = [];
+      this.mightBeScore = this.isProbablyScore(fhir, linkIdContext);
+      this.mightBeScoreChange.next(this.mightBeScore);
 
-      // Look at the top level fhirpath related extensions to populate the editable variables
-      if (fhir.extension) {
-        this.variables = fhir.extension.reduce((accumulator, extension) => {
-          if (extension.url === 'http://hl7.org/fhir/StructureDefinition/variable' &&
-              extension.valueExpression && extension.valueExpression.language === LANGUAGE_FHIRPATH) {
-            accumulator.push(
-              this.processVariable(fhir, extension.valueExpression.name, extension.valueExpression.expression));
-          }
-          return accumulator;
-        }, []);
-      }
+      this.uneditableVariables = this.getUneditableVariables(fhir);
+      this.uneditableVariablesChange.next(this.uneditableVariables);
+
+      this.variables = this.getVariables(fhir);
+      this.variablesChange.next(this.variables);
 
       this.questions = fhir.item.map((e) => {
         // TODO decimal vs choice
+        const MAX_Q_LEN = 60;  // Maximum question length before truncating.
+        const text = e.text;
+
         return {
           linkId: e.linkId,
-          text: e.text,
+          text: text.length > MAX_Q_LEN ? text.substring(0, MAX_Q_LEN) + '...' : text,
           unit: this.getQuestionUnits(fhir, e.linkId)
         };
       });
       this.questionsChange.next(this.questions);
-      // this.uneditableVariablesChange.next(uneditableVariables);
-      // this.variablesChange.next(variables);
-      this.finalExpression = this.importFinalExpression(fhir.item, linkIdContext);
+
+      this.finalExpression = this.getFinalExpression(fhir.item, linkIdContext);
       this.finalExpressionChange.next(this.finalExpression);
     }
   }
 
   // TODO multiple final expressions?
-  private importFinalExpression(items, linkId): string {
+  getFinalExpression(items, linkId): string {
     const CALCULATED_EXPRESSION = 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression';
 
     for (const item of items) {
@@ -103,7 +169,7 @@ export class VariableService {
 
         return extension.valueExpression.expression;
       } else if (item.item) {
-        return this.importFinalExpression(item.items, linkId);
+        return this.getFinalExpression(item.item, linkId);
       }
     }
 
@@ -178,7 +244,7 @@ export class VariableService {
   private getNewLabelName(): string {
     // Get all the variable names
     const variableNames = this.variables.map((e) => e.label)
-      .concat(this.uneditableVariables.map((e) => e.label));
+      .concat(this.uneditableVariables.map((e) => e.name));
 
     // All letters which can be used for a simple variable name
     const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
@@ -198,5 +264,10 @@ export class VariableService {
 
     // Don't return a suggested name if we exhausted all combinations
     return '';
+  }
+
+  toggleMightBeScore(): void {
+    this.mightBeScore = !this.mightBeScore;
+    this.mightBeScoreChange.next(this.mightBeScore);
   }
 }
