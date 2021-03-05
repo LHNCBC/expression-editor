@@ -67,6 +67,7 @@ export class AppComponent implements OnInit {
 
   exportSumOfScores(): void {
     this.downloadAsFile(this.variableService.exportSumOfScores());
+    // console.log(this.variableService.exportSumOfScores());  // TODO remove
   }
 
   private downloadAsFile(data, fileName?): void {

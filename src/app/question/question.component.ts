@@ -66,6 +66,7 @@ export class QuestionComponent implements OnInit {
     }
   }
 
+  // TODO move to service
   calculateExpression(linkId: string, isScore: boolean, convertible: boolean, unit: string, toUnit: string): string {
     if (isScore) {
       return `%questionnaire.item.where(linkId = '${linkId}').answerOption` +

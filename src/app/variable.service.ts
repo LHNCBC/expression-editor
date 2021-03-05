@@ -129,12 +129,10 @@ export class VariableService {
     let scoreQuestions = 0;
 
     fhir.item.forEach((item) => {
-      if (this.isItemScore(item)) {
-        scoreQuestions++;
-      }
-
       if (item.linkId === linkIdContext) {
         totalQuestions--;
+      } else if (this.isItemScore(item)) {
+        scoreQuestions++;
       }
     });
 
@@ -334,37 +332,84 @@ export class VariableService {
       }
     };
 
-    this.insertFinalExpression(fhir.item, this.linkIdContext, finalExpressionExtension);
+    this.insertExtensions(fhir.item, this.linkIdContext, [finalExpressionExtension]);
 
     return fhir;
   }
 
   exportSumOfScores(): object {
-    const fhir = this.fhir;
-
-    // TODO check for existing variable names
-    const variableNames = [];
-
     // TODO check multi level behavior
-    // TODO get list of names
-    // TODO calculate variables
-    // TODO add them to fhir.extension
-    // TODO calculate the final expression
+    const fhir = this.fhir;
+    const linkIdContext = this.linkIdContext;
+
+    const variableNames = [];
+    const scoreQuestionLinkIds = [];
+
+    // Get an array of linkIds for score questions
+    fhir.item.forEach((item) => {
+      if (item.linkId !== linkIdContext && this.isItemScore(item)) {
+        scoreQuestionLinkIds.push(item.linkId);
+      }
+    });
+
+    // Get as many short suggested variable names as we have score questions
+    scoreQuestionLinkIds.forEach(() => {
+      variableNames.push(this.getNewLabelName(variableNames));
+    });
+
+    const scoreQuestions = scoreQuestionLinkIds.map((e, i) => {
+      return {
+        url: this.VARIABLE_EXTENSION,
+        valueExpression: {
+          name: variableNames[i],
+          language: 'text/fhirpath',
+          expression: `%questionnaire.item.where(linkId = '${e}').answerOption` +
+            `.where(valueCoding.code=%resource.item.where(linkId = '${e}').answer.valueCoding.code).extension` +
+            `.where(url='http://hl7.org/fhir/StructureDefinition/ordinalValue').valueDecimal`
+        }
+      };
+    });
+
+    const anyQuestionAnswered = {
+      url: this.VARIABLE_EXTENSION,
+      valueExpression: {
+        name: 'any_questions_answered',
+        language: 'text/fhirpath',
+        expression: variableNames.map((e) => `%${e}.exists()`).join(' or ')
+      }
+    };
+
+    const sumString = variableNames.map((e) => `iif(%${e}.exists(), %${e}, 0)`).join(' + ');
+
+    const totalCalculation = {
+      url: this.CALCULATED_EXPRESSION,
+      valueExpression: {
+        description: 'Total score calculation',
+        language: 'text/fhirpath',
+        expression: `iif(%any_questions_answered, ${sumString}, {})`
+      }
+    };
+
+    scoreQuestions.push(anyQuestionAnswered);
+    // @ts-ignore
+    scoreQuestions.push(totalCalculation);
+
+    this.insertExtensions(fhir.item, linkIdContext, scoreQuestions);
 
     return fhir;
   }
 
-  private insertFinalExpression(items, linkId, expression): void {
+  private insertExtensions(items, linkId, extensions): void {
     for (const item of items) {
       if (item.linkId === linkId) {
         if (item.extension) {
-          item.extension.push(expression);
+          item.extension = item.extension.concat(extensions);
         } else {
-          item.extension = [expression];
+          item.extension = extensions;
         }
         break;
       } else if (item.item) {
-        this.insertFinalExpression(item.item, linkId, expression);
+        this.insertExtensions(item.item, linkId, extensions);
       }
     }
   }
