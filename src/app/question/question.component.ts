@@ -25,6 +25,8 @@ export class QuestionComponent implements OnInit {
     this.toUnit = this.variable.unit ? this.variable.unit : '';
     this.questions = this.variableService.questions;
 
+    this.onChange(false);
+
     this.variableService.questionsChange.subscribe((questions) => {
       this.questions = questions;
     });

@@ -13,9 +13,9 @@
   </div>
 </section>
 
-<app-calculate-sum-prompt *ngIf="calculateSum"></app-calculate-sum-prompt>
+<app-calculate-sum-prompt *ngIf="calculateSum" (export)="exportSumOfScores()"></app-calculate-sum-prompt>
 <div *ngIf="!calculateSum">
-  <h1>{{title}}</h1>
+  <h1>FHIRPath Editor</h1>
 
   <section class="mb-3">
     <app-uneditable-variables></app-uneditable-variables>

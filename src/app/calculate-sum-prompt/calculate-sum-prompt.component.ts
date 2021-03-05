@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { VariableService } from '../variable.service';
 
 @Component({
@@ -7,13 +7,18 @@ import { VariableService } from '../variable.service';
   styleUrls: ['./calculate-sum-prompt.component.css']
 })
 export class CalculateSumPromptComponent implements OnInit {
+  @Output() export: EventEmitter<any> = new EventEmitter<any>();
 
   constructor(private variableService: VariableService) { }
 
   ngOnInit(): void {
   }
 
-  toggleSumPrompt(): void {
+  onCloseClick(): void {
     this.variableService.toggleMightBeScore();
+  }
+
+  onExportClick(): void {
+    this.export.emit();
   }
 }

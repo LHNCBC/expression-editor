@@ -43,13 +43,6 @@ export class VariablesComponent implements OnInit {
   }
 
   drop(event: CdkDragDrop<Variable[]>): void {
-    if (event.previousContainer === event.container) {
-      moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
-    } else {
-      transferArrayItem(event.previousContainer.data,
-        event.container.data,
-        event.previousIndex,
-        event.currentIndex);
-    }
+    moveItemInArray(this.variables, event.previousIndex, event.currentIndex);
   }
 }

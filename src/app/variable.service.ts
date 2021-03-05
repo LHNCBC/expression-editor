@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Observable, of, Subject } from 'rxjs';
+import { Subject } from 'rxjs';
 
 import { Question, UneditableVariable, Variable } from './variable';
 import { CONTEXT_LINKID, SAMPLE_Q } from './mock-data.js';
@@ -38,8 +38,12 @@ export class VariableService {
    * Create a new variable
    */
   addVariable(): void {
+    // Get all the existing variable names
+    const existingNames = this.variables.map((e) => e.label)
+      .concat(this.uneditableVariables.map((e) => e.name));
+
     this.variables.push({
-      label: this.getNewLabelName(),
+      label: this.getNewLabelName(existingNames),
       type: '',
       expression: ''
     });
@@ -60,8 +64,8 @@ export class VariableService {
         if (extension.url === 'http://hl7.org/fhir/StructureDefinition/questionnaire-launchContext' && extension.extension) {
           const uneditableVariable = {
             name: extension.extension.find((e) => e.url === 'name').valueId,
-            type: extension.extension.filter((e) => e.url === 'type').map((e) => e.valueCode).join('|'),
-            description: extension.extension.find((e) => e.url === 'descripton').valueString
+            type: extension.extension.filter((e) => e.url === 'type')?.map((e) => e.valueCode).join('|'),
+            description: extension.extension.find((e) => e.url === 'description')?.valueString
           };
 
           accumulator.push(uneditableVariable);
@@ -203,7 +207,7 @@ export class VariableService {
   }
 
   private processVariable(fhir, name, expression): Variable {
-    const QUESTION_REGEX = /^%resource\.item\.where\(linkId=\'(.*)\'\)\.answer\.value(?:\*(\d*\.?\d*))?$/;
+    const QUESTION_REGEX = /^%resource\.item\.where\(linkId='(.*)'\)\.answer\.value(?:\*(\d*\.?\d*))?$/;
 
     const matches = expression.match(QUESTION_REGEX);
 
@@ -265,13 +269,10 @@ export class VariableService {
 
   /**
    * Generate a label name like A, B, C, ... AA, AB which is not already used
+   * @param existingNames
    * @private
    */
-  private getNewLabelName(): string {
-    // Get all the variable names
-    const variableNames = this.variables.map((e) => e.label)
-      .concat(this.uneditableVariables.map((e) => e.name));
-
+  private getNewLabelName(existingNames: string[]): string {
     // All letters which can be used for a simple variable name
     const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
 
@@ -280,7 +281,7 @@ export class VariableService {
       for (const secondLetter of alphabet) {
         const potentialName = firstLetter + secondLetter;
 
-        const count = variableNames.filter((e) => e === potentialName);
+        const count = existingNames.filter((e) => e === potentialName);
 
         if (count.length === 0) {
           return potentialName;
@@ -299,10 +300,13 @@ export class VariableService {
 
   /**
    * Add variables and finalExpression and return the new FHIR Questionnaire
+   * @param finalExpression
    */
   export(finalExpression: string): object {
     // TODO support for different variable scopes
     // TODO need a more elegant way to deep copy
+    // Copy the fhir object so we can export more than once
+    // (if we add our data the second export will have duplicates)
     const fhir = JSON.parse(JSON.stringify(this.fhir));
 
     const variablesToAdd = this.variables.map((e) => {
@@ -322,7 +326,6 @@ export class VariableService {
       fhir.extension = variablesToAdd;
     }
 
-    // TODO add final expression
     const finalExpressionExtension = {
       url: this.CALCULATED_EXPRESSION,
       valueExpression: {
@@ -332,6 +335,21 @@ export class VariableService {
     };
 
     this.insertFinalExpression(fhir.item, this.linkIdContext, finalExpressionExtension);
+
+    return fhir;
+  }
+
+  exportSumOfScores(): object {
+    const fhir = this.fhir;
+
+    // TODO check for existing variable names
+    const variableNames = [];
+
+    // TODO check multi level behavior
+    // TODO get list of names
+    // TODO calculate variables
+    // TODO add them to fhir.extension
+    // TODO calculate the final expression
 
     return fhir;
   }

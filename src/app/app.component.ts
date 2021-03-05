@@ -10,25 +10,24 @@ import { VariableService } from './variable.service';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent implements OnInit {
-  title = 'FHIRPath Editor';
   environment = environment;
   showFhirPath = false;
-  finalExpression: string;
-  datePipe = new DatePipe('en-US');
-  linkIdContext: string;
-  private finalExpressionSubscription;
-  private calculateSumSubscription;
   advancedInterface = false;
+  finalExpression: string;
+  linkIdContext: string;
+  datePipe = new DatePipe('en-US');
   calculateSum: boolean;
+  private calculateSumSubscription;
+  private finalExpressionSubscription;
 
   constructor(private variableService: VariableService) {}
 
   ngOnInit(): void {
+    this.linkIdContext = this.variableService.linkIdContext;
     this.calculateSum = this.variableService.mightBeScore;
     this.calculateSumSubscription = this.variableService.mightBeScoreChange.subscribe((mightBeScore) => {
       this.calculateSum = mightBeScore;
     });
-    this.linkIdContext = this.variableService.linkIdContext;
     this.finalExpression = this.variableService.finalExpression;
     this.finalExpressionSubscription = this.variableService.finalExpressionChange.subscribe((finalExpression) => {
       this.finalExpression = finalExpression;
@@ -63,17 +62,27 @@ export class AppComponent implements OnInit {
   }
 
   export(): void {
+    this.downloadAsFile(this.variableService.export(this.finalExpression));
+  }
+
+  exportSumOfScores(): void {
+    this.downloadAsFile(this.variableService.exportSumOfScores());
+  }
+
+  private downloadAsFile(data, fileName?): void {
     const blob = new Blob([
-      JSON.stringify(this.variableService.export(this.finalExpression), null, 2)
+      JSON.stringify(data, null, 2)
     ]);
 
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     const date = this.datePipe.transform(Date.now(), 'yyyyMMdd-hhmmss');
 
+    fileName = fileName ? fileName : `fhirpath-${date}.json`;
+
     a.setAttribute('style', 'display: none');
     a.href = url;
-    a.download = `fhirpath-${date}.json`;
+    a.download = fileName;
     a.click();
     window.URL.revokeObjectURL(url);
     a.remove();
