@@ -11,6 +11,9 @@ const LANGUAGE_FHIRPATH = 'text/fhirpath';
   providedIn: 'root'
 })
 export class VariableService {
+  VARIABLE_EXTENSION = 'http://hl7.org/fhir/StructureDefinition/variable';
+  CALCULATED_EXPRESSION = 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression';
+
   uneditableVariablesChange: Subject<UneditableVariable[]> =
     new Subject<UneditableVariable[]>();
   variablesChange: Subject<Variable[]> = new Subject<Variable[]>();
@@ -70,17 +73,32 @@ export class VariableService {
     return [];
   }
 
-  getVariables(fhir): Variable[] {
+  /**
+   * Get and remove the variables from the FHIR object
+   * @param fhir
+   */
+  extractVariables(fhir): Variable[] {
     // Look at the top level fhirpath related extensions to populate the editable variables
+    // TODO look at the focus item variables
+
     if (fhir.extension) {
-      return fhir.extension.reduce((accumulator, extension) => {
-        if (extension.url === 'http://hl7.org/fhir/StructureDefinition/variable' &&
+      const variables = [];
+      const nonVariableExtensions = [];
+
+      fhir.extension.forEach((extension) => {
+        if (extension.url === this.VARIABLE_EXTENSION &&
           extension.valueExpression && extension.valueExpression.language === LANGUAGE_FHIRPATH) {
-          accumulator.push(
+          variables.push(
             this.processVariable(fhir, extension.valueExpression.name, extension.valueExpression.expression));
+        } else {
+          nonVariableExtensions.push(extension);
         }
-        return accumulator;
-      }, []);
+      });
+
+      // Remove the variables so they can be re-added on export
+      fhir.extension = nonVariableExtensions;
+
+      return variables;
     }
 
     return [];
@@ -135,7 +153,7 @@ export class VariableService {
       this.uneditableVariables = this.getUneditableVariables(fhir);
       this.uneditableVariablesChange.next(this.uneditableVariables);
 
-      this.variables = this.getVariables(fhir);
+      this.variables = this.extractVariables(fhir);
       this.variablesChange.next(this.variables);
 
       this.questions = fhir.item.map((e) => {
@@ -151,25 +169,33 @@ export class VariableService {
       });
       this.questionsChange.next(this.questions);
 
-      this.finalExpression = this.getFinalExpression(fhir.item, linkIdContext);
+      this.finalExpression = this.extractFinalExpression(fhir.item, linkIdContext);
       this.finalExpressionChange.next(this.finalExpression);
     }
   }
 
   // TODO multiple final expressions?
-  getFinalExpression(items, linkId): string {
-    const CALCULATED_EXPRESSION = 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression';
-
+  /**
+   * Get and remove the final expression
+   * @param items
+   * @param linkId
+   */
+  extractFinalExpression(items, linkId): string {
     for (const item of items) {
-      if (item.linkId === linkId && item.extension) {
-        const extension = item.extension.find((e) => {
-          return e.url === CALCULATED_EXPRESSION && e.valueExpression.language === LANGUAGE_FHIRPATH &&
+      if (item.extension) {
+        const extensionIndex = item.extension.findIndex((e) => {
+          return e.url === this.CALCULATED_EXPRESSION && e.valueExpression.language === LANGUAGE_FHIRPATH &&
             e.valueExpression.expression;
         });
 
-        return extension.valueExpression.expression;
+        if (extensionIndex !== -1) {
+          const finalExpression = item.extension[extensionIndex].valueExpression.expression;
+          item.extension.splice(extensionIndex, 1);
+
+          return finalExpression;
+        }
       } else if (item.item) {
-        return this.getFinalExpression(item.item, linkId);
+        return this.extractFinalExpression(item.item, linkId);
       }
     }
 
@@ -269,5 +295,59 @@ export class VariableService {
   toggleMightBeScore(): void {
     this.mightBeScore = !this.mightBeScore;
     this.mightBeScoreChange.next(this.mightBeScore);
+  }
+
+  /**
+   * Add variables and finalExpression and return the new FHIR Questionnaire
+   */
+  export(finalExpression: string): object {
+    // TODO support for different variable scopes
+    // TODO need a more elegant way to deep copy
+    const fhir = JSON.parse(JSON.stringify(this.fhir));
+
+    const variablesToAdd = this.variables.map((e) => {
+      return {
+        url: this.VARIABLE_EXTENSION,
+        valueExpression: {
+          name: e.label,
+          language: 'text/fhirpath',
+          expression: e.expression
+        }
+      };
+    });
+
+    if (fhir.extension) {
+      fhir.extension = fhir.extension.concat(variablesToAdd);
+    } else {
+      fhir.extension = variablesToAdd;
+    }
+
+    // TODO add final expression
+    const finalExpressionExtension = {
+      url: this.CALCULATED_EXPRESSION,
+      valueExpression: {
+        language: 'text/fhirpath',
+        expression: finalExpression
+      }
+    };
+
+    this.insertFinalExpression(fhir.item, this.linkIdContext, finalExpressionExtension);
+
+    return fhir;
+  }
+
+  private insertFinalExpression(items, linkId, expression): void {
+    for (const item of items) {
+      if (item.linkId === linkId) {
+        if (item.extension) {
+          item.extension.push(expression);
+        } else {
+          item.extension = [expression];
+        }
+        break;
+      } else if (item.item) {
+        this.insertFinalExpression(item.item, linkId, expression);
+      }
+    }
   }
 }

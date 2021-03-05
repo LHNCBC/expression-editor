@@ -64,8 +64,9 @@ export class AppComponent implements OnInit {
 
   export(): void {
     const blob = new Blob([
-      JSON.stringify(this.variableService.fhir, null, 2)
+      JSON.stringify(this.variableService.export(this.finalExpression), null, 2)
     ]);
+
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     const date = this.datePipe.transform(Date.now(), 'yyyyMMdd-hhmmss');
