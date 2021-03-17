@@ -2,7 +2,6 @@ import { Injectable } from '@angular/core';
 import { Subject } from 'rxjs';
 
 import { Question, UneditableVariable, Variable } from './variable';
-import { CONTEXT_LINKID, SAMPLE_Q } from './mock-data.js';
 import { UNIT_CONVERSION } from './units';
 
 const LANGUAGE_FHIRPATH = 'text/fhirpath';
@@ -30,8 +29,9 @@ export class VariableService {
   mightBeScore = false;
 
   constructor() {
-    // TODO remove demo data
-    this.import(SAMPLE_Q, CONTEXT_LINKID);
+    this.linkIdContext = '';
+    this.variables = [];
+    this.uneditableVariables = [];
   }
 
   /**
@@ -275,7 +275,8 @@ export class VariableService {
     const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
 
     // First pass is with a single character variable name. Other passes are with two
-    for (const firstLetter of [''].concat(alphabet)) {
+    const firstLetterAlphabet = [''].concat(alphabet);
+    for (const firstLetter of firstLetterAlphabet) {
       for (const secondLetter of alphabet) {
         const potentialName = firstLetter + secondLetter;
 
@@ -337,8 +338,12 @@ export class VariableService {
     return fhir;
   }
 
+  /**
+   * Given the current FHIR questionnaire definition and a linkId return a new FHIR
+   * Questionnaire with a calculate expression at the given linkId which sums up
+   * all the ordinal values in the questionnaire
+   */
   exportSumOfScores(): object {
-    // TODO check multi level behavior
     const fhir = this.fhir;
     const linkIdContext = this.linkIdContext;
 
@@ -411,6 +416,19 @@ export class VariableService {
       } else if (item.item) {
         this.insertExtensions(item.item, linkId, extensions);
       }
+    }
+  }
+
+  calculateExpression(linkId: string, isScore: boolean, convertible: boolean, unit: string, toUnit: string): string {
+    if (isScore) {
+      return `%questionnaire.item.where(linkId = '${linkId}').answerOption` +
+        `.where(valueCoding.code=%resource.item.where(linkId = '${linkId}').answer.valueCoding.code).extension` +
+        `.where(url='http://hl7.org/fhir/StructureDefinition/ordinalValue').valueDecimal`;
+    } else if (convertible && unit && toUnit) {
+      const factor = UNIT_CONVERSION[unit].find((e) => e.unit === toUnit).factor;
+      return `%resource.item.where(linkId='${linkId}').answer.value*${factor}`;
+    } else {
+      return `%resource.item.where(linkId='${linkId}').answer.value`;
     }
   }
 }

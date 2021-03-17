@@ -17,6 +17,7 @@ export class AppComponent implements OnInit {
   linkIdContext: string;
   datePipe = new DatePipe('en-US');
   calculateSum: boolean;
+  suggestions = [];
   private calculateSumSubscription;
   private finalExpressionSubscription;
 
@@ -67,7 +68,6 @@ export class AppComponent implements OnInit {
 
   exportSumOfScores(): void {
     this.downloadAsFile(this.variableService.exportSumOfScores());
-    // console.log(this.variableService.exportSumOfScores());  // TODO remove
   }
 
   private downloadAsFile(data, fileName?): void {
@@ -88,5 +88,35 @@ export class AppComponent implements OnInit {
     window.URL.revokeObjectURL(url);
     a.remove();
   }
-}
 
+  onKey($event: KeyboardEvent): void {
+    const availableSuggestions = [
+      {
+        name: 'round',
+        description: ''
+      },
+      {
+        name: 'power',
+        description: ''
+      },
+      {
+        name: 'abs',
+        description: ''
+      },
+      {
+        name: 'ceiling',
+        description: ''
+      }
+    ];
+
+    switch($event.key) {
+      case 'Escape':
+        this.suggestions = [];
+        break;
+      case '.':
+        this.suggestions = availableSuggestions;
+    }
+
+    console.log($event);
+  }
+}

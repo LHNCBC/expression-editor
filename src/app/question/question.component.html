@@ -1,12 +1,12 @@
 <div class="form-inline">
-  <select class="form-control mr-2 w-50" [(ngModel)]="linkId" (change)="onChange(true)" aria-label="Question">
+  <select class="question-select form-control mr-2 w-50" [(ngModel)]="linkId" (change)="onChange(true)" aria-label="Question">
     <option value="" disabled hidden>Select...</option>
     <option *ngFor="let question of questions" [value]="question.linkId">
       {{question.text}}{{advancedInterface ? ' (' + question.linkId + ')' : ''}}
     </option>
   </select>
 
-  <select class="form-control w-25" *ngIf="conversionOptions" [(ngModel)]="toUnit"
+  <select class="unit-select form-control" style="width: 45%" *ngIf="conversionOptions" [(ngModel)]="toUnit"
           (change)="onChange(false)" aria-label="Unit conversion">
     <option value="">Keep form units ({{unit}})</option>
     <option *ngFor="let u of conversionOptions" value="{{u.unit}}">Convert to {{u.unit}}</option>

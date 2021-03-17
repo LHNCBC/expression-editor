@@ -32,7 +32,6 @@ export class QuestionComponent implements OnInit {
     });
   }
 
-  // TODO check question group behavior
   getQuestion(linkId): Question {
     return this.questions.find((q) => {
       return q.linkId === linkId;
@@ -62,21 +61,8 @@ export class QuestionComponent implements OnInit {
         this.isScore = false;
       }
 
-      this.variable.expression = this.calculateExpression(this.linkId, this.isScore, !this.isNonConvertibleUnit, this.unit, this.toUnit);
-    }
-  }
-
-  // TODO move to service
-  calculateExpression(linkId: string, isScore: boolean, convertible: boolean, unit: string, toUnit: string): string {
-    if (isScore) {
-      return `%questionnaire.item.where(linkId = '${linkId}').answerOption` +
-        `.where(valueCoding.code=%resource.item.where(linkId = '${linkId}').answer.valueCoding.code).extension` +
-        `.where(url='http://hl7.org/fhir/StructureDefinition/ordinalValue').valueDecimal`;
-    } else if (convertible && unit && toUnit) {
-      const factor = UNIT_CONVERSION[unit].find((e) => e.unit === toUnit).factor;
-      return `%resource.item.where(linkId='${linkId}').answer.value*${factor}`;
-    } else {
-      return `%resource.item.where(linkId='${linkId}').answer.value`;
+      this.variable.expression = this.variableService.calculateExpression(
+        this.linkId, this.isScore, !this.isNonConvertibleUnit, this.unit, this.toUnit);
     }
   }
 }
