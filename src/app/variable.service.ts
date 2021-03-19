@@ -1,8 +1,10 @@
 import { Injectable } from '@angular/core';
 import { Subject } from 'rxjs';
+import * as jsToFhirpath from 'js-to-fhirpath';
 
-import { Question, UneditableVariable, Variable } from './variable';
+import { Question, UneditableVariable, Variable, VariableType } from './variable';
 import { UNIT_CONVERSION } from './units';
+import { CONTEXT_LINKID, SAMPLE_Q } from './mock-data.js';
 
 const LANGUAGE_FHIRPATH = 'text/fhirpath';
 
@@ -20,6 +22,7 @@ export class VariableService {
   mightBeScoreChange: Subject<boolean> = new Subject<boolean>();
   finalExpressionChange: Subject<string> = new Subject<string>();
 
+  syntaxType = 'fhirpath';
   linkIdContext: string;
   uneditableVariables: UneditableVariable[];
   variables: Variable[];
@@ -29,9 +32,12 @@ export class VariableService {
   mightBeScore = false;
 
   constructor() {
-    this.linkIdContext = '';
-    this.variables = [];
-    this.uneditableVariables = [];
+    // this.linkIdContext = '';
+    // this.variables = [];
+    // this.uneditableVariables = [];
+
+    // TODO remove demo data
+    this.import(SAMPLE_Q, CONTEXT_LINKID);
   }
 
   /**
@@ -44,7 +50,7 @@ export class VariableService {
 
     this.variables.push({
       label: this.getNewLabelName(existingNames),
-      type: '',
+      type: 'question',
       expression: ''
     });
     this.variablesChange.next(this.variables);
@@ -56,6 +62,10 @@ export class VariableService {
    */
   remove(i: number): void {
     this.variables.splice(i, 1);
+  }
+
+  setSyntax(newSyntax: string): void {
+    this.syntaxType = newSyntax;
   }
 
   getUneditableVariables(fhir): UneditableVariable[] {
@@ -272,7 +282,8 @@ export class VariableService {
    */
   private getNewLabelName(existingNames: string[]): string {
     // All letters which can be used for a simple variable name
-    const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+    // const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');  // TODO
+    const alphabet = 'abcdefghijklmnopqrstuvwxyz'.split('');
 
     // First pass is with a single character variable name. Other passes are with two
     const firstLetterAlphabet = [''].concat(alphabet);
@@ -295,6 +306,11 @@ export class VariableService {
   toggleMightBeScore(): void {
     this.mightBeScore = !this.mightBeScore;
     this.mightBeScoreChange.next(this.mightBeScore);
+  }
+
+  private convertExpression(input, vars): string {
+    const functions = ['CEILING', 'FLOOR', 'ABS', 'LOG', 'TRUNCATE', 'EXP', 'SQRT', 'LN'];
+    return jsToFhirpath.fhirconvert(input, vars, functions);
   }
 
   /**
@@ -325,11 +341,17 @@ export class VariableService {
       fhir.extension = variablesToAdd;
     }
 
+    let finalExpressionData = finalExpression;
+
+    if (this.syntaxType === 'js') {
+      finalExpressionData = this.convertExpression(finalExpression, this.variables.map(e => e.label))
+    }
+
     const finalExpressionExtension = {
       url: this.CALCULATED_EXPRESSION,
       valueExpression: {
         language: 'text/fhirpath',
-        expression: finalExpression
+        expression: finalExpressionData
       }
     };
 

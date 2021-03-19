@@ -3,6 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { environment } from '../environments/environment';
 import { DatePipe } from '@angular/common';
 import { VariableService } from './variable.service';
+import { MatRadioChange } from '@angular/material/radio';
 
 @Component({
   selector: 'app-root',
@@ -10,21 +11,26 @@ import { VariableService } from './variable.service';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent implements OnInit {
+  expressionSyntax: string;
   environment = environment;
   showFhirPath = false;
-  advancedInterface = false;
+  advancedInterface = true;
   finalExpression: string;
+  finalExpressionFhirPath: string;
   linkIdContext: string;
   datePipe = new DatePipe('en-US');
   calculateSum: boolean;
   suggestions = [];
+  variables: string[];
   private calculateSumSubscription;
   private finalExpressionSubscription;
+  private variablesSubscription;
 
   constructor(private variableService: VariableService) {}
 
   ngOnInit(): void {
     this.linkIdContext = this.variableService.linkIdContext;
+    this.expressionSyntax = this.variableService.syntaxType;
     this.calculateSum = this.variableService.mightBeScore;
     this.calculateSumSubscription = this.variableService.mightBeScoreChange.subscribe((mightBeScore) => {
       this.calculateSum = mightBeScore;
@@ -32,6 +38,10 @@ export class AppComponent implements OnInit {
     this.finalExpression = this.variableService.finalExpression;
     this.finalExpressionSubscription = this.variableService.finalExpressionChange.subscribe((finalExpression) => {
       this.finalExpression = finalExpression;
+    });
+    this.variables = this.variableService.variables.map(e => e.label);
+    this.variablesSubscription = this.variableService.variablesChange.subscribe((variables) => {
+      this.variables = variables.map(e => e.label);
     });
   }
 
@@ -109,7 +119,7 @@ export class AppComponent implements OnInit {
       }
     ];
 
-    switch($event.key) {
+    switch ($event.key) {
       case 'Escape':
         this.suggestions = [];
         break;
@@ -117,6 +127,17 @@ export class AppComponent implements OnInit {
         this.suggestions = availableSuggestions;
     }
 
-    console.log($event);
+    // TODO
+  }
+
+  onSyntaxChange($event: MatRadioChange): void {
+    const newSyntax = $event.value;
+
+    // Clear the existing expression if switching away from fhirpath
+    if (newSyntax === 'js') {
+      this.finalExpression = '';
+    }
+
+    this.variableService.setSyntax(newSyntax);
   }
 }

@@ -24,7 +24,8 @@
     "classlist.js": "^1.1.20150312",
     "rxjs": "~6.6.0",
     "tslib": "^2.0.0",
-    "zone.js": "~0.10.2"
+    "zone.js": "~0.10.2",
+    "js-to-fhirpath": "NLMLHC/js-to-fhirpath#3e0b7dfc41"
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "~0.1100.5",

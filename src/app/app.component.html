@@ -17,6 +17,13 @@
 <div *ngIf="!calculateSum">
   <h1>FHIRPath Editor</h1>
 
+  <div *ngIf="advancedInterface">
+    <mat-radio-group [(ngModel)]="expressionSyntax" (change)="onSyntaxChange($event)" aria-label="Select an option">
+      <mat-radio-button value="js">JavaScript Syntax</mat-radio-button>
+      <mat-radio-button value="fhirpath">FHIRPath Expression Syntax</mat-radio-button>
+    </mat-radio-group>
+  </div>
+
   <section id="uneditable-variables-section" class="mb-3">
     <app-uneditable-variables></app-uneditable-variables>
   </section>
@@ -31,6 +38,10 @@
     <label for="final-expression" class="sr-only">Final Expression</label>
     <input id="final-expression" class="form-control" [(ngModel)]="finalExpression" (keyup)="onKey($event)">
     <div *ngIf="suggestions.length">{{suggestions|json}}</div>
+    <div *ngIf="advancedInterface && expressionSyntax == 'js'" class="mt-2">
+      FHIRPath:
+      <pre class="d-inline">{{finalExpression | jsToFhirPath:variables}}</pre>
+    </div>
   </section>
   <br>
 </div>

@@ -30,7 +30,7 @@ export const SAMPLE_Q = {
     {
       "url": "http://hl7.org/fhir/StructureDefinition/variable",
       "valueExpression": {
-        "name": "weight",
+        "name": "a",
         "language": "text/fhirpath",
         "expression": "%resource.item.where(linkId='/29463-7').answer.value"
       }
@@ -38,7 +38,7 @@ export const SAMPLE_Q = {
     {
       "url": "http://hl7.org/fhir/StructureDefinition/variable",
       "valueExpression": {
-        "name": "height",
+        "name": "b",
         "language": "text/fhirpath",
         "expression": "%resource.item.where(linkId='/8302-2').answer.value*0.0254"
       }
@@ -203,7 +203,7 @@ export const SAMPLE_Q = {
           "valueExpression": {
             "description": "BMI calculation",
             "language": "text/fhirpath",
-            "expression": "(%weight/(%height.power(2))).round(1)"
+            "expression": "(%a/(%b.power(2))).round(1)"
           }
         },
         {

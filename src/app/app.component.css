@@ -14,3 +14,6 @@
   cursor: pointer;
   color: #fff;
 }
+mat-radio-button {
+  margin-left: 1em;
+}
