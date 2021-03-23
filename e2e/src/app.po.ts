@@ -59,6 +59,4 @@ export class AppPage {
   async setFinalExpression(expression): Promise<void> {
     return element(by.id('final-expression')).sendKeys(expression);
   }
-
-  // TODO check delete variable
 }

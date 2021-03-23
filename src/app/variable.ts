@@ -21,5 +21,6 @@ export interface Question {
 
 export enum VariableType {
   question = 'Question',
-  expression = 'FHIRPath Expression'
+  expression = 'FHIRPath Expression',
+  simple = 'Simple Expression'
 }

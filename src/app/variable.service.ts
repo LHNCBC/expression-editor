@@ -32,12 +32,12 @@ export class VariableService {
   mightBeScore = false;
 
   constructor() {
-    // this.linkIdContext = '';
-    // this.variables = [];
-    // this.uneditableVariables = [];
+    this.linkIdContext = '';
+    this.variables = [];
+    this.uneditableVariables = [];
 
-    // TODO remove demo data
-    this.import(SAMPLE_Q, CONTEXT_LINKID);
+    // Demo data
+    // this.import(SAMPLE_Q, CONTEXT_LINKID);
   }
 
   /**
@@ -135,7 +135,7 @@ export class VariableService {
     const THRESHOLD = 0.6;  // Percent of questions (minus the one we're editing)
     // which need to be scores to determine we want to sum them up
 
-    let totalQuestions = fhir.item.length;  // TODO check children too? Not sure how scores would work for that
+    let totalQuestions = fhir.item.length;
     let scoreQuestions = 0;
 
     fhir.item.forEach((item) => {
@@ -186,7 +186,6 @@ export class VariableService {
     }
   }
 
-  // TODO multiple final expressions?
   /**
    * Get and remove the final expression
    * @param items
@@ -220,7 +219,6 @@ export class VariableService {
     const matches = expression.match(QUESTION_REGEX);
 
     if (matches !== null) {
-      // TODO see if we can use capturing groups, not supported in IE but might be transpiled
       const linkId = matches[1];
       const factor = matches[2];
 
@@ -256,7 +254,6 @@ export class VariableService {
   }
 
   // TODO check behavior of repeating linkId
-  // TODO error handling
   private getQuestionUnits(fhir, linkId): string {
     const QUESTIONNAIRE_UNIT = 'http://hl7.org/fhir/StructureDefinition/questionnaire-unit';
     const question = fhir.item.find((q) => q.linkId === linkId);
@@ -282,7 +279,6 @@ export class VariableService {
    */
   private getNewLabelName(existingNames: string[]): string {
     // All letters which can be used for a simple variable name
-    // const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');  // TODO
     const alphabet = 'abcdefghijklmnopqrstuvwxyz'.split('');
 
     // First pass is with a single character variable name. Other passes are with two
@@ -319,7 +315,6 @@ export class VariableService {
    */
   export(finalExpression: string): object {
     // TODO support for different variable scopes
-    // TODO need a more elegant way to deep copy
     // Copy the fhir object so we can export more than once
     // (if we add our data the second export will have duplicates)
     const fhir = JSON.parse(JSON.stringify(this.fhir));
@@ -343,7 +338,7 @@ export class VariableService {
 
     let finalExpressionData = finalExpression;
 
-    if (this.syntaxType === 'js') {
+    if (this.syntaxType === 'simple') {
       finalExpressionData = this.convertExpression(finalExpression, this.variables.map(e => e.label))
     }
 

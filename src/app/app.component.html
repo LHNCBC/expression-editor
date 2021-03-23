@@ -19,7 +19,7 @@
 
   <div *ngIf="advancedInterface">
     <mat-radio-group [(ngModel)]="expressionSyntax" (change)="onSyntaxChange($event)" aria-label="Select an option">
-      <mat-radio-button value="js">JavaScript Syntax</mat-radio-button>
+      <mat-radio-button value="simple">Simple Syntax</mat-radio-button>
       <mat-radio-button value="fhirpath">FHIRPath Expression Syntax</mat-radio-button>
     </mat-radio-group>
   </div>
@@ -35,13 +35,24 @@
   <section id="final-expression-section" class="mb-3">
     <h2>Final Expression</h2>
 
-    <label for="final-expression" class="sr-only">Final Expression</label>
-    <input id="final-expression" class="form-control" [(ngModel)]="finalExpression" (keyup)="onKey($event)">
-    <div *ngIf="suggestions.length">{{suggestions|json}}</div>
-    <div *ngIf="advancedInterface && expressionSyntax == 'js'" class="mt-2">
-      FHIRPath:
-      <pre class="d-inline">{{finalExpression | jsToFhirPath:variables}}</pre>
+    <div class="container">
+      <div class="row form-group">
+        <div class="col-md-2">
+          <label for="final-expression" *ngIf="expressionSyntax == 'fhirpath'">FHIRPath:</label>
+          <label for="final-expression" *ngIf="expressionSyntax == 'simple'">Simple Syntax:</label>
+        </div>
+        <div class="col-md-10">
+          <input id="final-expression" class="form-control" [(ngModel)]="finalExpression">
+        </div>
+      </div>
+      <div class="row mt-2" *ngIf="advancedInterface && expressionSyntax == 'simple'">
+        <div class="col-md-2">FHIRPath:</div>
+        <div class="col-md-10">
+          <pre class="d-inline">{{finalExpression | jsToFhirPath:variables}}</pre>
+        </div>
+      </div>
     </div>
+    <div *ngIf="suggestions.length">{{suggestions|json}}</div>
   </section>
   <br>
 </div>

@@ -99,42 +99,11 @@ export class AppComponent implements OnInit {
     a.remove();
   }
 
-  onKey($event: KeyboardEvent): void {
-    const availableSuggestions = [
-      {
-        name: 'round',
-        description: ''
-      },
-      {
-        name: 'power',
-        description: ''
-      },
-      {
-        name: 'abs',
-        description: ''
-      },
-      {
-        name: 'ceiling',
-        description: ''
-      }
-    ];
-
-    switch ($event.key) {
-      case 'Escape':
-        this.suggestions = [];
-        break;
-      case '.':
-        this.suggestions = availableSuggestions;
-    }
-
-    // TODO
-  }
-
   onSyntaxChange($event: MatRadioChange): void {
     const newSyntax = $event.value;
 
     // Clear the existing expression if switching away from fhirpath
-    if (newSyntax === 'js') {
+    if (newSyntax === 'simple') {
       this.finalExpression = '';
     }
 
