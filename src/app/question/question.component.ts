@@ -65,8 +65,4 @@ export class QuestionComponent implements OnInit {
         this.linkId, this.isScore, !this.isNonConvertibleUnit, this.unit, this.toUnit);
     }
   }
-
-  onIntervalSelect(): void {
-    // TODO
-  }
 }

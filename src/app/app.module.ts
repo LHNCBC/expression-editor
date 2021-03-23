@@ -9,7 +9,6 @@ import { QuestionComponent } from './question/question.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { CalculateSumPromptComponent } from './calculate-sum-prompt/calculate-sum-prompt.component';
-import { IntervalComponent } from './interval/interval.component';
 import { MatRadioModule } from '@angular/material/radio';
 import { JsToFhirPathPipe } from './js-to-fhir-path.pipe';
 
@@ -20,7 +19,6 @@ import { JsToFhirPathPipe } from './js-to-fhir-path.pipe';
     UneditableVariablesComponent,
     QuestionComponent,
     CalculateSumPromptComponent,
-    IntervalComponent,
     JsToFhirPathPipe
   ],
   imports: [
