@@ -1,9 +1,9 @@
+import { DatePipe } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
+import { MatRadioChange } from '@angular/material/radio';
 
 import { environment } from '../environments/environment';
-import { DatePipe } from '@angular/common';
 import { VariableService } from './variable.service';
-import { MatRadioChange } from '@angular/material/radio';
 
 @Component({
   selector: 'app-root',
@@ -28,6 +28,9 @@ export class AppComponent implements OnInit {
 
   constructor(private variableService: VariableService) {}
 
+  /**
+   * Angular lifecycle hook called when the component is initialized
+   */
   ngOnInit(): void {
     this.linkIdContext = this.variableService.linkIdContext;
     this.expressionSyntax = this.variableService.syntaxType;
@@ -45,10 +48,19 @@ export class AppComponent implements OnInit {
     });
   }
 
+  /**
+   * Angular lifecycle hook called before the component is destroyed
+   */
   ngDestroy(): void {
+    this.calculateSumSubscription.unsubscribe();
     this.finalExpressionSubscription.unsubscribe();
+    this.variablesSubscription.unsubscribe();
   }
 
+  /**
+   * Import uploaded data as a FHIR Questionnaire
+   * @param fileInput - Form file upload
+   */
   import(fileInput): void {
     if (fileInput.target.files && fileInput.target.files[0]) {
       const fileReader = new FileReader();
@@ -72,14 +84,26 @@ export class AppComponent implements OnInit {
     fileInput.target.value = '';
   }
 
+  /**
+   * Export FHIR Questionnaire and download as a file
+   */
   export(): void {
     this.downloadAsFile(this.variableService.export(this.finalExpression));
   }
 
+  /**
+   * Export FHIR questionnaire file by summing all ordinal values
+   */
   exportSumOfScores(): void {
     this.downloadAsFile(this.variableService.exportSumOfScores());
   }
 
+  /**
+   * Download data as a file
+   * @param data - Object which will this function will call JSON.stringify on
+   * @param fileName - File name to download as
+   * @private
+   */
   private downloadAsFile(data, fileName?): void {
     const blob = new Blob([
       JSON.stringify(data, null, 2)
@@ -99,6 +123,10 @@ export class AppComponent implements OnInit {
     a.remove();
   }
 
+  /**
+   * Called when the syntax type is changed to clean up expressions if the data cannot be converted
+   * @param $event - event from from the caller
+   */
   onSyntaxChange($event: MatRadioChange): void {
     const newSyntax = $event.value;
 

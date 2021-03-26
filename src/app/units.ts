@@ -4,6 +4,7 @@ export interface Unit {
   factor: number;
 }
 
+// Supported unit conversions. Key is the "from" and value is the "to" array
 export const UNIT_CONVERSION: { [key: string]: Unit[] } = {
   kg: [{ unit: 'lbs', factor: 2.20462 }],
   lbs: [{ unit: 'kg', factor: 0.453592 }],

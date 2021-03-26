@@ -11,13 +11,21 @@ export class CalculateSumPromptComponent implements OnInit {
 
   constructor(private variableService: VariableService) { }
 
-  ngOnInit(): void {
-  }
+  /**
+   * Angular lifecycle hook called when the component is initialized
+   */
+  ngOnInit(): void {}
 
+  /**
+   * Close the dialog by specifying this should not be a score calculation
+   */
   onCloseClick(): void {
     this.variableService.toggleMightBeScore();
   }
 
+  /**
+   * Export the sum of scores as a FHIR Questionnaire
+   */
   onExportClick(): void {
     this.export.emit();
   }

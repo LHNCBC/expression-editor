@@ -12,6 +12,9 @@ export class UneditableVariablesComponent implements OnInit {
 
   constructor(private variableService: VariableService) {}
 
+  /**
+   * Angular lifecycle hook called when the component is initialized
+   */
   ngOnInit(): void {
     this.uneditableVariables = this.variableService.uneditableVariables;
     this.uneditableVariablesSubscription =
@@ -20,6 +23,9 @@ export class UneditableVariablesComponent implements OnInit {
     });
   }
 
+  /**
+   * Angular lifecycle hook called before the component is destroyed
+   */
   ngDestroy(): void {
     this.uneditableVariablesSubscription.unsubscribe();
   }

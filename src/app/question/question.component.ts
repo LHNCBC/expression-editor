@@ -20,6 +20,9 @@ export class QuestionComponent implements OnInit {
 
   constructor(private variableService: VariableService) {}
 
+  /**
+   * Angular lifecycle hook called when the component is initialized
+   */
   ngOnInit(): void {
     this.linkId = this.variable.linkId ? this.variable.linkId : '';
     this.toUnit = this.variable.unit ? this.variable.unit : '';
@@ -32,22 +35,35 @@ export class QuestionComponent implements OnInit {
     });
   }
 
+  /**
+   * Get the question based on linkId
+   * @param linkId - FHIR linkId
+   */
   getQuestion(linkId): Question {
     return this.questions.find((q) => {
       return q.linkId === linkId;
     });
   }
 
-  getConversionOptions(units: string): Unit[] {
-    return UNIT_CONVERSION[units];
+  /**
+   * Get the list of units we can convert to based on the starting unit
+   * @param unit - Starting unit
+   */
+  getConversionOptions(unit: string): Unit[] {
+    return UNIT_CONVERSION[unit];
   }
 
+  /**
+   * Called when the questionnaire question or unit is changed
+   * @param isQuestion - The change was for a question
+   */
   onChange(isQuestion): void {
     if (isQuestion) {
       // Reset the conversion options when the question changes
       this.toUnit = '';
     }
 
+    // If we already have a question selected (as opposed to the select... prompt)
     if (this.linkId) {
       const question = this.getQuestion(this.linkId);
       this.unit = question?.unit;
@@ -56,7 +72,7 @@ export class QuestionComponent implements OnInit {
 
       // Check if this is a score
       if (!this.conversionOptions && !this.isNonConvertibleUnit) {
-        this.isScore = this.variableService.isItemScore(this.linkId);
+        this.isScore = this.variableService.itemHasScore(this.linkId);
       } else {
         this.isScore = false;
       }

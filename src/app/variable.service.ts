@@ -2,9 +2,8 @@ import { Injectable } from '@angular/core';
 import { Subject } from 'rxjs';
 import * as jsToFhirpath from 'js-to-fhirpath';
 
-import { Question, UneditableVariable, Variable, VariableType } from './variable';
+import { Question, UneditableVariable, Variable } from './variable';
 import { UNIT_CONVERSION } from './units';
-import { CONTEXT_LINKID, SAMPLE_Q } from './mock-data.js';
 
 const LANGUAGE_FHIRPATH = 'text/fhirpath';
 
@@ -12,6 +11,7 @@ const LANGUAGE_FHIRPATH = 'text/fhirpath';
   providedIn: 'root'
 })
 export class VariableService {
+  QUESTION_REGEX = /^%resource\.item\.where\(linkId='(.*)'\)\.answer\.value(?:\*(\d*\.?\d*))?$/;
   VARIABLE_EXTENSION = 'http://hl7.org/fhir/StructureDefinition/variable';
   CALCULATED_EXPRESSION = 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression';
 
@@ -28,6 +28,7 @@ export class VariableService {
   variables: Variable[];
   finalExpression: string;
   questions: Question[];
+  linkIdToQuestion = {};
   fhir;
   mightBeScore = false;
 
@@ -64,14 +65,24 @@ export class VariableService {
     this.variables.splice(i, 1);
   }
 
+  /**
+   * Change the syntax of the form
+   * @param newSyntax - either 'simple' or 'fhirpath'
+   */
   setSyntax(newSyntax: string): void {
     this.syntaxType = newSyntax;
   }
 
+  /**
+   * Get the list of uneditable variables based on the FHIR Questionnaire
+   * @param fhir - FHIR Questionnaire
+   */
   getUneditableVariables(fhir): UneditableVariable[] {
-    if (fhir.extension) {
+    const launchContextExtensionUrl = 'http://hl7.org/fhir/StructureDefinition/questionnaire-launchContext';
+
+    if (Array.isArray(fhir.extension)) {
       return fhir.extension.reduce((accumulator, extension) => {
-        if (extension.url === 'http://hl7.org/fhir/StructureDefinition/questionnaire-launchContext' && extension.extension) {
+        if (extension.url === launchContextExtensionUrl && extension.extension) {
           const uneditableVariable = {
             name: extension.extension.find((e) => e.url === 'name').valueId,
             type: extension.extension.filter((e) => e.url === 'type')?.map((e) => e.valueCode).join('|'),
@@ -103,7 +114,7 @@ export class VariableService {
         if (extension.url === this.VARIABLE_EXTENSION &&
           extension.valueExpression && extension.valueExpression.language === LANGUAGE_FHIRPATH) {
           variables.push(
-            this.processVariable(fhir, extension.valueExpression.name, extension.valueExpression.expression));
+            this.processVariable(extension.valueExpression.name, extension.valueExpression.expression));
         } else {
           nonVariableExtensions.push(extension);
         }
@@ -118,9 +129,13 @@ export class VariableService {
     return [];
   }
 
-  isItemScore(item): boolean {
+  /**
+   * Check if the current item has an ordinalValue extension on the answer
+   * @param item - Question item or linkId
+   */
+  itemHasScore(item): boolean {
     if (typeof item === 'string') {
-      item = this.fhir.item.find((e) => e.linkId === item);
+      item = this.linkIdToQuestion[item];
     }
 
     return (item.answerOption || []).some((answerOption) => {
@@ -131,6 +146,12 @@ export class VariableService {
   }
 
   // TODO check if this is already a score calculation
+  /**
+   * Look at the ordinalValue on the answers of all the questions and if over the threshold
+   * percentage of the items have it return true
+   * @param fhir - FHIR Questionnaire
+   * @param linkIdContext - linkId to exclude from calculation
+   */
   isProbablyScore(fhir, linkIdContext): boolean {
     const THRESHOLD = 0.6;  // Percent of questions (minus the one we're editing)
     // which need to be scores to determine we want to sum them up
@@ -141,7 +162,7 @@ export class VariableService {
     fhir.item.forEach((item) => {
       if (item.linkId === linkIdContext) {
         totalQuestions--;
-      } else if (this.isItemScore(item)) {
+      } else if (this.itemHasScore(item)) {
         scoreQuestions++;
       }
     });
@@ -168,17 +189,41 @@ export class VariableService {
       this.variables = this.extractVariables(fhir);
       this.variablesChange.next(this.variables);
 
-      this.questions = fhir.item.map((e) => {
+      this.linkIdToQuestion = {};
+      const linkIdToQuestion = this.linkIdToQuestion;
+      processItem(fhir.item, 0);
+
+      function processItem(items, level): void {
+        items.forEach((e) => {
+          linkIdToQuestion[e.linkId] = e;
+          linkIdToQuestion[e.linkId].level = level;
+          if (e.item) {
+            processItem(e.item, level + 1);
+          }
+        });
+      }
+
+      this.questions = [];
+
+      // TODO flatten
+      for (const key in linkIdToQuestion) {
+        if (!linkIdToQuestion.hasOwnProperty(key)) {
+          return;
+        }
+        const e = linkIdToQuestion[key];
         // TODO decimal vs choice
         const MAX_Q_LEN = 60;  // Maximum question length before truncating.
-        const text = e.text;
 
-        return {
+        this.linkIdToQuestion[e.linkId] = e;
+
+        const text = '-'.repeat(e.level) + e.text;
+
+        this.questions.push({
           linkId: e.linkId,
           text: text.length > MAX_Q_LEN ? text.substring(0, MAX_Q_LEN) + '...' : text,
-          unit: this.getQuestionUnits(fhir, e.linkId)
-        };
-      });
+          unit: this.getQuestionUnits(e.linkId)
+        });
+      };
       this.questionsChange.next(this.questions);
 
       this.finalExpression = this.extractFinalExpression(fhir.item, linkIdContext);
@@ -213,10 +258,14 @@ export class VariableService {
     return '';
   }
 
-  private processVariable(fhir, name, expression): Variable {
-    const QUESTION_REGEX = /^%resource\.item\.where\(linkId='(.*)'\)\.answer\.value(?:\*(\d*\.?\d*))?$/;
-
-    const matches = expression.match(QUESTION_REGEX);
+  /**
+   * Process the an expression into a possible question
+   * @param name - Name to assign variable
+   * @param expression - Expression to process
+   * @private
+   */
+  private processVariable(name, expression): Variable {
+    const matches = expression.match(this.QUESTION_REGEX);
 
     if (matches !== null) {
       const linkId = matches[1];
@@ -231,7 +280,7 @@ export class VariableService {
 
       if (factor) {
         // We might be able to do unit conversion
-        const sourceUnits = this.getQuestionUnits(fhir, linkId);
+        const sourceUnits = this.getQuestionUnits(linkId);
 
         if (UNIT_CONVERSION.hasOwnProperty(sourceUnits)) {
           const conversions = UNIT_CONVERSION[sourceUnits];
@@ -254,9 +303,14 @@ export class VariableService {
   }
 
   // TODO check behavior of repeating linkId
-  private getQuestionUnits(fhir, linkId): string {
+  /**
+   * Get question units for the question
+   * @param linkId - Question linkId
+   * @private
+   */
+  private getQuestionUnits(linkId): string {
     const QUESTIONNAIRE_UNIT = 'http://hl7.org/fhir/StructureDefinition/questionnaire-unit';
-    const question = fhir.item.find((q) => q.linkId === linkId);
+    const question = this.linkIdToQuestion[linkId];
 
     if (question.extension) {
       const extension = question.extension.find((e) => {
@@ -274,7 +328,7 @@ export class VariableService {
 
   /**
    * Generate a label name like A, B, C, ... AA, AB which is not already used
-   * @param existingNames
+   * @param existingNames {string[]} - Array of names already used by existing variables
    * @private
    */
   private getNewLabelName(existingNames: string[]): string {
@@ -299,11 +353,20 @@ export class VariableService {
     return '';
   }
 
+  /**
+   * Toggle the mightBeScore
+   */
   toggleMightBeScore(): void {
     this.mightBeScore = !this.mightBeScore;
     this.mightBeScoreChange.next(this.mightBeScore);
   }
 
+  /**
+   * Convert simple syntax to FHIRPath
+   * @param input - Simple syntax
+   * @param vars - Variables on the form (editable and uneditable)
+   * @private
+   */
   private convertExpression(input, vars): string {
     const functions = ['CEILING', 'FLOOR', 'ABS', 'LOG', 'TRUNCATE', 'EXP', 'SQRT', 'LN'];
     return jsToFhirpath.fhirconvert(input, vars, functions);
@@ -339,7 +402,7 @@ export class VariableService {
     let finalExpressionData = finalExpression;
 
     if (this.syntaxType === 'simple') {
-      finalExpressionData = this.convertExpression(finalExpression, this.variables.map(e => e.label))
+      finalExpressionData = this.convertExpression(finalExpression, this.variables.map(e => e.label));
     }
 
     const finalExpressionExtension = {
@@ -357,7 +420,7 @@ export class VariableService {
 
   /**
    * Given the current FHIR questionnaire definition and a linkId return a new FHIR
-   * Questionnaire with a calculate expression at the given linkId which sums up
+   * Questionnaire with a calculated expression at the given linkId which sums up
    * all the ordinal values in the questionnaire
    */
   exportSumOfScores(): object {
@@ -369,7 +432,7 @@ export class VariableService {
 
     // Get an array of linkIds for score questions
     fhir.item.forEach((item) => {
-      if (item.linkId !== linkIdContext && this.isItemScore(item)) {
+      if (item.linkId !== linkIdContext && this.itemHasScore(item)) {
         scoreQuestionLinkIds.push(item.linkId);
       }
     });
@@ -387,7 +450,7 @@ export class VariableService {
           language: 'text/fhirpath',
           expression: `%questionnaire.item.where(linkId = '${e}').answerOption` +
             `.where(valueCoding.code=%resource.item.where(linkId = '${e}').answer.valueCoding.code).extension` +
-            `.where(url='http://hl7.org/fhir/StructureDefinition/ordinalValue').valueDecimal`
+            `.where(url='http://hl7.org/fhir/StructureDefinition/ordinalValue').value`
         }
       };
     });
@@ -436,11 +499,19 @@ export class VariableService {
     }
   }
 
+  /**
+   * Get the expression for a question
+   * @param linkId - Question linkId
+   * @param isScore - Answer has an ordinalValue extension
+   * @param convertible - Units can be converted
+   * @param unit - Base units
+   * @param toUnit - Destination units
+   */
   calculateExpression(linkId: string, isScore: boolean, convertible: boolean, unit: string, toUnit: string): string {
     if (isScore) {
       return `%questionnaire.item.where(linkId = '${linkId}').answerOption` +
         `.where(valueCoding.code=%resource.item.where(linkId = '${linkId}').answer.valueCoding.code).extension` +
-        `.where(url='http://hl7.org/fhir/StructureDefinition/ordinalValue').valueDecimal`;
+        `.where(url='http://hl7.org/fhir/StructureDefinition/ordinalValue').value`;
     } else if (convertible && unit && toUnit) {
       const factor = UNIT_CONVERSION[unit].find((e) => e.unit === toUnit).factor;
       return `%resource.item.where(linkId='${linkId}').answer.value*${factor}`;
