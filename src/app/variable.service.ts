@@ -205,7 +205,7 @@ export class VariableService {
 
       this.questions = [];
 
-      // TODO flatten
+      // tslint:disable-next-line:forin
       for (const key in linkIdToQuestion) {
         if (!linkIdToQuestion.hasOwnProperty(key)) {
           return;
@@ -214,8 +214,6 @@ export class VariableService {
         // TODO decimal vs choice
         const MAX_Q_LEN = 60;  // Maximum question length before truncating.
 
-        this.linkIdToQuestion[e.linkId] = e;
-
         const text = '-'.repeat(e.level) + e.text;
 
         this.questions.push({
@@ -223,7 +221,7 @@ export class VariableService {
           text: text.length > MAX_Q_LEN ? text.substring(0, MAX_Q_LEN) + '...' : text,
           unit: this.getQuestionUnits(e.linkId)
         });
-      };
+      }
       this.questionsChange.next(this.questions);
 
       this.finalExpression = this.extractFinalExpression(fhir.item, linkIdContext);
@@ -507,7 +505,7 @@ export class VariableService {
    * @param unit - Base units
    * @param toUnit - Destination units
    */
-  calculateExpression(linkId: string, isScore: boolean, convertible: boolean, unit: string, toUnit: string): string {
+  valueOrScoreExpression(linkId: string, isScore: boolean, convertible: boolean, unit: string, toUnit: string): string {
     if (isScore) {
       return `%questionnaire.item.where(linkId = '${linkId}').answerOption` +
         `.where(valueCoding.code=%resource.item.where(linkId = '${linkId}').answer.valueCoding.code).extension` +

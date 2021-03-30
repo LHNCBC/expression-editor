@@ -77,7 +77,7 @@ export class QuestionComponent implements OnInit {
         this.isScore = false;
       }
 
-      this.variable.expression = this.variableService.calculateExpression(
+      this.variable.expression = this.variableService.valueOrScoreExpression(
         this.linkId, this.isScore, !this.isNonConvertibleUnit, this.unit, this.toUnit);
     }
   }
