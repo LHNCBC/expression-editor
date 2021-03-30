@@ -15,7 +15,7 @@ export interface Variable {
 export interface Question {
   linkId: string;
   text: string;
-  isScore?: boolean;
+  itemHasScore?: boolean;
   unit?: string;
 }
 

@@ -500,13 +500,13 @@ export class VariableService {
   /**
    * Get the expression for a question
    * @param linkId - Question linkId
-   * @param isScore - Answer has an ordinalValue extension
+   * @param itemHasScore - Answer has an ordinalValue extension
    * @param convertible - Units can be converted
    * @param unit - Base units
    * @param toUnit - Destination units
    */
-  valueOrScoreExpression(linkId: string, isScore: boolean, convertible: boolean, unit: string, toUnit: string): string {
-    if (isScore) {
+  valueOrScoreExpression(linkId: string, itemHasScore: boolean, convertible: boolean, unit: string, toUnit: string): string {
+    if (itemHasScore) {
       return `%questionnaire.item.where(linkId = '${linkId}').answerOption` +
         `.where(valueCoding.code=%resource.item.where(linkId = '${linkId}').answer.valueCoding.code).extension` +
         `.where(url='http://hl7.org/fhir/StructureDefinition/ordinalValue').value`;

@@ -7,8 +7,7 @@ import * as jsToFhirpath from 'js-to-fhirpath';
 export class JsToFhirPathPipe implements PipeTransform {
 
   transform(value: string, variables: string[]): unknown {
-    const functions = ['CEILING', 'FLOOR', 'ABS', 'LOG', 'TRUNCATE', 'EXP', 'SQRT', 'LN'];
-    const fhirPath = jsToFhirpath.fhirconvert(value, variables, functions);
+    const fhirPath = jsToFhirpath.fhirconvert(value, variables);
 
     return fhirPath === null ? '?' : fhirPath;
   }

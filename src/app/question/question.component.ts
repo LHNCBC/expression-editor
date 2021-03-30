@@ -12,7 +12,7 @@ export class QuestionComponent implements OnInit {
   @Input() advancedInterface;
   linkId = '';
   questions: Question[];
-  isScore = false;
+  itemHasScore = false;
   isNonConvertibleUnit = false;
   toUnit: string;
   unit: string;
@@ -72,13 +72,13 @@ export class QuestionComponent implements OnInit {
 
       // Check if this is a score
       if (!this.conversionOptions && !this.isNonConvertibleUnit) {
-        this.isScore = this.variableService.itemHasScore(this.linkId);
+        this.itemHasScore = this.variableService.itemHasScore(this.linkId);
       } else {
-        this.isScore = false;
+        this.itemHasScore = false;
       }
 
       this.variable.expression = this.variableService.valueOrScoreExpression(
-        this.linkId, this.isScore, !this.isNonConvertibleUnit, this.unit, this.toUnit);
+        this.linkId, this.itemHasScore, !this.isNonConvertibleUnit, this.unit, this.toUnit);
     }
   }
 }

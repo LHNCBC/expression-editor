@@ -12,5 +12,5 @@
     <option *ngFor="let u of conversionOptions" value="{{u.unit}}">Convert to {{u.unit}}</option>
   </select>
   <span *ngIf="isNonConvertibleUnit">{{unit}}</span>
-  <span *ngIf="isScore">Score</span>
+  <span *ngIf="itemHasScore">Score</span>
 </div>
