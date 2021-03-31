@@ -191,16 +191,7 @@ export class VariableService {
 
       this.linkIdToQuestion = {};
       const linkIdToQuestion = this.linkIdToQuestion;
-      processItem(fhir.item);
-
-      function processItem(items): void {
-        items.forEach((e) => {
-          linkIdToQuestion[e.linkId] = e;
-          if (e.item) {
-            processItem(e.item);
-          }
-        });
-      }
+      this.processItem(fhir.item);
 
       this.questions = [];
 
@@ -226,6 +217,20 @@ export class VariableService {
       this.finalExpression = this.extractFinalExpression(fhir.item, linkIdContext);
       this.finalExpressionChange.next(this.finalExpression);
     }
+  }
+
+  /**
+   * Process nested FHIR Questionnaire items
+   * @param items - Current level of item nesting
+   * @private
+   */
+  private processItem(items): void {
+    items.forEach((e) => {
+      this.linkIdToQuestion[e.linkId] = e;
+      if (e.item) {
+        this.processItem(e.item);
+      }
+    });
   }
 
   /**

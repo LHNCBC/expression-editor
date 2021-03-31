@@ -109,18 +109,23 @@ export class AppComponent implements OnInit {
       JSON.stringify(data, null, 2)
     ]);
 
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
     const date = this.datePipe.transform(Date.now(), 'yyyyMMdd-hhmmss');
 
     fileName = fileName ? fileName : `fhirpath-${date}.json`;
 
-    a.setAttribute('style', 'display: none');
-    a.href = url;
-    a.download = fileName;
-    a.click();
-    window.URL.revokeObjectURL(url);
-    a.remove();
+    if (window.navigator && window.navigator.msSaveOrOpenBlob) {
+      window.navigator.msSaveOrOpenBlob(blob, fileName);
+    } else {
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+
+      a.setAttribute('style', 'display: none');
+      a.href = url;
+      a.download = fileName;
+      a.click();
+      window.URL.revokeObjectURL(url);
+      a.remove();
+    }
   }
 
   /**
