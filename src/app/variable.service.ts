@@ -191,14 +191,13 @@ export class VariableService {
 
       this.linkIdToQuestion = {};
       const linkIdToQuestion = this.linkIdToQuestion;
-      processItem(fhir.item, 0);
+      processItem(fhir.item);
 
-      function processItem(items, level): void {
+      function processItem(items): void {
         items.forEach((e) => {
           linkIdToQuestion[e.linkId] = e;
-          linkIdToQuestion[e.linkId].level = level;
           if (e.item) {
-            processItem(e.item, level + 1);
+            processItem(e.item);
           }
         });
       }
@@ -214,7 +213,7 @@ export class VariableService {
         // TODO decimal vs choice
         const MAX_Q_LEN = 60;  // Maximum question length before truncating.
 
-        const text = '-'.repeat(e.level) + e.text;
+        const text = e.text;
 
         this.questions.push({
           linkId: e.linkId,
