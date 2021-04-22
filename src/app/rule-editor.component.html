@@ -4,10 +4,6 @@
   <input type="file" id="import-fhir" class="file-import btn btn-secondary toolbar-button mx-2" accept=".json" (change)="import($event)">
   <button type="button" id="export-fhir" class="btn btn-secondary toolbar-button mr-2" (click)="export()">Export</button>
   <div class="form-check form-check-inline">
-    <input class="form-check-input" type="checkbox" id="showFhirPath" [(ngModel)]="showFhirPath">
-    <label class="form-check-label" for="showFhirPath">Show FHIRPath</label>
-  </div>
-  <div class="form-check form-check-inline">
     <input class="form-check-input" type="checkbox" id="advanced" [(ngModel)]="advancedInterface">
     <label class="form-check-label" for="advanced">Advanced interface</label>
   </div>
@@ -15,40 +11,39 @@
 
 <app-calculate-sum-prompt *ngIf="calculateSum" (export)="exportSumOfScores()"></app-calculate-sum-prompt>
 <div *ngIf="!calculateSum">
-  <h1>FHIRPath Editor</h1>
-
-  <div *ngIf="advancedInterface">
-    <mat-radio-group [(ngModel)]="expressionSyntax" (change)="onSyntaxChange($event)" aria-label="Select an option">
-      <mat-radio-button value="simple">Simple Syntax</mat-radio-button>
-      <mat-radio-button value="fhirpath">FHIRPath Expression Syntax</mat-radio-button>
-    </mat-radio-group>
-  </div>
+  <h1>Rule Editor</h1>
 
   <section id="uneditable-variables-section" class="mb-3">
     <app-uneditable-variables></app-uneditable-variables>
   </section>
 
   <section id="variables-section" class="mb-3">
-    <app-variables [showFhirPath]="showFhirPath" [advancedInterface]="advancedInterface"></app-variables>
+    <app-variables [advancedInterface]="advancedInterface"></app-variables>
   </section>
 
   <section id="final-expression-section" class="mb-3">
     <h2>Final Expression</h2>
 
+<!--    <div *ngIf="advancedInterface">-->
+<!--      <mat-radio-group [(ngModel)]="expressionSyntax" (change)="onSyntaxChange($event)" aria-label="Select an option">-->
+<!--        <mat-radio-button value="simple">Simple Expression Syntax</mat-radio-button>-->
+<!--        <mat-radio-button value="fhirpath">FHIRPath Expression Syntax</mat-radio-button>-->
+<!--      </mat-radio-group>-->
+<!--    </div>-->
+
     <div class="container">
       <div class="row form-group">
-        <div class="col-md-2">
-          <label for="final-expression" *ngIf="expressionSyntax == 'fhirpath'">FHIRPath:</label>
-          <label for="final-expression" *ngIf="expressionSyntax == 'simple'">Simple Syntax:</label>
+        <div class="col-md-3">
+          <div class="form-inline">
+            <select class="form-control" [(ngModel)]="expressionSyntax" aria-label="Expression syntax type">
+              <option value="simple">Simple Expression</option>
+              <option value="fhirpath">FHIRPath Expression</option>
+            </select>
+          </div>
         </div>
-        <div class="col-md-10">
-          <input id="final-expression" class="form-control" [(ngModel)]="finalExpression">
-        </div>
-      </div>
-      <div class="row mt-2" *ngIf="advancedInterface && expressionSyntax == 'simple'">
-        <div class="col-md-2">FHIRPath:</div>
-        <div class="col-md-10">
-          <pre class="d-inline">{{finalExpression | jsToFhirPath:variables}}</pre>
+        <div class="col-md-9" [ngSwitch]="expressionSyntax">
+          <app-syntax-converter [variables]="variables" *ngSwitchCase="'simple'" class="form-inline"></app-syntax-converter>
+          <input *ngSwitchCase="'fhirpath'" id="final-expression" class="form-control" [(ngModel)]="finalExpression">
         </div>
       </div>
     </div>

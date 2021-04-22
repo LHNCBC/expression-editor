@@ -10,7 +10,6 @@ import { VariableService } from '../variable.service';
   styleUrls: ['./variables.component.css']
 })
 export class VariablesComponent implements OnInit {
-  @Input() showFhirPath;
   @Input() advancedInterface;
   variableType = VariableType;
   variableSubscription;
@@ -61,5 +60,17 @@ export class VariablesComponent implements OnInit {
    */
   drop(event: CdkDragDrop<Variable[]>): void {
     moveItemInArray(this.variables, event.previousIndex, event.currentIndex);
+  }
+
+  /**
+   * Get the labels of available variables at the current index
+   * @param index - Index of variable we're editing
+   */
+  getAvailableVariables(index: number): Array<string> {
+    const uneditableVariables = this.variableService.uneditableVariables.map((e) => e.name);
+    // Only return variables up to but not including index
+    const editableVariables = this.variables.map((e) => e.label).slice(0, index);
+
+    return uneditableVariables.concat(editableVariables);
   }
 }

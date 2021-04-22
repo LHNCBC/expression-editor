@@ -1,4 +1,4 @@
-# The LHC FHIRPath Editor
+# The LHC Rule Editor
 
 An easier way to create FHIRPath given a FHIR Questionnaire.
 

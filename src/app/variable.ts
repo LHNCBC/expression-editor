@@ -8,6 +8,7 @@ export interface Variable {
   label: string;
   type: string;
   expression: string;
+  simple?: string;
   linkId?: string;
   unit?: string;
 }

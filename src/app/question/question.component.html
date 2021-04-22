@@ -13,4 +13,6 @@
   </select>
   <span *ngIf="isNonConvertibleUnit">{{unit}}</span>
   <span *ngIf="itemHasScore">Score</span>
+
+  <app-syntax-preview [syntax]="variable.expression"></app-syntax-preview>
 </div>

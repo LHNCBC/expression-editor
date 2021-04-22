@@ -1,9 +1,10 @@
 import { Injectable } from '@angular/core';
 import { Subject } from 'rxjs';
-import * as jsToFhirpath from 'js-to-fhirpath';
+import * as mathToFhirpath from 'math-to-fhirpath';
 
 import { Question, UneditableVariable, Variable } from './variable';
 import { UNIT_CONVERSION } from './units';
+import { CONTEXT_LINKID, SAMPLE_Q } from './mock-data.js';
 
 const LANGUAGE_FHIRPATH = 'text/fhirpath';
 
@@ -22,7 +23,7 @@ export class VariableService {
   mightBeScoreChange: Subject<boolean> = new Subject<boolean>();
   finalExpressionChange: Subject<string> = new Subject<string>();
 
-  syntaxType = 'fhirpath';
+  syntaxType = 'simple';
   linkIdContext: string;
   uneditableVariables: UneditableVariable[];
   variables: Variable[];
@@ -33,12 +34,12 @@ export class VariableService {
   mightBeScore = false;
 
   constructor() {
-    this.linkIdContext = '';
+    this.linkIdContext = CONTEXT_LINKID;
     this.variables = [];
     this.uneditableVariables = [];
 
     // Demo data
-    // this.import(SAMPLE_Q, CONTEXT_LINKID);
+    this.import(SAMPLE_Q, CONTEXT_LINKID);
   }
 
   /**
@@ -63,14 +64,6 @@ export class VariableService {
    */
   remove(i: number): void {
     this.variables.splice(i, 1);
-  }
-
-  /**
-   * Change the syntax of the form
-   * @param newSyntax - either 'simple' or 'fhirpath'
-   */
-  setSyntax(newSyntax: string): void {
-    this.syntaxType = newSyntax;
   }
 
   /**
@@ -186,12 +179,12 @@ export class VariableService {
       this.uneditableVariables = this.getUneditableVariables(fhir);
       this.uneditableVariablesChange.next(this.uneditableVariables);
 
-      this.variables = this.extractVariables(fhir);
-      this.variablesChange.next(this.variables);
-
       this.linkIdToQuestion = {};
       const linkIdToQuestion = this.linkIdToQuestion;
       this.processItem(fhir.item);
+
+      this.variables = this.extractVariables(fhir);
+      this.variablesChange.next(this.variables);
 
       this.questions = [];
 
@@ -371,7 +364,7 @@ export class VariableService {
    */
   private convertExpression(input, vars): string {
     const functions = ['CEILING', 'FLOOR', 'ABS', 'LOG', 'TRUNCATE', 'EXP', 'SQRT', 'LN'];
-    return jsToFhirpath.fhirconvert(input, vars, functions);
+    return mathToFhirpath.fhirconvert(input, vars, functions);
   }
 
   /**

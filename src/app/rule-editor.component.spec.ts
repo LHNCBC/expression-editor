@@ -1,17 +1,17 @@
 import { TestBed } from '@angular/core/testing';
-import { AppComponent } from './app.component';
+import { RuleEditorComponent } from './rule-editor.component';
 
-describe('AppComponent', () => {
+describe('RuleEditorComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       declarations: [
-        AppComponent
+        RuleEditorComponent
       ],
     }).compileComponents();
   });
 
   it('should create the app', () => {
-    const fixture = TestBed.createComponent(AppComponent);
+    const fixture = TestBed.createComponent(RuleEditorComponent);
     const app = fixture.componentInstance;
     expect(app).toBeTruthy();
   });

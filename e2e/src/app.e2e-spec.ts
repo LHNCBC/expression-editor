@@ -13,7 +13,7 @@ describe('workspace-project App', () => {
     it('should display the a blank editor', async () => {
       await page.navigateTo();
       // Title
-      expect(await page.getTitle()).toEqual('FHIRPath Editor');
+      expect(await page.getTitle()).toEqual('Rule Editor');
       // Uneditable variables section should not show up
       expect(await page.getNumberOfUneditableVariables()).toEqual(0);
       // Variables section

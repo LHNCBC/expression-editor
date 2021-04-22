@@ -6,14 +6,13 @@ import { environment } from '../environments/environment';
 import { VariableService } from './variable.service';
 
 @Component({
-  selector: 'app-root',
-  templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css']
+  selector: 'lib-rule-editor',
+  templateUrl: './rule-editor.component.html',
+  styleUrls: ['./rule-editor.component.css']
 })
-export class AppComponent implements OnInit {
+export class RuleEditorComponent implements OnInit {
   expressionSyntax: string;
   environment = environment;
-  showFhirPath = false;
   advancedInterface = true;
   finalExpression: string;
   finalExpressionFhirPath: string;
@@ -140,6 +139,6 @@ export class AppComponent implements OnInit {
       this.finalExpression = '';
     }
 
-    this.variableService.setSyntax(newSyntax);
+    this.variableService.syntaxType = newSyntax;
   }
 }

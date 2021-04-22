@@ -2,7 +2,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
-import { AppComponent } from './app.component';
+import { RuleEditorComponent } from './rule-editor.component';
 import { VariablesComponent } from './variables/variables.component';
 import { UneditableVariablesComponent } from './uneditable-variables/uneditable-variables.component';
 import { QuestionComponent } from './question/question.component';
@@ -10,16 +10,20 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { CalculateSumPromptComponent } from './calculate-sum-prompt/calculate-sum-prompt.component';
 import { MatRadioModule } from '@angular/material/radio';
-import { JsToFhirPathPipe } from './js-to-fhir-path.pipe';
+import { MathToFhirpathPipe } from './math-to-fhirpath.pipe';
+import { SyntaxConverterComponent } from './syntax-converter/syntax-converter.component';
+import { SyntaxPreviewComponent } from './syntax-preview/syntax-preview.component';
 
 @NgModule({
   declarations: [
-    AppComponent,
+    RuleEditorComponent,
     VariablesComponent,
     UneditableVariablesComponent,
     QuestionComponent,
     CalculateSumPromptComponent,
-    JsToFhirPathPipe
+    MathToFhirpathPipe,
+    SyntaxConverterComponent,
+    SyntaxPreviewComponent
   ],
   imports: [
     BrowserModule,
@@ -28,7 +32,10 @@ import { JsToFhirPathPipe } from './js-to-fhir-path.pipe';
     DragDropModule,
     MatRadioModule
   ],
+  exports: [
+    RuleEditorComponent
+  ],
   providers: [],
-  bootstrap: [AppComponent]
+  bootstrap: [RuleEditorComponent]
 })
-export class AppModule { }
+export class RuleEditorModule { }

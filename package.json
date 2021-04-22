@@ -1,10 +1,10 @@
 {
-  "name": "fhirpath-editor",
+  "name": "rule-editor",
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve --host 0.0.0.0 --disable-host-check",
-    "start-local": "ng serve",
+    "start": "ng serve",
+    "start-public": "ng serve --host 0.0.0.0 --disable-host-check",
     "build": "ng build",
     "test": "ng test --watch=false",
     "lint": "ng lint",
@@ -26,7 +26,7 @@
     "rxjs": "~6.6.0",
     "tslib": "^2.0.0",
     "zone.js": "~0.10.2",
-    "js-to-fhirpath": "NLMLHC/js-to-fhirpath#9437333ff3a5212763aea11811e29312211c7dae"
+    "math-to-fhirpath": "NLMLHC/math-to-fhirpath"
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "~0.1100.5",

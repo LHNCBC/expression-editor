@@ -6,7 +6,7 @@ export class AppPage {
   }
 
   async getTitle(): Promise<string> {
-    return element(by.css('app-root h1')).getText();
+    return element(by.css('lib-rule-editor h1')).getText();
   }
 
   async getVariablesTitle(): Promise<string> {
