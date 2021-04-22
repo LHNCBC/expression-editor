@@ -1,4 +1,4 @@
-<section *ngIf="!environment.production" class="mb-3 p-2" style="border: 4px dotted red;">
+<section *ngIf="false" class="mb-3 p-2" style="border: 4px dotted red;">
   <h2>Development only, would not show up in production</h2>
   <label>LinkId: <input id="link-id" class="form-control" [(ngModel)]="linkIdContext"></label>
   <input type="file" id="import-fhir" class="file-import btn btn-secondary toolbar-button mx-2" accept=".json" (change)="import($event)">

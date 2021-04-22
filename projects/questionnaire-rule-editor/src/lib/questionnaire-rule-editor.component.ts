@@ -2,17 +2,15 @@ import { DatePipe } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { MatRadioChange } from '@angular/material/radio';
 
-import { environment } from '../environments/environment';
 import { VariableService } from './variable.service';
 
 @Component({
-  selector: 'lib-rule-editor',
-  templateUrl: './rule-editor.component.html',
-  styleUrls: ['./rule-editor.component.css']
+  selector: 'lib-questionnaire-rule-editor',
+  templateUrl: 'questionnaire-rule-editor.component.html',
+  styleUrls: ['questionnaire-rule-editor.component.css']
 })
-export class RuleEditorComponent implements OnInit {
+export class QuestionnaireRuleEditorComponent implements OnInit {
   expressionSyntax: string;
-  environment = environment;
   advancedInterface = true;
   finalExpression: string;
   finalExpressionFhirPath: string;

@@ -25,7 +25,8 @@
             ],
             "styles": [
               "./node_modules/@angular/material/prebuilt-themes/indigo-pink.css",
-              "src/styles.css"
+              "src/styles.css",
+              "./node_modules/bootstrap/dist/css/bootstrap.min.css"
             ],
             "scripts": []
           },
@@ -89,7 +90,8 @@
             ],
             "styles": [
               "./node_modules/@angular/material/prebuilt-themes/indigo-pink.css",
-              "src/styles.css"
+              "src/styles.css",
+              "./node_modules/bootstrap/dist/css/bootstrap.min.css"
             ],
             "scripts": []
           }
@@ -117,6 +119,46 @@
             "production": {
               "devServerTarget": "rule-editor:serve:production"
             }
+          }
+        }
+      }
+    },
+    "questionnaire-rule-editor": {
+      "projectType": "library",
+      "root": "projects/questionnaire-rule-editor",
+      "sourceRoot": "projects/questionnaire-rule-editor/src",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-angular:ng-packagr",
+          "options": {
+            "tsConfig": "projects/questionnaire-rule-editor/tsconfig.lib.json",
+            "project": "projects/questionnaire-rule-editor/ng-package.json"
+          },
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/questionnaire-rule-editor/tsconfig.lib.prod.json"
+            }
+          }
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "main": "projects/questionnaire-rule-editor/src/test.ts",
+            "tsConfig": "projects/questionnaire-rule-editor/tsconfig.spec.json",
+            "karmaConfig": "projects/questionnaire-rule-editor/karma.conf.js"
+          }
+        },
+        "lint": {
+          "builder": "@angular-devkit/build-angular:tslint",
+          "options": {
+            "tsConfig": [
+              "projects/questionnaire-rule-editor/tsconfig.lib.json",
+              "projects/questionnaire-rule-editor/tsconfig.spec.json"
+            ],
+            "exclude": [
+              "**/node_modules/**"
+            ]
           }
         }
       }

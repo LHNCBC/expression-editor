@@ -9,7 +9,7 @@
   <div cdkDropList (cdkDropListDropped)="drop($event)">
     <div class="variable-row drag-variable row py-2" *ngFor="let variable of variables; index as i" [id]="'row-' + i" cdkDrag>
       <div class="col-md-2 form-inline">
-        <img alt="Drag Handle" width="20" height="20" class="mr-2 handle" src="assets/grip-vertical.svg" cdkDragHandle />
+        <img alt="Drag Handle" width="20" height="20" class="mr-2 handle" src="./assets/grip-vertical.svg" cdkDragHandle />
         <input [id]="'variable-label-' + i" [(ngModel)]="variable.label" class="form-control w-75" aria-label="Variable label" />
       </div>
       <div class="col-md-3">

@@ -4,7 +4,7 @@ import * as mathToFhirpath from 'math-to-fhirpath';
 
 import { Question, UneditableVariable, Variable } from './variable';
 import { UNIT_CONVERSION } from './units';
-import { CONTEXT_LINKID, SAMPLE_Q } from './mock-data.js';
+import { CONTEXT_LINKID, SAMPLE_Q } from './mock-data.js.js';
 
 const LANGUAGE_FHIRPATH = 'text/fhirpath';
 
