@@ -1,2 +1,9 @@
 <h1>Demo Application</h1>
-<lib-questionnaire-rule-editor></lib-questionnaire-rule-editor>
+
+<button (click)="toggleEditor()">
+  {{ showEditor ? 'Hide' : 'Show' }} Rules
+</button>
+
+<div *ngIf="showEditor" class="rule-editor">
+  <lhc-rule-editor ></lhc-rule-editor>
+</div>

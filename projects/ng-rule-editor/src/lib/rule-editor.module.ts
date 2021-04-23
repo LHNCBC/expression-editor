@@ -1,5 +1,5 @@
 import { NgModule } from '@angular/core';
-import { QuestionnaireRuleEditorComponent } from './questionnaire-rule-editor.component';
+import { RuleEditorComponent } from './rule-editor.component';
 
 import { FormsModule } from '@angular/forms';
 
@@ -18,7 +18,7 @@ import { SyntaxPreviewComponent } from './syntax-preview/syntax-preview.componen
 
 @NgModule({
   declarations: [
-    QuestionnaireRuleEditorComponent,
+    RuleEditorComponent,
     VariablesComponent,
     UneditableVariablesComponent,
     QuestionComponent,
@@ -34,7 +34,7 @@ import { SyntaxPreviewComponent } from './syntax-preview/syntax-preview.componen
     MatRadioModule
   ],
   exports: [
-    QuestionnaireRuleEditorComponent
+    RuleEditorComponent
   ]
 })
-export class QuestionnaireRuleEditorModule { }
+export class RuleEditorModule { }

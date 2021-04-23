@@ -5,11 +5,12 @@ import { MatRadioChange } from '@angular/material/radio';
 import { VariableService } from './variable.service';
 
 @Component({
-  selector: 'lib-questionnaire-rule-editor',
-  templateUrl: 'questionnaire-rule-editor.component.html',
-  styleUrls: ['questionnaire-rule-editor.component.css']
+  // tslint:disable-next-line:component-selector
+  selector: 'lhc-rule-editor',
+  templateUrl: 'rule-editor.component.html',
+  styleUrls: ['rule-editor.component.css']
 })
-export class QuestionnaireRuleEditorComponent implements OnInit {
+export class RuleEditorComponent implements OnInit {
   expressionSyntax: string;
   advancedInterface = true;
   finalExpression: string;

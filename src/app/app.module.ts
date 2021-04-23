@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 
-import { QuestionnaireRuleEditorModule } from 'questionnaire-rule-editor';
+import { RuleEditorModule } from 'ng-rule-editor';
 
 import { AppComponent } from './app.component';
 
@@ -11,7 +11,7 @@ import { AppComponent } from './app.component';
   ],
   imports: [
     BrowserModule,
-    QuestionnaireRuleEditorModule
+    RuleEditorModule
   ],
   providers: [],
   bootstrap: [

@@ -1,5 +1,5 @@
 {
-  "name": "questionnaire-rule-editor",
+  "name": "ng-rule-editor",
   "version": "0.0.1",
   "peerDependencies": {
     "@angular/animations": "~11.0.5",

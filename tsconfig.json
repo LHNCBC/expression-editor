@@ -16,9 +16,9 @@
       "dom"
     ],
     "paths": {
-      "questionnaire-rule-editor": [
-        "dist/questionnaire-rule-editor/questionnaire-rule-editor",
-        "dist/questionnaire-rule-editor"
+      "ng-rule-editor": [
+        "dist/ng-rule-editor/ng-rule-editor",
+        "dist/ng-rule-editor"
       ]
     }
   }

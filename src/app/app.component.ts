@@ -7,4 +7,9 @@ import { Component } from '@angular/core';
 })
 export class AppComponent {
   title = 'sandbox-fhirpath-editor';
+  showEditor = false;
+
+  toggleEditor(): void {
+    this.showEditor = !this.showEditor;
+  }
 }

@@ -1,6 +1,6 @@
 {
   "$schema": "../../node_modules/ng-packagr/ng-package.schema.json",
-  "dest": "../../dist/questionnaire-rule-editor",
+  "dest": "../../dist/ng-rule-editor",
   "lib": {
     "entryFile": "src/public-api.ts"
   }
