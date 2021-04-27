@@ -162,6 +162,116 @@
           }
         }
       }
+    },
+    "rule-editor": {
+      "projectType": "application",
+      "schematics": {},
+      "root": "projects/rule-editor",
+      "sourceRoot": "projects/rule-editor/src",
+      "prefix": "app",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-angular:browser",
+          "options": {
+            "outputPath": "dist/rule-editor",
+            "index": "projects/rule-editor/src/index.html",
+            "main": "projects/rule-editor/src/main.ts",
+            "polyfills": "projects/rule-editor/src/polyfills.ts",
+            "tsConfig": "projects/rule-editor/tsconfig.app.json",
+            "aot": true,
+            "assets": [
+            ],
+            "styles": [
+            ],
+            "scripts": []
+          },
+          "configurations": {
+            "production": {
+              "fileReplacements": [
+                {
+                  "replace": "projects/rule-editor/src/environments/environment.ts",
+                  "with": "projects/rule-editor/src/environments/environment.prod.ts"
+                }
+              ],
+              "optimization": true,
+              "outputHashing": "all",
+              "sourceMap": false,
+              "namedChunks": false,
+              "extractLicenses": true,
+              "vendorChunk": false,
+              "buildOptimizer": true,
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "2mb",
+                  "maximumError": "5mb"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "6kb",
+                  "maximumError": "10kb"
+                }
+              ]
+            }
+          }
+        },
+        "serve": {
+          "builder": "@angular-devkit/build-angular:dev-server",
+          "options": {
+            "browserTarget": "rule-editor:build"
+          },
+          "configurations": {
+            "production": {
+              "browserTarget": "rule-editor:build:production"
+            }
+          }
+        },
+        "extract-i18n": {
+          "builder": "@angular-devkit/build-angular:extract-i18n",
+          "options": {
+            "browserTarget": "rule-editor:build"
+          }
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "main": "projects/rule-editor/src/test.ts",
+            "polyfills": "projects/rule-editor/src/polyfills.ts",
+            "tsConfig": "projects/rule-editor/tsconfig.spec.json",
+            "karmaConfig": "projects/rule-editor/karma.conf.js",
+            "assets": [
+            ],
+            "styles": [
+            ],
+            "scripts": []
+          }
+        },
+        "lint": {
+          "builder": "@angular-devkit/build-angular:tslint",
+          "options": {
+            "tsConfig": [
+              "projects/rule-editor/tsconfig.app.json",
+              "projects/rule-editor/tsconfig.spec.json",
+              "projects/rule-editor/e2e/tsconfig.json"
+            ],
+            "exclude": [
+              "**/node_modules/**"
+            ]
+          }
+        },
+        "e2e": {
+          "builder": "@angular-devkit/build-angular:protractor",
+          "options": {
+            "protractorConfig": "projects/rule-editor/e2e/protractor.conf.js",
+            "devServerTarget": "rule-editor:serve"
+          },
+          "configurations": {
+            "production": {
+              "devServerTarget": "rule-editor:serve:production"
+            }
+          }
+        }
+      }
     }
   },
   "defaultProject": "demo"
