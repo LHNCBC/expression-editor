@@ -1,15 +1,15 @@
 import { Component, EventEmitter, OnInit, Output } from '@angular/core';
-import { VariableService } from '../variable.service';
+import { RuleEditorService } from '../rule-editor.service';
 
 @Component({
-  selector: 'app-calculate-sum-prompt',
+  selector: 'lib-calculate-sum-prompt',
   templateUrl: './calculate-sum-prompt.component.html',
   styleUrls: ['./calculate-sum-prompt.component.css']
 })
 export class CalculateSumPromptComponent implements OnInit {
   @Output() export: EventEmitter<any> = new EventEmitter<any>();
 
-  constructor(private variableService: VariableService) { }
+  constructor(private ruleEditorService: RuleEditorService) { }
 
   /**
    * Angular lifecycle hook called when the component is initialized
@@ -20,7 +20,7 @@ export class CalculateSumPromptComponent implements OnInit {
    * Close the dialog by specifying this should not be a score calculation
    */
   onCloseClick(): void {
-    this.variableService.toggleMightBeScore();
+    this.ruleEditorService.toggleMightBeScore();
   }
 
   /**

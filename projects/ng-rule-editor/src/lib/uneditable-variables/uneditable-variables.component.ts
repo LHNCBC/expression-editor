@@ -1,16 +1,16 @@
 import { Component, OnInit } from '@angular/core';
-import { VariableService } from '../variable.service';
+import { RuleEditorService } from '../rule-editor.service';
 import { UneditableVariable } from '../variable';
 
 @Component({
-  selector: 'app-uneditable-variables',
+  selector: 'lib-uneditable-variables',
   templateUrl: './uneditable-variables.component.html'
 })
 export class UneditableVariablesComponent implements OnInit {
   uneditableVariables: UneditableVariable[];
   uneditableVariablesSubscription;
 
-  constructor(private variableService: VariableService) {}
+  constructor(private variableService: RuleEditorService) {}
 
   /**
    * Angular lifecycle hook called when the component is initialized

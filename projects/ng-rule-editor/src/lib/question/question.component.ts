@@ -1,10 +1,10 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { Question } from '../variable';
-import { VariableService } from '../variable.service';
+import { RuleEditorService } from '../rule-editor.service';
 import { Unit, UNIT_CONVERSION } from '../units';
 
 @Component({
-  selector: 'app-question',
+  selector: 'lib-question',
   templateUrl: './question.component.html'
 })
 export class QuestionComponent implements OnInit {
@@ -18,7 +18,7 @@ export class QuestionComponent implements OnInit {
   unit: string;
   conversionOptions: Unit[];
 
-  constructor(private variableService: VariableService) {}
+  constructor(private variableService: RuleEditorService) {}
 
   /**
    * Angular lifecycle hook called when the component is initialized

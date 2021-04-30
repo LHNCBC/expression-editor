@@ -1,24 +1,13 @@
-<section *ngIf="false" class="mb-3 p-2" style="border: 4px dotted red;">
-  <h2>Development only, would not show up in production</h2>
-  <label>LinkId: <input id="link-id" class="form-control" [(ngModel)]="linkIdContext"></label>
-  <input type="file" id="import-fhir" class="file-import btn btn-secondary toolbar-button mx-2" accept=".json" (change)="import($event)">
-  <button type="button" id="export-fhir" class="btn btn-secondary toolbar-button mr-2" (click)="export()">Export</button>
-  <div class="form-check form-check-inline">
-    <input class="form-check-input" type="checkbox" id="advanced" [(ngModel)]="advancedInterface">
-    <label class="form-check-label" for="advanced">Advanced interface</label>
-  </div>
-</section>
-
-<app-calculate-sum-prompt *ngIf="calculateSum" (export)="exportSumOfScores()"></app-calculate-sum-prompt>
+<lib-calculate-sum-prompt *ngIf="calculateSum" (export)="exportSumOfScores()"></lib-calculate-sum-prompt>
 <div *ngIf="!calculateSum">
   <h1>Rule Editor</h1>
 
   <section id="uneditable-variables-section" class="mb-3">
-    <app-uneditable-variables></app-uneditable-variables>
+    <lib-uneditable-variables></lib-uneditable-variables>
   </section>
 
   <section id="variables-section" class="mb-3">
-    <app-variables [advancedInterface]="advancedInterface"></app-variables>
+    <lib-variables [advancedInterface]="advancedInterface"></lib-variables>
   </section>
 
   <section id="final-expression-section" class="mb-3">
@@ -42,7 +31,7 @@
           </div>
         </div>
         <div class="col-md-9" [ngSwitch]="expressionSyntax">
-          <app-syntax-converter [variables]="variables" *ngSwitchCase="'simple'" class="form-inline"></app-syntax-converter>
+          <lib-syntax-converter [variables]="variables" *ngSwitchCase="'simple'" class="form-inline"></lib-syntax-converter>
           <input *ngSwitchCase="'fhirpath'" id="final-expression" class="form-control" [(ngModel)]="finalExpression">
         </div>
       </div>

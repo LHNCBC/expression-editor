@@ -2,7 +2,7 @@ import { Component, Input, OnInit, Output, EventEmitter } from '@angular/core';
 import { MathToFhirpathPipe } from '../math-to-fhirpath.pipe';
 
 @Component({
-  selector: 'app-syntax-converter',
+  selector: 'lib-syntax-converter',
   templateUrl: './syntax-converter.component.html',
   styleUrls: ['./syntax-converter.component.css']
 })

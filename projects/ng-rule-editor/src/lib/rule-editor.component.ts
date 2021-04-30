@@ -2,7 +2,7 @@ import { DatePipe } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { MatRadioChange } from '@angular/material/radio';
 
-import { VariableService } from './variable.service';
+import { RuleEditorService } from './rule-editor.service';
 
 @Component({
   // tslint:disable-next-line:component-selector
@@ -24,7 +24,7 @@ export class RuleEditorComponent implements OnInit {
   private finalExpressionSubscription;
   private variablesSubscription;
 
-  constructor(private variableService: VariableService) {}
+  constructor(private variableService: RuleEditorService) {}
 
   /**
    * Angular lifecycle hook called when the component is initialized

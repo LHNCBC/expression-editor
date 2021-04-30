@@ -1,4 +1,6 @@
 import { Component } from '@angular/core';
+import { RuleEditorService } from 'ng-rule-editor';
+import { context, fhir } from './mock-data';
 
 @Component({
   selector: 'app-root',
@@ -6,9 +8,18 @@ import { Component } from '@angular/core';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent {
-  showEditor = false;
+  finalExpression: string;
+  questionnaire = '';
 
-  toggleEditor(): void {
-    this.showEditor = !this.showEditor;
+  constructor(private ruleEditorService: RuleEditorService) { }
+
+  onChange(): void {
+    if (this.questionnaire !== '') {
+      this.ruleEditorService.import(fhir[this.questionnaire], context);
+    }
+  }
+
+  getFinalExpression(): void {
+    this.finalExpression = this.ruleEditorService.finalExpression;
   }
 }

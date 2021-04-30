@@ -4,6 +4,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { RuleEditorModule } from 'ng-rule-editor';
 
 import { AppComponent } from './app.component';
+import { FormsModule } from '@angular/forms';
 
 @NgModule({
   declarations: [
@@ -11,7 +12,8 @@ import { AppComponent } from './app.component';
   ],
   imports: [
     BrowserModule,
-    RuleEditorModule
+    RuleEditorModule,
+    FormsModule
   ],
   providers: [],
   bootstrap: [

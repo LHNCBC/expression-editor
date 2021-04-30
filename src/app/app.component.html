@@ -1,9 +1,17 @@
 <h1>Demo Application</h1>
 
-<button (click)="toggleEditor()">
-  {{ showEditor ? 'Hide' : 'Show' }} Rules
-</button>
+<label>
+  Questionnaire:
+  <select [(ngModel)]="questionnaire" (change)="onChange()">
+    <option value="">None</option>
+    <option value="bmi">BMI Calculation</option>
+    <option value="phq9">PHQ9 (no FHIRPath)</option>
+  </select>
+</label>
 
-<div *ngIf="showEditor" class="rule-editor">
-  <lhc-rule-editor ></lhc-rule-editor>
+<div *ngIf="questionnaire" class="rule-editor">
+  <lhc-rule-editor></lhc-rule-editor>
+
+  <button (click)="getFinalExpression()">Get final expression</button>
+  <pre>{{finalExpression}}</pre>
 </div>

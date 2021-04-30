@@ -1,7 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 
 @Component({
-  selector: 'app-syntax-preview',
+  selector: 'lib-syntax-preview',
   templateUrl: './syntax-preview.component.html',
   styleUrls: ['./syntax-preview.component.css']
 })

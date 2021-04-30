@@ -2,10 +2,10 @@ import { Component, Input, OnInit } from '@angular/core';
 
 import { Variable, VariableType } from '../variable';
 import { CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
-import { VariableService } from '../variable.service';
+import { RuleEditorService } from '../rule-editor.service';
 
 @Component({
-  selector: 'app-variables',
+  selector: 'lib-variables',
   templateUrl: './variables.component.html',
   styleUrls: ['./variables.component.css']
 })
@@ -20,14 +20,14 @@ export class VariablesComponent implements OnInit {
     }
   ];
 
-  constructor(private variableService: VariableService) {}
+  constructor(private ruleEditorService: RuleEditorService) {}
 
   /**
    * Angular lifecycle hook called when the component is initialized
    */
   ngOnInit(): void {
-    this.variables = this.variableService.variables;
-    this.variableSubscription = this.variableService.variablesChange.subscribe((variables) => {
+    this.variables = this.ruleEditorService.variables;
+    this.variableSubscription = this.ruleEditorService.variablesChange.subscribe((variables) => {
       this.variables = variables;
     });
   }
@@ -43,7 +43,7 @@ export class VariablesComponent implements OnInit {
    * Called when adding a new variable
    */
   onAdd(): void {
-    this.variableService.addVariable();
+    this.ruleEditorService.addVariable();
   }
 
   /**
@@ -51,7 +51,7 @@ export class VariablesComponent implements OnInit {
    * @param i - index to remove
    */
   onRemove(i: number): void {
-    this.variableService.remove(i);
+    this.ruleEditorService.remove(i);
   }
 
   /**
@@ -67,7 +67,7 @@ export class VariablesComponent implements OnInit {
    * @param index - Index of variable we're editing
    */
   getAvailableVariables(index: number): Array<string> {
-    const uneditableVariables = this.variableService.uneditableVariables.map((e) => e.name);
+    const uneditableVariables = this.ruleEditorService.uneditableVariables.map((e) => e.name);
     // Only return variables up to but not including index
     const editableVariables = this.variables.map((e) => e.label).slice(0, index);
 
