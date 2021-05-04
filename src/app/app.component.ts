@@ -31,5 +31,3 @@ export class AppComponent {
     this.fhirPreview = JSON.stringify(fhirOutput, null, 2);
   }
 }
-
-// TODO if no simple expression for final expression show fhirpath
