@@ -9,9 +9,14 @@
   </select>
 </label>
 
-<div *ngIf="questionnaire" class="rule-editor">
-  <lhc-rule-editor></lhc-rule-editor>
+<div *ngIf="questionnaire">
+  <div class="rule-editor" *ngIf="!score">
+    <lhc-rule-editor></lhc-rule-editor>
+  </div>
 
-  <button (click)="getFinalExpression()">Get final expression</button>
-  <pre>{{finalExpression}}</pre>
+  <p *ngIf="score">This looks like it could be a sum of scores.</p>
+
+  <button (click)="showFhir()">Show FHIR</button>
+
+  <pre>{{fhirPreview}}</pre>
 </div>

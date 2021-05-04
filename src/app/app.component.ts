@@ -8,18 +8,28 @@ import { context, fhir } from './mock-data';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent {
-  finalExpression: string;
+  fhirPreview: string;
   questionnaire = '';
+  score = false;
 
   constructor(private ruleEditorService: RuleEditorService) { }
 
   onChange(): void {
+    this.fhirPreview = '';
+
     if (this.questionnaire !== '') {
       this.ruleEditorService.import(fhir[this.questionnaire], context);
+
+      this.score = this.ruleEditorService.mightBeScore;
     }
   }
 
-  getFinalExpression(): void {
-    this.finalExpression = this.ruleEditorService.finalExpression;
+  showFhir(): void {
+    const fhirOutput = this.score ? this.ruleEditorService.exportSumOfScores() :
+      this.ruleEditorService.export(this.ruleEditorService.finalExpression);
+
+    this.fhirPreview = JSON.stringify(fhirOutput, null, 2);
   }
 }
+
+// TODO if no simple expression for final expression show fhirpath

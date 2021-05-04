@@ -351,17 +351,6 @@ export class RuleEditorService {
   }
 
   /**
-   * Convert simple syntax to FHIRPath
-   * @param input - Simple syntax
-   * @param vars - Variables on the form (editable and uneditable)
-   * @private
-   */
-  private convertExpression(input, vars): string {
-    const functions = ['CEILING', 'FLOOR', 'ABS', 'LOG', 'TRUNCATE', 'EXP', 'SQRT', 'LN'];
-    return mathToFhirpath.fhirconvert(input, vars, functions);
-  }
-
-  /**
    * Add variables and finalExpression and return the new FHIR Questionnaire
    * @param finalExpression
    */
@@ -391,7 +380,7 @@ export class RuleEditorService {
     let finalExpressionData = finalExpression;
 
     if (this.syntaxType === 'simple') {
-      finalExpressionData = this.convertExpression(finalExpression, this.variables.map(e => e.label));
+      finalExpressionData = mathToFhirpath.fhirconvert(finalExpression, this.variables.map(e => e.label));
     }
 
     const finalExpressionExtension = {
