@@ -1,5 +1,5 @@
 import { DatePipe } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnInit, Output } from '@angular/core';
 import { MatRadioChange } from '@angular/material/radio';
 
 import { RuleEditorService } from './rule-editor.service';
@@ -10,7 +10,13 @@ import { RuleEditorService } from './rule-editor.service';
   templateUrl: 'rule-editor.component.html',
   styleUrls: ['rule-editor.component.css']
 })
-export class RuleEditorComponent implements OnInit {
+export class RuleEditorComponent implements OnInit, OnChanges {
+  @Input() fhirQuestionnaire = null;
+  @Input() itemLinkId = null;
+  @Input() submitButtonName = 'Submit';
+  @Input() titleName = 'Rule Editor';
+  @Output() save = new EventEmitter<object>();
+
   expressionSyntax: string;
   advancedInterface = true;
   finalExpression: string;
@@ -20,6 +26,7 @@ export class RuleEditorComponent implements OnInit {
   calculateSum: boolean;
   suggestions = [];
   variables: string[];
+
   private calculateSumSubscription;
   private finalExpressionSubscription;
   private variablesSubscription;
@@ -30,6 +37,33 @@ export class RuleEditorComponent implements OnInit {
    * Angular lifecycle hook called when the component is initialized
    */
   ngOnInit(): void {
+    this.reload();
+  }
+
+  /**
+   * Angular lifecycle hook called before the component is destroyed
+   */
+  ngDestroy(): void {
+    this.calculateSumSubscription.unsubscribe();
+    this.finalExpressionSubscription.unsubscribe();
+    this.variablesSubscription.unsubscribe();
+  }
+
+  /**
+   * Angular lifecycle hook called on input changes
+   */
+  ngOnChanges(): void {
+    this.reload();
+  }
+
+  /**
+   * Re-import fhir and context and show the form
+   */
+  reload(): void {
+    if (this.fhirQuestionnaire !== null && this.itemLinkId !== null) {
+      this.variableService.import(this.fhirQuestionnaire, this.itemLinkId);
+    }
+
     this.linkIdContext = this.variableService.linkIdContext;
     this.expressionSyntax = this.variableService.syntaxType;
     this.calculateSum = this.variableService.mightBeScore;
@@ -44,15 +78,6 @@ export class RuleEditorComponent implements OnInit {
     this.variablesSubscription = this.variableService.variablesChange.subscribe((variables) => {
       this.variables = variables.map(e => e.label);
     });
-  }
-
-  /**
-   * Angular lifecycle hook called before the component is destroyed
-   */
-  ngDestroy(): void {
-    this.calculateSumSubscription.unsubscribe();
-    this.finalExpressionSubscription.unsubscribe();
-    this.variablesSubscription.unsubscribe();
   }
 
   /**
@@ -86,14 +111,14 @@ export class RuleEditorComponent implements OnInit {
    * Export FHIR Questionnaire and download as a file
    */
   export(): void {
-    this.downloadAsFile(this.variableService.export(this.finalExpression));
+    this.save.emit(this.variableService.export(this.finalExpression));
   }
 
   /**
    * Export FHIR questionnaire file by summing all ordinal values
    */
   exportSumOfScores(): void {
-    this.downloadAsFile(this.variableService.exportSumOfScores());
+    this.save.emit(this.variableService.exportSumOfScores());
   }
 
   /**

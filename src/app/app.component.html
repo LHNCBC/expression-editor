@@ -10,13 +10,15 @@
 </label>
 
 <div *ngIf="questionnaire">
-  <div class="rule-editor" *ngIf="!score">
-    <lhc-rule-editor></lhc-rule-editor>
+  <div class="rule-editor">
+    <lhc-rule-editor
+      [fhirQuestionnaire]="fhir[questionnaire]"
+      [itemLinkId]="linkId"
+      [submitButtonName]="'Save'"
+      [titleName]="'Rule Editor'"`
+      (save)="onSave($event)">
+    </lhc-rule-editor>
   </div>
-
-  <p *ngIf="score">This looks like it could be a sum of scores.</p>
-
-  <button (click)="showFhir()">Show FHIR</button>
 
   <pre>{{fhirPreview}}</pre>
 </div>

@@ -10,24 +10,16 @@ import { context, fhir } from './mock-data';
 export class AppComponent {
   fhirPreview: string;
   questionnaire = '';
-  score = false;
+  fhir = fhir;
+  linkId = context;
 
   constructor(private ruleEditorService: RuleEditorService) { }
 
   onChange(): void {
     this.fhirPreview = '';
-
-    if (this.questionnaire !== '') {
-      this.ruleEditorService.import(fhir[this.questionnaire], context);
-
-      this.score = this.ruleEditorService.mightBeScore;
-    }
   }
 
-  showFhir(): void {
-    const fhirOutput = this.score ? this.ruleEditorService.exportSumOfScores() :
-      this.ruleEditorService.export(this.ruleEditorService.finalExpression);
-
-    this.fhirPreview = JSON.stringify(fhirOutput, null, 2);
+  onSave(fhirResult): void {
+    this.fhirPreview = JSON.stringify(fhirResult, null, 2);
   }
 }
