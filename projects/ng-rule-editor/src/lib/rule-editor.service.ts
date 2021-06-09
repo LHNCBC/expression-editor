@@ -377,17 +377,11 @@ export class RuleEditorService {
       fhir.extension = variablesToAdd;
     }
 
-    let finalExpressionData = finalExpression;
-
-    if (this.syntaxType === 'simple') {
-      finalExpressionData = mathToFhirpath.fhirconvert(finalExpression, this.variables.map(e => e.label));
-    }
-
     const finalExpressionExtension = {
       url: this.CALCULATED_EXPRESSION,
       valueExpression: {
         language: this.LANGUAGE_FHIRPATH,
-        expression: finalExpressionData
+        expression: finalExpression
       }
     };
 

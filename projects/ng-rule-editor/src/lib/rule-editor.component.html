@@ -31,7 +31,7 @@
           </div>
         </div>
         <div class="col-md-9" [ngSwitch]="expressionSyntax">
-          <lib-syntax-converter [variables]="variables" *ngSwitchCase="'simple'" class="form-inline"></lib-syntax-converter>
+          <lib-syntax-converter [variables]="variables" *ngSwitchCase="'simple'" (expressionChange)="updateFinalExpression($event)" class="form-inline"></lib-syntax-converter>
           <input aria-label="FHIRPath" *ngSwitchCase="'fhirpath'" id="final-expression" class="form-control" [(ngModel)]="finalExpression">
         </div>
       </div>

@@ -165,4 +165,12 @@ export class RuleEditorComponent implements OnInit, OnChanges {
 
     this.variableService.syntaxType = newSyntax;
   }
+
+  /**
+   * Update the final expression
+   * @param expression
+   */
+  updateFinalExpression(expression): void {
+    this.finalExpression = expression;
+  }
 }
