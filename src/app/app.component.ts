@@ -22,4 +22,8 @@ export class AppComponent {
   onSave(fhirResult): void {
     this.fhirPreview = JSON.stringify(fhirResult, null, 2);
   }
+
+  addTotalScoreRule(): void {
+    const result = this.ruleEditorService.addTotalScoreRule(fhir.phq9, context);
+  }
 }
