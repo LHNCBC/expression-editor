@@ -192,8 +192,12 @@ export const fhir = {
         "valueExpression": {
           "description": "BMI calculation",
           "language": "text/fhirpath",
-          "expression": "(%a/(%b.power(2))).round(1)"
-        }
+          "expression": "%a/(%b.power(2))"
+        },
+        "extension": [{
+          "url": "http://TBD/simple-syntax",
+          "valueString": "a/b^2"
+        }]
       },
       {
         "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unit",

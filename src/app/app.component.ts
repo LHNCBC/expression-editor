@@ -1,5 +1,4 @@
 import { Component } from '@angular/core';
-import { RuleEditorService } from 'ng-rule-editor';
 import { context, fhir } from './mock-data';
 
 @Component({
@@ -9,15 +8,9 @@ import { context, fhir } from './mock-data';
 })
 export class AppComponent {
   fhirPreview: string;
-  questionnaire = '';
+  questionnaire = 'bmi';
   fhir = fhir;
   linkId = context;
-
-  constructor(private ruleEditorService: RuleEditorService) { }
-
-  onChange(): void {
-    this.fhirPreview = '';
-  }
 
   onSave(fhirResult): void {
     this.fhirPreview = JSON.stringify(fhirResult, null, 2);

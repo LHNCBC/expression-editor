@@ -1,2 +1,2 @@
-<input [(ngModel)]="expression" (ngModelChange)="onExpressionChange($event)" class="form-control mr-2 w-100" aria-label="Simple Expression" />
-<lib-syntax-preview [syntax]="fhirPathExpression" [showWhenEmpty]="true"></lib-syntax-preview>
+<input [(ngModel)]="expression" (ngModelChange)="onExpressionChange($event)" aria-label="Simple Expression" [style]="style.input ? style.input : {}" />
+<lib-syntax-preview [syntax]="fhirPathExpression"></lib-syntax-preview>

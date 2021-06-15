@@ -1,5 +1,6 @@
 import { Component, Input, OnInit, Output, EventEmitter } from '@angular/core';
 import { MathToFhirpathPipe } from '../math-to-fhirpath.pipe';
+import { SimpleStyle } from '../rule-editor.service';
 
 @Component({
   selector: 'lib-syntax-converter',
@@ -9,6 +10,7 @@ import { MathToFhirpathPipe } from '../math-to-fhirpath.pipe';
 export class SyntaxConverterComponent implements OnInit {
   @Input() value;
   @Input() variables;
+  @Input() style: SimpleStyle;
   @Output() expressionChange = new EventEmitter<string>();
 
   expression: string;

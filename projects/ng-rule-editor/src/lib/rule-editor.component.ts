@@ -1,24 +1,27 @@
 import { DatePipe } from '@angular/common';
-import { Component, EventEmitter, Input, OnChanges, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, Output, ViewEncapsulation } from '@angular/core';
 import { MatRadioChange } from '@angular/material/radio';
 
-import { RuleEditorService } from './rule-editor.service';
+import { RuleEditorService, SimpleStyle } from './rule-editor.service';
 
 @Component({
   // tslint:disable-next-line:component-selector
   selector: 'lhc-rule-editor',
   templateUrl: 'rule-editor.component.html',
-  styleUrls: ['rule-editor.component.css']
+  styleUrls: ['rule-editor.component.css'],
+  encapsulation: ViewEncapsulation.ShadowDom
 })
-export class RuleEditorComponent implements OnInit, OnChanges {
+export class RuleEditorComponent implements OnChanges {
   @Input() fhirQuestionnaire = null;
   @Input() itemLinkId = null;
   @Input() submitButtonName = 'Submit';
   @Input() titleName = 'Rule Editor';
+  @Input() expressionLabel = 'Final Expression';
+  @Input() expressionUrl = 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression';
+  @Input() style: SimpleStyle = {};
   @Output() save = new EventEmitter<object>();
 
   expressionSyntax: string;
-  advancedInterface = true;
   finalExpression: string;
   finalExpressionFhirPath: string;
   linkIdContext: string;
@@ -34,13 +37,6 @@ export class RuleEditorComponent implements OnInit, OnChanges {
   constructor(private variableService: RuleEditorService) {}
 
   /**
-   * Angular lifecycle hook called when the component is initialized
-   */
-  ngOnInit(): void {
-    this.reload();
-  }
-
-  /**
    * Angular lifecycle hook called before the component is destroyed
    */
   ngDestroy(): void {
@@ -52,7 +48,7 @@ export class RuleEditorComponent implements OnInit, OnChanges {
   /**
    * Angular lifecycle hook called on input changes
    */
-  ngOnChanges(): void {
+  ngOnChanges(args): void {
     this.reload();
   }
 
@@ -61,7 +57,7 @@ export class RuleEditorComponent implements OnInit, OnChanges {
    */
   reload(): void {
     if (this.fhirQuestionnaire !== null && this.itemLinkId !== null) {
-      this.variableService.import(this.fhirQuestionnaire, this.itemLinkId);
+      this.variableService.import(this.expressionUrl, this.fhirQuestionnaire, this.itemLinkId);
     }
 
     this.linkIdContext = this.variableService.linkIdContext;
@@ -81,37 +77,10 @@ export class RuleEditorComponent implements OnInit, OnChanges {
   }
 
   /**
-   * Import uploaded data as a FHIR Questionnaire
-   * @param fileInput - Form file upload
-   */
-  import(fileInput): void {
-    if (fileInput.target.files && fileInput.target.files[0]) {
-      const fileReader = new FileReader();
-
-      fileReader.onload = (e) => {
-        if (typeof e.target.result === 'string') {
-          try {
-            const input = JSON.parse(e.target.result);
-
-            this.variableService.import(input, this.linkIdContext);
-          } catch (e) {
-            console.error('Could not parse file', e);
-          }
-        } else {
-          console.error('Could not read file');
-        }
-      };
-
-      fileReader.readAsText(fileInput.target.files[0]);
-    }
-    fileInput.target.value = '';
-  }
-
-  /**
    * Export FHIR Questionnaire and download as a file
    */
   export(): void {
-    this.save.emit(this.variableService.export(this.finalExpression));
+    this.save.emit(this.variableService.export(this.expressionUrl, this.finalExpression));
   }
 
   /**
@@ -119,36 +88,6 @@ export class RuleEditorComponent implements OnInit, OnChanges {
    */
   exportSumOfScores(): void {
     this.save.emit(this.variableService.exportSumOfScores());
-  }
-
-  /**
-   * Download data as a file
-   * @param data - Object which will this function will call JSON.stringify on
-   * @param fileName - File name to download as
-   * @private
-   */
-  private downloadAsFile(data, fileName?): void {
-    const blob = new Blob([
-      JSON.stringify(data, null, 2)
-    ]);
-
-    const date = this.datePipe.transform(Date.now(), 'yyyyMMdd-hhmmss');
-
-    fileName = fileName ? fileName : `fhirpath-${date}.json`;
-
-    if (window.navigator && window.navigator.msSaveOrOpenBlob) {
-      window.navigator.msSaveOrOpenBlob(blob, fileName);
-    } else {
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-
-      a.setAttribute('style', 'display: none');
-      a.href = url;
-      a.download = fileName;
-      a.click();
-      window.URL.revokeObjectURL(url);
-      a.remove();
-    }
   }
 
   /**

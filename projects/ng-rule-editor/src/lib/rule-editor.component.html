@@ -1,43 +1,32 @@
-<lib-calculate-sum-prompt *ngIf="calculateSum" (export)="exportSumOfScores()"></lib-calculate-sum-prompt>
+<lib-calculate-sum-prompt *ngIf="calculateSum" (export)="exportSumOfScores()" [style]="style"></lib-calculate-sum-prompt>
 <div *ngIf="!calculateSum">
-  <h1>{{titleName}}</h1>
+  <h1 [style]="style.h1">{{titleName}}</h1>
 
   <section id="uneditable-variables-section" class="mb-3">
     <lib-uneditable-variables></lib-uneditable-variables>
   </section>
 
   <section id="variables-section" class="mb-3">
-    <lib-variables [advancedInterface]="advancedInterface"></lib-variables>
+    <lib-variables [style]="style"></lib-variables>
   </section>
 
   <section id="final-expression-section" class="mb-3">
-    <h2>Final Expression</h2>
+    <h2 [style]="style.h2">{{expressionLabel}}</h2>
 
-<!--    <div *ngIf="advancedInterface">-->
-<!--      <mat-radio-group [(ngModel)]="expressionSyntax" (change)="onSyntaxChange($event)" aria-label="Select an option">-->
-<!--        <mat-radio-button value="simple">Simple Expression Syntax</mat-radio-button>-->
-<!--        <mat-radio-button value="fhirpath">FHIRPath Expression Syntax</mat-radio-button>-->
-<!--      </mat-radio-group>-->
-<!--    </div>-->
-
-    <div class="container">
-      <div class="row form-group">
-        <div class="col-md-3">
-          <div class="form-inline">
-            <select class="form-control" [(ngModel)]="expressionSyntax" aria-label="Expression syntax type">
-              <option value="simple">Simple Expression</option>
-              <option value="fhirpath">FHIRPath Expression</option>
-            </select>
-          </div>
-        </div>
-        <div class="col-md-9" [ngSwitch]="expressionSyntax">
-          <lib-syntax-converter [variables]="variables" *ngSwitchCase="'simple'" (expressionChange)="updateFinalExpression($event)" class="form-inline"></lib-syntax-converter>
-          <input aria-label="FHIRPath" *ngSwitchCase="'fhirpath'" id="final-expression" class="form-control" [(ngModel)]="finalExpression">
-        </div>
+    <div class="flex-container">
+      <div class="expression-type">
+        <select class="form-control" [(ngModel)]="expressionSyntax" aria-label="Expression syntax type" [ngStyle]="style.select">
+          <option value="simple">Simple Expression</option>
+          <option value="fhirpath">FHIRPath Expression</option>
+        </select>
+      </div>
+      <div class="expression" [ngSwitch]="expressionSyntax">
+        <lib-syntax-converter [value]="simpleSyntax" [variables]="variables" *ngSwitchCase="'simple'" (expressionChange)="updateFinalExpression($event)" [style]="style"></lib-syntax-converter>
+        <input aria-label="FHIRPath" *ngSwitchCase="'fhirpath'" id="final-expression" class="form-control" [(ngModel)]="finalExpression" [ngStyle]="style.input">
       </div>
     </div>
     <div *ngIf="suggestions.length">{{suggestions|json}}</div>
   </section>
 
-  <button class="btn btn-primary py-2 px-5" (click)="export()">{{submitButtonName}}</button>
+  <button class="primary" (click)="export()" [ngStyle]="style.buttonPrimary">{{submitButtonName}}</button>
 </div>

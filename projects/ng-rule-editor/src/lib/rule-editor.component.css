@@ -1,19 +1,79 @@
 .toolbar-button {
   height: 2.7rem;
 }
+
 .file-import {
   width: 4.6rem;
   color: transparent;
 }
+
 .file-import::-webkit-file-upload-button {
   visibility: hidden;
 }
+
 .file-import::before {
   content: 'Import';
   display: inline-block;
   cursor: pointer;
   color: #fff;
 }
+
 mat-radio-button {
   margin-left: 1em;
+}
+
+h1 {
+  margin-top: 0;
+}
+
+.flex-container {
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: row;
+}
+
+.expression, .expression-type {
+  padding: 0.5rem;
+}
+
+.expression-type {
+  flex: 0 0 15em;
+}
+
+.expression {
+  flex: 1 0 auto;
+}
+
+input, select {
+  height: 2rem;
+  font-size: 1rem;
+  width: 100%;
+  margin-bottom: 0.5rem;
+  box-sizing: border-box;
+  border: 1px solid #999;
+  background-color: white;
+  border-radius: 4px;
+  padding: 0 0.5em;
+}
+
+button {
+  height: 2.5rem;
+  border: none;
+  border-radius: 4px;
+  padding: 0 2em;
+  font-size: 1rem;
+}
+
+.primary {
+  background-color: darkblue;
+  color: white;
+}
+
+@media (max-width: 975px) {
+  .flex-container {
+    flex-direction: column;
+  }
+  .expression-type, .expression {
+    flex: 100%;
+  }
 }

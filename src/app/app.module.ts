@@ -12,8 +12,8 @@ import { FormsModule } from '@angular/forms';
   ],
   imports: [
     BrowserModule,
-    RuleEditorModule,
-    FormsModule
+    FormsModule,
+    RuleEditorModule
   ],
   providers: [],
   bootstrap: [

@@ -7,3 +7,9 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
+.text-muted {
+  margin: 0;
+  color: #999;
+  font-size: 0.8rem;
+}

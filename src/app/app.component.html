@@ -2,7 +2,7 @@
 
 <label>
   Questionnaire:
-  <select [(ngModel)]="questionnaire" (change)="onChange()">
+  <select [(ngModel)]="questionnaire">
     <option value="">None</option>
     <option value="bmi">BMI Calculation</option>
     <option value="phq9">PHQ9 (no FHIRPath)</option>
@@ -14,8 +14,17 @@
     <lhc-rule-editor
       [fhirQuestionnaire]="fhir[questionnaire]"
       [itemLinkId]="linkId"
+
       [submitButtonName]="'Save'"
-      [titleName]="'Rule Editor'"
+      [titleName]="'My Rule Editor'"
+      [expressionLabel]="'My Expression'"
+      [expressionUrl]="'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression'"
+      [style]="{
+        buttonPrimary: { backgroundColor: 'blue' },
+        buttonSecondary: { backgroundColor: 'blue', color: 'white' },
+        input: { backgroundColor: '#ffe' },
+        select: { backgroundColor: '#ffe' }
+      }"
       (save)="onSave($event)">
     </lhc-rule-editor>
   </div>

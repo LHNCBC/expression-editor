@@ -1,5 +1,5 @@
-import { Component, EventEmitter, OnInit, Output } from '@angular/core';
-import { RuleEditorService } from '../rule-editor.service';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { RuleEditorService, SimpleStyle } from '../rule-editor.service';
 
 @Component({
   selector: 'lib-calculate-sum-prompt',
@@ -7,6 +7,7 @@ import { RuleEditorService } from '../rule-editor.service';
   styleUrls: ['./calculate-sum-prompt.component.css']
 })
 export class CalculateSumPromptComponent implements OnInit {
+  @Input() style: SimpleStyle;
   @Output() export: EventEmitter<any> = new EventEmitter<any>();
 
   constructor(private ruleEditorService: RuleEditorService) { }

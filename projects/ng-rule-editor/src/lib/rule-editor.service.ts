@@ -5,6 +5,20 @@ import * as mathToFhirpath from 'math-to-fhirpath';
 import { Question, UneditableVariable, Variable } from './variable';
 import { UNIT_CONVERSION } from './units';
 
+export interface SimpleStyle {
+  h1?: object;
+  h2?: object;
+  previewArea?: object;
+  variableHeader?: object;
+  variableRow?: object;
+  buttonPrimary?: object;
+  buttonSecondary?: object;
+  buttonDanger?: object;
+  input?: object;
+  select?: object;
+  description?: object;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -25,6 +39,7 @@ export class RuleEditorService {
   private LANGUAGE_FHIRPATH = 'text/fhirpath';
   private QUESTION_REGEX = /^%resource\.item\.where\(linkId='(.*)'\)\.answer\.value(?:\*(\d*\.?\d*))?$/;
   private VARIABLE_EXTENSION = 'http://hl7.org/fhir/StructureDefinition/variable';
+  private CUSTOM_EXTENSION = 'http://TBD/simple-syntax';  // TODO
   private CALCULATED_EXPRESSION = 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression';
 
   private linkIdToQuestion = {};
@@ -139,7 +154,7 @@ export class RuleEditorService {
    * @param fhir - FHIR Questionnaire
    * @param linkIdContext - linkId to exclude from calculation
    */
-  isProbablyScore(fhir, linkIdContext): boolean {
+  checkIfScore(fhir, linkIdContext): boolean {
     const THRESHOLD = 0.6;  // Percent of questions (minus the one we're editing)
     // which need to be scores to determine we want to sum them up
 
@@ -159,35 +174,35 @@ export class RuleEditorService {
 
   /**
    * Import a FHIR Questionnaire to populate questions
+   * @param expressionUrl - URL of expression extension to use for importing
    * @param fhir - FHIR Questionnaire
    * @param linkIdContext - Context to use for final expression
    */
-  import(fhir, linkIdContext?): void {
+  import(expressionUrl: string, fhir, linkIdContext): void {
     this.linkIdContext = linkIdContext;  // TODO change notification for linkId?
-    this.fhir = fhir;
+    this.fhir = JSON.parse(JSON.stringify(fhir));
 
-    if (fhir.resourceType === 'Questionnaire' && fhir.item && fhir.item.length) {
-      this.mightBeScore = this.isProbablyScore(fhir, linkIdContext);
+    if (this.fhir.resourceType === 'Questionnaire' && this.fhir.item && this.fhir.item.length) {
+      this.mightBeScore = this.checkIfScore(this.fhir, linkIdContext);
       this.mightBeScoreChange.next(this.mightBeScore);
 
-      this.uneditableVariables = this.getUneditableVariables(fhir);
+      this.uneditableVariables = this.getUneditableVariables(this.fhir);
       this.uneditableVariablesChange.next(this.uneditableVariables);
 
       this.linkIdToQuestion = {};
-      const linkIdToQuestion = this.linkIdToQuestion;
-      this.processItem(fhir.item);
+      this.processItem(this.fhir.item);
 
-      this.variables = this.extractVariables(fhir);
+      this.variables = this.extractVariables(this.fhir);
       this.variablesChange.next(this.variables);
 
       this.questions = [];
 
       // tslint:disable-next-line:forin
-      for (const key in linkIdToQuestion) {
-        if (!linkIdToQuestion.hasOwnProperty(key)) {
+      for (const key in this.linkIdToQuestion) {
+        if (!this.linkIdToQuestion.hasOwnProperty(key)) {
           return;
         }
-        const e = linkIdToQuestion[key];
+        const e = this.linkIdToQuestion[key];
         // TODO decimal vs choice
         const MAX_Q_LEN = 60;  // Maximum question length before truncating.
 
@@ -201,8 +216,23 @@ export class RuleEditorService {
       }
       this.questionsChange.next(this.questions);
 
-      this.finalExpression = this.extractFinalExpression(fhir.item, linkIdContext);
-      this.finalExpressionChange.next(this.finalExpression);
+      const expression = this.extractExpression(expressionUrl, this.fhir.item, linkIdContext);
+
+      if (expression !== null) {
+        // TODO
+        // @ts-ignore
+        this.finalExpression = expression.valueExpression.expression;
+        this.finalExpressionChange.next(this.finalExpression);
+
+        const simpleSyntax = this.extractSimpleSyntax(expression);
+
+        if (simpleSyntax === null && this.finalExpression !== '') {
+          this.syntaxType = 'fhirpath';
+        } else {
+          this.syntaxType = 'simple';
+          this.finalExpression = simpleSyntax;
+        }
+      }
     }
   }
 
@@ -221,30 +251,49 @@ export class RuleEditorService {
   }
 
   /**
+   * Get and remove the simple syntax if available. If not return null
+   * @param expression
+   */
+  extractSimpleSyntax(expression): string|null {
+    if (expression.extension) {
+      const customExtension = expression.extension.find((e) => {
+        return e.url === this.CUSTOM_EXTENSION;
+      });
+
+      if (customExtension !== undefined) {
+        return customExtension.valueString;  // TODO move to code
+      }
+    }
+
+    return null;
+  }
+
+  /**
    * Get and remove the final expression
+   * @param expressionUrl - Expression extension URL
    * @param items
    * @param linkId
    */
-  extractFinalExpression(items, linkId): string {
+  extractExpression(expressionUrl, items, linkId): object|null {
     for (const item of items) {
       if (item.extension) {
         const extensionIndex = item.extension.findIndex((e) => {
-          return e.url === this.CALCULATED_EXPRESSION && e.valueExpression.language === this.LANGUAGE_FHIRPATH &&
+          return e.url === expressionUrl && e.valueExpression.language === this.LANGUAGE_FHIRPATH &&
             e.valueExpression.expression;
         });
 
         if (extensionIndex !== -1) {
-          const finalExpression = item.extension[extensionIndex].valueExpression.expression;
+          const finalExpression = item.extension[extensionIndex];
           item.extension.splice(extensionIndex, 1);
 
           return finalExpression;
         }
       } else if (item.item) {
-        return this.extractFinalExpression(item.item, linkId);
+        return this.extractExpression(expressionUrl, item.item, linkId);
       }
     }
 
-    return '';
+    return null;
   }
 
   /**
@@ -352,9 +401,10 @@ export class RuleEditorService {
 
   /**
    * Add variables and finalExpression and return the new FHIR Questionnaire
+   * @param url Extension URL to use for the expression
    * @param finalExpression
    */
-  export(finalExpression: string): object {
+  export(url: string, finalExpression: string): object {
     // TODO support for different variable scopes
     // Copy the fhir object so we can export more than once
     // (if we add our data the second export will have duplicates)
@@ -378,7 +428,7 @@ export class RuleEditorService {
     }
 
     const finalExpressionExtension = {
-      url: this.CALCULATED_EXPRESSION,
+      url,
       valueExpression: {
         language: this.LANGUAGE_FHIRPATH,
         expression: finalExpression
@@ -422,7 +472,7 @@ export class RuleEditorService {
           language: this.LANGUAGE_FHIRPATH,
           expression: `%questionnaire.item.where(linkId = '${e}').answerOption` +
             `.where(valueCoding.code=%resource.item.where(linkId = '${e}').answer.valueCoding.code).extension` +
-            `.where(url='http://hl7.org/fhir/StructureDefinition/ordinalValue').value`
+            `.where(url='http://hl7.org/fhir/StructureDefinition/ordinalValue').valueDecimal`
         }
       };
     });
@@ -483,7 +533,7 @@ export class RuleEditorService {
     if (itemHasScore) {
       return `%questionnaire.item.where(linkId = '${linkId}').answerOption` +
         `.where(valueCoding.code=%resource.item.where(linkId = '${linkId}').answer.valueCoding.code).extension` +
-        `.where(url='http://hl7.org/fhir/StructureDefinition/ordinalValue').value`;
+        `.where(url='http://hl7.org/fhir/StructureDefinition/ordinalValue').valueDecimal`;
     } else if (convertible && unit && toUnit) {
       const factor = UNIT_CONVERSION[unit].find((e) => e.unit === toUnit).factor;
       return `%resource.item.where(linkId='${linkId}').answer.value*${factor}`;

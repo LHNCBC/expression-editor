@@ -1,4 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
+import { SimpleStyle } from '../rule-editor.service';
 
 @Component({
   selector: 'lib-syntax-preview',
@@ -7,6 +8,7 @@ import { Component, Input, OnInit } from '@angular/core';
 })
 export class SyntaxPreviewComponent implements OnInit {
   @Input() syntax;
+  @Input() style: SimpleStyle;
   @Input() showWhenEmpty = false;
 
   constructor() { }
