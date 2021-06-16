@@ -1,13 +1,13 @@
-<lib-calculate-sum-prompt *ngIf="calculateSum" (export)="exportSumOfScores()"></lib-calculate-sum-prompt>
+<lhc-calculate-sum-prompt *ngIf="calculateSum" (export)="exportSumOfScores()"></lhc-calculate-sum-prompt>
 <div *ngIf="!calculateSum">
   <h1>{{titleName}}</h1>
 
   <section id="uneditable-variables-section" class="mb-3">
-    <lib-uneditable-variables></lib-uneditable-variables>
+    <lhc-uneditable-variables></lhc-uneditable-variables>
   </section>
 
   <section id="variables-section" class="mb-3">
-    <lib-variables [advancedInterface]="advancedInterface"></lib-variables>
+    <lhc-variables [advancedInterface]="advancedInterface"></lhc-variables>
   </section>
 
   <section id="final-expression-section" class="mb-3">
@@ -31,7 +31,7 @@
           </div>
         </div>
         <div class="col-md-9" [ngSwitch]="expressionSyntax">
-          <lib-syntax-converter [variables]="variables" *ngSwitchCase="'simple'" (expressionChange)="updateFinalExpression($event)" class="form-inline"></lib-syntax-converter>
+          <lhc-syntax-converter [variables]="variables" *ngSwitchCase="'simple'" (expressionChange)="updateFinalExpression($event)" class="form-inline"></lhc-syntax-converter>
           <input aria-label="FHIRPath" *ngSwitchCase="'fhirpath'" id="final-expression" class="form-control" [(ngModel)]="finalExpression">
         </div>
       </div>

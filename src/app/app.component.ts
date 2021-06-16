@@ -9,7 +9,7 @@ import { context, fhir } from './mock-data';
 })
 export class AppComponent {
   fhirPreview: string;
-  questionnaire = '';
+  questionnaire = 'bmi';
   fhir = fhir;
   linkId = context;
 

@@ -10,7 +10,7 @@ import { RuleEditorService } from './rule-editor.service';
   templateUrl: 'rule-editor.component.html',
   styleUrls: ['rule-editor.component.css']
 })
-export class RuleEditorComponent implements OnInit, OnChanges {
+export class RuleEditorComponent implements OnChanges {
   @Input() fhirQuestionnaire = null;
   @Input() itemLinkId = null;
   @Input() submitButtonName = 'Submit';
@@ -32,13 +32,6 @@ export class RuleEditorComponent implements OnInit, OnChanges {
   private variablesSubscription;
 
   constructor(private variableService: RuleEditorService) {}
-
-  /**
-   * Angular lifecycle hook called when the component is initialized
-   */
-  ngOnInit(): void {
-    this.reload();
-  }
 
   /**
    * Angular lifecycle hook called before the component is destroyed
