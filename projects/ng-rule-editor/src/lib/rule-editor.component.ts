@@ -1,5 +1,5 @@
 import { DatePipe } from '@angular/common';
-import { Component, EventEmitter, Input, OnChanges, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, Output } from '@angular/core';
 import { MatRadioChange } from '@angular/material/radio';
 
 import { RuleEditorService } from './rule-editor.service';
@@ -14,7 +14,7 @@ export class RuleEditorComponent implements OnChanges {
   @Input() fhirQuestionnaire = null;
   @Input() itemLinkId = null;
   @Input() submitButtonName = 'Submit';
-  @Input() titleName = 'Rule Editor';
+  @Input() titleName: string;
   @Output() save = new EventEmitter<object>();
 
   expressionSyntax: string;

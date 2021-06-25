@@ -5,8 +5,9 @@
     "ng": "ng",
     "start": "ng serve",
     "start-public": "ng serve --host 0.0.0.0 --disable-host-check",
-    "build": "ng build ng-rule-editor --prod && ng build",
-    "test": "ng test --watch=false",
+    "build": "ng build ng-rule-editor --prod && ng build rule-editor --prod && ng build",
+    "unit-test": "ng test --watch=false",
+    "test": "ng test --watch=false && ng e2e",
     "lint": "ng lint",
     "e2e": "ng e2e"
   },

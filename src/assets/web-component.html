@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Web Component</title>
+  <link rel="stylesheet" href="/rule-editor/styles.css"/>
+
+  <link rel="shortcut icon" href="data:image/x-icon;," type="image/x-icon">
+  <script src="mock-data.js"></script>
+</head>
+<body>
+  <lhc-rule-editor id="editor" title-name="Test Rule Editor" submit-button-name="Test Submit"></lhc-rule-editor>
+
+  <pre id="output"></pre>
+
+  <script src="/rule-editor/runtime.js"></script>
+  <script src="/rule-editor/polyfills.js"></script>
+  <script src="/rule-editor/main.js"></script>
+
+  <script>
+    const editor = document.getElementById('editor');
+    const output = document.getElementById('output');
+
+    editor.fhirQuestionnaire = fhir.phq9;
+    editor.itemLinkId = '/39156-5';
+    editor.titlename = 'test';
+
+    editor.addEventListener('save', (data) => {
+      output.innerText = JSON.stringify(data.detail, null, 2);
+    });
+  </script>
+</body>
+</html>

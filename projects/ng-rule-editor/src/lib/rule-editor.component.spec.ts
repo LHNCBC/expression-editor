@@ -1,6 +1,9 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { RuleEditorComponent } from './rule-editor.component';
+import { UneditableVariablesComponent } from './uneditable-variables/uneditable-variables.component';
+import { VariablesComponent } from './variables/variables.component';
+import { FormsModule } from '@angular/forms';
 
 describe('RuleEditorComponent', () => {
   let component: RuleEditorComponent;
@@ -8,7 +11,8 @@ describe('RuleEditorComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ RuleEditorComponent ]
+      declarations: [ RuleEditorComponent, UneditableVariablesComponent, VariablesComponent ],
+      imports: [ FormsModule ]
     })
     .compileComponents();
   });

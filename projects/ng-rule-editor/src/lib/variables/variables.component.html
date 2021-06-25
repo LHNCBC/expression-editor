@@ -36,7 +36,7 @@
         </div>
       </div>
       <div class="col-md-1">
-        <button class="btn btn-danger" aria-label="Remove Line" (click)="onRemove(i)">x</button>
+        <button class="btn btn-danger remove-variable" aria-label="Remove Line" (click)="onRemove(i)">x</button>
       </div>
     </div>
     <div *ngIf="!variables.length" class="py-2">No variables, please <a href="#" (click)="onAdd()">add one</a>.</div>

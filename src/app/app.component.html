@@ -15,10 +15,10 @@
       [fhirQuestionnaire]="fhir[questionnaire]"
       [itemLinkId]="linkId"
       [submitButtonName]="'Save'"
-      [titleName]="'Rule Editor'"
+      [titleName]="'Test Rule Editor'"
       (save)="onSave($event)">
     </lhc-rule-editor>
   </div>
 
-  <pre>{{fhirPreview}}</pre>
+  <pre id="output">{{fhirPreview}}</pre>
 </div>
