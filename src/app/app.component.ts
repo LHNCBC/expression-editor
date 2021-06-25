@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { RuleEditorService } from 'ng-rule-editor';
-import { context, fhir } from './mock-data';
+import { linkId, fhir } from './mock-data';
 
 @Component({
   selector: 'app-root',
@@ -11,7 +11,7 @@ export class AppComponent {
   fhirPreview: string;
   questionnaire = '';
   fhir = fhir;
-  linkId = context;
+  linkId = linkId;
 
   constructor(private ruleEditorService: RuleEditorService) { }
 
@@ -24,6 +24,6 @@ export class AppComponent {
   }
 
   addTotalScoreRule(): void {
-    const result = this.ruleEditorService.addTotalScoreRule(fhir.phq9, context);
+    const result = this.ruleEditorService.addTotalScoreRule(fhir.phq9, linkId);
   }
 }
