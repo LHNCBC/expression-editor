@@ -1,53 +1,85 @@
 import { AppPage } from './app.po';
 import { browser, by, element, logging } from 'protractor';
-import * as path from 'path';
 
-describe('workspace-project App', () => {
+describe('Rule Editor', () => {
   let page: AppPage;
 
   beforeEach(() => {
     page = new AppPage();
   });
 
-  describe('Basic', () => {
-    it('should display the a blank editor', async () => {
-      await page.navigateTo();
-      // Title
-      expect(await page.getTitle()).toEqual('FHIRPath Editor');
-      // Uneditable variables section should not show up
-      expect(await page.getNumberOfUneditableVariables()).toEqual(0);
-      // Variables section
-      expect(await page.getVariablesTitle()).toEqual('Variables');
-      expect(await page.getNumberOfVariables()).toEqual(0);
-      // Final expression
-      expect(await page.getFinalExpressionTitle()).toEqual('Final Expression');
+  describe('Angular Library', () => {
+    describe('BMI calculation', () => {
+      it('should display the editor', async () => {
+        await page.navigateTo();
+        // Title
+        expect(await page.getTitle()).toEqual('Test Rule Editor');
+        // Uneditable variables section should not show up
+        expect(await page.getNumberOfUneditableVariables()).toEqual(0);
+        // Variables section
+        expect(await page.getVariablesTitle()).toEqual('Variables');
+        expect(await page.getNumberOfVariables()).toEqual(2);
+        // Final expression
+        expect(await page.getFinalExpressionTitle()).toEqual('Final Expression');
+      });
+
+      it('should be possible to add a variable', async () => {
+        expect(await page.checkAddVariable()).toEqual(true);
+      });
+
+      it('should be possible to remove a variable', async () => {
+        expect(await page.checkRemoveLastVariable()).toEqual(true);
+      });
+
+      it('should produce the correct FHIR Questionnaire', async () => {
+        await page.setSimpleExpression('a/b^2');
+
+        await element(by.id('export')).click();
+
+        expect(await element(by.id('output')).getText()).toContain('"expression": "%a/%b.power(2)"');
+      });
     });
 
-    it('should be possible to add a variable', async () => {
-      expect(await page.checkAddVariable()).toEqual(true);
+    describe('PHQ9 score calculation', () => {
+      it('should display the editor', async () => {
+        await page.navigateTo();
+        // Only the prompt for score calculation should show up
+        await element(by.cssContainingText('option', 'PHQ9 (no FHIRPath)')).click();
+        expect(await element(by.css('lhc-rule-editor h1')).isPresent()).toBeFalsy();
+        expect(await element(by.css('lhc-rule-editor')).getText()).toContain('Would you like to calculate the sum of scores?');
+      });
+
+      it('should produce the calculation', async () => {
+        await element(by.id('export-score')).click();
+
+        expect(await element(by.id('output')).getText()).toContain(
+          '"expression": "iif(%any_questions_answered, iif(%a.exists(), %a, 0) + iif(%b.exists(), %b, 0) + ' +
+          'iif(%c.exists(), %c, 0) + iif(%d.exists(), %d, 0) + iif(%e.exists(), %e, 0) + iif(%f.exists(), %f, 0) + ' +
+          'iif(%g.exists(), %g, 0) + iif(%h.exists(), %h, 0) + iif(%i.exists(), %i, 0), {})"'
+        );
+      });
     });
   });
 
-  describe('BMI calculation', () => {
-    it('should be add two question variables', async () => {
-      await page.navigateTo();
+  describe('Web Component', () => {
+    describe('PHQ9 score calculation', () => {
+      it('should display the editor', async () => {
+        browser.waitForAngularEnabled(false);
+        await page.navigateToWebComponent();
+        // Only the prompt for score calculation should show up
+        expect(await element(by.css('lhc-rule-editor h1')).isPresent()).toBeFalsy();
+        expect(await element(by.css('lhc-rule-editor')).getText()).toContain('Would you like to calculate the sum of scores?');
+      });
 
-      // Import base questionnaire (without fhirpath)
-      await element(by.id('link-id')).sendKeys('/39156-5');
-      const fileName = path.resolve(__dirname, '../bmi.json');
-      await element(by.id('import-fhir')).sendKeys(fileName);
+      it('should produce the calculation', async () => {
+        await element(by.id('export-score')).click();
 
-      await page.addQuestionVariable('Weight', 'Keep form units (kg)');
-      await page.addQuestionVariable('Body height', 'Convert to m');
-    });
-
-    it('should be possible to add a final expression', async () => {
-      await page.setFinalExpression('(%A/(%B.power(2))).round(1)');
-    });
-
-    it('should produce the correct FHIR Questionnaire', async () => {
-      await element(by.id('export-fhir')).click();
-      // TODO export
+        expect(await element(by.id('output')).getText()).toContain(
+          '"expression": "iif(%any_questions_answered, iif(%a.exists(), %a, 0) + iif(%b.exists(), %b, 0) + ' +
+          'iif(%c.exists(), %c, 0) + iif(%d.exists(), %d, 0) + iif(%e.exists(), %e, 0) + iif(%f.exists(), %f, 0) + ' +
+          'iif(%g.exists(), %g, 0) + iif(%h.exists(), %h, 0) + iif(%i.exists(), %i, 0), {})"'
+        );
+      });
     });
   });
 

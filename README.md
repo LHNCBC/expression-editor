@@ -1,10 +1,10 @@
-# The LHC FHIRPath Editor
+# The LHC Rule Editor
 
 An easier way to create FHIRPath given a FHIR Questionnaire.
 
 ## Build
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory. Use the `--prod` flag for a production build.
+Run `ng build ng-rule-editor` and `ng build` to build the project. The build artifacts will be stored in the `dist/` directory. Use the `--prod` flag for a production build.
 
 ## Running unit tests
 

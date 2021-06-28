@@ -5,8 +5,12 @@ export class AppPage {
     return browser.get(browser.baseUrl);
   }
 
+  async navigateToWebComponent(): Promise<unknown> {
+    return browser.get(browser.baseUrl + '/web-component.html');
+  }
+
   async getTitle(): Promise<string> {
-    return element(by.css('app-root h1')).getText();
+    return element(by.css('lhc-rule-editor h1')).getText();
   }
 
   async getVariablesTitle(): Promise<string> {
@@ -33,6 +37,10 @@ export class AppPage {
     return element(by.css('#add-variable')).click();
   }
 
+  async removeVariable(index: number): Promise<void> {
+    return element.all(by.css('.remove-variable')).get(index).click();
+  }
+
   async addQuestionVariable(question, unit): Promise<void> {
     await this.addVariable();
     const index = await this.getNumberOfVariables() - 1;
@@ -56,7 +64,19 @@ export class AppPage {
     return Promise.resolve(variablesAfter - variablesBefore === 1);
   }
 
+  async checkRemoveLastVariable(): Promise<boolean> {
+    const variablesBefore = await this.getNumberOfVariables();
+    await this.removeVariable(variablesBefore - 1);
+    const variablesAfter = await this.getNumberOfVariables();
+
+    return Promise.resolve(variablesBefore - variablesAfter === 1);
+  }
+
   async setFinalExpression(expression): Promise<void> {
     return element(by.id('final-expression')).sendKeys(expression);
+  }
+
+  async setSimpleExpression(expression): Promise<void> {
+    return element(by.id('simple-expression')).sendKeys(expression);
   }
 }

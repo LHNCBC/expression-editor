@@ -1,19 +1,6 @@
-.toolbar-button {
-  height: 2.7rem;
-}
-.file-import {
-  width: 4.6rem;
-  color: transparent;
-}
-.file-import::-webkit-file-upload-button {
-  visibility: hidden;
-}
-.file-import::before {
-  content: 'Import';
-  display: inline-block;
-  cursor: pointer;
-  color: #fff;
-}
-mat-radio-button {
-  margin-left: 1em;
+.rule-editor {
+  border: 1px solid #ccc;
+  padding: 1em;
+  margin: 1em 0;
+  box-shadow: 10px 10px 10px #ccc;
 }
