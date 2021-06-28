@@ -1,4 +1,4 @@
-<lib-calculate-sum-prompt *ngIf="calculateSum" (export)="exportSumOfScores()" [style]="style"></lib-calculate-sum-prompt>
+<lhc-calculate-sum-prompt *ngIf="calculateSum" (export)="exportSumOfScores()" [style]="style"></lhc-calculate-sum-prompt>
 <div *ngIf="!calculateSum">
   <h1 [style]="style.h1">{{titleName}}</h1>
 
@@ -7,7 +7,7 @@
   </section>
 
   <section id="variables-section" class="mb-3">
-    <lib-variables [style]="style"></lib-variables>
+    <lhc-variables [style]="style"></lhc-variables>
   </section>
 
   <section id="final-expression-section" class="mb-3">
@@ -21,12 +21,12 @@
         </select>
       </div>
       <div class="expression" [ngSwitch]="expressionSyntax">
-        <lib-syntax-converter [value]="simpleSyntax" [variables]="variables" *ngSwitchCase="'simple'" (expressionChange)="updateFinalExpression($event)" [style]="style"></lib-syntax-converter>
+        <lhc-syntax-converter [value]="simpleSyntax" [variables]="variables" *ngSwitchCase="'simple'" (expressionChange)="updateFinalExpression($event)" [style]="style"></lhc-syntax-converter>
         <input aria-label="FHIRPath" *ngSwitchCase="'fhirpath'" id="final-expression" class="form-control" [(ngModel)]="finalExpression" [ngStyle]="style.input">
       </div>
     </div>
     <div *ngIf="suggestions.length">{{suggestions|json}}</div>
   </section>
 
-  <button class="primary" (click)="export()" [ngStyle]="style.buttonPrimary">{{submitButtonName}}</button>
+  <button class="primary" (click)="export()" [ngStyle]="style.buttonPrimary" id="export">{{submitButtonName}}</button>
 </div>
