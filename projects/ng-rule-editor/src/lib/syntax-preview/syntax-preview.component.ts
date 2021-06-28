@@ -2,7 +2,7 @@ import { Component, Input, OnInit } from '@angular/core';
 import { SimpleStyle } from '../rule-editor.service';
 
 @Component({
-  selector: 'lib-syntax-preview',
+  selector: 'lhc-syntax-preview',
   templateUrl: './syntax-preview.component.html',
   styleUrls: ['./syntax-preview.component.css']
 })

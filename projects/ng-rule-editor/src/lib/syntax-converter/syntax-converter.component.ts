@@ -3,7 +3,7 @@ import { MathToFhirpathPipe } from '../math-to-fhirpath.pipe';
 import { SimpleStyle } from '../rule-editor.service';
 
 @Component({
-  selector: 'lib-syntax-converter',
+  selector: 'lhc-syntax-converter',
   templateUrl: './syntax-converter.component.html',
   styleUrls: ['./syntax-converter.component.css']
 })

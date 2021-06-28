@@ -1,7 +1,7 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { Injector, NgModule } from '@angular/core';
 
-import { RuleEditorComponent, RuleEditorModule } from 'ng-rule-editor';
+import { RuleEditorComponent, RuleEditorModule } from 'projects/ng-rule-editor/src/public-api';
 import { createCustomElement } from '@angular/elements';
 
 @NgModule({
@@ -11,13 +11,13 @@ import { createCustomElement } from '@angular/elements';
     RuleEditorModule
   ],
   providers: [],
-  bootstrap: [
-    RuleEditorComponent
-  ]
+  bootstrap: []
 })
 export class AppModule {
-  constructor(private injector: Injector) {
-    const RuleEditor = createCustomElement(RuleEditorComponent, {injector});
+  constructor(private injector: Injector) {}
+
+  ngDoBootstrap(): void {
+    const RuleEditor = createCustomElement(RuleEditorComponent, { injector: this.injector });
     customElements.define('lhc-rule-editor', RuleEditor);
   }
 }

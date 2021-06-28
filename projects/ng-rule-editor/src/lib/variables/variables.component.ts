@@ -5,7 +5,7 @@ import { CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/dr
 import { RuleEditorService, SimpleStyle } from '../rule-editor.service';
 
 @Component({
-  selector: 'lib-variables',
+  selector: 'lhc-variables',
   templateUrl: './variables.component.html',
   styleUrls: ['./variables.component.css']
 })

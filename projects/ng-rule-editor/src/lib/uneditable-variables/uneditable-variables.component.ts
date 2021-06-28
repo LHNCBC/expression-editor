@@ -3,7 +3,7 @@ import { RuleEditorService } from '../rule-editor.service';
 import { UneditableVariable } from '../variable';
 
 @Component({
-  selector: 'lib-uneditable-variables',
+  selector: 'lhc-uneditable-variables',
   templateUrl: './uneditable-variables.component.html'
 })
 export class UneditableVariablesComponent implements OnInit {

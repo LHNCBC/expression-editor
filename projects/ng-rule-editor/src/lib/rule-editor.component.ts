@@ -107,7 +107,6 @@ export class RuleEditorComponent implements OnChanges {
 
   /**
    * Update the final expression
-   * @param expression
    */
   updateFinalExpression(expression): void {
     this.finalExpression = expression;

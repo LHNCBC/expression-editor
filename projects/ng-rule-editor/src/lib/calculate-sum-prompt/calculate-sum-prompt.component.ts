@@ -2,7 +2,7 @@ import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { RuleEditorService, SimpleStyle } from '../rule-editor.service';
 
 @Component({
-  selector: 'lib-calculate-sum-prompt',
+  selector: 'lhc-calculate-sum-prompt',
   templateUrl: './calculate-sum-prompt.component.html',
   styleUrls: ['./calculate-sum-prompt.component.css']
 })

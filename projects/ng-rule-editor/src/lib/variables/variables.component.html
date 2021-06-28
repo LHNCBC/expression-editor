@@ -10,6 +10,7 @@
   <div cdkDropList (cdkDropListDropped)="drop($event)">
     <div class="variable-row drag-variable" [style]="style.variableRow" *ngFor="let variable of variables; index as i" [id]="'row-' + i" cdkDrag>
       <div class="variable-column-label">
+        <!-- Inline SVG for the row drag and drop handle -->
         <svg cdkDragHandle xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="handle" viewBox="0 0 16 16">
           <path d="M7 2a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zM7 5a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zM7 8a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>
         </svg>
@@ -22,17 +23,18 @@
         </select>
       </div>
       <div class="variable-column-details" [ngSwitch]="variable.type">
-        <lib-question [variable]="variable" *ngSwitchCase="'question'" [style]="style"></lib-question>
+        <lhc-question [variable]="variable" [advancedInterface]="advancedInterface" *ngSwitchCase="'question'" [style]="style"></lhc-question>
         <div class="form-inline" *ngSwitchCase="'simple'">
-          <input [id]="'variable-expression-' + i" [(ngModel)]="variable.simple" [style]="style.input" aria-label="Simple Expression" />
-          <lib-syntax-preview [syntax]="variable.simple | mathToFhirpath:getAvailableVariables(i)" [style]="style"></lib-syntax-preview>
+          <input [id]="'variable-expression-' + i" [(ngModel)]="variable.simple" [style]="style.input"
+                 aria-label="Simple Expression" />
+          <lhc-syntax-preview [syntax]="variable.simple | mathToFhirpath:getAvailableVariables(i)" [style]="style"></lhc-syntax-preview>
         </div>
         <div class="form-inline" *ngSwitchCase="'expression'">
           <input [id]="'variable-expression-' + i" [(ngModel)]="variable.expression" [style]="style.input" aria-label="FHIRPath Expression" />
         </div>
       </div>
-      <div class="variable-column-actions">
-        <button class="btn btn-danger" aria-label="Remove Line"  [style]="style.buttonDanger" (click)="onRemove(i)">x</button>
+      <div class="col-md-1">
+        <button class="btn btn-danger remove-variable" aria-label="Remove Line" [style]="style.buttonDanger" (click)="onRemove(i)">x</button>
       </div>
     </div>
     <div *ngIf="!variables.length" class="no-variables">No variables, please <a href="#" (click)="onAdd()">add one</a>.</div>
