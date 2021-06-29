@@ -219,7 +219,6 @@ export class RuleEditorService {
       const expression = this.extractExpression(expressionUrl, this.fhir.item, linkIdContext);
 
       if (expression !== null) {
-        // TODO
         // @ts-ignore
         this.finalExpression = expression.valueExpression.expression;
         this.finalExpressionChange.next(this.finalExpression);
@@ -427,13 +426,21 @@ export class RuleEditorService {
       fhir.extension = variablesToAdd;
     }
 
-    const finalExpressionExtension = {
+    const finalExpressionExtension: any = {
       url,
       valueExpression: {
         language: this.LANGUAGE_FHIRPATH,
         expression: finalExpression
       }
     };
+
+    // TODO keep existing extensions
+    if (this.syntaxType === 'simple') {
+      finalExpressionExtension.extension = [{
+        url: this.CUSTOM_EXTENSION,
+        valueString: this.simpleExpression
+      }];
+    }
 
     this.insertExtensions(fhir.item, this.linkIdContext, [finalExpressionExtension]);
 
