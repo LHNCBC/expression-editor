@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
 import { Subject } from 'rxjs';
-import * as mathToFhirpath from 'math-to-fhirpath';
 
 import { Question, UneditableVariable, Variable } from './variable';
 import { UNIT_CONVERSION } from './units';
@@ -35,6 +34,7 @@ export class RuleEditorService {
   variables: Variable[];
   questions: Question[];
   finalExpression: string;
+  simpleExpression: string;
 
   private LANGUAGE_FHIRPATH = 'text/fhirpath';
   private QUESTION_REGEX = /^%resource\.item\.where\(linkId='(.*)'\)\.answer\.value(?:\*(\d*\.?\d*))?$/;
@@ -230,7 +230,7 @@ export class RuleEditorService {
           this.syntaxType = 'fhirpath';
         } else {
           this.syntaxType = 'simple';
-          this.finalExpression = simpleSyntax;
+          this.simpleExpression = simpleSyntax;
         }
       }
     }

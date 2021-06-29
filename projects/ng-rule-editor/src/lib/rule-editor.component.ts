@@ -1,5 +1,5 @@
 import { DatePipe } from '@angular/common';
-import { Component, EventEmitter, Input, OnChanges, Output, ViewEncapsulation } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, Output } from '@angular/core';
 import { MatRadioChange } from '@angular/material/radio';
 
 import { RuleEditorService, SimpleStyle } from './rule-editor.service';
@@ -8,8 +8,7 @@ import { RuleEditorService, SimpleStyle } from './rule-editor.service';
   // tslint:disable-next-line:component-selector
   selector: 'lhc-rule-editor',
   templateUrl: 'rule-editor.component.html',
-  styleUrls: ['rule-editor.component.css'],
-  encapsulation: ViewEncapsulation.ShadowDom
+  styleUrls: ['rule-editor.component.css']
 })
 export class RuleEditorComponent implements OnChanges {
   @Input() fhirQuestionnaire = null;
@@ -22,6 +21,7 @@ export class RuleEditorComponent implements OnChanges {
   @Output() save = new EventEmitter<object>();
 
   expressionSyntax: string;
+  simpleExpression: string;
   finalExpression: string;
   finalExpressionFhirPath: string;
   linkIdContext: string;
@@ -60,6 +60,7 @@ export class RuleEditorComponent implements OnChanges {
       this.variableService.import(this.expressionUrl, this.fhirQuestionnaire, this.itemLinkId);
     }
 
+    this.simpleExpression = this.variableService.simpleExpression;
     this.linkIdContext = this.variableService.linkIdContext;
     this.expressionSyntax = this.variableService.syntaxType;
     this.calculateSum = this.variableService.mightBeScore;

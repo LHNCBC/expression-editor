@@ -23,7 +23,7 @@
         </select>
       </div>
       <div class="variable-column-details" [ngSwitch]="variable.type">
-        <lhc-question [variable]="variable" [advancedInterface]="advancedInterface" *ngSwitchCase="'question'" [style]="style"></lhc-question>
+        <lhc-question [variable]="variable" *ngSwitchCase="'question'" [style]="style"></lhc-question>
         <div class="form-inline" *ngSwitchCase="'simple'">
           <input [id]="'variable-expression-' + i" [(ngModel)]="variable.simple" [style]="style.input"
                  aria-label="Simple Expression" />
@@ -33,7 +33,7 @@
           <input [id]="'variable-expression-' + i" [(ngModel)]="variable.expression" [style]="style.input" aria-label="FHIRPath Expression" />
         </div>
       </div>
-      <div class="col-md-1">
+      <div class="variable-column-actions">
         <button class="btn btn-danger remove-variable" aria-label="Remove Line" [style]="style.buttonDanger" (click)="onRemove(i)">x</button>
       </div>
     </div>
@@ -41,4 +41,4 @@
   </div>
 </div>
 
-<button id="add-variable" class="btn btn-secondary mt-2" (click)="onAdd()" [ngStyle]="style.buttonSecondary ? style.buttonSecondary : {}">Add variable</button>
+<button id="add-variable" class="btn btn-secondary mt-2" (click)="onAdd()" [ngStyle]="style.buttonSecondary">Add variable</button>

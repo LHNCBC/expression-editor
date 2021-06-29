@@ -10,7 +10,7 @@ import { RuleEditorService, SimpleStyle } from '../rule-editor.service';
   styleUrls: ['./variables.component.css']
 })
 export class VariablesComponent implements OnInit {
-  @Input() style: SimpleStyle;
+  @Input() style: SimpleStyle = {};
 
   variableType = VariableType;
   variableSubscription;

@@ -21,7 +21,7 @@
         </select>
       </div>
       <div class="expression" [ngSwitch]="expressionSyntax">
-        <lhc-syntax-converter [value]="simpleSyntax" [variables]="variables" *ngSwitchCase="'simple'" (expressionChange)="updateFinalExpression($event)" [style]="style"></lhc-syntax-converter>
+        <lhc-syntax-converter [expression]="simpleExpression" [variables]="variables" *ngSwitchCase="'simple'" (expressionChange)="updateFinalExpression($event)" [style]="style"></lhc-syntax-converter>
         <input aria-label="FHIRPath" *ngSwitchCase="'fhirpath'" id="final-expression" class="form-control" [(ngModel)]="finalExpression" [ngStyle]="style.input">
       </div>
     </div>

@@ -1,3 +1,15 @@
 :host {
   width: 100%;
 }
+
+input, select {
+  height: 2rem;
+  font-size: 1rem;
+  width: 100%;
+  margin-bottom: 0.5rem;
+  box-sizing: border-box;
+  border: 1px solid #999;
+  background-color: white;
+  border-radius: 4px;
+  padding: 0 0.5em;
+}

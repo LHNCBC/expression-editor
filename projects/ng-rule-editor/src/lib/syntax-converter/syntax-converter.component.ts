@@ -8,18 +8,21 @@ import { SimpleStyle } from '../rule-editor.service';
   styleUrls: ['./syntax-converter.component.css']
 })
 export class SyntaxConverterComponent implements OnInit {
-  @Input() value;
+  @Input() expression: string;
   @Input() variables;
-  @Input() style: SimpleStyle;
+  @Input() style: SimpleStyle = {};
   @Output() expressionChange = new EventEmitter<string>();
 
-  expression: string;
   fhirPathExpression: string;
   jsToFhirPathPipe = new MathToFhirpathPipe();
 
   constructor() { }
 
-  ngOnInit(): void { }
+  ngOnInit(): void {
+    if (this.expression !== '') {
+      this.onExpressionChange(this.expression);
+    }
+  }
 
   onExpressionChange(value): void {
     const fhirPath: string = this.jsToFhirPathPipe.transform(value, this.variables);

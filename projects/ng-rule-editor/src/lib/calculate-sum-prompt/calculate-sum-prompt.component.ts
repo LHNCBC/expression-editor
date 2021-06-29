@@ -7,7 +7,7 @@ import { RuleEditorService, SimpleStyle } from '../rule-editor.service';
   styleUrls: ['./calculate-sum-prompt.component.css']
 })
 export class CalculateSumPromptComponent implements OnInit {
-  @Input() style: SimpleStyle;
+  @Input() style: SimpleStyle = {};
   @Output() export: EventEmitter<any> = new EventEmitter<any>();
 
   constructor(private ruleEditorService: RuleEditorService) { }
