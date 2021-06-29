@@ -8,7 +8,7 @@ import { context, fhir } from './mock-data';
 })
 export class AppComponent {
   fhirPreview: string;
-  questionnaire = 'bmi';
+  questionnaire = 'bmisimple';
   fhir = fhir;
   linkId = context;
 
