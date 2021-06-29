@@ -1,4 +1,4 @@
-export const linkId = '/39156-5';
+export const phq9ScoreLinkId = '/39156-5';
 
 export const fhir = {
   bmi: {
@@ -1388,99 +1388,20 @@ export const fhir = {
 }
 };
 
-export const var1 = 
+export const phq9Vars = [["a", '/44250-9'], ["b", '/44255-8'], ["c", '/44259-0'], ["d", '/44254-1'], ["e", '/44251-7'],
+                        ["f", '/44258-2'], ["g", '/44252-5'], ["h", '/44253-3'], ["i", '/44260-8']];
+
+export const varTemp = 
 {
   "url": "http://hl7.org/fhir/StructureDefinition/variable",
   "valueExpression": {
-    "name": "a",
+    "name": "name_value",
     "language": "text/fhirpath",
-    "expression": "%questionnaire.item.where(linkId = '/44250-9').answerOption.where(valueCoding.code=%resource.item.where(linkId = '/44250-9').answer.valueCoding.code).extension.where(url='http://hl7.org/fhir/StructureDefinition/ordinalValue').value"
+    "expression": "%questionnaire.item.where(linkId = 'linkId_value').answerOption.where(valueCoding.code=%resource.item.where(linkId = 'linkId_value').answer.valueCoding.code).extension.where(url='http://hl7.org/fhir/StructureDefinition/ordinalValue').value"
   }
 };
 
-
-
-export const var2 =
-{
-  "url": "http://hl7.org/fhir/StructureDefinition/variable",
-  "valueExpression": {
-    "name": "b",
-    "language": "text/fhirpath",
-    "expression": "%questionnaire.item.where(linkId = '/44255-8').answerOption.where(valueCoding.code=%resource.item.where(linkId = '/44255-8').answer.valueCoding.code).extension.where(url='http://hl7.org/fhir/StructureDefinition/ordinalValue').value"
-  }
-};
-
-export const var3 =
-{
-  "url": "http://hl7.org/fhir/StructureDefinition/variable",
-  "valueExpression": {
-    "name": "c",
-    "language": "text/fhirpath",
-    "expression": "%questionnaire.item.where(linkId = '/44259-0').answerOption.where(valueCoding.code=%resource.item.where(linkId = '/44259-0').answer.valueCoding.code).extension.where(url='http://hl7.org/fhir/StructureDefinition/ordinalValue').value"
-  }
-};
-
-export const var4 =
-{
-  "url": "http://hl7.org/fhir/StructureDefinition/variable",
-  "valueExpression": {
-    "name": "d",
-    "language": "text/fhirpath",
-    "expression": "%questionnaire.item.where(linkId = '/44254-1').answerOption.where(valueCoding.code=%resource.item.where(linkId = '/44254-1').answer.valueCoding.code).extension.where(url='http://hl7.org/fhir/StructureDefinition/ordinalValue').value"
-  }
-};
-
-export const var5 =
-{
-  "url": "http://hl7.org/fhir/StructureDefinition/variable",
-  "valueExpression": {
-    "name": "e",
-    "language": "text/fhirpath",
-    "expression": "%questionnaire.item.where(linkId = '/44251-7').answerOption.where(valueCoding.code=%resource.item.where(linkId = '/44251-7').answer.valueCoding.code).extension.where(url='http://hl7.org/fhir/StructureDefinition/ordinalValue').value"
-  }
-};
-
-export const var6 =
-{
-  "url": "http://hl7.org/fhir/StructureDefinition/variable",
-  "valueExpression": {
-    "name": "f",
-    "language": "text/fhirpath",
-    "expression": "%questionnaire.item.where(linkId = '/44258-2').answerOption.where(valueCoding.code=%resource.item.where(linkId = '/44258-2').answer.valueCoding.code).extension.where(url='http://hl7.org/fhir/StructureDefinition/ordinalValue').value"
-  }
-};
-
-export const var7 =
-{
-  "url": "http://hl7.org/fhir/StructureDefinition/variable",
-  "valueExpression": {
-    "name": "g",
-    "language": "text/fhirpath",
-    "expression": "%questionnaire.item.where(linkId = '/44252-5').answerOption.where(valueCoding.code=%resource.item.where(linkId = '/44252-5').answer.valueCoding.code).extension.where(url='http://hl7.org/fhir/StructureDefinition/ordinalValue').value"
-  }
-};
-
-export const var8 =
-{
-  "url": "http://hl7.org/fhir/StructureDefinition/variable",
-  "valueExpression": {
-    "name": "h",
-    "language": "text/fhirpath",
-    "expression": "%questionnaire.item.where(linkId = '/44253-3').answerOption.where(valueCoding.code=%resource.item.where(linkId = '/44253-3').answer.valueCoding.code).extension.where(url='http://hl7.org/fhir/StructureDefinition/ordinalValue').value"
-  }
-};
-
-export const var9 =
-{
-  "url": "http://hl7.org/fhir/StructureDefinition/variable",
-  "valueExpression": {
-    "name": "i",
-    "language": "text/fhirpath",
-    "expression": "%questionnaire.item.where(linkId = '/44260-8').answerOption.where(valueCoding.code=%resource.item.where(linkId = '/44260-8').answer.valueCoding.code).extension.where(url='http://hl7.org/fhir/StructureDefinition/ordinalValue').value"
-  }
-};
-
-export const var10 =
+export const phq9Val =
 {
   "url": "http://hl7.org/fhir/StructureDefinition/variable",
   "valueExpression": {
@@ -1490,7 +1411,7 @@ export const var10 =
   }
 };
 
-export const var11 =
+export const phq9Score =
 {
 "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression",
  "valueExpression": {
