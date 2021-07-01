@@ -39,7 +39,7 @@ export class RuleEditorService {
   private LANGUAGE_FHIRPATH = 'text/fhirpath';
   private QUESTION_REGEX = /^%resource\.item\.where\(linkId='(.*)'\)\.answer\.value(?:\*(\d*\.?\d*))?$/;
   private VARIABLE_EXTENSION = 'http://hl7.org/fhir/StructureDefinition/variable';
-  private CUSTOM_EXTENSION = 'http://TBD/simple-syntax';  // TODO
+  private CUSTOM_EXTENSION = 'http://lhcforms.nlm.nih.gov/fhir/ext/simple-syntax';
   private CALCULATED_EXPRESSION = 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression';
 
   private linkIdToQuestion = {};

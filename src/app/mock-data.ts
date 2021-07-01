@@ -195,7 +195,7 @@ export const fhir = {
               "expression": "%a/(%b.power(2))"
             },
             "extension": [{
-              "url": "http://TBD/simple-syntax",
+              "url": "http://lhcforms.nlm.nih.gov/fhir/ext/simple-syntax",
               "valueString": "a/b^2"
             }]
           },

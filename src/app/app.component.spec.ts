@@ -23,10 +23,10 @@ describe('AppComponent', () => {
     expect(app).toBeTruthy();
   });
 
-  it('should default to BMI form', () => {
+  it('should default to Simple BMI form', () => {
     const fixture = TestBed.createComponent(AppComponent);
     const app = fixture.componentInstance;
-    expect(app.questionnaire).toEqual('bmi');
+    expect(app.questionnaire).toEqual('bmisimple');
   });
 
   it('should render basic selection form', () => {
