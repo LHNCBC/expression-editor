@@ -1401,6 +1401,16 @@ export const varTemp =
   }
 };
 
+export const phq9array = [];
+
+for (let i = 0; i < 9; i++) {
+  phq9array.push(insert(phq9Vars[i]));
+}
+
+function insert(values) {
+  return JSON.parse(JSON.stringify(varTemp).replace(/name_value/, values[0]).replace(/linkId_value/, values[1]));
+}
+
 export const phq9Val =
 {
   "url": "http://hl7.org/fhir/StructureDefinition/variable",
