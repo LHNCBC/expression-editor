@@ -39,7 +39,7 @@ export class RuleEditorService {
   private LANGUAGE_FHIRPATH = 'text/fhirpath';
   private QUESTION_REGEX = /^%resource\.item\.where\(linkId='(.*)'\)\.answer\.value(?:\*(\d*\.?\d*))?$/;
   private VARIABLE_EXTENSION = 'http://hl7.org/fhir/StructureDefinition/variable';
-  private CUSTOM_EXTENSION = 'http://lhcforms.nlm.nih.gov/fhir/ext/simple-syntax';
+  private SIMPLE_SYNTAX_EXTENSION = 'http://lhcforms.nlm.nih.gov/fhir/ext/simple-syntax';
   private CALCULATED_EXPRESSION = 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression';
 
   private linkIdToQuestion = {};
@@ -174,11 +174,12 @@ export class RuleEditorService {
 
   /**
    * Import a FHIR Questionnaire to populate questions
-   * @param expressionUrl - URL of expression extension to use for importing
+   * @param expressionUri - URI of expression extension on linkIdContext question
+   *  to extract and modify
    * @param fhir - FHIR Questionnaire
    * @param linkIdContext - Context to use for final expression
    */
-  import(expressionUrl: string, fhir, linkIdContext): void {
+  import(expressionUri: string, fhir, linkIdContext): void {
     this.linkIdContext = linkIdContext;  // TODO change notification for linkId?
     this.fhir = JSON.parse(JSON.stringify(fhir));
 
@@ -216,7 +217,7 @@ export class RuleEditorService {
       }
       this.questionsChange.next(this.questions);
 
-      const expression = this.extractExpression(expressionUrl, this.fhir.item, linkIdContext);
+      const expression = this.extractExpression(expressionUri, this.fhir.item, linkIdContext);
 
       if (expression !== null) {
         // @ts-ignore
@@ -256,7 +257,7 @@ export class RuleEditorService {
   extractSimpleSyntax(expression): string|null {
     if (expression.extension) {
       const customExtension = expression.extension.find((e) => {
-        return e.url === this.CUSTOM_EXTENSION;
+        return e.url === this.SIMPLE_SYNTAX_EXTENSION;
       });
 
       if (customExtension !== undefined) {
@@ -269,15 +270,15 @@ export class RuleEditorService {
 
   /**
    * Get and remove the final expression
-   * @param expressionUrl - Expression extension URL
-   * @param items
-   * @param linkId
+   * @param expressionUri - Expression extension URL
+   * @param items - FHIR questionnaire item array
+   * @param linkId - linkId of question where to extract expression
    */
-  extractExpression(expressionUrl, items, linkId): object|null {
+  extractExpression(expressionUri, items, linkId): object|null {
     for (const item of items) {
       if (item.extension) {
         const extensionIndex = item.extension.findIndex((e) => {
-          return e.url === expressionUrl && e.valueExpression.language === this.LANGUAGE_FHIRPATH &&
+          return e.url === expressionUri && e.valueExpression.language === this.LANGUAGE_FHIRPATH &&
             e.valueExpression.expression;
         });
 
@@ -288,7 +289,7 @@ export class RuleEditorService {
           return finalExpression;
         }
       } else if (item.item) {
-        return this.extractExpression(expressionUrl, item.item, linkId);
+        return this.extractExpression(expressionUri, item.item, linkId);
       }
     }
 
@@ -437,7 +438,7 @@ export class RuleEditorService {
     // TODO keep existing extensions
     if (this.syntaxType === 'simple') {
       finalExpressionExtension.extension = [{
-        url: this.CUSTOM_EXTENSION,
+        url: this.SIMPLE_SYNTAX_EXTENSION,
         valueString: this.simpleExpression
       }];
     }

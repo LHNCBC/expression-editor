@@ -1,22 +1,31 @@
 # The LHC Rule Editor
 
-A widget to make it easier to create FHIRPath given a FHIR Questionnaire.
+A widget to add FHIRPath expressions to a given FHIR Questionnaire.
 
 ## Usage
 
-The Lister Hill Center (LHC) Rule Editor can be used both as an Angular Component or a Web Component.
+The Lister Hill Center (LHC) Rule Editor can be used both as an Angular
+Component or a Web Component.
 
 ### Attributes available
 
-Note: To use the attributes for Web Components change the camel case below to kebab case (with a dash). This does not apply to the keys of the `style` object.
+Note: To use the attributes for Web Components change the camel case below to
+kebab case (with a dash). This does not apply to the keys of the `style`
+object.
 
-* `fhirQuestionnaire` - The FHIR Questionnaire the user will edit using the widget.
-* `itemLinkId` - The linkID to use as a context when evaluating the FHIR Questionnaire.
-* `save` - Called after the user clicks `save` inside the widget and passes in the new version of the FHIR Questionnaire the user entered.
-* `expressionUrl` - By default the widget modifies the calculatedExpression. You can specify a different expression URL here.
-* `expressionLabel` - Heading name to use to show user when entering the expression.
+* `fhirQuestionnaire` - The FHIR Questionnaire the user will edit using the
+  widget.
+* `itemLinkId` - The linkID on which the FHIRPath expression will be stored.
+* `save` - Callback called after the user clicks `save` inside the widget and
+  passes in the new version of the FHIR Questionnaire the user entered as a
+  parameter.
+* `expressionUri` - By default the widget modifies the calculatedExpression.
+  You can specify a different expression URL here. Only valueExpression
+  extensions are currently supported.
+* `expressionLabel` - Heading name to use to show user when entering the
+  expression.
 * `titleName` - Main widget heading shown to the user.
-* `style` - Specify custom CSS to be used by the widget for:
+* `style` (object) - Specify custom CSS to be used by the widget for:
   * h1 - Main heading
   * h2 - Secondary headings
   * previewArea - FHIRPath preview area
@@ -32,13 +41,16 @@ Note: To use the attributes for Web Components change the camel case below to ke
 ### Use as an Angular Component
 
 1. Install in your project using `npm install --save-prod ng-rule-editor`
-2. Make sure your application has `@angular/animations`, `@angular/cdk` `@angular/common`, `@angular/core`, and `@angular/material` as dependencies since they are needed as peer dependencies by the Rule Editor.
+2. Make sure your application has `@angular/animations`, `@angular/cdk`,
+   `@angular/common`, `@angular/core`, and `@angular/material` as dependencies
+   since they are needed as peer dependencies by the Rule Editor.
 3. Add the `lhc-rule-editor` and required tags similar to the example below:
 
 #### Angular Component Example
 
 Note that the attribute names need to be surrounded by square brackets.
-The only required attributes are `[fhirQuestionnaire]` and `[itemLinkId]`. To retrieve data use the `(save)` attribute.
+The only required attributes are `[fhirQuestionnaire]` and `[itemLinkId]`. To
+retrieve data use the `(save)` attribute.
 
     <lhc-rule-editor
       [fhirQuestionnaire]="fhir[questionnaire]"
@@ -49,7 +61,7 @@ The only required attributes are `[fhirQuestionnaire]` and `[itemLinkId]`. To re
       [submitButtonName]="'Save'"
       [titleName]="'My Rule Editor'"
       [expressionLabel]="'My Expression'"
-      [expressionUrl]="'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression'"
+      [expressionUri]="'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression'"
       [style]="{
         buttonPrimary: { backgroundColor: 'blue' },
         buttonSecondary: { backgroundColor: 'blue', color: 'white' },
@@ -61,9 +73,10 @@ The only required attributes are `[fhirQuestionnaire]` and `[itemLinkId]`. To re
 ### Use as a Web Component
 
 1. Install in your project using `npm install --save-prod rule-editor`
-2. (Optional) Integrate the web component files with your module bundler of choice.
+2. (Optional) Integrate the web component files with your module bundler of
+   choice.
 3. Import the JavaScript files on the page.
-4. Add the <lhc-rule-editor> tag along with necessary attributes to the HTML.
+4. Add the <lhc-rule-editor> tag along with necessary [attributes](#attributes-available) to the HTML.
 5. Add event handlers for the `save` event.
 
 #### Web Component Example
@@ -99,7 +112,8 @@ To retrieve data add an event listener for `save`.
 
 ## Build
 
-Run `npm run build` to build the project. The build artifacts will be stored in the `dist/` directory. Use the `--prod` flag for a production build.
+Run `npm run build` to build the project. The build artifacts will be stored
+in the `dist/` directory. Use the `--prod` flag for a production build.
 
 ## Demo project
 

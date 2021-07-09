@@ -16,7 +16,7 @@ export class RuleEditorComponent implements OnChanges {
   @Input() submitButtonName = 'Submit';
   @Input() titleName = 'Rule Editor';
   @Input() expressionLabel = 'Final Expression';
-  @Input() expressionUrl = 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression';
+  @Input() expressionUri = 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression';
   @Input() style: SimpleStyle = {};
   @Output() save = new EventEmitter<object>();
 
@@ -57,7 +57,7 @@ export class RuleEditorComponent implements OnChanges {
    */
   reload(): void {
     if (this.fhirQuestionnaire !== null && this.itemLinkId !== null) {
-      this.variableService.import(this.expressionUrl, this.fhirQuestionnaire, this.itemLinkId);
+      this.variableService.import(this.expressionUri, this.fhirQuestionnaire, this.itemLinkId);
     }
 
     this.simpleExpression = this.variableService.simpleExpression;
@@ -81,7 +81,7 @@ export class RuleEditorComponent implements OnChanges {
    * Export FHIR Questionnaire and download as a file
    */
   export(): void {
-    this.save.emit(this.variableService.export(this.expressionUrl, this.finalExpression));
+    this.save.emit(this.variableService.export(this.expressionUri, this.finalExpression));
   }
 
   /**
