@@ -1,4 +1,4 @@
-export const context = '/39156-5';
+export const phq9ScoreLinkId = '/39156-5';
 
 export const fhir = {
   bmi: {
@@ -1386,4 +1386,47 @@ export const fhir = {
     }
   ]
 }
+};
+
+export const phq9Vars = [["a", '/44250-9'], ["b", '/44255-8'], ["c", '/44259-0'], ["d", '/44254-1'], ["e", '/44251-7'],
+                        ["f", '/44258-2'], ["g", '/44252-5'], ["h", '/44253-3'], ["i", '/44260-8']];
+
+export const varTemp = 
+{
+  "url": "http://hl7.org/fhir/StructureDefinition/variable",
+  "valueExpression": {
+    "name": "name_value",
+    "language": "text/fhirpath",
+    "expression": "%questionnaire.item.where(linkId = 'linkId_value').answerOption.where(valueCoding.code=%resource.item.where(linkId = 'linkId_value').answer.valueCoding.code).extension.where(url='http://hl7.org/fhir/StructureDefinition/ordinalValue').value"
+  }
+};
+
+export const phq9array = [];
+
+for (let i = 0; i < 9; i++) {
+  phq9array.push(insert(phq9Vars[i]));
+}
+
+function insert(values) {
+  return JSON.parse(JSON.stringify(varTemp).replace(/name_value/, values[0]).replace(/linkId_value/, values[1]));
+}
+
+export const phq9Val =
+{
+  "url": "http://hl7.org/fhir/StructureDefinition/variable",
+  "valueExpression": {
+    "name": "any_questions_answered",
+    "language": "text/fhirpath",
+    "expression": "%a.exists() or %b.exists() or %c.exists() or %d.exists() or %e.exists() or %f.exists() or %g.exists() or %h.exists() or %i.exists()"
+  }
+};
+
+export const phq9Score =
+{
+"url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression",
+ "valueExpression": {
+    "description": "Total score calculation",
+    "language": "text/fhirpath",
+    "expression": "iif(%any_questions_answered, iif(%a.exists(), %a, 0) + iif(%b.exists(), %b, 0) + iif(%c.exists(), %c, 0) + iif(%d.exists(), %d, 0) + iif(%e.exists(), %e, 0) + iif(%f.exists(), %f, 0) + iif(%g.exists(), %g, 0) + iif(%h.exists(), %h, 0) + iif(%i.exists(), %i, 0), {})"
+ }
 };

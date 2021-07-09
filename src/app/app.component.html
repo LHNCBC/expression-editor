@@ -7,6 +7,9 @@
     <option value="bmi">BMI Calculation</option>
     <option value="phq9">PHQ9 (no FHIRPath)</option>
   </select>
+  <button (click)="addTotalScoreRule()">
+    Add Total Score Calculation
+  </button>
 </label>
 
 <div *ngIf="questionnaire">

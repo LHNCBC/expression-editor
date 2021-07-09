@@ -390,11 +390,24 @@ export class RuleEditorService {
     return fhir;
   }
 
+
+  /**
+   * Takes FHIR questionnaire definition and a linkId and returns a new FHIR
+   * Questionnaire with a calculated expression at the given linkId which sums up
+   * all the ordinal values in the questionnaire
+   */
+  addTotalScoreRule(fhir, linkId): object {
+    this.fhir = fhir;
+    this.linkIdContext = linkId;
+    return this.exportSumOfScores();
+  }
+
   /**
    * Given the current FHIR questionnaire definition and a linkId return a new FHIR
    * Questionnaire with a calculated expression at the given linkId which sums up
    * all the ordinal values in the questionnaire
    */
+
   exportSumOfScores(): object {
     const fhir = this.fhir;
     const linkIdContext = this.linkIdContext;
