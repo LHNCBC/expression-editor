@@ -1,9 +1,0 @@
-:host {
-  overflow: hidden;
-}
-
-.syntax-preview {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
