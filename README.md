@@ -16,9 +16,9 @@ object.
 * `fhirQuestionnaire` - The FHIR Questionnaire the user will edit using the
   widget.
 * `itemLinkId` - The linkID on which the FHIRPath expression will be stored.
-* `save` - Callback called after the user clicks `save` inside the widget and
-  passes in the new version of the FHIR Questionnaire the user entered as a
-  parameter.
+* `save` - Callback called after the user clicks `save` inside the widget.
+  The callback passes in the new version of the FHIR Questionnaire the user
+  entered as a parameter.
 * `expressionUri` - By default the widget modifies the calculatedExpression.
   You can specify a different expression URL here. Only valueExpression
   extensions are currently supported.
