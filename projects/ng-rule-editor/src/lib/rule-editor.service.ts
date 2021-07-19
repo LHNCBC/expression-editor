@@ -39,6 +39,8 @@ export class RuleEditorService {
   private LANGUAGE_FHIRPATH = 'text/fhirpath';
   private QUESTION_REGEX = /^%resource\.item\.where\(linkId='(.*)'\)\.answer\.value(?:\*(\d*\.?\d*))?$/;
   private VARIABLE_EXTENSION = 'http://hl7.org/fhir/StructureDefinition/variable';
+  private SCORE_VARIABLE_EXTENSION = 'http://lhcforms.nlm.nih.gov/fhir/ext/rule-editor-score-variable';
+  private SCORE_EXPRESSION_EXTENSION = 'http://lhcforms.nlm.nih.gov/fhir/ext/rule-editor-expression';
   private SIMPLE_SYNTAX_EXTENSION = 'http://lhcforms.nlm.nih.gov/fhir/ext/simple-syntax';
   private CALCULATED_EXPRESSION = 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression';
 
@@ -481,7 +483,10 @@ export class RuleEditorService {
           expression: `%questionnaire.item.where(linkId = '${e}').answerOption` +
             `.where(valueCoding.code=%resource.item.where(linkId = '${e}').answer.valueCoding.code).extension` +
             `.where(url='http://hl7.org/fhir/StructureDefinition/ordinalValue').valueDecimal`
-        }
+        },
+        extension: [{
+          url: this.SCORE_VARIABLE_EXTENSION
+        }]
       };
     });
 
@@ -491,7 +496,10 @@ export class RuleEditorService {
         name: 'any_questions_answered',
         language: this.LANGUAGE_FHIRPATH,
         expression: variableNames.map((e) => `%${e}.exists()`).join(' or ')
-      }
+      },
+      extension: [{
+        url: this.SCORE_VARIABLE_EXTENSION
+      }]
     };
 
     const sumString = variableNames.map((e) => `iif(%${e}.exists(), %${e}, 0)`).join(' + ');
@@ -502,7 +510,10 @@ export class RuleEditorService {
         description: 'Total score calculation',
         language: this.LANGUAGE_FHIRPATH,
         expression: `iif(%any_questions_answered, ${sumString}, {})`
-      }
+      },
+      extension: [{
+        url: this.SCORE_EXPRESSION_EXTENSION
+      }]
     };
 
     scoreQuestions.push(anyQuestionAnswered);
@@ -512,6 +523,42 @@ export class RuleEditorService {
     this.insertExtensions(fhir.item, linkIdContext, scoreQuestions);
 
     return fhir;
+  }
+
+  /**
+   * Removes any score calculation added by the rule editor
+   * @param questionnaire
+   * @return Questionnaire without the score calculation variable and expression
+   */
+  removeSumOfScores(questionnaire): object {
+    // Deep copy
+    const questionnaireWithoutScores = JSON.parse(JSON.stringify(questionnaire));
+
+    // First level
+    const removeItemScoreVariables = (item) => {
+      item.extension = item.extension.filter((extension) => !this.isScoreExtension(extension));
+      if (item.item) {
+        item.item.forEach((subItem) => removeItemScoreVariables(subItem));
+      }
+    };
+
+    questionnaireWithoutScores.item.forEach(removeItemScoreVariables);
+
+    return questionnaireWithoutScores;
+  }
+
+  /**
+   * Returns true if the extension has an extension for calculating score false otherwise
+   * @param extension
+   * @private
+   */
+  private isScoreExtension(extension): boolean {
+    if (extension.extension && extension.extension.length) {
+      return extension.extension.find(e => e && e.url === this.SCORE_VARIABLE_EXTENSION) ||
+        extension.extension.find(e => e && e.url === this.SCORE_EXPRESSION_EXTENSION);
+    } else {
+      return false;
+    }
   }
 
   private insertExtensions(items, linkId, extensions): void {
