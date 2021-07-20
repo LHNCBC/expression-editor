@@ -149,14 +149,13 @@ export class RuleEditorService {
     });
   }
 
-  // TODO check if this is already a score calculation
   /**
    * Look at the ordinalValue on the answers of all the questions and if over the threshold
    * percentage of the items have it return true
    * @param fhir - FHIR Questionnaire
    * @param linkIdContext - linkId to exclude from calculation
    */
-  checkIfScore(fhir, linkIdContext): number {
+  getNumberScoreQuestions(fhir, linkIdContext): number {
     let scoreQuestions = 0;
 
     fhir.item.forEach((item) => {
@@ -182,7 +181,7 @@ export class RuleEditorService {
 
     if (this.fhir.resourceType === 'Questionnaire' && this.fhir.item && this.fhir.item.length) {
       const SCORE_MIN_QUESTIONS = 2;
-      this.mightBeScore = this.checkIfScore(this.fhir, linkIdContext) > SCORE_MIN_QUESTIONS;
+      this.mightBeScore = this.getNumberScoreQuestions(this.fhir, linkIdContext) > SCORE_MIN_QUESTIONS;
       this.mightBeScoreChange.next(this.mightBeScore);
 
       this.uneditableVariables = this.getUneditableVariables(this.fhir);
