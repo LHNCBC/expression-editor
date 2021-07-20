@@ -156,22 +156,17 @@ export class RuleEditorService {
    * @param fhir - FHIR Questionnaire
    * @param linkIdContext - linkId to exclude from calculation
    */
-  checkIfScore(fhir, linkIdContext): boolean {
-    const THRESHOLD = 0.6;  // Percent of questions (minus the one we're editing)
-    // which need to be scores to determine we want to sum them up
-
-    let totalQuestions = fhir.item.length;
+  checkIfScore(fhir, linkIdContext): number {
     let scoreQuestions = 0;
 
     fhir.item.forEach((item) => {
       if (item.linkId === linkIdContext) {
-        totalQuestions--;
       } else if (this.itemHasScore(item)) {
         scoreQuestions++;
       }
     });
 
-    return scoreQuestions / totalQuestions >= THRESHOLD;
+    return scoreQuestions;
   }
 
   /**
@@ -186,7 +181,8 @@ export class RuleEditorService {
     this.fhir = JSON.parse(JSON.stringify(fhir));
 
     if (this.fhir.resourceType === 'Questionnaire' && this.fhir.item && this.fhir.item.length) {
-      this.mightBeScore = this.checkIfScore(this.fhir, linkIdContext);
+      const SCORE_MIN_QUESTIONS = 2;
+      this.mightBeScore = this.checkIfScore(this.fhir, linkIdContext) > SCORE_MIN_QUESTIONS;
       this.mightBeScoreChange.next(this.mightBeScore);
 
       this.uneditableVariables = this.getUneditableVariables(this.fhir);
@@ -554,8 +550,8 @@ export class RuleEditorService {
    */
   private isScoreExtension(extension): boolean {
     if (extension.extension && extension.extension.length) {
-      return extension.extension.find(e => e && e.url === this.SCORE_VARIABLE_EXTENSION) ||
-        extension.extension.find(e => e && e.url === this.SCORE_EXPRESSION_EXTENSION);
+      return !!extension.extension.find(e => e && e.url === this.SCORE_VARIABLE_EXTENSION) ||
+        !!extension.extension.find(e => e && e.url === this.SCORE_EXPRESSION_EXTENSION);
     } else {
       return false;
     }
