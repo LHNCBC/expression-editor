@@ -7,7 +7,7 @@ A widget to add FHIRPath expressions to a given FHIR Questionnaire.
 The Lister Hill Center (LHC) Rule Editor can be used both as an Angular
 Component or a Web Component.
 
-<h3 id="attributes-available">Attributes available</h3>
+### Attributes available <a name="attributes-available"></a>
 
 Note: To use the attributes for Web Components change the camel case below to
 kebab case (with a dash). This does not apply to the keys of the `style`
