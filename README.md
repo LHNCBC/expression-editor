@@ -8,6 +8,7 @@ The Lister Hill Center (LHC) Rule Editor can be used both as an Angular
 Component or a Web Component.
 
 <div id="attributes-available"></div>
+
 ### Attributes available
 
 Note: To use the attributes for Web Components change the camel case below to
