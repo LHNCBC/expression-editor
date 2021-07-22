@@ -154,8 +154,9 @@ export class RuleEditorService {
    * percentage of the items have it return true
    * @param fhir - FHIR Questionnaire
    * @param linkIdContext - linkId to exclude from calculation
+   * @return number of score questions on the questionnaire
    */
-  getNumberScoreQuestions(fhir, linkIdContext): number {
+  getScoreQuestionCount(fhir, linkIdContext): number {
     let scoreQuestions = 0;
 
     fhir.item.forEach((item) => {
@@ -180,8 +181,10 @@ export class RuleEditorService {
     this.fhir = JSON.parse(JSON.stringify(fhir));
 
     if (this.fhir.resourceType === 'Questionnaire' && this.fhir.item && this.fhir.item.length) {
+      // If there are at least two score questions we will ask the user if they
+      // want to calculate the score
       const SCORE_MIN_QUESTIONS = 2;
-      this.mightBeScore = this.getNumberScoreQuestions(this.fhir, linkIdContext) > SCORE_MIN_QUESTIONS;
+      this.mightBeScore = this.getScoreQuestionCount(this.fhir, linkIdContext) > SCORE_MIN_QUESTIONS;
       this.mightBeScoreChange.next(this.mightBeScore);
 
       this.uneditableVariables = this.getUneditableVariables(this.fhir);
