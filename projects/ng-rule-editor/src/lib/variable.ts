@@ -5,6 +5,7 @@ export interface UneditableVariable {
 }
 
 export interface Variable {
+  _index?: number;  // Original index in extension list
   label: string;
   type: string;
   expression: string;
