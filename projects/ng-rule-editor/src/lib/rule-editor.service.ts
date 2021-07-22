@@ -531,7 +531,6 @@ export class RuleEditorService {
     // Deep copy
     const questionnaireWithoutScores = JSON.parse(JSON.stringify(questionnaire));
 
-    // First level
     const removeItemScoreVariables = (item) => {
       item.extension = item.extension.filter((extension) => !this.isScoreExtension(extension));
       if (item.item) {
