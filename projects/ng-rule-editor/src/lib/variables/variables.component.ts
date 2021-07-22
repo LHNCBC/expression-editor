@@ -2,7 +2,7 @@ import { Component, Input, OnInit } from '@angular/core';
 
 import { Variable, VariableType } from '../variable';
 import { CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
-import { RuleEditorService } from '../rule-editor.service';
+import { RuleEditorService, SimpleStyle } from '../rule-editor.service';
 
 @Component({
   selector: 'lhc-variables',
@@ -10,7 +10,8 @@ import { RuleEditorService } from '../rule-editor.service';
   styleUrls: ['./variables.component.css']
 })
 export class VariablesComponent implements OnInit {
-  @Input() advancedInterface;
+  @Input() lhcStyle: SimpleStyle = {};
+
   variableType = VariableType;
   variableSubscription;
   variables: Variable[];

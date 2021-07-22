@@ -13,14 +13,14 @@ describe('Rule Editor', () => {
       it('should display the editor', async () => {
         await page.navigateTo();
         // Title
-        expect(await page.getTitle()).toEqual('Test Rule Editor');
+        expect(await page.getTitle()).toEqual('My Rule Editor');
         // Uneditable variables section should not show up
         expect(await page.getNumberOfUneditableVariables()).toEqual(0);
         // Variables section
         expect(await page.getVariablesTitle()).toEqual('Variables');
         expect(await page.getNumberOfVariables()).toEqual(2);
         // Final expression
-        expect(await page.getFinalExpressionTitle()).toEqual('Final Expression');
+        expect(await page.getFinalExpressionTitle()).toEqual('My Expression');
       });
 
       it('should be possible to add a variable', async () => {
@@ -32,11 +32,19 @@ describe('Rule Editor', () => {
       });
 
       it('should produce the correct FHIR Questionnaire', async () => {
-        await page.setSimpleExpression('a/b^2');
-
         await element(by.id('export')).click();
 
         expect(await element(by.id('output')).getText()).toContain('"expression": "%a/%b.power(2)"');
+      });
+
+      it('should be user stylable', async () => {
+        const lightYellowBackground = 'rgb(255, 255, 238)';
+
+        // User styled input fields have a light yellow background. Declared via an attribute
+        expect(await element.all(by.css('lhc-rule-editor input')).first()
+          .getCssValue('background')).toContain(lightYellowBackground);
+        expect(await element(by.id('simple-expression'))
+          .getCssValue('background')).toContain(lightYellowBackground);
       });
     });
 

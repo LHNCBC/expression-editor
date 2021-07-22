@@ -1,43 +1,32 @@
-<lhc-calculate-sum-prompt *ngIf="calculateSum" (export)="exportSumOfScores()"></lhc-calculate-sum-prompt>
+<lhc-calculate-sum-prompt *ngIf="calculateSum" (export)="exportSumOfScores()" [lhcStyle]="lhcStyle"></lhc-calculate-sum-prompt>
 <div *ngIf="!calculateSum">
-  <h1>{{titleName}}</h1>
+  <h1 [style]="lhcStyle.h1">{{titleName}}</h1>
 
   <section id="uneditable-variables-section" class="mb-3">
     <lhc-uneditable-variables></lhc-uneditable-variables>
   </section>
 
   <section id="variables-section" class="mb-3">
-    <lhc-variables [advancedInterface]="advancedInterface"></lhc-variables>
+    <lhc-variables [lhcStyle]="lhcStyle"></lhc-variables>
   </section>
 
   <section id="final-expression-section" class="mb-3">
-    <h2>Final Expression</h2>
+    <h2 [style]="lhcStyle.h2">{{expressionLabel}}</h2>
 
-<!--    <div *ngIf="advancedInterface">-->
-<!--      <mat-radio-group [(ngModel)]="expressionSyntax" (change)="onSyntaxChange($event)" aria-label="Select an option">-->
-<!--        <mat-radio-button value="simple">Simple Expression Syntax</mat-radio-button>-->
-<!--        <mat-radio-button value="fhirpath">FHIRPath Expression Syntax</mat-radio-button>-->
-<!--      </mat-radio-group>-->
-<!--    </div>-->
-
-    <div class="container">
-      <div class="row form-group">
-        <div class="col-md-3">
-          <div class="form-inline">
-            <select class="form-control" [(ngModel)]="expressionSyntax" aria-label="Expression syntax type">
-              <option value="simple">Simple Expression</option>
-              <option value="fhirpath">FHIRPath Expression</option>
-            </select>
-          </div>
-        </div>
-        <div class="col-md-9" [ngSwitch]="expressionSyntax">
-          <lhc-syntax-converter [variables]="variables" *ngSwitchCase="'simple'" (expressionChange)="updateFinalExpression($event)" class="form-inline"></lhc-syntax-converter>
-          <input aria-label="FHIRPath" *ngSwitchCase="'fhirpath'" id="final-expression" class="form-control" [(ngModel)]="finalExpression">
-        </div>
+    <div class="flex-container">
+      <div class="expression-type">
+        <select class="form-control" [(ngModel)]="expressionSyntax" aria-label="Expression syntax type" [ngStyle]="lhcStyle.select">
+          <option value="simple">Simple Expression</option>
+          <option value="fhirpath">FHIRPath Expression</option>
+        </select>
+      </div>
+      <div class="expression" [ngSwitch]="expressionSyntax">
+        <lhc-syntax-converter [expression]="simpleExpression" [variables]="variables" *ngSwitchCase="'simple'" (expressionChange)="updateFinalExpression($event)" [lhcStyle]="lhcStyle"></lhc-syntax-converter>
+        <input aria-label="FHIRPath" *ngSwitchCase="'fhirpath'" id="final-expression" class="form-control" [(ngModel)]="finalExpression" [ngStyle]="lhcStyle.input">
       </div>
     </div>
     <div *ngIf="suggestions.length">{{suggestions|json}}</div>
   </section>
 
-  <button class="btn btn-primary py-2 px-5" (click)="export()" id="export">{{submitButtonName}}</button>
+  <button class="primary" (click)="export()" [ngStyle]="lhcStyle.buttonPrimary" id="export">{{submitButtonName}}</button>
 </div>

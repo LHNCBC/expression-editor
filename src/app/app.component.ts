@@ -1,22 +1,31 @@
-import { Component } from '@angular/core';
-import { RuleEditorService } from 'ng-rule-editor';
-import { context, fhir } from './mock-data';
+import { Component, OnInit } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
-export class AppComponent {
+export class AppComponent implements OnInit {
   fhirPreview: string;
-  questionnaire = 'bmi';
-  fhir = fhir;
-  linkId = context;
+  linkId = '/39156-5';
+  fhir = null;
 
-  constructor(private ruleEditorService: RuleEditorService) { }
+  constructor(private http: HttpClient) {}
 
-  onChange(): void {
-    this.fhirPreview = '';
+  ngOnInit(): void {
+    this.onChange({target: {value: 'bmisimple'}});
+  }
+
+  onChange(event): void {
+    if (event.target.value === '') {
+      this.fhir = null;
+    } else {
+      this.http.get(`/${event.target.value}.json`)
+        .subscribe(data => {
+          this.fhir = data;
+        });
+    }
   }
 
   onSave(fhirResult): void {

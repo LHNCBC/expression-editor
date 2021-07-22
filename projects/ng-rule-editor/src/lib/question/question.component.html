@@ -1,18 +1,23 @@
-<div class="form-inline">
-  <select class="question-select form-control mr-2 w-50" [(ngModel)]="linkId" (change)="onChange(true)" aria-label="Question">
-    <option value="" disabled hidden>Select...</option>
-    <option *ngFor="let question of questions" [value]="question.linkId">
-      {{question.text}}{{advancedInterface ? ' (' + question.linkId + ')' : ''}}
-    </option>
-  </select>
+<div class="form-inline question">
+  <div class="question-select">
+    <select [(ngModel)]="linkId" (change)="onChange(true)" [style]="lhcStyle.select" aria-label="Question">
+      <option value="" disabled hidden>Select...</option>
+      <option *ngFor="let question of questions" [value]="question.linkId">
+        {{question.text + ' (' + question.linkId + ')'}}
+      </option>
+    </select>
+  </div>
 
-  <select class="unit-select form-control" style="width: 40%" *ngIf="conversionOptions" [(ngModel)]="toUnit"
-          (change)="onChange(false)" aria-label="Unit conversion">
-    <option value="">Keep form units ({{unit}})</option>
-    <option *ngFor="let u of conversionOptions" value="{{u.unit}}">Convert to {{u.unit}}</option>
-  </select>
-  <span *ngIf="isNonConvertibleUnit">{{unit}}</span>
-  <span *ngIf="itemHasScore">Score</span>
+  <div class="unit-select">
+    <select *ngIf="conversionOptions" [(ngModel)]="toUnit" [style]="lhcStyle.select"
+            (change)="onChange(false)" aria-label="Unit conversion">
+      <option value="">Keep form units ({{unit}})</option>
+      <option *ngFor="let u of conversionOptions" value="{{u.unit}}">Convert to {{u.unit}}</option>
+    </select>
 
-  <lhc-syntax-preview [syntax]="variable.expression"></lhc-syntax-preview>
+    <div *ngIf="isNonConvertibleUnit" class="detail">{{unit}}</div>
+    <div *ngIf="itemHasScore" class="detail">Score</div>
+  </div>
 </div>
+
+<lhc-syntax-preview [syntax]="variable.expression" [lhcStyle]="lhcStyle"></lhc-syntax-preview>

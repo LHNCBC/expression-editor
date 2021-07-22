@@ -20,7 +20,6 @@ describe('QuestionComponent', () => {
     fixture = TestBed.createComponent(QuestionComponent);
     component = fixture.componentInstance;
     component.variable = {};
-    component.advancedInterface = false;
     fixture.detectChanges();
   });
 
