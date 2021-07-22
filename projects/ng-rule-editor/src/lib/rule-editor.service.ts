@@ -524,7 +524,7 @@ export class RuleEditorService {
 
   /**
    * Removes any score calculation added by the rule editor
-   * @param questionnaire
+   * @param questionnaire - FHIR Questionnaire
    * @return Questionnaire without the score calculation variable and expression
    */
   removeSumOfScores(questionnaire): object {
@@ -545,7 +545,7 @@ export class RuleEditorService {
 
   /**
    * Returns true if the extension has an extension for calculating score false otherwise
-   * @param extension
+   * @param extension - FHIR Extension object
    * @private
    */
   private isScoreExtension(extension): boolean {
