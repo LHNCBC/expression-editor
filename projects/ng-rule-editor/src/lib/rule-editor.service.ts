@@ -160,8 +160,7 @@ export class RuleEditorService {
     let scoreQuestions = 0;
 
     fhir.item.forEach((item) => {
-      if (item.linkId === linkIdContext) {
-      } else if (this.itemHasScore(item)) {
+      if (this.itemHasScore(item)) {
         scoreQuestions++;
       }
     });
