@@ -8,7 +8,7 @@ import { SimpleStyle } from '../rule-editor.service';
 })
 export class SyntaxPreviewComponent implements OnInit {
   @Input() syntax;
-  @Input() style: SimpleStyle;
+  @Input() lhcStyle: SimpleStyle;
   @Input() showWhenEmpty = false;
 
   constructor() { }

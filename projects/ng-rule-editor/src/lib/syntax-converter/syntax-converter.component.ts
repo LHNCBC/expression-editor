@@ -10,7 +10,7 @@ import { SimpleStyle } from '../rule-editor.service';
 export class SyntaxConverterComponent implements OnChanges {
   @Input() expression: string;
   @Input() variables;
-  @Input() style: SimpleStyle = {};
+  @Input() lhcStyle: SimpleStyle = {};
   @Output() expressionChange = new EventEmitter<string>();
 
   fhirPathExpression: string;

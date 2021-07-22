@@ -1,32 +1,32 @@
-<lhc-calculate-sum-prompt *ngIf="calculateSum" (export)="exportSumOfScores()" [style]="style"></lhc-calculate-sum-prompt>
+<lhc-calculate-sum-prompt *ngIf="calculateSum" (export)="exportSumOfScores()" [lhcStyle]="lhcStyle"></lhc-calculate-sum-prompt>
 <div *ngIf="!calculateSum">
-  <h1 [style]="style.h1">{{titleName}}</h1>
+  <h1 [style]="lhcStyle.h1">{{titleName}}</h1>
 
   <section id="uneditable-variables-section" class="mb-3">
     <lhc-uneditable-variables></lhc-uneditable-variables>
   </section>
 
   <section id="variables-section" class="mb-3">
-    <lhc-variables [style]="style"></lhc-variables>
+    <lhc-variables [lhcStyle]="lhcStyle"></lhc-variables>
   </section>
 
   <section id="final-expression-section" class="mb-3">
-    <h2 [style]="style.h2">{{expressionLabel}}</h2>
+    <h2 [style]="lhcStyle.h2">{{expressionLabel}}</h2>
 
     <div class="flex-container">
       <div class="expression-type">
-        <select class="form-control" [(ngModel)]="expressionSyntax" aria-label="Expression syntax type" [ngStyle]="style.select">
+        <select class="form-control" [(ngModel)]="expressionSyntax" aria-label="Expression syntax type" [ngStyle]="lhcStyle.select">
           <option value="simple">Simple Expression</option>
           <option value="fhirpath">FHIRPath Expression</option>
         </select>
       </div>
       <div class="expression" [ngSwitch]="expressionSyntax">
-        <lhc-syntax-converter [expression]="simpleExpression" [variables]="variables" *ngSwitchCase="'simple'" (expressionChange)="updateFinalExpression($event)" [style]="style"></lhc-syntax-converter>
-        <input aria-label="FHIRPath" *ngSwitchCase="'fhirpath'" id="final-expression" class="form-control" [(ngModel)]="finalExpression" [ngStyle]="style.input">
+        <lhc-syntax-converter [expression]="simpleExpression" [variables]="variables" *ngSwitchCase="'simple'" (expressionChange)="updateFinalExpression($event)" [lhcStyle]="lhcStyle"></lhc-syntax-converter>
+        <input aria-label="FHIRPath" *ngSwitchCase="'fhirpath'" id="final-expression" class="form-control" [(ngModel)]="finalExpression" [ngStyle]="lhcStyle.input">
       </div>
     </div>
     <div *ngIf="suggestions.length">{{suggestions|json}}</div>
   </section>
 
-  <button class="primary" (click)="export()" [ngStyle]="style.buttonPrimary" id="export">{{submitButtonName}}</button>
+  <button class="primary" (click)="export()" [ngStyle]="lhcStyle.buttonPrimary" id="export">{{submitButtonName}}</button>
 </div>
