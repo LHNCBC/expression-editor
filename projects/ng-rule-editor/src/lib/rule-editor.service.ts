@@ -114,15 +114,18 @@ export class RuleEditorService {
       const variables = [];
       const nonVariableExtensions = [];
 
-      // Add an index to each extension which we'll use to get the variables
-      // back in the correct order. _index will be removed on save
+      // Add an index to each extension which we will then use to get the
+      // variables back in the correct order. _index will be removed on save
       fhir.extension = fhir.extension.map((e, i) => ({ ...e, _index: i }));
 
       fhir.extension.forEach((extension) => {
         if (extension.url === this.VARIABLE_EXTENSION &&
           extension.valueExpression && extension.valueExpression.language === this.LANGUAGE_FHIRPATH) {
           variables.push(
-            this.processVariable(extension.valueExpression.name, extension.valueExpression.expression, extension._index));
+            this.processVariable(
+              extension.valueExpression.name,
+              extension.valueExpression.expression,
+              extension._index));
         } else {
           nonVariableExtensions.push(extension);
         }
@@ -414,10 +417,6 @@ export class RuleEditorService {
     // (if we add our data the second export will have duplicates)
     const fhir = JSON.parse(JSON.stringify(this.fhir));
 
-    // Split the variables into two buckets, one present initially and ones
-    // added after. The ones present initially add them among the existing
-    // extensions. Add the remaining ones at the end
-
     const variablesToAdd = this.variables.map((e) => {
       return {
         _index: e._index,
@@ -430,6 +429,10 @@ export class RuleEditorService {
       };
     });
 
+    // Split the variables into two buckets: Variables present when
+    // Questionnaire was imported and variables added by the user using the Rule
+    // Editor. Add variables present initially among the existing extensions.
+    // Add the remaining variables at the end
     const variablesPresentInitially = variablesToAdd.filter(e => e._index !== undefined);
     const variablesAdded = variablesToAdd.filter(e => e._index === undefined);
 
@@ -438,6 +441,7 @@ export class RuleEditorService {
       fhir.extension = fhir.extension.concat(variablesPresentInitially);
       // Sort by index
       fhir.extension.sort((a, b) => a._index - b._index);
+      // Add variables added by the user
       fhir.extension = fhir.extension.concat(variablesAdded);
     } else {
       fhir.extension = variablesPresentInitially.concat(variablesAdded);
