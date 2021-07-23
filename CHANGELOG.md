@@ -2,6 +2,10 @@
 
 This project follows [Semantic Versioning](http://semver.org/).
 
+## [0.4.0] 2021-07-23
+### Changes
+- Keep the existing extension order when saving.
+
 ## [0.2.0] 2021-06-28
 ### Changes
 - Add support for developer specified runtime widget styles.
