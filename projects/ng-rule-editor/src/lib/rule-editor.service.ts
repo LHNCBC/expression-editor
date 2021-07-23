@@ -161,13 +161,13 @@ export class RuleEditorService {
    * percentage of the items have it return true
    * @param fhir - FHIR Questionnaire
    * @param linkIdContext - linkId to exclude from calculation
+   * @return number of score questions on the questionnaire
    */
-  getNumberScoreQuestions(fhir, linkIdContext): number {
+  getScoreQuestionCount(fhir, linkIdContext): number {
     let scoreQuestions = 0;
 
     fhir.item.forEach((item) => {
-      if (item.linkId === linkIdContext) {
-      } else if (this.itemHasScore(item)) {
+      if (this.itemHasScore(item)) {
         scoreQuestions++;
       }
     });
@@ -187,8 +187,10 @@ export class RuleEditorService {
     this.fhir = JSON.parse(JSON.stringify(fhir));
 
     if (this.fhir.resourceType === 'Questionnaire' && this.fhir.item && this.fhir.item.length) {
+      // If there are at least two score questions we will ask the user if they
+      // want to calculate the score
       const SCORE_MIN_QUESTIONS = 2;
-      this.mightBeScore = this.getNumberScoreQuestions(this.fhir, linkIdContext) > SCORE_MIN_QUESTIONS;
+      this.mightBeScore = this.getScoreQuestionCount(this.fhir, linkIdContext) > SCORE_MIN_QUESTIONS;
       this.mightBeScoreChange.next(this.mightBeScore);
 
       this.uneditableVariables = this.getUneditableVariables(this.fhir);
@@ -548,14 +550,13 @@ export class RuleEditorService {
 
   /**
    * Removes any score calculation added by the rule editor
-   * @param questionnaire
+   * @param questionnaire - FHIR Questionnaire
    * @return Questionnaire without the score calculation variable and expression
    */
   removeSumOfScores(questionnaire): object {
     // Deep copy
     const questionnaireWithoutScores = JSON.parse(JSON.stringify(questionnaire));
 
-    // First level
     const removeItemScoreVariables = (item) => {
       item.extension = item.extension.filter((extension) => !this.isScoreExtension(extension));
       if (item.item) {
@@ -570,7 +571,7 @@ export class RuleEditorService {
 
   /**
    * Returns true if the extension has an extension for calculating score false otherwise
-   * @param extension
+   * @param extension - FHIR Extension object
    * @private
    */
   private isScoreExtension(extension): boolean {

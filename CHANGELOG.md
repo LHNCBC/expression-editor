@@ -6,6 +6,11 @@ This project follows [Semantic Versioning](http://semver.org/).
 ### Changes
 - Keep the existing extension order when saving.
 
+## [0.3.0] 2021-07-22
+### Changes
+- Add support for removing score calculation from a questionnaire.
+- Change the API from `checkIfScore` to `getScoreQuestionCount`.
+
 ## [0.2.0] 2021-06-28
 ### Changes
 - Add support for developer specified runtime widget styles.
