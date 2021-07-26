@@ -18,15 +18,15 @@ describe('RuleEditorService', () => {
 
   for (let i = 0; i < 9; i++) {
     it("should return scored questionnaire with var", () => {
-      expect(service.addTotalScoreRule(fhir.phq9, phq9ScoreLinkId)).to.include(phq9array[i]);
+      expect(service.addTotalScoreRule(fhir.phq9, phq9ScoreLinkId)).toContain(phq9array[i]);
     });
   }
 
   it("should return scored questionnaire with var10", () => {
-    expect(service.addTotalScoreRule(fhir.phq9, phq9ScoreLinkId)).to.include(phq9Val);
+    expect(service.addTotalScoreRule(fhir.phq9, phq9ScoreLinkId)).toContain(phq9Val);
   });
 
   it("should return scored questionnaire with var11", () => {
-    expect(service.addTotalScoreRule(fhir.phq9, phq9ScoreLinkId)).to.include(phq9Score);
+    expect(service.addTotalScoreRule(fhir.phq9, phq9ScoreLinkId)).toContain(phq9Score);
   });
 });
