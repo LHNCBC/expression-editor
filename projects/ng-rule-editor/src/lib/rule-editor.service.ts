@@ -304,10 +304,14 @@ export class RuleEditorService {
   }
 
   /**
-   * Process the an expression into a possible question
+   * Process a FHIRPath expression into a more user friendly format if possible.
+   * If the format of the FHIRPath matches a format we can display with a
+   * question dropdown, etc show that. If not show the FHIRPath expression.
    * @param name - Name to assign variable
    * @param expression - Expression to process
    * @param index - Original order in extension list
+   * @return Variable type which can be used by the Rule Editor to show a
+   * question, expression etc
    * @private
    */
   private processVariable(name, expression, index?: number): Variable {
@@ -436,8 +440,16 @@ export class RuleEditorService {
     // Questionnaire was imported and variables added by the user using the Rule
     // Editor. Add variables present initially among the existing extensions.
     // Add the remaining variables at the end
-    const variablesPresentInitially = variablesToAdd.filter(e => e._index !== undefined);
-    const variablesAdded = variablesToAdd.filter(e => e._index === undefined);
+    const variablesPresentInitially = [];
+    const variablesAdded = [];
+
+    variablesToAdd.forEach(e => {
+      if (e._index === undefined) {
+        variablesAdded.push(e);
+      } else {
+        variablesPresentInitially.push(e);
+      }
+    })
 
     if (fhir.extension) {
       // Introduce variables present before
