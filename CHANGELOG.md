@@ -2,7 +2,7 @@
 
 This project follows [Semantic Versioning](http://semver.org/).
 
-## [0.3.0] 2021-07-22
+## [1.0.0] 2021-07-22
 ### Changes
 - Add support for removing score calculation from a questionnaire.
 - Change the API from `checkIfScore` to `getScoreQuestionCount`.
