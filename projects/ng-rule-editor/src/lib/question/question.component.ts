@@ -10,7 +10,7 @@ import { Unit, UNIT_CONVERSION } from '../units';
 })
 export class QuestionComponent implements OnInit {
   @Input() variable;
-  @Input() style: SimpleStyle = {};
+  @Input() lhcStyle: SimpleStyle = {};
   linkId = '';
   questions: Question[];
   itemHasScore = false;

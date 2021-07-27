@@ -17,7 +17,7 @@ export class RuleEditorComponent implements OnChanges {
   @Input() titleName = 'Rule Editor';
   @Input() expressionLabel = 'Final Expression';
   @Input() expressionUri = 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression';
-  @Input() style: SimpleStyle = {};
+  @Input() lhcStyle: SimpleStyle = {};
   @Output() save = new EventEmitter<object>();
 
   expressionSyntax: string;

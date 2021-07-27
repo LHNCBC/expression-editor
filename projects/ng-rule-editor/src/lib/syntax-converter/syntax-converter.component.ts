@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnChanges } from '@angular/core';
 import { MathToFhirpathPipe } from '../math-to-fhirpath.pipe';
 import { SimpleStyle } from '../rule-editor.service';
 
@@ -7,10 +7,10 @@ import { SimpleStyle } from '../rule-editor.service';
   templateUrl: './syntax-converter.component.html',
   styleUrls: ['./syntax-converter.component.css']
 })
-export class SyntaxConverterComponent implements OnInit {
+export class SyntaxConverterComponent implements OnChanges {
   @Input() expression: string;
   @Input() variables;
-  @Input() style: SimpleStyle = {};
+  @Input() lhcStyle: SimpleStyle = {};
   @Output() expressionChange = new EventEmitter<string>();
 
   fhirPathExpression: string;
@@ -18,7 +18,7 @@ export class SyntaxConverterComponent implements OnInit {
 
   constructor() { }
 
-  ngOnInit(): void {
+  ngOnChanges(): void {
     if (this.expression !== '') {
       this.onExpressionChange(this.expression);
     }
