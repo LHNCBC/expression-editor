@@ -1,6 +1,6 @@
 {
   "name": "rule-editor",
-  "version": "0.4.0",
+  "version": "2.0.0",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
@@ -26,10 +26,11 @@
     "@angular/router": "~11.0.5",
     "@ungap/custom-elements": "^1.0.0",
     "classlist.js": "^1.1.20150312",
+    "fast-copy": "^2.1.1",
+    "math-to-fhirpath": "NLMLHC/math-to-fhirpath",
     "rxjs": "~6.6.0",
     "tslib": "^2.0.0",
-    "zone.js": "~0.10.2",
-    "math-to-fhirpath": "NLMLHC/math-to-fhirpath"
+    "zone.js": "~0.10.2"
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "~0.1100.5",

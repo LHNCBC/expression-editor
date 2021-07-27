@@ -7,10 +7,10 @@ A widget to add FHIRPath expressions to a given FHIR Questionnaire.
 The Lister Hill Center (LHC) Rule Editor can be used both as an Angular
 Component or a Web Component.
 
-### Attributes available
+### Attributes available <a name="attributes-available"></a>
 
 Note: To use the attributes for Web Components change the camel case below to
-kebab case (with a dash). This does not apply to the keys of the `style`
+kebab case (with a dash). This does not apply to the keys of the `lhcStyle`
 object.
 
 * `fhirQuestionnaire` - The FHIR Questionnaire the user will edit using the
@@ -25,7 +25,7 @@ object.
 * `expressionLabel` - Heading name to use to show user when entering the
   expression.
 * `titleName` - Main widget heading shown to the user.
-* `style` (object) - Specify custom CSS to be used by the widget for:
+* `lhcStyle` (object) - Specify custom CSS to be used by the widget for:
   * h1 - Main heading
   * h2 - Secondary headings
   * previewArea - FHIRPath preview area
@@ -62,7 +62,7 @@ retrieve data use the `(save)` attribute.
       [titleName]="'My Rule Editor'"
       [expressionLabel]="'My Expression'"
       [expressionUri]="'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression'"
-      [style]="{
+      [lhcStyle]="{
         buttonPrimary: { backgroundColor: 'blue' },
         buttonSecondary: { backgroundColor: 'blue', color: 'white' },
         input: { backgroundColor: 'lightblue' },

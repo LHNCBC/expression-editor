@@ -17,7 +17,7 @@ export class RuleEditorComponent implements OnChanges {
   @Input() titleName = 'Rule Editor';
   @Input() expressionLabel = 'Final Expression';
   @Input() expressionUri = 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression';
-  @Input() style: SimpleStyle = {};
+  @Input() lhcStyle: SimpleStyle = {};
   @Output() save = new EventEmitter<object>();
 
   expressionSyntax: string;
@@ -85,10 +85,11 @@ export class RuleEditorComponent implements OnChanges {
   }
 
   /**
-   * Export FHIR questionnaire file by summing all ordinal values
+   * Create a new instance of a FHIR questionnaire file by summing all ordinal
+   * values
    */
-  exportSumOfScores(): void {
-    this.save.emit(this.variableService.exportSumOfScores());
+  addSumOfScores(): void {
+    this.save.emit(this.variableService.addSumOfScores());
   }
 
   /**

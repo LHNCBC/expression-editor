@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Subject } from 'rxjs';
+import copy from 'fast-copy';
 
 import { Question, UneditableVariable, Variable } from './variable';
 import { UNIT_CONVERSION } from './units';
@@ -157,8 +158,8 @@ export class RuleEditorService {
   }
 
   /**
-   * Look at the ordinalValue on the answers of all the questions and if over the threshold
-   * percentage of the items have it return true
+   * Get the number of ordinalValue on the answers of the questions on the
+   * Questionnaire
    * @param fhir - FHIR Questionnaire
    * @param linkIdContext - linkId to exclude from calculation
    * @return number of score questions on the questionnaire
@@ -184,12 +185,12 @@ export class RuleEditorService {
    */
   import(expressionUri: string, fhir, linkIdContext): void {
     this.linkIdContext = linkIdContext;  // TODO change notification for linkId?
-    this.fhir = JSON.parse(JSON.stringify(fhir));
+    this.fhir = copy(fhir);
 
     if (this.fhir.resourceType === 'Questionnaire' && this.fhir.item && this.fhir.item.length) {
       // If there are at least two score questions we will ask the user if they
       // want to calculate the score
-      const SCORE_MIN_QUESTIONS = 2;
+      const SCORE_MIN_QUESTIONS = 1;
       this.mightBeScore = this.getScoreQuestionCount(this.fhir, linkIdContext) > SCORE_MIN_QUESTIONS;
       this.mightBeScoreChange.next(this.mightBeScore);
 
@@ -417,7 +418,7 @@ export class RuleEditorService {
     // TODO support for different variable scopes
     // Copy the fhir object so we can export more than once
     // (if we add our data the second export will have duplicates)
-    const fhir = JSON.parse(JSON.stringify(this.fhir));
+    const fhir = copy(this.fhir);
 
     const variablesToAdd = this.variables.map((e) => {
       return {
@@ -478,7 +479,7 @@ export class RuleEditorService {
    * Questionnaire with a calculated expression at the given linkId which sums up
    * all the ordinal values in the questionnaire
    */
-  exportSumOfScores(): object {
+  addSumOfScores(): object {
     const fhir = this.fhir;
     const linkIdContext = this.linkIdContext;
 
@@ -505,11 +506,11 @@ export class RuleEditorService {
           language: this.LANGUAGE_FHIRPATH,
           expression: `%questionnaire.item.where(linkId = '${e}').answerOption` +
             `.where(valueCoding.code=%resource.item.where(linkId = '${e}').answer.valueCoding.code).extension` +
-            `.where(url='http://hl7.org/fhir/StructureDefinition/ordinalValue').valueDecimal`
-        },
-        extension: [{
-          url: this.SCORE_VARIABLE_EXTENSION
-        }]
+            `.where(url='http://hl7.org/fhir/StructureDefinition/ordinalValue').valueDecimal`,
+          extension: [{
+            url: this.SCORE_VARIABLE_EXTENSION
+          }]
+        }
       };
     });
 
@@ -518,11 +519,11 @@ export class RuleEditorService {
       valueExpression: {
         name: 'any_questions_answered',
         language: this.LANGUAGE_FHIRPATH,
-        expression: variableNames.map((e) => `%${e}.exists()`).join(' or ')
-      },
-      extension: [{
-        url: this.SCORE_VARIABLE_EXTENSION
-      }]
+        expression: variableNames.map((e) => `%${e}.exists()`).join(' or '),
+        extension: [{
+          url: this.SCORE_VARIABLE_EXTENSION
+        }]
+      }
     };
 
     const sumString = variableNames.map((e) => `iif(%${e}.exists(), %${e}, 0)`).join(' + ');
@@ -532,11 +533,11 @@ export class RuleEditorService {
       valueExpression: {
         description: 'Total score calculation',
         language: this.LANGUAGE_FHIRPATH,
-        expression: `iif(%any_questions_answered, ${sumString}, {})`
-      },
-      extension: [{
-        url: this.SCORE_EXPRESSION_EXTENSION
-      }]
+        expression: `iif(%any_questions_answered, ${sumString}, {})`,
+        extension: [{
+          url: this.SCORE_EXPRESSION_EXTENSION
+        }]
+      }
     };
 
     scoreQuestions.push(anyQuestionAnswered);
@@ -555,7 +556,7 @@ export class RuleEditorService {
    */
   removeSumOfScores(questionnaire): object {
     // Deep copy
-    const questionnaireWithoutScores = JSON.parse(JSON.stringify(questionnaire));
+    const questionnaireWithoutScores = copy(questionnaire);
 
     const removeItemScoreVariables = (item) => {
       item.extension = item.extension.filter((extension) => !this.isScoreExtension(extension));
@@ -575,9 +576,11 @@ export class RuleEditorService {
    * @private
    */
   private isScoreExtension(extension): boolean {
-    if (extension.extension && extension.extension.length) {
-      return !!extension.extension.find(e => e && e.url === this.SCORE_VARIABLE_EXTENSION) ||
-        !!extension.extension.find(e => e && e.url === this.SCORE_EXPRESSION_EXTENSION);
+    if (extension.valueExpression && extension.valueExpression.extension &&
+      extension.valueExpression.extension.length) {
+      return !!extension.valueExpression.extension.find(e => e &&
+          (e.url === this.SCORE_VARIABLE_EXTENSION ||
+          e.url === this.SCORE_EXPRESSION_EXTENSION));
     } else {
       return false;
     }

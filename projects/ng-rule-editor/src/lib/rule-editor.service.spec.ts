@@ -59,7 +59,7 @@ describe('RuleEditorService', () => {
     const CONTEXT_INDEX = 9;
     expect(original.item[CONTEXT_INDEX].extension.length).toEqual(INITIAL_EXTENSION_COUNT);
 
-    const withScores = service.exportSumOfScores();
+    const withScores = service.addSumOfScores();
 
     expect(withScores['item'][CONTEXT_INDEX].extension.length).toEqual(INITIAL_EXTENSION_COUNT + 11);
 
