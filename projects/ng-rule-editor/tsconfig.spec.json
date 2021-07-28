@@ -3,8 +3,13 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "outDir": "../../out-tsc/spec",
+    "moduleResolution": "node",
     "types": [
       "jasmine"
+    ],
+    "typeRoots": [
+      "node_modules/@types",
+      "node_modules/@types/node"
     ]
   },
   "files": [
