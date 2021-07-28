@@ -181,7 +181,7 @@ export class RuleEditorService {
     this.fhir = copy(fhir);
 
     if (this.fhir.resourceType === 'Questionnaire' && this.fhir.item && this.fhir.item.length) {
-      // If there are at least two score questions we will ask the user if they
+      // If there is at least one score question we will ask the user if they
       // want to calculate the score
       const SCORE_MIN_QUESTIONS = 1;
       this.mightBeScore = this.getScoreQuestionCount(this.fhir, linkIdContext) > SCORE_MIN_QUESTIONS;
