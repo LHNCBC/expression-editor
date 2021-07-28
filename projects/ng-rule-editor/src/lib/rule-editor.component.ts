@@ -85,10 +85,11 @@ export class RuleEditorComponent implements OnChanges {
   }
 
   /**
-   * Export FHIR questionnaire file by summing all ordinal values
+   * Create a new instance of a FHIR questionnaire file by summing all ordinal
+   * values
    */
-  exportSumOfScores(): void {
-    this.save.emit(this.variableService.exportSumOfScores());
+  addSumOfScores(): void {
+    this.save.emit(this.variableService.addSumOfScores());
   }
 
   /**
