@@ -2,7 +2,7 @@
 
 This project follows [Semantic Versioning](http://semver.org/).
 
-## [2.0.0] 2021-07-27
+## [1.0.1] 2021-07-27
 ### Changes
 - Keep the existing extension order when saving.
 
