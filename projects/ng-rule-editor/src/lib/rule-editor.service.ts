@@ -115,11 +115,18 @@ export class RuleEditorService {
       const variables = [];
       const nonVariableExtensions = [];
 
+      // Add an index to each extension which we will then use to get the
+      // variables back in the correct order. _index will be removed on save
+      fhir.extension = fhir.extension.map((e, i) => ({ ...e, _index: i }));
+
       fhir.extension.forEach((extension) => {
         if (extension.url === this.VARIABLE_EXTENSION &&
           extension.valueExpression && extension.valueExpression.language === this.LANGUAGE_FHIRPATH) {
           variables.push(
-            this.processVariable(extension.valueExpression.name, extension.valueExpression.expression));
+            this.processVariable(
+              extension.valueExpression.name,
+              extension.valueExpression.expression,
+              extension._index));
         } else {
           nonVariableExtensions.push(extension);
         }
@@ -297,12 +304,17 @@ export class RuleEditorService {
   }
 
   /**
-   * Process the an expression into a possible question
+   * Process a FHIRPath expression into a more user friendly format if possible.
+   * If the format of the FHIRPath matches a format we can display with a
+   * question dropdown, etc show that. If not show the FHIRPath expression.
    * @param name - Name to assign variable
    * @param expression - Expression to process
+   * @param index - Original order in extension list
+   * @return Variable type which can be used by the Rule Editor to show a
+   * question, expression etc
    * @private
    */
-  private processVariable(name, expression): Variable {
+  private processVariable(name, expression, index?: number): Variable {
     const matches = expression.match(this.QUESTION_REGEX);
 
     if (matches !== null) {
@@ -310,6 +322,7 @@ export class RuleEditorService {
       const factor = matches[2];
 
       const variable: Variable = {
+        _index: index,
         label: name,
         type: 'question',
         linkId,
@@ -333,6 +346,7 @@ export class RuleEditorService {
       return variable;
     } else {
       return {
+        _index: index,
         label: name,
         type: 'expression',
         expression
@@ -412,6 +426,7 @@ export class RuleEditorService {
 
     const variablesToAdd = this.variables.map((e) => {
       return {
+        _index: e._index,
         url: this.VARIABLE_EXTENSION,
         valueExpression: {
           name: e.label,
@@ -421,11 +436,34 @@ export class RuleEditorService {
       };
     });
 
+    // Split the variables into two buckets: Variables present when
+    // Questionnaire was imported and variables added by the user using the Rule
+    // Editor. Add variables present initially among the existing extensions.
+    // Add the remaining variables at the end
+    const variablesPresentInitially = [];
+    const variablesAdded = [];
+
+    variablesToAdd.forEach(e => {
+      if (e._index === undefined) {
+        variablesAdded.push(e);
+      } else {
+        variablesPresentInitially.push(e);
+      }
+    })
+
     if (fhir.extension) {
-      fhir.extension = fhir.extension.concat(variablesToAdd);
+      // Introduce variables present before
+      fhir.extension = fhir.extension.concat(variablesPresentInitially);
+      // Sort by index
+      fhir.extension.sort((a, b) => a._index - b._index);
+      // Add variables added by the user
+      fhir.extension = fhir.extension.concat(variablesAdded);
     } else {
-      fhir.extension = variablesToAdd;
+      fhir.extension = variablesPresentInitially.concat(variablesAdded);
     }
+
+    // Remove _index
+    fhir.extension = fhir.extension.map(({_index, ...other}) => other);
 
     const finalExpressionExtension: any = {
       url,
