@@ -11,10 +11,10 @@ export class AppComponent {
   fhirPreview: string;
   questionnaire = 'bmi';
   fhir = fhir;
+  linkId = phq9ScoreLinkId;
   phq9ScoreLinkId = phq9ScoreLinkId;
 
   constructor(private ruleEditorService: RuleEditorService) { }
-s
   onChange(): void {
     this.fhirPreview = '';
   }
@@ -23,7 +23,7 @@ s
     this.fhirPreview = JSON.stringify(fhirResult, null, 2);
   }
 
-  addTotalScoreRule(): void {
-    const result = this.ruleEditorService.addTotalScoreRule(fhir.phq9, phq9ScoreLinkId);
-  }
+  //addTotalScoreRule(): void {
+  //  const result = this.ruleEditorService.addTotalScoreRule(fhir.phq9, phq9ScoreLinkId);
+  //}
 }

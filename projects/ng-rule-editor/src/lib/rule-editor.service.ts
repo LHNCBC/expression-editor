@@ -407,7 +407,6 @@ export class RuleEditorService {
    * Questionnaire with a calculated expression at the given linkId which sums up
    * all the ordinal values in the questionnaire
    */
-
   exportSumOfScores(): object {
     const fhir = this.fhir;
     const linkIdContext = this.linkIdContext;
