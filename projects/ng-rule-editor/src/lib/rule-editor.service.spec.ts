@@ -22,10 +22,6 @@ const outputItem = {
   }
 };
 
-// @ts-ignore
-import * as fs from "fs";
-// const fs = require("fs");
-
 describe('RuleEditorService', () => {
   let service: RuleEditorService;
   let output;
@@ -52,4 +48,3 @@ describe('RuleEditorService', () => {
     expect(output.item[9].extension[12]).toEqual(outputItem);
   });
 });
-import { from } from 'rxjs';
