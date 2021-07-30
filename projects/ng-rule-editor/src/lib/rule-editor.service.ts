@@ -486,6 +486,18 @@ export class RuleEditorService {
     return fhir;
   }
 
+
+  /**
+   * Takes FHIR questionnaire definition and a linkId and returns a new FHIR
+   * Questionnaire with a calculated expression at the given linkId which sums up
+   * all the ordinal values in the questionnaire
+   */
+  addTotalScoreRule(fhir, linkId): object {
+    this.fhir = copy(fhir);
+    this.linkIdContext = linkId;
+    return this.addSumOfScores();
+  }
+
   /**
    * Given the current FHIR questionnaire definition and a linkId return a new FHIR
    * Questionnaire with a calculated expression at the given linkId which sums up
@@ -591,7 +603,7 @@ export class RuleEditorService {
     if (extension.valueExpression && extension.valueExpression.extension &&
       extension.valueExpression.extension.length) {
       return !!extension.valueExpression.extension.find(e => e &&
-          (e.url === this.SCORE_VARIABLE_EXTENSION ||
+        (e.url === this.SCORE_VARIABLE_EXTENSION ||
           e.url === this.SCORE_EXPRESSION_EXTENSION));
     } else {
       return false;
