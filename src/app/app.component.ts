@@ -1,11 +1,5 @@
-<<<<<<< HEAD
 import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-=======
-import { Component } from '@angular/core';
-import { RuleEditorService } from 'ng-rule-editor';
-import { phq9ScoreLinkId, fhir } from './mock-data';
->>>>>>> github/master
 
 @Component({
   selector: 'app-root',
@@ -14,7 +8,6 @@ import { phq9ScoreLinkId, fhir } from './mock-data';
 })
 export class AppComponent implements OnInit {
   fhirPreview: string;
-<<<<<<< HEAD
   linkId = '/39156-5';
   fhir = null;
 
@@ -33,16 +26,6 @@ export class AppComponent implements OnInit {
           this.fhir = data;
         });
     }
-=======
-  questionnaire = 'bmi';
-  fhir = fhir;
-  linkId = phq9ScoreLinkId;
-  phq9ScoreLinkId = phq9ScoreLinkId;
-
-  constructor(private ruleEditorService: RuleEditorService) { }
-  onChange(): void {
-    this.fhirPreview = '';
->>>>>>> github/master
   }
 
   onSave(fhirResult): void {
