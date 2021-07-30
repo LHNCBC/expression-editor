@@ -1,4 +1,4 @@
-export const context = '/39156-5';
+export const phq9ScoreLinkId = '/39156-5';
 
 export const fhir = {
   bmi: {

@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { RuleEditorService } from 'ng-rule-editor';
-import { context, fhir } from './mock-data';
+import { phq9ScoreLinkId, fhir } from './mock-data';
 
 @Component({
   selector: 'app-root',
@@ -11,10 +11,10 @@ export class AppComponent {
   fhirPreview: string;
   questionnaire = 'bmi';
   fhir = fhir;
-  linkId = context;
+  linkId = phq9ScoreLinkId;
+  phq9ScoreLinkId = phq9ScoreLinkId;
 
   constructor(private ruleEditorService: RuleEditorService) { }
-
   onChange(): void {
     this.fhirPreview = '';
   }
