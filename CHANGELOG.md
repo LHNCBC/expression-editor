@@ -4,7 +4,7 @@ This project follows [Semantic Versioning](http://semver.org/).
 
 ## [1.1.0] 2021-07-30
 ### Added
-- New API to calculate score without using a UI ``.
+- New API to calculate score without using a UI `addTotalScoreRule`.
 
 ## [1.0.1] 2021-07-27
 ### Changes
