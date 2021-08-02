@@ -488,7 +488,7 @@ export class RuleEditorService {
 
 
   /**
-   * Takes FHIR questionnaire definition and a linkId and returns a new FHIR
+   * Takes FHIR questionnaire definition and a linkId and returns the FHIR
    * Questionnaire with a calculated expression at the given linkId which sums up
    * all the ordinal values in the questionnaire
    */
