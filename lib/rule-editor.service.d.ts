@@ -1,5 +1,18 @@
 import { Subject } from 'rxjs';
 import { Question, UneditableVariable, Variable } from './variable';
+export interface SimpleStyle {
+    h1?: object;
+    h2?: object;
+    previewArea?: object;
+    variableHeader?: object;
+    variableRow?: object;
+    buttonPrimary?: object;
+    buttonSecondary?: object;
+    buttonDanger?: object;
+    input?: object;
+    select?: object;
+    description?: object;
+}
 export declare class RuleEditorService {
     syntaxType: string;
     linkIdContext: string;
@@ -12,9 +25,13 @@ export declare class RuleEditorService {
     variables: Variable[];
     questions: Question[];
     finalExpression: string;
+    simpleExpression: string;
     private LANGUAGE_FHIRPATH;
     private QUESTION_REGEX;
     private VARIABLE_EXTENSION;
+    private SCORE_VARIABLE_EXTENSION;
+    private SCORE_EXPRESSION_EXTENSION;
+    private SIMPLE_SYNTAX_EXTENSION;
     private CALCULATED_EXPRESSION;
     private linkIdToQuestion;
     private fhir;
@@ -45,18 +62,21 @@ export declare class RuleEditorService {
      */
     itemHasScore(item: any): boolean;
     /**
-     * Look at the ordinalValue on the answers of all the questions and if over the threshold
-     * percentage of the items have it return true
+     * Get the number of ordinalValue on the answers of the questions on the
+     * Questionnaire
      * @param fhir - FHIR Questionnaire
      * @param linkIdContext - linkId to exclude from calculation
+     * @return number of score questions on the questionnaire
      */
-    isProbablyScore(fhir: any, linkIdContext: any): boolean;
+    getScoreQuestionCount(fhir: any, linkIdContext: any): number;
     /**
      * Import a FHIR Questionnaire to populate questions
+     * @param expressionUri - URI of expression extension on linkIdContext question
+     *  to extract and modify
      * @param fhir - FHIR Questionnaire
      * @param linkIdContext - Context to use for final expression
      */
-    import(fhir: any, linkIdContext?: any): void;
+    import(expressionUri: string, fhir: any, linkIdContext: any): void;
     /**
      * Process nested FHIR Questionnaire items
      * @param items - Current level of item nesting
@@ -64,15 +84,26 @@ export declare class RuleEditorService {
      */
     private processItem;
     /**
-     * Get and remove the final expression
-     * @param items
-     * @param linkId
+     * Get and remove the simple syntax if available. If not return null
+     * @param expression
      */
-    extractFinalExpression(items: any, linkId: any): string;
+    extractSimpleSyntax(expression: any): string | null;
     /**
-     * Process the an expression into a possible question
+     * Get and remove the final expression
+     * @param expressionUri - Expression extension URL
+     * @param items - FHIR questionnaire item array
+     * @param linkId - linkId of question where to extract expression
+     */
+    extractExpression(expressionUri: any, items: any, linkId: any): object | null;
+    /**
+     * Process a FHIRPath expression into a more user friendly format if possible.
+     * If the format of the FHIRPath matches a format we can display with a
+     * question dropdown, etc show that. If not show the FHIRPath expression.
      * @param name - Name to assign variable
      * @param expression - Expression to process
+     * @param index - Original order in extension list
+     * @return Variable type which can be used by the Rule Editor to show a
+     * question, expression etc
      * @private
      */
     private processVariable;
@@ -94,11 +125,12 @@ export declare class RuleEditorService {
     toggleMightBeScore(): void;
     /**
      * Add variables and finalExpression and return the new FHIR Questionnaire
+     * @param url Extension URL to use for the expression
      * @param finalExpression
      */
-    export(finalExpression: string): object;
+    export(url: string, finalExpression: string): object;
     /**
-     * Takes FHIR questionnaire definition and a linkId and returns a new FHIR
+     * Takes FHIR questionnaire definition and a linkId and returns the FHIR
      * Questionnaire with a calculated expression at the given linkId which sums up
      * all the ordinal values in the questionnaire
      */
@@ -108,7 +140,19 @@ export declare class RuleEditorService {
      * Questionnaire with a calculated expression at the given linkId which sums up
      * all the ordinal values in the questionnaire
      */
-    exportSumOfScores(): object;
+    addSumOfScores(): object;
+    /**
+     * Removes any score calculation added by the rule editor
+     * @param questionnaire - FHIR Questionnaire
+     * @return Questionnaire without the score calculation variable and expression
+     */
+    removeSumOfScores(questionnaire: any): object;
+    /**
+     * Returns true if the extension has an extension for calculating score false otherwise
+     * @param extension - FHIR Extension object
+     * @private
+     */
+    private isScoreExtension;
     private insertExtensions;
     /**
      * Get the expression for a question

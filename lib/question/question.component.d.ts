@@ -1,11 +1,11 @@
 import { OnInit } from '@angular/core';
 import { Question } from '../variable';
-import { RuleEditorService } from '../rule-editor.service';
+import { RuleEditorService, SimpleStyle } from '../rule-editor.service';
 import { Unit } from '../units';
 export declare class QuestionComponent implements OnInit {
     private variableService;
     variable: any;
-    advancedInterface: any;
+    lhcStyle: SimpleStyle;
     linkId: string;
     questions: Question[];
     itemHasScore: boolean;

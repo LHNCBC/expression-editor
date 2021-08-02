@@ -1,10 +1,10 @@
 import { OnInit } from '@angular/core';
 import { Variable, VariableType } from '../variable';
 import { CdkDragDrop } from '@angular/cdk/drag-drop';
-import { RuleEditorService } from '../rule-editor.service';
+import { RuleEditorService, SimpleStyle } from '../rule-editor.service';
 export declare class VariablesComponent implements OnInit {
     private ruleEditorService;
-    advancedInterface: any;
+    lhcStyle: SimpleStyle;
     variableType: typeof VariableType;
     variableSubscription: any;
     variables: Variable[];

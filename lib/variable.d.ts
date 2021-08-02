@@ -4,6 +4,7 @@ export interface UneditableVariable {
     description?: string;
 }
 export interface Variable {
+    _index?: number;
     label: string;
     type: string;
     expression: string;
