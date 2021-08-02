@@ -449,7 +449,7 @@ export class RuleEditorService {
       } else {
         variablesPresentInitially.push(e);
       }
-    })
+    });
 
     if (fhir.extension) {
       // Introduce variables present before
@@ -493,7 +493,7 @@ export class RuleEditorService {
    * all the ordinal values in the questionnaire
    */
   addTotalScoreRule(fhir, linkId): object {
-    this.fhir = copy(fhir);
+    this.fhir = fhir;
     this.linkIdContext = linkId;
     return this.addSumOfScores();
   }

@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
+import copy from 'fast-copy';
 
 import { RuleEditorService } from './rule-editor.service';
-
 import bmi from '../../../../src/assets/bmi.json';
 import phq9 from '../../../../src/assets/phq9.json';
 
@@ -91,13 +91,13 @@ describe('RuleEditorService', () => {
   });
 
   it('should return scored questionnaire with total score', () => {
-    const output = service.addTotalScoreRule(phq9, linkId);
+    const output = service.addTotalScoreRule(copy(phq9), linkId);
     // @ts-ignore
     expect(output.item[9].extension[14]).toEqual(outputTotalScore);
   });
 
   it('should return scored questionnaire with var10', () => {
-    const output = service.addTotalScoreRule(phq9, linkId);
+    const output = service.addTotalScoreRule(copy(phq9), linkId);
     // @ts-ignore
     expect(output.item[9].extension[12]).toEqual(outputItem);
   });
