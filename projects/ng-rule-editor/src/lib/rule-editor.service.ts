@@ -486,7 +486,6 @@ export class RuleEditorService {
     return fhir;
   }
 
-
   /**
    * Takes FHIR questionnaire definition and a linkId and returns the FHIR
    * Questionnaire with a calculated expression at the given linkId which sums up
@@ -574,24 +573,73 @@ export class RuleEditorService {
   }
 
   /**
-   * Removes any score calculation added by the rule editor
+   * Checks if the referenced Questionnaire item is a score calculation added by
+   * the Rule Editor
+   * @param fhir - FHIR Questionnaire
+   * @param linkId - Questionnaire item Link ID to check
+   * @return True if the question at linkId is a score calculation created by
+   * the Rule Editor, false otherwise
+   */
+  isScoreCalculation(fhir, linkId): boolean {
+    const checkForScore = (item) => {
+      if (linkId === item.linkId) {
+        const isScore = item.extension.find((extension) => !!this.isScoreExtension(extension));
+
+        if (isScore) {
+          return true;
+        }
+      }
+
+      if (item.item) {
+        const subItemHasScore = item.item.find((subItem) => checkForScore(subItem));
+
+        if (subItemHasScore) {
+          return true;
+        }
+      }
+
+      return false;
+    };
+
+    return !!fhir.item.find((item) => checkForScore(item));
+  }
+
+  /**
+   * Updates a FHIR questionnaire score calculation on the item identified by
+   * the linkId
+   * @param fhir - FHIR Questionnaire
+   * @param linkId - Questionnaire item Link ID to update
+   * @return Questionnaire with updated calculation
+   */
+  updateScoreCalculation(fhir, linkId): object {
+    this.removeSumOfScores(fhir, linkId);
+    return this.addTotalScoreRule(fhir, linkId);
+  }
+
+  /**
+   * Removes score calculations added by the rule editor on the entire
+   * questionnaire or on a specific item
    * @param questionnaire - FHIR Questionnaire
+   * @param linkId - Questionnaire item Link ID where to remove score. If empty
+   * try to remove scores from all items.
    * @return Questionnaire without the score calculation variable and expression
    */
-  removeSumOfScores(questionnaire): object {
-    // Deep copy
-    const questionnaireWithoutScores = copy(questionnaire);
+  removeSumOfScores(questionnaire, linkId?): object {
+    this.fhir = questionnaire;
 
     const removeItemScoreVariables = (item) => {
-      item.extension = item.extension.filter((extension) => !this.isScoreExtension(extension));
+      if (linkId === undefined || linkId === item.linkId) {
+        item.extension = item.extension.filter((extension) => !this.isScoreExtension(extension));
+      }
+
       if (item.item) {
         item.item.forEach((subItem) => removeItemScoreVariables(subItem));
       }
     };
 
-    questionnaireWithoutScores.item.forEach(removeItemScoreVariables);
+    this.fhir.item.forEach(removeItemScoreVariables);
 
-    return questionnaireWithoutScores;
+    return this.fhir;
   }
 
   /**

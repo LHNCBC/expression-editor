@@ -80,9 +80,16 @@ describe('RuleEditorService', () => {
     const CONTEXT_INDEX = 9;
     expect(original.item[CONTEXT_INDEX].extension.length).toEqual(INITIAL_EXTENSION_COUNT);
 
+    expect(service.isScoreCalculation(original, linkId)).toBeFalse();
+
     const withScores = service.addSumOfScores();
+    const withScoresCopy = copy(withScores);
+
+    expect(service.isScoreCalculation(withScores, linkId)).toBeTrue();
 
     expect(withScores['item'][CONTEXT_INDEX].extension.length).toEqual(INITIAL_EXTENSION_COUNT + 11);
+
+    expect(service.updateScoreCalculation(withScores, linkId)).toEqual(withScoresCopy);
 
     const removedScores = service.removeSumOfScores(withScores);
 
