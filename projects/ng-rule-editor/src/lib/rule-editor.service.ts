@@ -80,13 +80,13 @@ export class RuleEditorService {
 
   /**
    * Get the list of uneditable variables based on the FHIR Questionnaire
-   * @param fhir - FHIR Questionnaire
+   * @param questionnaire - FHIR Questionnaire
    */
-  getUneditableVariables(fhir): UneditableVariable[] {
+  getUneditableVariables(questionnaire): UneditableVariable[] {
     const launchContextExtensionUrl = 'http://hl7.org/fhir/StructureDefinition/questionnaire-launchContext';
 
-    if (Array.isArray(fhir.extension)) {
-      return fhir.extension.reduce((accumulator, extension) => {
+    if (Array.isArray(questionnaire.extension)) {
+      return questionnaire.extension.reduce((accumulator, extension) => {
         if (extension.url === launchContextExtensionUrl && extension.extension) {
           const uneditableVariable = {
             name: extension.extension.find((e) => e.url === 'name').valueId,
@@ -105,21 +105,21 @@ export class RuleEditorService {
 
   /**
    * Get and remove the variables from the FHIR object
-   * @param fhir
+   * @param questionnaire
    */
-  extractVariables(fhir): Variable[] {
+  extractVariables(questionnaire): Variable[] {
     // Look at the top level fhirpath related extensions to populate the editable variables
     // TODO look at the focus item variables
 
-    if (fhir.extension) {
+    if (questionnaire.extension) {
       const variables = [];
       const nonVariableExtensions = [];
 
       // Add an index to each extension which we will then use to get the
       // variables back in the correct order. _index will be removed on save
-      fhir.extension = fhir.extension.map((e, i) => ({ ...e, _index: i }));
+      questionnaire.extension = questionnaire.extension.map((e, i) => ({ ...e, _index: i }));
 
-      fhir.extension.forEach((extension) => {
+      questionnaire.extension.forEach((extension) => {
         if (extension.url === this.VARIABLE_EXTENSION &&
           extension.valueExpression && extension.valueExpression.language === this.LANGUAGE_FHIRPATH) {
           variables.push(
@@ -133,7 +133,7 @@ export class RuleEditorService {
       });
 
       // Remove the variables so they can be re-added on export
-      fhir.extension = nonVariableExtensions;
+      questionnaire.extension = nonVariableExtensions;
 
       return variables;
     }
@@ -160,14 +160,14 @@ export class RuleEditorService {
   /**
    * Get the number of ordinalValue on the answers of the questions on the
    * Questionnaire
-   * @param fhir - FHIR Questionnaire
+   * @param questionnaire - FHIR Questionnaire
    * @param linkIdContext - linkId to exclude from calculation
    * @return number of score questions on the questionnaire
    */
-  getScoreQuestionCount(fhir, linkIdContext): number {
+  getScoreQuestionCount(questionnaire, linkIdContext): number {
     let scoreQuestions = 0;
 
-    fhir.item.forEach((item) => {
+    questionnaire.item.forEach((item) => {
       if (this.itemHasScore(item)) {
         scoreQuestions++;
       }
@@ -180,12 +180,12 @@ export class RuleEditorService {
    * Import a FHIR Questionnaire to populate questions
    * @param expressionUri - URI of expression extension on linkIdContext question
    *  to extract and modify
-   * @param fhir - FHIR Questionnaire
+   * @param questionnaire - FHIR Questionnaire
    * @param linkIdContext - Context to use for final expression
    */
-  import(expressionUri: string, fhir, linkIdContext): void {
+  import(expressionUri: string, questionnaire, linkIdContext): void {
     this.linkIdContext = linkIdContext;  // TODO change notification for linkId?
-    this.fhir = copy(fhir);
+    this.fhir = copy(questionnaire);
 
     if (this.fhir.resourceType === 'Questionnaire' && this.fhir.item && this.fhir.item.length) {
       // If there is at least one score question we will ask the user if they
@@ -486,14 +486,15 @@ export class RuleEditorService {
     return fhir;
   }
 
-
   /**
    * Takes FHIR questionnaire definition and a linkId and returns the FHIR
    * Questionnaire with a calculated expression at the given linkId which sums up
    * all the ordinal values in the questionnaire
+   * @param questionnaire - FHIR Questionnaire
+   * @param linkId - Question linkId
    */
-  addTotalScoreRule(fhir, linkId): object {
-    this.fhir = fhir;
+  addTotalScoreRule(questionnaire, linkId): object {
+    this.fhir = questionnaire;
     this.linkIdContext = linkId;
     return this.addSumOfScores();
   }
@@ -574,24 +575,73 @@ export class RuleEditorService {
   }
 
   /**
-   * Removes any score calculation added by the rule editor
+   * Checks if the referenced Questionnaire item is a score calculation added by
+   * the Rule Editor
    * @param questionnaire - FHIR Questionnaire
+   * @param linkId - Questionnaire item Link ID to check
+   * @return True if the question at linkId is a score calculation created by
+   * the Rule Editor, false otherwise
+   */
+  isScoreCalculation(questionnaire, linkId): boolean {
+    const checkForScore = (item) => {
+      if (linkId === item.linkId) {
+        const isScore = item.extension.find((extension) => !!this.isScoreExtension(extension));
+
+        if (isScore) {
+          return true;
+        }
+      }
+
+      if (item.item) {
+        const subItemHasScore = item.item.find((subItem) => checkForScore(subItem));
+
+        if (subItemHasScore) {
+          return true;
+        }
+      }
+
+      return false;
+    };
+
+    return !!questionnaire.item.find((item) => checkForScore(item));
+  }
+
+  /**
+   * Updates a FHIR questionnaire score calculation on the item identified by
+   * the linkId
+   * @param questionnaire - FHIR Questionnaire
+   * @param linkId - Questionnaire item Link ID to update
+   * @return Questionnaire with updated calculation
+   */
+  updateScoreCalculation(questionnaire, linkId): object {
+    this.removeSumOfScores(questionnaire, linkId);
+    return this.addTotalScoreRule(questionnaire, linkId);
+  }
+
+  /**
+   * Removes score calculations added by the rule editor on the entire
+   * questionnaire or on a specific item
+   * @param questionnaire - FHIR Questionnaire
+   * @param linkId - Questionnaire item Link ID where to remove score. If empty
+   * try to remove scores from all items.
    * @return Questionnaire without the score calculation variable and expression
    */
-  removeSumOfScores(questionnaire): object {
-    // Deep copy
-    const questionnaireWithoutScores = copy(questionnaire);
+  removeSumOfScores(questionnaire, linkId?): object {
+    this.fhir = questionnaire;
 
     const removeItemScoreVariables = (item) => {
-      item.extension = item.extension.filter((extension) => !this.isScoreExtension(extension));
+      if (linkId === undefined || linkId === item.linkId) {
+        item.extension = item.extension.filter((extension) => !this.isScoreExtension(extension));
+      }
+
       if (item.item) {
         item.item.forEach((subItem) => removeItemScoreVariables(subItem));
       }
     };
 
-    questionnaireWithoutScores.item.forEach(removeItemScoreVariables);
+    this.fhir.item.forEach(removeItemScoreVariables);
 
-    return questionnaireWithoutScores;
+    return this.fhir;
   }
 
   /**
