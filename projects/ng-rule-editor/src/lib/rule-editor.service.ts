@@ -38,7 +38,9 @@ export class RuleEditorService {
   simpleExpression: string;
 
   private LANGUAGE_FHIRPATH = 'text/fhirpath';
+  private LANGUAGE_FHIR_QUERY = 'application/x-fhir-query';
   private QUESTION_REGEX = /^%resource\.item\.where\(linkId='(.*)'\)\.answer\.value(?:\*(\d*\.?\d*))?$/;
+  private QUERY_REGEX = /^Observation\?code=http:\/\/loinc\.org\|(.*)&date=gt{{today\(\)-(\d*) (.*)}}&subject={{%subject.id}}$/;
   private VARIABLE_EXTENSION = 'http://hl7.org/fhir/StructureDefinition/variable';
   private SCORE_VARIABLE_EXTENSION = 'http://lhcforms.nlm.nih.gov/fhir/ext/rule-editor-score-variable';
   private SCORE_EXPRESSION_EXTENSION = 'http://lhcforms.nlm.nih.gov/fhir/ext/rule-editor-expression';
@@ -120,13 +122,23 @@ export class RuleEditorService {
       fhir.extension = fhir.extension.map((e, i) => ({ ...e, _index: i }));
 
       fhir.extension.forEach((extension) => {
-        if (extension.url === this.VARIABLE_EXTENSION &&
-          extension.valueExpression && extension.valueExpression.language === this.LANGUAGE_FHIRPATH) {
-          variables.push(
-            this.processVariable(
-              extension.valueExpression.name,
-              extension.valueExpression.expression,
-              extension._index));
+        if (extension.url === this.VARIABLE_EXTENSION && extension.valueExpression) {
+          switch (extension.valueExpression.language) {
+            case this.LANGUAGE_FHIRPATH:
+              variables.push(
+                this.processVariable(
+                  extension.valueExpression.name,
+                  extension.valueExpression.expression,
+                  extension._index));
+              break;
+            case this.LANGUAGE_FHIR_QUERY:
+              variables.push(
+                this.processQueryVariable(
+                  extension.valueExpression.name,
+                  extension.valueExpression.expression,
+                  extension._index));
+              break;
+          }
         } else {
           nonVariableExtensions.push(extension);
         }
@@ -283,7 +295,7 @@ export class RuleEditorService {
    */
   extractExpression(expressionUri, items, linkId): object|null {
     for (const item of items) {
-      if (item.extension) {
+      if (item.linkId === linkId && item.extension) {
         const extensionIndex = item.extension.findIndex((e) => {
           return e.url === expressionUri && e.valueExpression.language === this.LANGUAGE_FHIRPATH &&
             e.valueExpression.expression;
@@ -349,6 +361,45 @@ export class RuleEditorService {
         _index: index,
         label: name,
         type: 'expression',
+        expression
+      };
+    }
+  }
+
+
+  /**
+   * Process a x-fhir-query expression into a more user friendly format if
+   * possible. Show a code autocomplete field if possible if not show the
+   * expression editing field.
+   * @param name - Name to assign variable
+   * @param expression - Expression to process
+   * @param index - Original order in extension list
+   * @return Variable type which can be used by the Rule Editor to show a
+   * question, expression etc
+   * @private
+   */
+  private processQueryVariable(name, expression, index?: number): Variable {
+    const matches = expression.match(this.QUERY_REGEX);
+
+    if (matches !== null) {
+      const codes = matches[1];
+      const timeInterval = parseInt(matches[2], 10);
+      const timeIntervalUnits = matches[3];
+
+      return {
+        _index: index,
+        label: name,
+        type: 'queryObservation',
+        codes,
+        timeInterval,
+        timeIntervalUnit: timeIntervalUnits,
+        expression
+      };
+    } else {
+      return {
+        _index: index,
+        label: name,
+        type: 'query',
         expression
       };
     }
@@ -430,7 +481,7 @@ export class RuleEditorService {
         url: this.VARIABLE_EXTENSION,
         valueExpression: {
           name: e.label,
-          language: this.LANGUAGE_FHIRPATH,
+          language: e.type === 'query' ? this.LANGUAGE_FHIR_QUERY : this.LANGUAGE_FHIRPATH,
           expression: e.expression
         }
       };

@@ -1,16 +1,22 @@
 <div class="form-inline query">
   <div class="query-select">
-    <lhc-autocomplete [lhcStyle]="lhcStyle"></lhc-autocomplete>
+    <input [style]="lhcStyle.input"
+           class="query-autocomplete" #autoComplete id="autocomplete-{{index}}" />
   </div>
   <div class="time-input">
-    <input [style]="lhcStyle.input" aria-label="Time interval" type="number" value="1" />
+    <input [style]="lhcStyle.input" [(ngModel)]="timeInterval" (change)="onChange()"
+           aria-label="Time interval" type="number" min="1" />
   </div>
   <div class="time-select">
-    <select [style]="lhcStyle.input" aria-label="Time interval units">
-      <option>Day(s)</option>
-      <option>Week(s)</option>
-      <option>Month(s)</option>
-      <option>Year(s)</option>
+    <select [style]="lhcStyle.input" [(ngModel)]="timeIntervalUnit"
+            (change)="onChange()" aria-label="Time interval units">
+      <option value="days">Day(s)</option>
+      <option value="weeks">Week(s)</option>
+      <option value="months">Month(s)</option>
+      <option value="years">Year(s)</option>
     </select>
   </div>
+</div>
+<div class="syntax-preview text-muted" [ngStyle]="lhcStyle" *ngIf="codes.length">
+  x-fhir-query: <pre class="d-inline text-muted" title="{{expression}}">{{expression}}</pre>
 </div>

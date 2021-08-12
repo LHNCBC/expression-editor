@@ -4,9 +4,10 @@
   Questionnaire:
   <select (change)="onChange($event)">
     <option value="">None</option>
-    <option value="bmisimple" selected>BMI Calculation (simple expression)</option>
+    <option value="bmisimple">BMI Calculation (simple expression)</option>
     <option value="bmi">BMI Calculation</option>
     <option value="phq9">PHQ9 (no FHIRPath)</option>
+    <option value="query" selected>Query</option>
   </select>
 </label>
 
@@ -19,7 +20,7 @@
       [submitButtonName]="'Save'"
       [titleName]="'My Rule Editor'"
       [expressionLabel]="'My Expression'"
-      [expressionUri]="'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression'"
+      [expressionUri]="'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-answerExpression'"
       [lhcStyle]="{
         buttonPrimary: { backgroundColor: 'blue', color: 'white' },
         buttonSecondary: { backgroundColor: 'gray', color: 'white' },

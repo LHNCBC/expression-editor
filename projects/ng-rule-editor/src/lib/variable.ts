@@ -12,6 +12,9 @@ export interface Variable {
   simple?: string;
   linkId?: string;
   unit?: string;
+  codes?: string;
+  timeInterval?: number;
+  timeIntervalUnit?: string;
 }
 
 export interface Question {
@@ -24,5 +27,7 @@ export interface Question {
 export enum VariableType {
   question = 'Question',
   expression = 'FHIRPath Expression',
-  simple = 'Simple Expression'
+  simple = 'Simple Expression',
+  query = 'FHIR Query',
+  queryObservation = 'FHIR Query Observation'
 }

@@ -51,3 +51,13 @@ input, select {
   border-radius: 4px;
   padding: 0 0.5em;
 }
+
+.text-muted {
+  margin: 0;
+  color: #555;
+  font-size: .8rem;
+}
+
+.syntax-preview {
+  margin-top: 1em;
+}
