@@ -1,0 +1,16 @@
+<div class="form-inline query">
+  <div class="query-select">
+    <lhc-autocomplete [lhcStyle]="lhcStyle"></lhc-autocomplete>
+  </div>
+  <div class="time-input">
+    <input [style]="lhcStyle.input" aria-label="Time interval" type="number" value="1" />
+  </div>
+  <div class="time-select">
+    <select [style]="lhcStyle.input" aria-label="Time interval units">
+      <option>Day(s)</option>
+      <option>Week(s)</option>
+      <option>Month(s)</option>
+      <option>Year(s)</option>
+    </select>
+  </div>
+</div>
