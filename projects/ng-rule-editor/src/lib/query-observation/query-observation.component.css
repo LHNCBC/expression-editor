@@ -61,3 +61,9 @@ input, select {
 .syntax-preview {
   margin-top: 1em;
 }
+
+.syntax-preview > pre {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

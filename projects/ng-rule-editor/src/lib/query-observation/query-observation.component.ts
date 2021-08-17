@@ -24,7 +24,7 @@ export class QueryObservationComponent implements OnInit, AfterViewInit, OnDestr
   constructor(private http: HttpClient) {}
 
   ngOnInit(): void {
-    this.codes = this.variable.codes.split(',');
+    this.codes = (this.variable.codes !== undefined) ? this.variable.codes.split(',') : [];
     this.timeInterval = this.variable.timeInterval || 1;
     this.timeIntervalUnit = this.variable.timeIntervalUnit || 'months';
     this.expression = this.variable.expression;
@@ -63,8 +63,11 @@ export class QueryObservationComponent implements OnInit, AfterViewInit, OnDestr
   }
 
   onChange(): void {
+    // Separate with URL encoded version of the comma: ','
+    const codes = this.codes.map((e) => `http://loinc.org|${e}`).join('%2C');
+
     this.variable.expression = this.expression =
-      `Observation?code=http://loinc.org|${this.codes}&` +
+      `Observation?code=${codes}&` +
       `date=gt{{today()-${this.timeInterval} ${this.timeIntervalUnit}}&subject={{%subject.id}}`;
   }
 }
