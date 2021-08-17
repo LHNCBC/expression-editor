@@ -98,7 +98,7 @@
             "styles": [
               "src/styles.css"
             ],
-            "scripts": []
+            "scripts": ["./node_modules/jquery/dist/jquery.min.js"]
           }
         },
         "lint": {
@@ -151,7 +151,8 @@
           "options": {
             "main": "projects/ng-rule-editor/src/test.ts",
             "tsConfig": "projects/ng-rule-editor/tsconfig.spec.json",
-            "karmaConfig": "projects/ng-rule-editor/karma.conf.js"
+            "karmaConfig": "projects/ng-rule-editor/karma.conf.js",
+            "scripts": ["./node_modules/jquery/dist/jquery.min.js"]
           }
         },
         "lint": {

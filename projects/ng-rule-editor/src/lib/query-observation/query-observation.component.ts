@@ -24,10 +24,14 @@ export class QueryObservationComponent implements OnInit, AfterViewInit, OnDestr
   constructor(private http: HttpClient) {}
 
   ngOnInit(): void {
-    this.codes = (this.variable.codes !== undefined) ? this.variable.codes.split(',') : [];
-    this.timeInterval = this.variable.timeInterval || 1;
-    this.timeIntervalUnit = this.variable.timeIntervalUnit || 'months';
-    this.expression = this.variable.expression;
+    if (this.variable !== undefined) {
+      this.codes = (this.variable.codes !== undefined) ? this.variable.codes.split(',') : [];
+      this.timeInterval = this.variable.timeInterval || 1;
+      this.timeIntervalUnit = this.variable.timeIntervalUnit || 'months';
+      this.expression = this.variable.expression;
+    } else {
+      this.codes = [];
+    }
   }
 
   ngAfterViewInit(): void {
@@ -59,7 +63,9 @@ export class QueryObservationComponent implements OnInit, AfterViewInit, OnDestr
   }
 
   ngOnDestroy(): void {
-    this.autoComplete.destroy();
+    if (this.autoComplete !== undefined) {
+      this.autoComplete.destroy();
+    }
   }
 
   onChange(): void {
