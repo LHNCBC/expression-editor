@@ -83,6 +83,6 @@ export class QueryObservationComponent implements OnInit, AfterViewInit, OnDestr
 
     this.variable.expression = this.expression =
       `Observation?code=${codes}&` +
-      `date=gt{{today()-${this.timeInterval} ${this.timeIntervalUnit}}}&subject={{%subject.id}}`;
+      `date=gt{{today()-${this.timeInterval} ${this.timeIntervalUnit}}}&patient={{%patient.id}}`;
   }
 }

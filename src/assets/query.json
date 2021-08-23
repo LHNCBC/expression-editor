@@ -52,7 +52,7 @@
       "valueExpression": {
         "name": "queryObservation",
         "language": "application/x-fhir-query",
-        "expression": "Observation?code=http://loinc.org|65972-2&date=gt{{today()-7 days}}&subject={{%subject.id}}"
+        "expression": "Observation?code=http://loinc.org|65972-2&date=gt{{today()-7 days}}&patient={{%patient.id}}"
       }
     }
   ],

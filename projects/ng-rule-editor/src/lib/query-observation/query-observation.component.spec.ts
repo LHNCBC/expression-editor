@@ -34,7 +34,7 @@ describe('QueryObservationComponent', () => {
     component.onChange();
 
     expect(component.expression).toEqual(
-      'Observation?code=http://loinc.org|65972-2&date=gt{{today()-1 days}}&subject={{%subject.id}}');
+      'Observation?code=http://loinc.org|65972-2&date=gt{{today()-1 days}}&patient={{%patient.id}}');
 
     component.codes = ['29463-7', '65972-2'];
     component.timeIntervalUnit = 'months';
@@ -42,6 +42,6 @@ describe('QueryObservationComponent', () => {
     component.onChange();
 
     expect(component.expression).toEqual(
-      'Observation?code=http://loinc.org|29463-7%2Chttp://loinc.org|65972-2&date=gt{{today()-2 months}}&subject={{%subject.id}}');
+      'Observation?code=http://loinc.org|29463-7%2Chttp://loinc.org|65972-2&date=gt{{today()-2 months}}&patient={{%patient.id}}');
   });
 });
