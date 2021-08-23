@@ -42,8 +42,8 @@ object.
 
 1. Install in your project using `npm install --save-prod ng-rule-editor`
 2. Make sure your application has `@angular/animations`, `@angular/cdk`,
-   `@angular/common`, `@angular/core`, and `@angular/material` as dependencies
-   since they are needed as peer dependencies by the Rule Editor.
+   `@angular/common`, `@angular/core`, `@angular/material` and `jquery` as
+   dependencies since they are needed as peer dependencies by the Rule Editor.
 3. Add the `lhc-rule-editor` and required tags similar to the example below:
 
 #### Angular Component Example
@@ -73,11 +73,12 @@ retrieve data use the `(save)` attribute.
 ### Use as a Web Component
 
 1. Install in your project using `npm install --save-prod rule-editor`
-2. (Optional) Integrate the web component files with your module bundler of
+2. Import jQuery.
+3. (Optional) Integrate the web component files with your module bundler of
    choice.
-3. Import the JavaScript files on the page.
-4. Add the <lhc-rule-editor> tag along with necessary [attributes](#attributes-available) to the HTML.
-5. Add event handlers for the `save` event.
+4. Import the JavaScript files on the page.
+5. Add the <lhc-rule-editor> tag along with necessary [attributes](#attributes-available) to the HTML.
+6. Add event handlers for the `save` event.
 
 #### Web Component Example
 
