@@ -1,0 +1,9 @@
+{
+  "integrationFolder": "projects/rule-editor/cypress/integration",
+  "supportFile": "projects/rule-editor/cypress/support/index.ts",
+  "videosFolder": "projects/rule-editor/cypress/videos",
+  "screenshotsFolder": "projects/rule-editor/cypress/screenshots",
+  "pluginsFile": "projects/rule-editor/cypress/plugins/index.ts",
+  "fixturesFolder": "projects/rule-editor/cypress/fixtures",
+  "baseUrl": "http://localhost:4200"
+}

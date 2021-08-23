@@ -1,15 +1,17 @@
 {
   "name": "rule-editor",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
     "start-public": "ng serve --host 0.0.0.0 --disable-host-check",
     "build": "ng build ng-rule-editor --prod && ng build rule-editor --prod && ng build",
     "unit-test": "ng test --watch=false",
-    "test": "ng test --watch=false && ng e2e && cypress run",
+    "test": "ng test --watch=false && ng e2e --exit",
     "lint": "ng lint",
-    "e2e": "ng e2e"
+    "e2e": "ng e2e",
+    "cypress:open": "cypress open",
+    "cypress:run": "cypress run"
   },
   "private": true,
   "dependencies": {
@@ -38,10 +40,10 @@
     "@angular-devkit/build-angular": "~0.1100.5",
     "@angular/cli": "~11.0.5",
     "@angular/compiler-cli": "~11.0.5",
+    "@cypress/schematic": "^1.5.0",
     "@types/jasmine": "~3.6.0",
     "@types/node": "^12.20.17",
     "codelyzer": "^6.0.0",
-    "cypress": "^7.7.0",
     "jasmine-core": "~3.6.0",
     "jasmine-spec-reporter": "~5.0.0",
     "karma": "^6.3.4",
@@ -53,6 +55,7 @@
     "protractor": "~7.0.0",
     "ts-node": "~8.3.0",
     "tslint": "~6.1.0",
-    "typescript": "~4.0.2"
+    "typescript": "~4.0.2",
+    "cypress": "8.3.0"
   }
 }

@@ -34,6 +34,10 @@ export class QueryObservationComponent implements OnInit, AfterViewInit, OnDestr
     }
   }
 
+  /**
+   * After the autocomplete is ready to be interacted with fetch the name for
+   * any codes already in the query search.
+   */
   ngAfterViewInit(): void {
     this.autoComplete = new Def.Autocompleter.Search(
       this.autoCompleteElement.nativeElement, this.queryUrl,
@@ -49,31 +53,36 @@ export class QueryObservationComponent implements OnInit, AfterViewInit, OnDestr
       this.http.get(`${this.queryUrl}&terms=${code}`)
         .subscribe((data) => {
           const namePosition = 3;
-          const name = data[namePosition][0][0];
+          const name = [data[namePosition][0][0], code].join(' - ');
           this.autoComplete.storeSelectedItem(name, code);
-          this.autoComplete.addToSelectedArea([name, code].join(' - '));
+          this.autoComplete.addToSelectedArea(name);
         });
     });
 
     Def.Autocompleter.Event.observeListSelections(`autocomplete-${this.index}`, () => {
       this.codes = this.autoComplete.getSelectedCodes();
-      console.log(this.codes);
       this.onChange();
     });
   }
 
+  /**
+   * Angular lifecycle hook
+   */
   ngOnDestroy(): void {
     if (this.autoComplete !== undefined) {
       this.autoComplete.destroy();
     }
   }
 
+  /**
+   * On changes update the expression and preview
+   */
   onChange(): void {
     // Separate with URL encoded version of the comma: ','
     const codes = this.codes.map((e) => `http://loinc.org|${e}`).join('%2C');
 
     this.variable.expression = this.expression =
       `Observation?code=${codes}&` +
-      `date=gt{{today()-${this.timeInterval} ${this.timeIntervalUnit}}&subject={{%subject.id}}`;
+      `date=gt{{today()-${this.timeInterval} ${this.timeIntervalUnit}}}&subject={{%subject.id}}`;
   }
 }

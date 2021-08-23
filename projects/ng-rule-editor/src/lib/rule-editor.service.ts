@@ -85,7 +85,7 @@ export class RuleEditorService {
    * @param fhir - FHIR Questionnaire
    */
   getUneditableVariables(fhir): UneditableVariable[] {
-    const launchContextExtensionUrl = 'http://hl7.org/fhir/StructureDefinition/questionnaire-launchContext';
+    const launchContextExtensionUrl = 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-launchContext';
 
     if (Array.isArray(fhir.extension)) {
       return fhir.extension.reduce((accumulator, extension) => {
@@ -366,7 +366,6 @@ export class RuleEditorService {
     }
   }
 
-
   /**
    * Process a x-fhir-query expression into a more user friendly format if
    * possible. Show a code autocomplete field if possible if not show the
@@ -536,7 +535,6 @@ export class RuleEditorService {
 
     return fhir;
   }
-
 
   /**
    * Takes FHIR questionnaire definition and a linkId and returns the FHIR

@@ -2,6 +2,10 @@
 
 This project follows [Semantic Versioning](http://semver.org/).
 
+## [1.2.0] 2021-08-23
+### Added
+- Add support for `x-fhir-query`.
+
 ## [1.1.0] 2021-07-30
 ### Added
 - New API to calculate score without using a UI `addTotalScoreRule`.

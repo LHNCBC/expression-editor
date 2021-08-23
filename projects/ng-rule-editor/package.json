@@ -1,12 +1,13 @@
 {
   "name": "ng-rule-editor",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "peerDependencies": {
     "@angular/animations": "~11.0.5",
     "@angular/cdk": "^11.1.1",
     "@angular/common": "^11.0.9",
     "@angular/core": "^11.0.9",
-    "@angular/material": "^11.1.1"
+    "@angular/material": "^11.1.1",
+    "jquery": "^3.6.0"
   },
   "dependencies": {
     "tslib": "^2.0.0"

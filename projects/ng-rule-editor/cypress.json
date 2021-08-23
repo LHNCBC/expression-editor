@@ -1,0 +1,9 @@
+{
+  "integrationFolder": "projects/ng-rule-editor/cypress/integration",
+  "supportFile": "projects/ng-rule-editor/cypress/support/index.ts",
+  "videosFolder": "projects/ng-rule-editor/cypress/videos",
+  "screenshotsFolder": "projects/ng-rule-editor/cypress/screenshots",
+  "pluginsFile": "projects/ng-rule-editor/cypress/plugins/index.ts",
+  "fixturesFolder": "projects/ng-rule-editor/cypress/fixtures",
+  "baseUrl": "http://localhost:4200"
+}
