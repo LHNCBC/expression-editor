@@ -7,11 +7,9 @@
     "start-public": "ng serve --host 0.0.0.0 --disable-host-check",
     "build": "ng build ng-rule-editor --prod && ng build rule-editor --prod && ng build",
     "unit-test": "ng test --watch=false",
-    "test": "ng test --watch=false && ng e2e --exit",
+    "test": "ng test --watch=false && ng run demo:cypress-run",
     "lint": "ng lint",
-    "e2e": "ng e2e",
-    "cypress:open": "cypress open",
-    "cypress:run": "cypress run"
+    "e2e": "ng e2e"
   },
   "private": true,
   "dependencies": {
