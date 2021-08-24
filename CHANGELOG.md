@@ -2,9 +2,14 @@
 
 This project follows [Semantic Versioning](http://semver.org/).
 
-## [1.2.0] 2021-08-23
+## [1.3.0] 2021-08-23
 ### Added
 - Add support for `x-fhir-query`.
+
+## [1.2.0] 2021-08-11
+### Added
+- New APIs to check if there is a score `isScoreCalculation` and update a score
+`updateScoreCalculation` on a questionnaire.
 
 ## [1.1.0] 2021-07-30
 ### Added
