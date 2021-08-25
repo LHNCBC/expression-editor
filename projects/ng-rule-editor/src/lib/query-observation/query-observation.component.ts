@@ -25,7 +25,7 @@ export class QueryObservationComponent implements OnInit, AfterViewInit, OnDestr
 
   ngOnInit(): void {
     if (this.variable !== undefined) {
-      this.codes = (this.variable.codes !== undefined) ? this.variable.codes.split(',') : [];
+      this.codes = (this.variable.codes !== undefined) ? this.variable.codes : [];
       this.timeInterval = this.variable.timeInterval || 1;
       this.timeIntervalUnit = this.variable.timeIntervalUnit || 'months';
       this.expression = this.variable.expression;
@@ -45,22 +45,38 @@ export class QueryObservationComponent implements OnInit, AfterViewInit, OnDestr
         tableFormat: true,
         valueCols: [0, 1],
         colHeaders: ['Text', 'LOINC Number'],
-        maxSelect: '*',
-        matchListValue: true
+        maxSelect: '*'
       });
 
     this.codes.forEach((code) => {
-      this.http.get(`${this.queryUrl}&terms=${code}`)
-        .subscribe((data) => {
-          const namePosition = 3;
-          const name = [data[namePosition][0][0], code].join(' - ');
-          this.autoComplete.storeSelectedItem(name, code);
-          this.autoComplete.addToSelectedArea(name);
-        });
+      const matches = code.match(/http:\/\/loinc.org\|(.+)/);
+
+      if (matches !== null) {
+        const loincCode = matches[1];
+        // LOINC Code
+        this.http.get(`${this.queryUrl}&terms=${loincCode}`)
+          .subscribe((data) => {
+            const namePosition = 3;
+            const name = [data[namePosition][0][0], loincCode].join(' - ');
+            this.autoComplete.storeSelectedItem(name, loincCode);
+            this.autoComplete.addToSelectedArea(name);
+          });
+      } else {
+        // Non-loinc code
+        this.autoComplete.storeSelectedItem(code, undefined);
+        this.autoComplete.addToSelectedArea(code);
+      }
+
     });
 
     Def.Autocompleter.Event.observeListSelections(`autocomplete-${this.index}`, () => {
-      this.codes = this.autoComplete.getSelectedCodes();
+      const nonLoinc = this.autoComplete.getSelectedItemData();
+
+      // If there is no code then this is not a loinc code and we need to get
+      // the value from the array above
+      this.codes = this.autoComplete.getSelectedCodes().map((code, index) => {
+        return (code === undefined) ? nonLoinc[index].text : `http://loinc.org|${code}`;
+      });
       this.onChange();
     });
   }
@@ -79,10 +95,11 @@ export class QueryObservationComponent implements OnInit, AfterViewInit, OnDestr
    */
   onChange(): void {
     // Separate with URL encoded version of the comma: ','
-    const codes = this.codes.map((e) => `http://loinc.org|${e}`).join('%2C');
+    const codes = this.codes.join('%2C');
 
     this.variable.expression = this.expression =
       `Observation?code=${codes}&` +
-      `date=gt{{today()-${this.timeInterval} ${this.timeIntervalUnit}}}&patient={{%patient.id}}`;
+      `date=gt{{today()-${this.timeInterval} ${this.timeIntervalUnit}}}&` +
+      `patient={{%patient.id}}&_sort=-date&_count=1`;
   }
 }

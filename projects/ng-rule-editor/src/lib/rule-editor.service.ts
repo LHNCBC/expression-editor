@@ -40,7 +40,7 @@ export class RuleEditorService {
   private LANGUAGE_FHIRPATH = 'text/fhirpath';
   private LANGUAGE_FHIR_QUERY = 'application/x-fhir-query';
   private QUESTION_REGEX = /^%resource\.item\.where\(linkId='(.*)'\)\.answer\.value(?:\*(\d*\.?\d*))?$/;
-  private QUERY_REGEX = /^Observation\?code=http:\/\/loinc\.org\|(.*)&date=gt{{today\(\)-(\d*) (.*)}}&patient={{%patient.id}}$/;
+  private QUERY_REGEX = /^Observation\?code=(.+)&date=gt{{today\(\)-(\d+) (.+)}}&patient={{%patient.id}}&_sort=-date&_count=1$/;
   private VARIABLE_EXTENSION = 'http://hl7.org/fhir/StructureDefinition/variable';
   private SCORE_VARIABLE_EXTENSION = 'http://lhcforms.nlm.nih.gov/fhir/ext/rule-editor-score-variable';
   private SCORE_EXPRESSION_EXTENSION = 'http://lhcforms.nlm.nih.gov/fhir/ext/rule-editor-expression';
@@ -381,7 +381,7 @@ export class RuleEditorService {
     const matches = expression.match(this.QUERY_REGEX);
 
     if (matches !== null) {
-      const codes = matches[1];
+      const codes = matches[1].split('%2C');  // URL encoded comma ','
       const timeInterval = parseInt(matches[2], 10);
       const timeIntervalUnits = matches[3];
 

@@ -35,7 +35,7 @@
         </div>
         <div class="form-inline" *ngSwitchCase="'query'">
           <input [id]="'variable-expression-' + i" [(ngModel)]="variable.expression" [style]="lhcStyle.input"
-                 aria-label="Simple Expression" />
+                 aria-label="FHIR Query" placeholder="x-fhir-query" />
         </div>
       </div>
       <div class="variable-column-actions">

@@ -12,7 +12,7 @@ export interface Variable {
   simple?: string;
   linkId?: string;
   unit?: string;
-  codes?: string;
+  codes?: Array<string>;
   timeInterval?: number;
   timeIntervalUnit?: string;
 }
@@ -29,5 +29,5 @@ export enum VariableType {
   expression = 'FHIRPath Expression',
   simple = 'Simple Expression',
   query = 'FHIR Query',
-  queryObservation = 'FHIR Query Observation'
+  queryObservation = 'FHIR Query (Observation)'
 }
