@@ -42,8 +42,9 @@ object.
 
 1. Install in your project using `npm install --save-prod ng-rule-editor`
 2. Make sure your application has `@angular/animations`, `@angular/cdk`,
-   `@angular/common`, `@angular/core`, `@angular/material` and `jquery` as
-   dependencies since they are needed as peer dependencies by the Rule Editor.
+   `@angular/common`, `@angular/core`, `@angular/material`, `autocomplete-lhc`
+   and `jquery` as dependencies since they are needed as peer dependencies by
+   the Rule Editor.
 3. Add the `lhc-rule-editor` and required tags similar to the example below:
 
 #### Angular Component Example

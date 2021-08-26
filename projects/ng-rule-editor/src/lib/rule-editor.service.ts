@@ -46,6 +46,7 @@ export class RuleEditorService {
   private SCORE_EXPRESSION_EXTENSION = 'http://lhcforms.nlm.nih.gov/fhir/ext/rule-editor-expression';
   private SIMPLE_SYNTAX_EXTENSION = 'http://lhcforms.nlm.nih.gov/fhir/ext/simple-syntax';
   private CALCULATED_EXPRESSION = 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression';
+  private LAUNCH_CONTEXT_URI = 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-launchContext';
 
   private linkIdToQuestion = {};
   private fhir;
@@ -85,11 +86,9 @@ export class RuleEditorService {
    * @param questionnaire - FHIR Questionnaire
    */
   getUneditableVariables(questionnaire): UneditableVariable[] {
-    const launchContextExtensionUrl = 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-launchContext';
-
     if (Array.isArray(questionnaire.extension)) {
       return questionnaire.extension.reduce((accumulator, extension) => {
-        if (extension.url === launchContextExtensionUrl && extension.extension) {
+        if (extension.url === this.LAUNCH_CONTEXT_URI && extension.extension) {
           const uneditableVariable = {
             name: extension.extension.find((e) => e.url === 'name').valueId,
             type: extension.extension.filter((e) => e.url === 'type')?.map((e) => e.valueCode).join('|'),
@@ -241,7 +240,6 @@ export class RuleEditorService {
       if (expression !== null) {
         // @ts-ignore
         this.finalExpression = expression.valueExpression.expression;
-        this.finalExpressionChange.next(this.finalExpression);
 
         const simpleSyntax = this.extractSimpleSyntax(expression);
 
@@ -251,7 +249,15 @@ export class RuleEditorService {
           this.syntaxType = 'simple';
           this.simpleExpression = simpleSyntax;
         }
+      } else {
+        // Reset input to be a blank simple expression if there is nothing on
+        // the form
+        this.syntaxType = 'simple';
+        this.simpleExpression = '';
+        this.finalExpression = '';
       }
+
+      this.finalExpressionChange.next(this.finalExpression);
     }
   }
 
@@ -532,6 +538,45 @@ export class RuleEditorService {
     }
 
     this.insertExtensions(fhir.item, this.linkIdContext, [finalExpressionExtension]);
+
+    // If there are any query observation extensions check to make sure there is
+    // a patient launch context. If there is not add one.
+    const hasQueryObservations = this.variables.find((e) => {
+      return e.type === 'queryObservation';
+    });
+
+    if (hasQueryObservations !== undefined) {
+      const patientLaunchContext = this.uneditableVariables.find((e) => {
+        return e.name === 'patient' && e.type === 'Patient';
+      });
+
+      if (patientLaunchContext === undefined) {
+        // Add launchContext
+        if (!Array.isArray(fhir.extension)) {
+          fhir.extension = [];
+        }
+
+        const name = 'patient';
+        const type = 'Patient';
+        const description = 'For filling in patient information as the subject for the form';
+
+        fhir.extension.push({
+          url: this.LAUNCH_CONTEXT_URI,
+          extension: [
+            { url: 'name', valueId: name },
+            { url: 'type', valueCode: type },
+            { url: 'description', valueString: description }
+          ]
+        });
+
+        this.uneditableVariables.push({
+          name,
+          type,
+          description
+        });
+        this.uneditableVariablesChange.next(this.uneditableVariables);
+      }
+    }
 
     return fhir;
   }

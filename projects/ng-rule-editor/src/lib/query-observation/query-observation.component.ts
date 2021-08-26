@@ -70,12 +70,12 @@ export class QueryObservationComponent implements OnInit, AfterViewInit, OnDestr
     });
 
     Def.Autocompleter.Event.observeListSelections(`autocomplete-${this.index}`, () => {
-      const nonLoinc = this.autoComplete.getSelectedItemData();
+      const selectedItemData = this.autoComplete.getSelectedItemData();
 
       // If there is no code then this is not a loinc code and we need to get
       // the value from the array above
       this.codes = this.autoComplete.getSelectedCodes().map((code, index) => {
-        return (code === undefined) ? nonLoinc[index].text : `http://loinc.org|${code}`;
+        return (code === undefined) ? selectedItemData[index].text : `http://loinc.org|${code}`;
       });
       this.onChange();
     });
