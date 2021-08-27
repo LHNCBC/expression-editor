@@ -33,6 +33,7 @@ h1 {
 }
 
 .expression, .expression-type {
+  display: flex;
   padding: 0.5rem;
 }
 
@@ -41,7 +42,8 @@ h1 {
 }
 
 .expression {
-  flex: 1 0 auto;
+  flex: 1 0 30em;
+  min-width: 0;
 }
 
 input, select {

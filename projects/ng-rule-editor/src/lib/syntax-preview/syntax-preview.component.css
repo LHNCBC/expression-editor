@@ -2,7 +2,7 @@
   overflow: hidden;
 }
 
-.syntax-preview {
+.syntax {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -12,4 +12,22 @@
   margin: 0;
   color: #555;
   font-size: 0.8rem;
+}
+
+.syntax-preview {
+  display: flex;
+  width: 100%;
+}
+
+.fhirpath {
+  flex: 1 0 10em;
+  min-width: 0;
+  padding-right: 1em;
+}
+
+.copy {
+  margin-top: 1em;
+  flex: 0 0 3em;
+  border: none;
+  background: transparent;
 }

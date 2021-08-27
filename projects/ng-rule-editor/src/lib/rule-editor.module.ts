@@ -13,6 +13,7 @@ import { MatRadioModule } from '@angular/material/radio';
 import { MathToFhirpathPipe } from './math-to-fhirpath.pipe';
 import { SyntaxConverterComponent } from './syntax-converter/syntax-converter.component';
 import { SyntaxPreviewComponent } from './syntax-preview/syntax-preview.component';
+import { ClipboardModule } from '@angular/cdk/clipboard';
 
 
 
@@ -31,7 +32,8 @@ import { SyntaxPreviewComponent } from './syntax-preview/syntax-preview.componen
     FormsModule,
     BrowserAnimationsModule,
     DragDropModule,
-    MatRadioModule
+    MatRadioModule,
+    ClipboardModule
   ],
   exports: [
     RuleEditorComponent
