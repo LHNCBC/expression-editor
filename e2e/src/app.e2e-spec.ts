@@ -34,7 +34,7 @@ describe('Rule Editor', () => {
       it('should produce the correct FHIR Questionnaire', async () => {
         await element(by.id('export')).click();
 
-        expect(await element(by.id('output')).getText()).toContain('"expression": "%a/(%b.power(2))"');
+        expect(await element(by.id('output')).getText()).toContain('"expression": "%a/%b.power(2)"');
       });
 
       it('should be user stylable', async () => {

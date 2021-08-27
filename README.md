@@ -42,9 +42,8 @@ object.
 
 1. Install in your project using `npm install --save-prod ng-rule-editor`
 2. Make sure your application has `@angular/animations`, `@angular/cdk`,
-   `@angular/common`, `@angular/core`, `@angular/material`, `autocomplete-lhc`
-   and `jquery` as dependencies since they are needed as peer dependencies by
-   the Rule Editor.
+   `@angular/common`, `@angular/core` and `@angular/material` as dependencies
+   since they are needed as peer dependencies by the Rule Editor.
 3. Add the `lhc-rule-editor` and required tags similar to the example below:
 
 #### Angular Component Example
@@ -75,9 +74,8 @@ retrieve data use the `(save)` attribute.
 
 1. Install in your project using `npm install --save-prod rule-editor`
 2. Import jQuery.
-3. (Optional) Integrate the web component files with your module bundler of
-   choice.
-4. Import the JavaScript files on the page.
+4. Import the JavaScript file `rule-editor.js` on the page or integrate it as
+  part of your build process (webpack, etc.)
 5. Add the <lhc-rule-editor> tag along with necessary [attributes](#attributes-available) to the HTML.
 6. Add event handlers for the `save` event.
 
@@ -93,9 +91,7 @@ To retrieve data add an event listener for `save`.
     
     <pre id="output"></pre>
     
-    <script src="/rule-editor/runtime.js"></script>
-    <script src="/rule-editor/polyfills.js"></script>
-    <script src="/rule-editor/main.js"></script>
+    <script src="/rule-editor/rule-editor.js"></script>
     
     <script src="mock-data.js"></script>
     
