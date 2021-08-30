@@ -2,6 +2,11 @@
 
 This project follows [Semantic Versioning](http://semver.org/).
 
+## [1.3.0] 2021-08-27
+### Added
+- Copy button and tooltip preview for automatically generated FHIRPath and
+x-fhir-query.
+
 ## [1.2.0] 2021-08-11
 ### Added
 - New APIs to check if there is a score `isScoreCalculation` and update a score

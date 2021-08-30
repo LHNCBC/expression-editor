@@ -1,8 +1,11 @@
 <div class="text-muted syntax-preview" [ngStyle]="lhcStyle" *ngIf="syntax || showWhenEmpty">
   <div class="fhirpath">
-    FHIRPath: <pre class="d-inline text-muted syntax" title="{{syntax}}">{{syntax}}</pre>
+    FHIRPath:
+    <pre class="d-inline text-muted syntax" matTooltip="{{syntax}}">
+      {{syntax}}
+    </pre>
   </div>
-  <button class="copy" [cdkCopyToClipboard]="syntax" title="Copy to clipboard">
+  <button class="copy" [cdkCopyToClipboard]="syntax" title="Copy to clipboard" aria-label="Copy to clipboard">
     <!-- Copy icon https://fonts.google.com/icons?icon.query=copy -->
     <svg xmlns="http://www.w3.org/2000/svg" height="16px" viewBox="0 0 24 24" width="24px" fill="#000000">
       <path d="M0 0h24v24H0V0z" fill="none"/>

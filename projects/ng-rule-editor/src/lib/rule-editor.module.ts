@@ -14,6 +14,7 @@ import { MathToFhirpathPipe } from './math-to-fhirpath.pipe';
 import { SyntaxConverterComponent } from './syntax-converter/syntax-converter.component';
 import { SyntaxPreviewComponent } from './syntax-preview/syntax-preview.component';
 import { ClipboardModule } from '@angular/cdk/clipboard';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 
 
@@ -33,7 +34,8 @@ import { ClipboardModule } from '@angular/cdk/clipboard';
     BrowserAnimationsModule,
     DragDropModule,
     MatRadioModule,
-    ClipboardModule
+    ClipboardModule,
+    MatTooltipModule
   ],
   exports: [
     RuleEditorComponent

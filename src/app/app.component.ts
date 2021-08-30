@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { DatePipe } from '@angular/common';
 
 @Component({
   selector: 'app-root',
@@ -30,5 +31,21 @@ export class AppComponent implements OnInit {
 
   onSave(fhirResult): void {
     this.fhirPreview = JSON.stringify(fhirResult, null, 2);
+  }
+
+  downloadJson(data: string, name: string): void {
+    const datePipe = new DatePipe('en-US');
+    const blob = new Blob([data]);
+
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    const date = datePipe.transform(Date.now(), 'yyyyMMdd-hhmmss');
+
+    a.setAttribute('style', 'display: none');
+    a.href = url;
+    a.download = name ? `${name}.json` : `fhirpath-${date}.json`;
+    a.click();
+    window.URL.revokeObjectURL(url);
+    a.remove();
   }
 }
