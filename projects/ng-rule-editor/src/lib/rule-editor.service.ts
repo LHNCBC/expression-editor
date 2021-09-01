@@ -546,8 +546,19 @@ export class RuleEditorService {
     });
 
     if (hasQueryObservations !== undefined) {
-      const patientLaunchContext = this.uneditableVariables.find((e) => {
-        return e.name === 'patient' && e.type === 'Patient';
+      const patientLaunchContext = fhir.extension.find((extension) => {
+        if (extension.url === this.LAUNCH_CONTEXT_URI &&
+            Array.isArray(extension.extension)) {
+          const patientName = extension.extension.find((subExtension) => {
+            return subExtension.url === 'name' && subExtension.valueId === 'patient';
+          });
+
+          if (patientName !== undefined) {
+            return true;
+          }
+        }
+
+        return false;
       });
 
       if (patientLaunchContext === undefined) {
