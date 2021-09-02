@@ -13,6 +13,7 @@ import { MatRadioModule } from '@angular/material/radio';
 import { MathToFhirpathPipe } from './math-to-fhirpath.pipe';
 import { SyntaxConverterComponent } from './syntax-converter/syntax-converter.component';
 import { SyntaxPreviewComponent } from './syntax-preview/syntax-preview.component';
+import { QueryObservationComponent } from './query-observation/query-observation.component';
 
 
 
@@ -25,7 +26,8 @@ import { SyntaxPreviewComponent } from './syntax-preview/syntax-preview.componen
     CalculateSumPromptComponent,
     MathToFhirpathPipe,
     SyntaxConverterComponent,
-    SyntaxPreviewComponent
+    SyntaxPreviewComponent,
+    QueryObservationComponent
   ],
   imports: [
     FormsModule,

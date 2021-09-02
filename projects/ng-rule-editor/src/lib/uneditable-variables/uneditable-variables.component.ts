@@ -4,7 +4,8 @@ import { UneditableVariable } from '../variable';
 
 @Component({
   selector: 'lhc-uneditable-variables',
-  templateUrl: './uneditable-variables.component.html'
+  templateUrl: './uneditable-variables.component.html',
+  styleUrls: ['./uneditable-variables.component.css']
 })
 export class UneditableVariablesComponent implements OnInit {
   uneditableVariables: UneditableVariable[];
