@@ -19,9 +19,7 @@ export class SyntaxConverterComponent implements OnChanges {
   constructor() { }
 
   ngOnChanges(): void {
-    if (this.expression !== '') {
-      this.onExpressionChange(this.expression);
-    }
+    this.onExpressionChange(this.expression);
   }
 
   onExpressionChange(value): void {
