@@ -31,7 +31,7 @@
     </lhc-rule-editor>
   </div>
 
-  <button *ngIf="fhirPreview" (click)="downloadJson(fhirPreview)">
+  <button *ngIf="fhirPreview" (click)="downloadJson(fhirPreview)" class="download">
     Download Questionnaire
   </button>
   <pre id="output">{{fhirPreview}}</pre>

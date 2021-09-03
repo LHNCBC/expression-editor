@@ -5,6 +5,7 @@ import { ClipboardModule } from '@angular/cdk/clipboard';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatRadioModule } from '@angular/material/radio';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 import { RuleEditorComponent } from './rule-editor.component';
 import { VariablesComponent } from './variables/variables.component';
@@ -34,7 +35,8 @@ import { QueryObservationComponent } from './query-observation/query-observation
     DragDropModule,
     MatRadioModule,
     ClipboardModule,
-    MatTooltipModule
+    MatTooltipModule,
+    MatSnackBarModule
   ],
   exports: [
     RuleEditorComponent

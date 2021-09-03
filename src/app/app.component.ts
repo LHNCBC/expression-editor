@@ -33,7 +33,7 @@ export class AppComponent implements OnInit {
     this.fhirPreview = JSON.stringify(fhirResult, null, 2);
   }
 
-  downloadJson(data: string, name: string): void {
+  downloadJson(data: string, name?: string): void {
     const datePipe = new DatePipe('en-US');
     const blob = new Blob([data]);
 
