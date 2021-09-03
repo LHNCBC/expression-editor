@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { SyntaxPreviewComponent } from './syntax-preview.component';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 describe('SyntaxPreviewComponent', () => {
   let component: SyntaxPreviewComponent;
@@ -8,7 +9,8 @@ describe('SyntaxPreviewComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ SyntaxPreviewComponent ]
+      declarations: [ SyntaxPreviewComponent ],
+      imports: [ MatSnackBarModule ]
     })
     .compileComponents();
   });
