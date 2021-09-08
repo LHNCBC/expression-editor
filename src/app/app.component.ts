@@ -33,6 +33,11 @@ export class AppComponent implements OnInit {
     this.fhirPreview = JSON.stringify(fhirResult, null, 2);
   }
 
+  /**
+   * Trigger a file download of the provided data.
+   * @param data - Content of the file which will be downloaded
+   * @param name - Name the user sees for the file
+   */
   downloadJson(data: string, name?: string): void {
     const datePipe = new DatePipe('en-US');
     const blob = new Blob([data]);
@@ -46,6 +51,5 @@ export class AppComponent implements OnInit {
     a.download = name ? `${name}.json` : `fhirpath-${date}.json`;
     a.click();
     window.URL.revokeObjectURL(url);
-    a.remove();
   }
 }

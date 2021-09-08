@@ -31,3 +31,7 @@
   border: none;
   background: transparent;
 }
+
+::ng-deep .mat-tooltip {
+  overflow-wrap: break-word;
+}
