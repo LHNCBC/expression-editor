@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { SimpleStyle } from '../rule-editor.service';
+import { RuleEditorService, SimpleStyle } from '../rule-editor.service';
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { CASE_REGEX, CaseStatement, Variable } from '../variable';
 import { MathToFhirpathPipe } from '../math-to-fhirpath.pipe';
@@ -18,25 +18,30 @@ export class CaseStatementsComponent implements OnInit {
   @Output() expressionChange = new EventEmitter<string>();
 
   defaultCase: string;
-  cases: Array<CaseStatement> = [{condition: '', output: ''}];
+  simpleDefaultCase: string;
+  cases: Array<CaseStatement> = [{condition: '', simpleCondition: '', output: '', simpleOutput: ''}];
   output = '';
 
-  constructor() { }
+  constructor(private ruleEditorService: RuleEditorService) { }
 
   /**
    * Angular lifecycle hook for initialization
    */
   ngOnInit(): void {
-    if (this.expression !== undefined) {
+    if (this.syntax === 'fhirpath' && this.expression !== undefined) {
       this.parseIif(this.expression, 0);
+    } else if (this.syntax === 'simple' && this.simpleExpression !== undefined) {
+      this.parseIif(this.simpleExpression, 0);
     }
+    this.output = this.getIif(0);
+    this.expressionChange.emit(this.output);
   }
 
   /**
    * Called when adding a new case
    */
   onAdd(): void {
-    this.cases.push({condition: '', output: ''});
+    this.cases.push({condition: '', simpleCondition: '', output: '', simpleOutput: ''});
     this.onChange();
     // TODO select next input box that was added
   }
@@ -62,8 +67,9 @@ export class CaseStatementsComponent implements OnInit {
    * Parse iif expression at specified level. Top level is 0
    * @param expression - expression to parse
    * @param level - depth or level of expression nesting
+   * @param simple - true if parsing a simple expression
    */
-  parseIif(expression: string, level: number): boolean {
+  parseIif(expression: string, level: number, simple?: boolean): boolean {
     // If expressions don't start with iif( and end with ) they cannot be parsed
     const matches = expression.match(CASE_REGEX);
 
@@ -104,14 +110,28 @@ export class CaseStatementsComponent implements OnInit {
         const trueCase = iifContents.substring(comma1 + 1, comma2).trim();
         const falseCase = iifContents.substring(comma2 + 1, iifContents.length).trim();
 
-        this.cases.push({
-          condition,
-          output: trueCase
-        });
+        if (simple) {
+          const pipe = new MathToFhirpathPipe();
+          const variableNames = this.ruleEditorService.variables.map(e => e.label);
+
+          this.cases.push({
+            simpleCondition: condition,
+            simpleOutput: trueCase,
+            condition: pipe.transform(condition, this.ruleEditorService.variables.map(e => e.label)),
+            output: pipe.transform(trueCase, variableNames)
+          });
+        } else {
+          this.cases.push({
+            condition,
+            output: trueCase
+          });
+        }
 
         const parseResult = this.parseIif(falseCase, level + 1);
-        if (parseResult === false) {
+        if (parseResult === false && !simple) {
           this.defaultCase = falseCase;
+        } else if (parseResult === false && simple) {
+          this.simpleDefaultCase = falseCase;
         }
 
         return true;
@@ -141,5 +161,7 @@ export class CaseStatementsComponent implements OnInit {
    */
   drop(event: CdkDragDrop<Variable[]>): void {
     moveItemInArray(this.cases, event.previousIndex, event.currentIndex);
+    this.output = this.getIif(0);
+    this.expressionChange.emit(this.output);
   }
 }

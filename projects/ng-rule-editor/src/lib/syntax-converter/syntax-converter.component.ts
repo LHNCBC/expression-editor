@@ -8,9 +8,10 @@ import { SimpleStyle } from '../rule-editor.service';
   styleUrls: ['./syntax-converter.component.css']
 })
 export class SyntaxConverterComponent implements OnChanges {
-  @Input() expression: string;
+  @Input() simple: string;
   @Input() variables;
   @Input() lhcStyle: SimpleStyle = {};
+  @Output() simpleChange = new EventEmitter<string>();
   @Output() expressionChange = new EventEmitter<string>();
 
   fhirPathExpression: string;
@@ -19,14 +20,14 @@ export class SyntaxConverterComponent implements OnChanges {
   constructor() { }
 
   ngOnChanges(): void {
-    this.onExpressionChange(this.expression);
+    this.onExpressionChange(this.simple);
   }
 
-  onExpressionChange(value): void {
-    const fhirPath: string = this.jsToFhirPathPipe.transform(value, this.variables);
+  onExpressionChange(simple): void {
+    const fhirPath: string = this.jsToFhirPathPipe.transform(simple, this.variables);
     this.fhirPathExpression = fhirPath;
 
+    this.simpleChange.emit(simple);
     this.expressionChange.emit(fhirPath);
   }
-
 }

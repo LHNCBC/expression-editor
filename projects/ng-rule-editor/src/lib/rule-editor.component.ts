@@ -1,5 +1,5 @@
 import { DatePipe } from '@angular/common';
-import { Component, EventEmitter, Input, OnChanges, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnInit, Output } from '@angular/core';
 import { MatRadioChange } from '@angular/material/radio';
 
 import { RuleEditorService, SimpleStyle } from './rule-editor.service';
@@ -10,7 +10,7 @@ import { RuleEditorService, SimpleStyle } from './rule-editor.service';
   templateUrl: 'rule-editor.component.html',
   styleUrls: ['rule-editor.component.css']
 })
-export class RuleEditorComponent implements OnChanges {
+export class RuleEditorComponent implements OnInit, OnChanges {
   @Input() advancedInterface = false;
   @Input() fhirQuestionnaire = null;
   @Input() itemLinkId = null;
@@ -38,6 +38,18 @@ export class RuleEditorComponent implements OnChanges {
   private variablesSubscription;
 
   constructor(private variableService: RuleEditorService) {}
+
+  ngOnInit(): void {
+    this.calculateSumSubscription = this.variableService.mightBeScoreChange.subscribe((mightBeScore) => {
+      this.calculateSum = mightBeScore;
+    });
+    this.finalExpressionSubscription = this.variableService.finalExpressionChange.subscribe((finalExpression) => {
+      this.finalExpression = finalExpression;
+    });
+    this.variablesSubscription = this.variableService.variablesChange.subscribe((variables) => {
+      this.variables = variables.map(e => e.label);
+    });
+  }
 
   /**
    * Angular lifecycle hook called before the component is destroyed
@@ -70,17 +82,8 @@ export class RuleEditorComponent implements OnChanges {
     this.expressionSyntax = this.variableService.syntaxType;
     this.caseStatements = this.variableService.caseStatements;
     this.calculateSum = this.variableService.mightBeScore;
-    this.calculateSumSubscription = this.variableService.mightBeScoreChange.subscribe((mightBeScore) => {
-      this.calculateSum = mightBeScore;
-    });
     this.finalExpression = this.variableService.finalExpression;
-    this.finalExpressionSubscription = this.variableService.finalExpressionChange.subscribe((finalExpression) => {
-      this.finalExpression = finalExpression;
-    });
     this.variables = this.variableService.variables.map(e => e.label);
-    this.variablesSubscription = this.variableService.variablesChange.subscribe((variables) => {
-      this.variables = variables.map(e => e.label);
-    });
   }
 
   /**
@@ -118,6 +121,26 @@ export class RuleEditorComponent implements OnChanges {
    */
   updateFinalExpression(expression): void {
     this.finalExpression = expression;
+  }
+
+  /**
+   * Update the simple final expression
+   */
+  updateSimpleExpression(simple): void {
+    this.simpleExpression = simple;
+  }
+
+  /**
+   * Toggle the advanced interface based on the type
+   */
+  onTypeChange(event): void {
+    if (event.target.value === 'fhirpath') {
+      this.variableService.checkAdvancedInterface(true);
+    } else {
+      // Need to check all other variables and the final expression before we
+      // allow the advanced interface to be removed
+      this.variableService.checkAdvancedInterface();
+    }
   }
 
   /**

@@ -26,7 +26,9 @@ export interface Question {
 
 export interface CaseStatement {
   condition: string;
+  simpleCondition?: string;
   output: string;
+  simpleOutput?: string;
 }
 
 export enum AllVariableType {

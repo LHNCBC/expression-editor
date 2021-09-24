@@ -27,13 +27,19 @@
 
     <div class="flex-container">
       <div class="expression-type" *ngIf="advancedInterface">
-        <select class="form-control" [(ngModel)]="expressionSyntax" aria-label="Expression syntax type" [ngStyle]="lhcStyle.select">
+        <select class="form-control" [(ngModel)]="expressionSyntax" (change)="onTypeChange($event)" aria-label="Expression syntax type" [ngStyle]="lhcStyle.select">
           <option value="simple">Simple Expression</option>
           <option value="fhirpath">FHIRPath Expression</option>
         </select>
       </div>
       <div *ngIf="!caseStatements" class="expression" [ngSwitch]="expressionSyntax">
-        <lhc-syntax-converter [expression]="simpleExpression" [variables]="variables" *ngSwitchCase="'simple'" (expressionChange)="updateFinalExpression($event)" [lhcStyle]="lhcStyle"></lhc-syntax-converter>
+        <lhc-syntax-converter
+          *ngSwitchCase="'simple'"
+          [simple]="simpleExpression"
+          [variables]="variables"
+          (expressionChange)="updateFinalExpression($event)"
+          (simpleChange)="updateSimpleExpression($event)"
+          [lhcStyle]="lhcStyle"></lhc-syntax-converter>
         <input type="text" aria-label="FHIRPath" *ngSwitchCase="'fhirpath'" id="final-expression" class="form-control" [(ngModel)]="finalExpression" [ngStyle]="lhcStyle.input">
       </div>
       <lhc-case-statements

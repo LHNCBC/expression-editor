@@ -77,6 +77,19 @@ export class VariablesComponent implements OnInit, OnChanges {
   }
 
   /**
+   * Toggle the advanced interface based on the type
+   */
+  onTypeChange(event): void {
+    if (event.target.value === 'query' || event.target.value === 'expression') {
+      this.ruleEditorService.checkAdvancedInterface(true);
+    } else {
+      // Need to check all other variables and the final expression before we
+      // allow the advanced interface to be removed
+      this.ruleEditorService.checkAdvancedInterface();
+    }
+  }
+
+  /**
    * Get the labels of available variables at the current index
    * @param index - Index of variable we're editing
    */
@@ -95,5 +108,14 @@ export class VariablesComponent implements OnInit, OnChanges {
    */
   updateExpression(i: number, expression): void {
     this.variables[i].expression = expression;
+  }
+
+  /**
+   * Update the simple expression for variable at the given index.
+   * @param i - index
+   * @param simple - new expression to use
+   */
+  updateSimpleExpression(i: number, simple): void {
+    this.variables[i].simple = simple;
   }
 }

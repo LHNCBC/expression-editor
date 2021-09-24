@@ -91,6 +91,30 @@ export class RuleEditorService {
   }
 
   /**
+   * Checks the advanced interface status and allows toggle if no expressions or
+   * queries are present
+   * @param toggleOn - Set the advanced interface on (without having to run checks)
+   */
+  checkAdvancedInterface(toggleOn?: boolean): void {
+    if (toggleOn) {
+      this.needsAdvancedInterface = true;
+    } else {
+      let needsAdvanced = false;
+      // Check variables
+      if (this.variables.find((e) => e.type === 'expression' || e.type === 'query') !== undefined) {
+        needsAdvanced = true;
+      }
+
+      // Check final expression
+      if (this.syntaxType === 'fhirpath') {
+        needsAdvanced = true;
+      }
+
+      this.needsAdvancedInterface = needsAdvanced;
+    }
+  }
+
+  /**
    * Get the list of uneditable variables based on the FHIR Questionnaire
    * @param questionnaire - FHIR Questionnaire
    */
@@ -136,12 +160,11 @@ export class RuleEditorService {
               const fhirPathVarToAdd = this.processVariable(
                 extension.valueExpression.name,
                 extension.valueExpression.expression,
-                extension._index);
-              console.log(this.needsAdvancedInterface);
+                extension._index,
+                extension.extension);
               if (fhirPathVarToAdd.type === 'expression') {
                 this.needsAdvancedInterface = true;
               }
-              console.log(fhirPathVarToAdd.type, this.needsAdvancedInterface);
               variables.push(fhirPathVarToAdd);
               break;
             case this.LANGUAGE_FHIR_QUERY:
@@ -152,7 +175,6 @@ export class RuleEditorService {
               if (queryVarToAdd.type === 'query') {
                 this.needsAdvancedInterface = true;
               }
-              console.log(fhirPathVarToAdd.type, this.needsAdvancedInterface);
               variables.push(queryVarToAdd);
               break;
           }
@@ -350,12 +372,15 @@ export class RuleEditorService {
    * @param name - Name to assign variable
    * @param expression - Expression to process
    * @param index - Original order in extension list
+   * @param extensions - Any additional extensions (for simple fhirpath etc)
    * @return Variable type which can be used by the Rule Editor to show a
    * question, expression etc
    * @private
    */
-  private processVariable(name, expression, index?: number): Variable {
+  private processVariable(name, expression, index?: number, extensions?): Variable {
     const matches = expression.match(this.QUESTION_REGEX);
+
+    const simpleExtension = extensions && extensions.find(e => e.url === this.SIMPLE_SYNTAX_EXTENSION);
 
     if (matches !== null) {
       const linkId = matches[1];
@@ -384,6 +409,14 @@ export class RuleEditorService {
       }
 
       return variable;
+    } else if (simpleExtension !== undefined) {
+      return {
+        _index: index,
+        label: name,
+        type: 'simple',
+        expression,
+        simple: simpleExtension.valueString
+      };
     } else {
       return {
         _index: index,
@@ -503,7 +536,7 @@ export class RuleEditorService {
     const fhir = copy(this.fhir);
 
     const variablesToAdd = this.variables.map((e) => {
-      return {
+      const variable = {
         _index: e._index,
         url: this.VARIABLE_EXTENSION,
         valueExpression: {
@@ -512,6 +545,16 @@ export class RuleEditorService {
           expression: e.expression
         }
       };
+
+      if (e.type === 'simple') {
+        // @ts-ignore
+        variable.extension = [{
+          url: this.SIMPLE_SYNTAX_EXTENSION,
+          valueString: e.simple
+        }];
+      }
+
+      return variable;
     });
 
     // Split the variables into two buckets: Variables present when
