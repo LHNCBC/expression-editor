@@ -24,10 +24,23 @@ export interface Question {
   unit?: string;
 }
 
-export enum VariableType {
+export interface CaseStatement {
+  condition: string;
+  output: string;
+}
+
+export enum AllVariableType {
   question = 'Question',
   expression = 'FHIRPath Expression',
   simple = 'Simple Expression',
   query = 'FHIR Query',
   queryObservation = 'FHIR Query (Observation)'
 }
+
+export enum SimpleVariableType {
+  question = 'Question',
+  simple = 'Simple Expression',
+  queryObservation = 'FHIR Query (Observation)'
+}
+
+export const CASE_REGEX = /^\s*iif\s*\((.*)\)\s*$/;

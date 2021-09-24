@@ -11,6 +11,7 @@ import { RuleEditorService, SimpleStyle } from './rule-editor.service';
   styleUrls: ['rule-editor.component.css']
 })
 export class RuleEditorComponent implements OnChanges {
+  @Input() advancedInterface = false;
   @Input() fhirQuestionnaire = null;
   @Input() itemLinkId = null;
   @Input() submitButtonName = 'Submit';
@@ -29,6 +30,8 @@ export class RuleEditorComponent implements OnChanges {
   calculateSum: boolean;
   suggestions = [];
   variables: string[];
+  caseStatements: boolean;
+  disableInterfaceToggle = false;
 
   private calculateSumSubscription;
   private finalExpressionSubscription;
@@ -58,11 +61,14 @@ export class RuleEditorComponent implements OnChanges {
   reload(): void {
     if (this.fhirQuestionnaire !== null && this.itemLinkId !== null) {
       this.variableService.import(this.expressionUri, this.fhirQuestionnaire, this.itemLinkId);
+      this.disableInterfaceToggle = this.variableService.needsAdvancedInterface;
+      this.advancedInterface = this.variableService.needsAdvancedInterface;
     }
 
     this.simpleExpression = this.variableService.simpleExpression;
     this.linkIdContext = this.variableService.linkIdContext;
     this.expressionSyntax = this.variableService.syntaxType;
+    this.caseStatements = this.variableService.caseStatements;
     this.calculateSum = this.variableService.mightBeScore;
     this.calculateSumSubscription = this.variableService.mightBeScoreChange.subscribe((mightBeScore) => {
       this.calculateSum = mightBeScore;
@@ -112,5 +118,19 @@ export class RuleEditorComponent implements OnChanges {
    */
   updateFinalExpression(expression): void {
     this.finalExpression = expression;
+  }
+
+  /**
+   * Called when the advancedInterface mode changes
+   * @param newValue new value for advancedInterace
+   */
+  advancedInterfaceChange(newValue: boolean): void {
+    // TODO set initial value based on @Input
+    if (newValue) {
+      // TODO check if there is any input that would get removed if the mode is changed
+      this.expressionSyntax = 'fhirpath';
+    } else {
+      this.expressionSyntax = 'simple';
+    }
   }
 }

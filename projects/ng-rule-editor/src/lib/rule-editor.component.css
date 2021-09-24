@@ -46,7 +46,7 @@ h1 {
   min-width: 0;
 }
 
-input, select {
+input[type=text], select {
   height: 2rem;
   font-size: 1rem;
   width: 100%;
@@ -69,6 +69,15 @@ button {
 .primary {
   background-color: blue;
   color: white;
+}
+
+lhc-case-statements {
+  flex: 100%;
+  padding: 0.5rem;
+}
+
+.checkbox {
+  padding: 0.5rem;
 }
 
 @media (max-width: 975px) {

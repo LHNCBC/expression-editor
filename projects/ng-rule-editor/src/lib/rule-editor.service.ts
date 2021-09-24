@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Subject } from 'rxjs';
 import copy from 'fast-copy';
 
-import { Question, UneditableVariable, Variable } from './variable';
+import { AllVariableType, CASE_REGEX, Question, SimpleVariableType, UneditableVariable, Variable } from './variable';
 import { UNIT_CONVERSION } from './units';
 
 export interface SimpleStyle {
@@ -36,6 +36,8 @@ export class RuleEditorService {
   questions: Question[];
   finalExpression: string;
   simpleExpression: string;
+  caseStatements: boolean;
+  needsAdvancedInterface = false;
 
   private LANGUAGE_FHIRPATH = 'text/fhirpath';
   private LANGUAGE_FHIR_QUERY = 'application/x-fhir-query';
@@ -131,18 +133,27 @@ export class RuleEditorService {
         if (extension.url === this.VARIABLE_EXTENSION && extension.valueExpression) {
           switch (extension.valueExpression.language) {
             case this.LANGUAGE_FHIRPATH:
-              variables.push(
-                this.processVariable(
-                  extension.valueExpression.name,
-                  extension.valueExpression.expression,
-                  extension._index));
+              const fhirPathVarToAdd = this.processVariable(
+                extension.valueExpression.name,
+                extension.valueExpression.expression,
+                extension._index);
+              console.log(this.needsAdvancedInterface);
+              if (fhirPathVarToAdd.type === 'expression') {
+                this.needsAdvancedInterface = true;
+              }
+              console.log(fhirPathVarToAdd.type, this.needsAdvancedInterface);
+              variables.push(fhirPathVarToAdd);
               break;
             case this.LANGUAGE_FHIR_QUERY:
-              variables.push(
-                this.processQueryVariable(
-                  extension.valueExpression.name,
-                  extension.valueExpression.expression,
-                  extension._index));
+              const queryVarToAdd = this.processQueryVariable(
+                extension.valueExpression.name,
+                extension.valueExpression.expression,
+                extension._index);
+              if (queryVarToAdd.type === 'query') {
+                this.needsAdvancedInterface = true;
+              }
+              console.log(fhirPathVarToAdd.type, this.needsAdvancedInterface);
+              variables.push(queryVarToAdd);
               break;
           }
         } else {
@@ -216,6 +227,7 @@ export class RuleEditorService {
       this.uneditableVariablesChange.next(this.uneditableVariables);
 
       this.linkIdToQuestion = {};
+      this.needsAdvancedInterface = false;
       this.processItem(this.fhir.item);
 
       this.variables = this.extractVariables(this.fhir);
@@ -248,10 +260,13 @@ export class RuleEditorService {
         // @ts-ignore
         this.finalExpression = expression.valueExpression.expression;
 
+        this.caseStatements = this.finalExpression.match(CASE_REGEX) !== null;
+
         const simpleSyntax = this.extractSimpleSyntax(expression);
 
         if (simpleSyntax === null && this.finalExpression !== '') {
           this.syntaxType = 'fhirpath';
+          this.needsAdvancedInterface = true;
         } else {
           this.syntaxType = 'simple';
           this.simpleExpression = simpleSyntax;

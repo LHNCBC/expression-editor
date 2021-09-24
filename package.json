@@ -3,16 +3,16 @@
   "version": "1.4.0",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve",
+    "start": "ng build --watch ng-rule-editor & sleep 25; ng serve; s=$?; kill %1; exit $s",
     "start-public": "ng serve --host 0.0.0.0 --disable-host-check",
-    "concatenate": "concat -o dist/rule-editor/rule-editor.js dist/rule-editor/runtime.js dist/rule-editor/polyfills.js dist/rule-editor/main.js",
-    "build": "ng build ng-rule-editor --prod && ng build rule-editor --prod && ng build && npm run concatenate",
-    "unit-test": "ng test --watch=false",
-    "test": "ng test --watch=false && ng run demo:cypress-run && npm run webdriver-manager-update && npm run protractor",
+    "build:concatenate": "concat -o dist/rule-editor/rule-editor.js dist/rule-editor/runtime.js dist/rule-editor/polyfills.js dist/rule-editor/main.js",
+    "build": "ng build ng-rule-editor --prod && ng build rule-editor --prod && ng build && npm run build:concatenate",
+    "test": "ng test --watch=false && ng run demo:cypress-run && npm run webdriver-manager-update && npm run test:protractor",
+    "test:unit": "ng test --watch=false",
     "lint": "ng lint",
     "webdriver-manager-update": "node node_modules/protractor/bin/webdriver-manager update --versions.chrome $(google-chrome --version |awk '{print $NF}')",
-    "protractor": "ng serve & sleep 25; protractor e2e/protractor.conf.js; s=$?; kill %1; exit $s",
-    "e2e": "ng e2e"
+    "test:protractor": "ng serve & sleep 25; protractor e2e/protractor.conf.js; s=$?; kill %1; exit $s",
+    "test:e2e": "ng e2e"
   },
   "dependencies": {
     "@angular/animations": "~11.0.5",

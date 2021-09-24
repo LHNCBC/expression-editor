@@ -16,6 +16,7 @@ import { MathToFhirpathPipe } from './math-to-fhirpath.pipe';
 import { SyntaxConverterComponent } from './syntax-converter/syntax-converter.component';
 import { SyntaxPreviewComponent } from './syntax-preview/syntax-preview.component';
 import { QueryObservationComponent } from './query-observation/query-observation.component';
+import { CaseStatementsComponent } from './case-statements/case-statements.component';
 
 @NgModule({
   declarations: [
@@ -27,7 +28,8 @@ import { QueryObservationComponent } from './query-observation/query-observation
     MathToFhirpathPipe,
     SyntaxConverterComponent,
     SyntaxPreviewComponent,
-    QueryObservationComponent
+    QueryObservationComponent,
+    CaseStatementsComponent
   ],
   imports: [
     FormsModule,

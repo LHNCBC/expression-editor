@@ -1,7 +1,7 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnChanges, OnInit } from '@angular/core';
 
-import { Variable, VariableType } from '../variable';
-import { CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
+import { Variable, AllVariableType, SimpleVariableType } from '../variable';
+import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { RuleEditorService, SimpleStyle } from '../rule-editor.service';
 
 @Component({
@@ -9,10 +9,11 @@ import { RuleEditorService, SimpleStyle } from '../rule-editor.service';
   templateUrl: './variables.component.html',
   styleUrls: ['./variables.component.css']
 })
-export class VariablesComponent implements OnInit {
+export class VariablesComponent implements OnInit, OnChanges {
   @Input() lhcStyle: SimpleStyle = {};
+  @Input() advancedInterface: boolean;
 
-  variableType = VariableType;
+  variableType: any = SimpleVariableType;
   variableSubscription;
   variables: Variable[];
   levels = [{
@@ -31,6 +32,11 @@ export class VariablesComponent implements OnInit {
     this.variableSubscription = this.ruleEditorService.variablesChange.subscribe((variables) => {
       this.variables = variables;
     });
+  }
+
+  ngOnChanges(): void {
+    // TODO update types again?
+    this.variableType = this.advancedInterface ? AllVariableType : SimpleVariableType;
   }
 
   /**
@@ -80,5 +86,14 @@ export class VariablesComponent implements OnInit {
     const editableVariables = this.variables.map((e) => e.label).slice(0, index);
 
     return uneditableVariables.concat(editableVariables);
+  }
+
+  /**
+   * Update the expression for variable at the given index.
+   * @param i - index
+   * @param expression - new expression to use
+   */
+  updateExpression(i: number, expression): void {
+    this.variables[i].expression = expression;
   }
 }

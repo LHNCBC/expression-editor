@@ -41,7 +41,7 @@ describe('Rule Editor', () => {
         const lightYellowBackground = 'rgb(255, 255, 238)';
 
         // User styled input fields have a light yellow background. Declared via an attribute
-        expect(await element.all(by.css('lhc-rule-editor input')).first()
+        expect(await element.all(by.css('lhc-rule-editor input:not([type="checkbox"])')).first()
           .getCssValue('background')).toContain(lightYellowBackground);
         expect(await element(by.id('simple-expression'))
           .getCssValue('background')).toContain(lightYellowBackground);
