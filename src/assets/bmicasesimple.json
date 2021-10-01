@@ -208,7 +208,11 @@
           "valueExpression": {
             "language": "text/fhirpath",
             "expression": "iif(%bmi<18.5,'underweight',iif(%bmi<25,'normal',iif(%bmi<30,'overweight','obese')))"
-          }
+          },
+          "extension": [{
+            "url": "http://lhcforms.nlm.nih.gov/fhir/ext/simple-syntax",
+            "valueString": "iif(bmi<18.5,'underweight',iif(bmi<25,'normal',iif(bmi<30,'overweight','obese')))"
+          }]
         }
       ],
       "required": false,

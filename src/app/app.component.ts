@@ -15,7 +15,7 @@ export class AppComponent implements OnInit {
   constructor(private http: HttpClient) {}
 
   ngOnInit(): void {
-    this.onChange({target: {value: 'bmicasesimple'}});
+    this.onChange({target: {value: 'bmisimple'}});
   }
 
   onChange(event): void {

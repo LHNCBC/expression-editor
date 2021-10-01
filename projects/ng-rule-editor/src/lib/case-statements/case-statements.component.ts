@@ -1,22 +1,26 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnInit, Output } from '@angular/core';
 import { RuleEditorService, SimpleStyle } from '../rule-editor.service';
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { CASE_REGEX, CaseStatement, Variable } from '../variable';
-import { MathToFhirpathPipe } from '../math-to-fhirpath.pipe';
+import { EasyPathExpressionsPipe } from '../math-to-fhirpath.pipe';
 
 @Component({
   selector: 'lhc-case-statements',
   templateUrl: './case-statements.component.html',
   styleUrls: ['./case-statements.component.css']
 })
-export class CaseStatementsComponent implements OnInit {
+export class CaseStatementsComponent implements OnInit, OnChanges {
   @Input() lhcStyle: SimpleStyle = {};
   @Input() syntax: string;
   @Input() simpleExpression: string;
   @Input() expression: string;
 
   @Output() expressionChange = new EventEmitter<string>();
+  @Output() simpleChange = new EventEmitter<string>();
 
+  STRING_REGEX = /^'(.*)'$/;
+  pipe = new EasyPathExpressionsPipe();
+  outputExpressions = true;
   defaultCase: string;
   simpleDefaultCase: string;
   cases: Array<CaseStatement> = [{condition: '', simpleCondition: '', output: '', simpleOutput: ''}];
@@ -32,9 +36,48 @@ export class CaseStatementsComponent implements OnInit {
       this.parseIif(this.expression, 0);
     } else if (this.syntax === 'simple' && this.simpleExpression !== undefined) {
       this.parseIif(this.simpleExpression, 0);
+
+      // If all output values are strings toggle off "use expressions"
+      const outputString = this.cases.find(e => (!this.isString(e.simpleOutput)));
+      const defaultIsString = this.isString(this.simpleDefaultCase);
+
+      if (outputString === undefined && defaultIsString) {
+        this.outputExpressions = false;
+        // Remove quotes from output strings and default case
+        this.cases = this.cases.map(e => ({...e, simpleOutput: this.removeQuotes(e.simpleOutput)}));
+        this.simpleDefaultCase = this.removeQuotes(this.simpleDefaultCase);
+      }
     }
+
     this.output = this.getIif(0);
-    this.expressionChange.emit(this.output);
+  }
+
+  /**
+   * Checks if the expression is a string
+   */
+  isString(expression: string): boolean {
+    return this.STRING_REGEX.test(expression);
+  }
+
+  /**
+   * Removes surrounding quotes
+   */
+  removeQuotes(expression: string): string {
+    return expression.match(this.STRING_REGEX)[1];
+  }
+
+  /**
+   * Angular lifecycle hook for changes
+   */
+  ngOnChanges(changes): void {
+    if (changes.syntax && this.syntax === 'simple') {
+      // TODO ask about clearing out expressions?
+    } else if (changes.syntax && this.syntax === 'fhirpath') {
+      this.outputExpressions = true;
+      //this.simpleExpression = '';
+      this.parseIif(this.expression, 0);
+      this.onChange();
+    }
   }
 
   /**
@@ -61,15 +104,15 @@ export class CaseStatementsComponent implements OnInit {
   onChange(): void {
     this.output = this.getIif(0);
     this.expressionChange.emit(this.output);
+    this.simpleChange.emit(this.simpleExpression);
   }
 
   /**
    * Parse iif expression at specified level. Top level is 0
    * @param expression - expression to parse
    * @param level - depth or level of expression nesting
-   * @param simple - true if parsing a simple expression
    */
-  parseIif(expression: string, level: number, simple?: boolean): boolean {
+  parseIif(expression: string, level: number): boolean {
     // If expressions don't start with iif( and end with ) they cannot be parsed
     const matches = expression.match(CASE_REGEX);
 
@@ -110,15 +153,14 @@ export class CaseStatementsComponent implements OnInit {
         const trueCase = iifContents.substring(comma1 + 1, comma2).trim();
         const falseCase = iifContents.substring(comma2 + 1, iifContents.length).trim();
 
-        if (simple) {
-          const pipe = new MathToFhirpathPipe();
+        if (this.syntax === 'simple') {
           const variableNames = this.ruleEditorService.variables.map(e => e.label);
 
           this.cases.push({
             simpleCondition: condition,
             simpleOutput: trueCase,
-            condition: pipe.transform(condition, this.ruleEditorService.variables.map(e => e.label)),
-            output: pipe.transform(trueCase, variableNames)
+            condition: this.pipe.transform(condition, this.ruleEditorService.variables.map(e => e.label)),
+            output: this.pipe.transform(trueCase, variableNames)
           });
         } else {
           this.cases.push({
@@ -128,9 +170,9 @@ export class CaseStatementsComponent implements OnInit {
         }
 
         const parseResult = this.parseIif(falseCase, level + 1);
-        if (parseResult === false && !simple) {
+        if (parseResult === false && this.syntax !== 'simple') {
           this.defaultCase = falseCase;
-        } else if (parseResult === false && simple) {
+        } else if (parseResult === false && this.syntax === 'simple') {
           this.simpleDefaultCase = falseCase;
         }
 
@@ -145,13 +187,48 @@ export class CaseStatementsComponent implements OnInit {
    * Get an iif expression given a nesting level
    * @param level - nesting level
    */
-  getIif(level): string {
-    const levels = this.cases.length;
+  getIif(level: number): string {
+    const output = this.transformIfSimple(this.syntax === 'simple' ?
+      this.cases[level].simpleOutput :
+      this.cases[level].output, true);
+    const condition = this.transformIfSimple(this.syntax === 'simple' ?
+      this.cases[level].simpleCondition :
+      this.cases[level].condition, false);
 
-    if (level === levels - 1) {
-      return `iif(${this.cases[level].condition},${this.cases[level].output},${this.defaultCase})`;
+    if (level === this.cases.length - 1) {
+      const defaultCase = this.transformIfSimple(this.syntax === 'simple' ?
+        this.simpleDefaultCase : this.defaultCase, true);
+      return `iif(${condition},${output},${defaultCase})`;
     } else {
-      return `iif(${this.cases[level].condition},${this.cases[level].output},${this.getIif(level + 1)})`;
+      return `iif(${condition},${output},${this.getIif(level + 1)})`;
+    }
+  }
+
+  /**
+   * Transform the expression parameter if the syntax type is Easy Path,
+   * otherwise return the expression.
+   * @param expression - Easy Path or FHIRPath expression
+   * @param isOutput - True if processing an output or default value
+   * @return FHIRPath Expression
+   */
+  transformIfSimple(expression: string, isOutput: boolean): string {
+    if (expression === undefined) {
+      return '';
+    }
+
+    let processedExpression = expression;
+
+    if (isOutput && !this.outputExpressions) {
+      processedExpression = `'${processedExpression}'`;  // TODO should we escape the expression?
+    }
+
+    // Convert when syntax is simple but not in the output column is outputExpressions is disabled
+    if (this.syntax === 'simple' && !(isOutput && !this.outputExpressions)) {
+      const s = this.pipe.transform(processedExpression, this.ruleEditorService.variables.map(e => e.label));
+      console.log(s); // TODO
+      return s;
+    } else {
+      return processedExpression;
     }
   }
 
@@ -161,7 +238,6 @@ export class CaseStatementsComponent implements OnInit {
    */
   drop(event: CdkDragDrop<Variable[]>): void {
     moveItemInArray(this.cases, event.previousIndex, event.currentIndex);
-    this.output = this.getIif(0);
-    this.expressionChange.emit(this.output);
+    this.onChange();
   }
 }

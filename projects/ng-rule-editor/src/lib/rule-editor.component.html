@@ -28,7 +28,7 @@
     <div class="flex-container">
       <div class="expression-type" *ngIf="advancedInterface">
         <select class="form-control" [(ngModel)]="expressionSyntax" (change)="onTypeChange($event)" aria-label="Expression syntax type" [ngStyle]="lhcStyle.select">
-          <option value="simple">Simple Expression</option>
+          <option value="simple">Easy Path Expression</option>
           <option value="fhirpath">FHIRPath Expression</option>
         </select>
       </div>
@@ -48,7 +48,8 @@
         [simpleExpression]="simpleExpression"
         [expression]="finalExpression"
         [lhcStyle]="lhcStyle"
-        (expressionChange)="updateFinalExpression($event)">
+        (expressionChange)="updateFinalExpression($event)"
+        (simpleChange)="updateSimpleExpression($event)">
       </lhc-case-statements>
     </div>
   </section>

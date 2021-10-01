@@ -34,14 +34,14 @@ export interface CaseStatement {
 export enum AllVariableType {
   question = 'Question',
   expression = 'FHIRPath Expression',
-  simple = 'Simple Expression',
+  simple = 'Easy Path Expression',
   query = 'FHIR Query',
   queryObservation = 'FHIR Query (Observation)'
 }
 
 export enum SimpleVariableType {
   question = 'Question',
-  simple = 'Simple Expression',
+  simple = 'Easy Path Expression',
   queryObservation = 'FHIR Query (Observation)'
 }
 

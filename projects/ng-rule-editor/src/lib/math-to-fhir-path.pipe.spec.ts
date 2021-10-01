@@ -1,8 +1,8 @@
-import { MathToFhirpathPipe } from './math-to-fhirpath.pipe';
+import { EasyPathExpressionsPipe } from './math-to-fhirpath.pipe';
 
 describe('JsToFhirPathPipe', () => {
   it('create an instance', () => {
-    const pipe = new MathToFhirpathPipe();
+    const pipe = new EasyPathExpressionsPipe();
     expect(pipe).toBeTruthy();
   });
 });

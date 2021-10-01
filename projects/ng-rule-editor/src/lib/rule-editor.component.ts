@@ -127,6 +127,7 @@ export class RuleEditorComponent implements OnInit, OnChanges {
    * Update the simple final expression
    */
   updateSimpleExpression(simple): void {
+    console.log('updating simple', simple); // TODO
     this.simpleExpression = simple;
   }
 
@@ -141,6 +142,13 @@ export class RuleEditorComponent implements OnInit, OnChanges {
       // allow the advanced interface to be removed
       this.variableService.checkAdvancedInterface();
     }
+
+    if (this.variableService.needsAdvancedInterface) {
+      this.advancedInterface = true;
+      this.disableInterfaceToggle = true;
+    } else {
+      this.disableInterfaceToggle = false;
+    }
   }
 
   /**
@@ -148,12 +156,6 @@ export class RuleEditorComponent implements OnInit, OnChanges {
    * @param newValue new value for advancedInterace
    */
   advancedInterfaceChange(newValue: boolean): void {
-    // TODO set initial value based on @Input
-    if (newValue) {
-      // TODO check if there is any input that would get removed if the mode is changed
-      this.expressionSyntax = 'fhirpath';
-    } else {
-      this.expressionSyntax = 'simple';
-    }
+    // TODO set values of types
   }
 }

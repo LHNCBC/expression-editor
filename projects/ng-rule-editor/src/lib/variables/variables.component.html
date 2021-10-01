@@ -26,6 +26,7 @@
         <lhc-query-observation [variable]="variable" [index]="i" *ngSwitchCase="'queryObservation'" [lhcStyle]="lhcStyle"></lhc-query-observation>
         <div class="form-inline" *ngSwitchCase="'simple'">
           <lhc-syntax-converter
+            [id]="'variable-expression-' + i"
             [simple]="variable.simple"
             [variables]="getAvailableVariables(i)"
             [lhcStyle]="lhcStyle"

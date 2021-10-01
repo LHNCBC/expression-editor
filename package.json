@@ -4,8 +4,10 @@
   "scripts": {
     "ng": "ng",
     "start": "ng build --watch ng-rule-editor & sleep 25; ng serve; s=$?; kill %1; exit $s",
-    "start-public": "ng serve --host 0.0.0.0 --disable-host-check",
+    "start-public": "ng serve --host $(uname -n)",
+    "build:concatenate-gh": "concat -o docs/rule-editor.js dist/rule-editor/runtime.js dist/rule-editor/polyfills.js dist/rule-editor/main.js",
     "build:concatenate": "concat -o dist/rule-editor/rule-editor.js dist/rule-editor/runtime.js dist/rule-editor/polyfills.js dist/rule-editor/main.js",
+    "build:gh-pages": "ng build ng-rule-editor --prod && ng build rule-editor --prod && ng build --prod --output-path docs --base-href /rule-editor/ && npm run build:concatenate",
     "build": "ng build ng-rule-editor --prod && ng build rule-editor --prod && ng build && npm run build:concatenate",
     "test": "ng test --watch=false && ng run demo:cypress-run && npm run webdriver-manager-update && npm run test:protractor",
     "test:unit": "ng test --watch=false",
@@ -32,7 +34,7 @@
     "classlist.js": "^1.1.20150312",
     "fast-copy": "^2.1.1",
     "jquery": "^3.6.0",
-    "math-to-fhirpath": "NLMLHC/math-to-fhirpath",
+    "easy-path-expressions": "NLMLHC/easy-path-expressions",
     "rxjs": "~6.6.0",
     "tslib": "^2.0.0",
     "zone.js": "~0.10.2"

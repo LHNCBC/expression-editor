@@ -1,6 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { CdkCopyToClipboard } from '@angular/cdk/clipboard';
 
 import { CaseStatementsComponent } from './case-statements.component';
 import { SyntaxPreviewComponent } from '../syntax-preview/syntax-preview.component';
@@ -11,8 +13,8 @@ describe('CaseStatementsComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ CaseStatementsComponent, SyntaxPreviewComponent ],
-      imports: [ FormsModule, MatSnackBarModule ]
+      declarations: [ CaseStatementsComponent, SyntaxPreviewComponent, CdkCopyToClipboard ],
+      imports: [ FormsModule, MatSnackBarModule, MatTooltipModule ]
     })
     .compileComponents();
   });

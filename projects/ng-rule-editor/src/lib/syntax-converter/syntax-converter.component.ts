@@ -1,5 +1,5 @@
 import { Component, Input, Output, EventEmitter, OnChanges } from '@angular/core';
-import { MathToFhirpathPipe } from '../math-to-fhirpath.pipe';
+import { EasyPathExpressionsPipe } from '../math-to-fhirpath.pipe';
 import { SimpleStyle } from '../rule-editor.service';
 
 @Component({
@@ -15,7 +15,7 @@ export class SyntaxConverterComponent implements OnChanges {
   @Output() expressionChange = new EventEmitter<string>();
 
   fhirPathExpression: string;
-  jsToFhirPathPipe = new MathToFhirpathPipe();
+  jsToFhirPathPipe = new EasyPathExpressionsPipe();
 
   constructor() { }
 

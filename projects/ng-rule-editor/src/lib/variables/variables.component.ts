@@ -111,11 +111,11 @@ export class VariablesComponent implements OnInit, OnChanges {
   }
 
   /**
-   * Update the simple expression for variable at the given index.
+   * Update the Easy Path for variable at the given index.
    * @param i - index
-   * @param simple - new expression to use
+   * @param easyPath - new expression to use
    */
-  updateSimpleExpression(i: number, simple): void {
-    this.variables[i].simple = simple;
+  updateSimpleExpression(i: number, easyPath): void {
+    this.variables[i].simple = easyPath;
   }
 }
