@@ -70,12 +70,12 @@ export class CaseStatementsComponent implements OnInit, OnChanges {
    * Angular lifecycle hook for changes
    */
   ngOnChanges(changes): void {
-    if (changes.syntax && this.syntax === 'simple') {
+    if (changes.syntax && this.syntax === 'simple' && changes.syntax.firstChange === false) {
       this.cases = [{condition: '', simpleCondition: '', output: '', simpleOutput: ''}];
       this.defaultCase = '';
       this.simpleDefaultCase = '';
       this.onChange();
-    } else if (changes.syntax && this.syntax === 'fhirpath') {
+    } else if (changes.syntax && this.syntax === 'fhirpath' && changes.syntax.firstChange === false) {
       this.outputExpressions = true;
       this.parseIif(this.expression, 0);
       this.onChange();
@@ -122,9 +122,10 @@ export class CaseStatementsComponent implements OnInit, OnChanges {
       const iifContents = matches[1];
       let commaMatches = 0;
       let nestingLevel = 0;
-      let comma1 = 0;
-      let comma2 = 0;
+      let comma1 = -1;
+      let comma2 = -1;
 
+      // Check where the ',' is relative to depth as indicated by parenthesis
       for (let i = 0; i < iifContents.length; i++) {
         switch (iifContents[i]) {
           case '(':
@@ -136,9 +137,9 @@ export class CaseStatementsComponent implements OnInit, OnChanges {
           case ',':
             if (nestingLevel === 0) {
               commaMatches++;
-              if (comma1 === 0) {
+              if (comma1 === -1) {
                 comma1 = i;
-              } else if (comma2 === 0) {
+              } else if (comma2 === -1) {
                 comma2 = i;
               }
             }
