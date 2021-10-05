@@ -71,10 +71,12 @@ export class CaseStatementsComponent implements OnInit, OnChanges {
    */
   ngOnChanges(changes): void {
     if (changes.syntax && this.syntax === 'simple') {
-      // TODO ask about clearing out expressions?
+      this.cases = [{condition: '', simpleCondition: '', output: '', simpleOutput: ''}];
+      this.defaultCase = '';
+      this.simpleDefaultCase = '';
+      this.onChange();
     } else if (changes.syntax && this.syntax === 'fhirpath') {
       this.outputExpressions = true;
-      //this.simpleExpression = '';
       this.parseIif(this.expression, 0);
       this.onChange();
     }
@@ -224,9 +226,7 @@ export class CaseStatementsComponent implements OnInit, OnChanges {
 
     // Convert when syntax is simple but not in the output column is outputExpressions is disabled
     if (this.syntax === 'simple' && !(isOutput && !this.outputExpressions)) {
-      const s = this.pipe.transform(processedExpression, this.ruleEditorService.variables.map(e => e.label));
-      console.log(s); // TODO
-      return s;
+      return this.pipe.transform(processedExpression, this.ruleEditorService.variables.map(e => e.label));
     } else {
       return processedExpression;
     }

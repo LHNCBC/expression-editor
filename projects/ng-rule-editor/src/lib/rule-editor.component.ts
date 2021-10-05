@@ -36,6 +36,7 @@ export class RuleEditorComponent implements OnInit, OnChanges {
   private calculateSumSubscription;
   private finalExpressionSubscription;
   private variablesSubscription;
+  private disableAdvancedSubscription;
 
   constructor(private variableService: RuleEditorService) {}
 
@@ -49,6 +50,9 @@ export class RuleEditorComponent implements OnInit, OnChanges {
     this.variablesSubscription = this.variableService.variablesChange.subscribe((variables) => {
       this.variables = variables.map(e => e.label);
     });
+    this.disableAdvancedSubscription = this.variableService.disableAdvancedChange.subscribe((disable) => {
+      this.disableInterfaceToggle = disable;
+    });
   }
 
   /**
@@ -58,6 +62,7 @@ export class RuleEditorComponent implements OnInit, OnChanges {
     this.calculateSumSubscription.unsubscribe();
     this.finalExpressionSubscription.unsubscribe();
     this.variablesSubscription.unsubscribe();
+    this.disableAdvancedSubscription.unsubscribe();
   }
 
   /**
@@ -127,7 +132,6 @@ export class RuleEditorComponent implements OnInit, OnChanges {
    * Update the simple final expression
    */
   updateSimpleExpression(simple): void {
-    console.log('updating simple', simple); // TODO
     this.simpleExpression = simple;
   }
 
@@ -149,13 +153,5 @@ export class RuleEditorComponent implements OnInit, OnChanges {
     } else {
       this.disableInterfaceToggle = false;
     }
-  }
-
-  /**
-   * Called when the advancedInterface mode changes
-   * @param newValue new value for advancedInterace
-   */
-  advancedInterfaceChange(newValue: boolean): void {
-    // TODO set values of types
   }
 }

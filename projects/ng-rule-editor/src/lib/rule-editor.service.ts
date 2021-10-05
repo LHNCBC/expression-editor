@@ -31,6 +31,7 @@ export class RuleEditorService {
   questionsChange: Subject<Question[]> = new Subject<Question[]>();
   mightBeScoreChange: Subject<boolean> = new Subject<boolean>();
   finalExpressionChange: Subject<string> = new Subject<string>();
+  disableAdvancedChange: Subject<boolean> = new Subject<boolean>();
   uneditableVariables: UneditableVariable[];
   variables: Variable[];
   questions: Question[];
@@ -112,6 +113,8 @@ export class RuleEditorService {
 
       this.needsAdvancedInterface = needsAdvanced;
     }
+
+    this.disableAdvancedChange.next(this.needsAdvancedInterface);
   }
 
   /**

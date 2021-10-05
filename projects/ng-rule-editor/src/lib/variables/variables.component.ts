@@ -34,9 +34,28 @@ export class VariablesComponent implements OnInit, OnChanges {
     });
   }
 
-  ngOnChanges(): void {
-    // TODO update types again?
-    this.variableType = this.advancedInterface ? AllVariableType : SimpleVariableType;
+  /**
+   * Angular lifecycle hook called when bound property changes
+   */
+  ngOnChanges(changes): void {
+    if (changes.advancedInterface) {
+      this.variableType = this.advancedInterface ? AllVariableType : SimpleVariableType;
+      if (this.variables) {
+        const previousValues = [];
+
+        this.variables.forEach((variable, index) => {
+          previousValues[index] = variable.type;
+          variable.type = '';
+        });
+
+        // Not sure of a better way of setting the previous values than this
+        setTimeout(() => {
+          this.variables.forEach((variable, index) => {
+            variable.type = previousValues[index];
+          });
+        }, 10);
+      }
+    }
   }
 
   /**
