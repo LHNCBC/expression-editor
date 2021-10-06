@@ -27,7 +27,7 @@ describe('Rule editor', () => {
     });
 
     describe('Case statements', () => {
-      it('should display the Easy Path case editor when importing Easy Path', () => {
+      it('should display the Easy Path case editor when importing questionnaire with Easy Path in final expression', () => {
         cy.get('select#questionnaire-select').select('BMI Calculation (Easy Path expression with cases)');
         cy.get('#advanced-interface').should('not.be.checked');
 
@@ -46,7 +46,7 @@ describe('Rule editor', () => {
           "iif(%bmi<18.5,'underweight',iif(%bmi<25,'normal',iif(%bmi<30,'overweight','obese')))");
       });
 
-      it('should display the FHIRPath case editor when importing FHIRPath', () => {
+      it('should display the FHIRPath case editor when importing questionnaire with FHIRPath in final expression', () => {
         cy.get('select#questionnaire-select').select('BMI Calculation (with cases)');
         cy.get('#advanced-interface').should('be.checked');
 

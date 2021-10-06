@@ -19,6 +19,9 @@ export class AppComponent implements OnInit {
   }
 
   onChange(event): void {
+    // Clear out preview when changing forms
+    this.fhirPreview = '';
+
     if (event.target.value === '') {
       this.fhir = null;
     } else {

@@ -35,21 +35,31 @@ export class CaseStatementsComponent implements OnInit, OnChanges {
     if (this.syntax === 'fhirpath' && this.expression !== undefined) {
       this.parseIif(this.expression, 0);
     } else if (this.syntax === 'simple' && this.simpleExpression !== undefined) {
-      this.parseIif(this.simpleExpression, 0);
-
-      // If all output values are strings toggle off "use expressions"
-      const outputString = this.cases.find(e => (!this.isString(e.simpleOutput)));
-      const defaultIsString = this.isString(this.simpleDefaultCase);
-
-      if (outputString === undefined && defaultIsString) {
-        this.outputExpressions = false;
-        // Remove quotes from output strings and default case
-        this.cases = this.cases.map(e => ({...e, simpleOutput: this.removeQuotes(e.simpleOutput)}));
-        this.simpleDefaultCase = this.removeQuotes(this.simpleDefaultCase);
-      }
+      this.parseSimpleCases();
     }
 
     this.output = this.getIif(0);
+  }
+
+  /**
+   * Parses the Easy Path expression and populates the case editor. Toggles "use
+   * expressions" off if output is only stirngs.
+   */
+  parseSimpleCases(): void {
+    this.parseIif(this.simpleExpression, 0);
+
+    // If all output values are strings toggle off "use expressions"
+    const outputString = this.cases.find(e => (!this.isString(e.simpleOutput)));
+    const defaultIsString = this.isString(this.simpleDefaultCase);
+
+    if (outputString === undefined && defaultIsString) {
+      this.outputExpressions = false;
+      // Remove quotes from output strings and default case
+      this.cases.forEach(e => {
+        e.simpleOutput = this.removeQuotes(e.simpleOutput);
+      });
+      this.simpleDefaultCase = this.removeQuotes(this.simpleDefaultCase);
+    }
   }
 
   /**
@@ -71,9 +81,7 @@ export class CaseStatementsComponent implements OnInit, OnChanges {
    */
   ngOnChanges(changes): void {
     if (changes.syntax && this.syntax === 'simple' && changes.syntax.firstChange === false) {
-      this.cases = [{condition: '', simpleCondition: '', output: '', simpleOutput: ''}];
-      this.defaultCase = '';
-      this.simpleDefaultCase = '';
+      this.parseSimpleCases();
       this.onChange();
     } else if (changes.syntax && this.syntax === 'fhirpath' && changes.syntax.firstChange === false) {
       this.outputExpressions = true;
@@ -162,7 +170,7 @@ export class CaseStatementsComponent implements OnInit, OnChanges {
           this.cases.push({
             simpleCondition: condition,
             simpleOutput: trueCase,
-            condition: this.pipe.transform(condition, this.ruleEditorService.variables.map(e => e.label)),
+            condition: this.pipe.transform(condition, variableNames),
             output: this.pipe.transform(trueCase, variableNames)
           });
         } else {
@@ -191,15 +199,16 @@ export class CaseStatementsComponent implements OnInit, OnChanges {
    * @param level - nesting level
    */
   getIif(level: number): string {
-    const output = this.transformIfSimple(this.syntax === 'simple' ?
+    const isSimple = this.syntax === 'simple';
+    const output = this.transformIfSimple(isSimple ?
       this.cases[level].simpleOutput :
       this.cases[level].output, true);
-    const condition = this.transformIfSimple(this.syntax === 'simple' ?
+    const condition = this.transformIfSimple(isSimple ?
       this.cases[level].simpleCondition :
       this.cases[level].condition, false);
 
     if (level === this.cases.length - 1) {
-      const defaultCase = this.transformIfSimple(this.syntax === 'simple' ?
+      const defaultCase = this.transformIfSimple(isSimple ?
         this.simpleDefaultCase : this.defaultCase, true);
       return `iif(${condition},${output},${defaultCase})`;
     } else {
@@ -209,7 +218,8 @@ export class CaseStatementsComponent implements OnInit, OnChanges {
 
   /**
    * Transform the expression parameter if the syntax type is Easy Path,
-   * otherwise return the expression.
+   * otherwise return the expression. Additionally if this is an output column
+   * and output expressions are off surround with quotes.
    * @param expression - Easy Path or FHIRPath expression
    * @param isOutput - True if processing an output or default value
    * @return FHIRPath Expression
