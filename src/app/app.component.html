@@ -2,16 +2,24 @@
 
 <label>
   Questionnaire:
-  <select (change)="onChange($event)" id="questionnaire-select">
-    <option value="">None</option>
+  <select [(ngModel)]="formType" (change)="onChange()" id="questionnaire-select">
+    <option value="upload">Upload your own questionnaire</option>
     <option value="bmi">BMI Calculation</option>
-    <option value="bmisimple" selected>BMI Calculation (Easy Path expression)</option>
+    <option value="bmisimple">BMI Calculation (Easy Path expression)</option>
     <option value="bmicase">BMI Calculation (with cases)</option>
     <option value="bmicasesimple">BMI Calculation (Easy Path expression with cases)</option>
     <option value="phq9">PHQ9 (no FHIRPath)</option>
     <option value="query">Query</option>
   </select>
 </label>
+<div *ngIf="formType == 'upload'" id="upload">
+  <label>Link ID: <input type="text" id="link-id" [(ngModel)]="linkId"></label>
+  <label>Expression URI: <input type="text" id="expression-uri" [(ngModel)]="expressionUri"></label>
+  <label>Questionnaire: <input type="file" id="file-upload" [(ngModel)]="file" accept=".json" (change)="import($event)"></label>
+</div>
+<div id="error" *ngIf="error">
+  {{error}}
+</div>
 
 <div *ngIf="fhir">
   <div class="rule-editor">
@@ -22,7 +30,7 @@
       [submitButtonName]="'Save'"
       [titleName]="'Rule Editor'"
       [expressionLabel]="'Output Calculated Expression'"
-      [expressionUri]="'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression'"
+      [expressionUri]="expressionUri"
       [lhcStyle]="{
         buttonPrimary: { backgroundColor: 'blue', color: 'white' },
         buttonSecondary: { backgroundColor: 'darkgreen', color: 'white' },

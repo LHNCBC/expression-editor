@@ -8,32 +8,75 @@ import { DatePipe } from '@angular/common';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent implements OnInit {
+  calculatedExpression = 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression';
+  originalLinkId = '/39156-5';
+
   fhirPreview: string;
-  linkId = '/39156-5';
+  linkId = this.originalLinkId;
+  expressionUri = this.calculatedExpression;
   fhir = null;
+  formType = 'bmisimple';
+  file = '';
+  error = '';
 
   constructor(private http: HttpClient) {}
 
   ngOnInit(): void {
-    this.onChange({target: {value: 'bmisimple'}});
+    this.onChange();
   }
 
-  onChange(event): void {
+  /**
+   * Used when changing the questionnaire dropdown
+   */
+  onChange(): void {
     // Clear out preview when changing forms
     this.fhirPreview = '';
+    this.error = '';
 
-    if (event.target.value === '') {
+    if (this.formType === '' || this.formType === 'upload') {
       this.fhir = null;
+      this.file = '';
     } else {
-      this.http.get(`/${event.target.value}.json`)
+      this.linkId = this.originalLinkId;
+      this.expressionUri = this.calculatedExpression;
+
+      this.http.get(`/${this.formType}.json`)
         .subscribe(data => {
           this.fhir = data;
         });
     }
   }
 
+  /**
+   * Show a preview of the output questionnaire under the rule editor
+   */
   onSave(fhirResult): void {
     this.fhirPreview = JSON.stringify(fhirResult, null, 2);
+  }
+
+  /**
+   * Import a questionnaire from a file using the linkId and expression URI
+   * @param fileInput - input file change event
+   */
+  import(fileInput): void {
+    if (fileInput.target.files && fileInput.target.files[0]) {
+      const fileReader = new FileReader();
+
+      fileReader.onload = (e) => {
+        if (typeof e.target.result === 'string') {
+          try {
+            this.fhir = JSON.parse(e.target.result);
+            this.error = '';
+          } catch (e) {
+            this.error = 'Could not parse file';
+          }
+        } else {
+          this.error = 'Could not read file';
+        }
+      };
+
+      fileReader.readAsText(fileInput.target.files[0]);
+    }
   }
 
   /**
