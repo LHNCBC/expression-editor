@@ -50,8 +50,8 @@ export class VariablesComponent implements OnInit, OnChanges {
 
         // Not sure of a better way of setting the previous values than this
         setTimeout(() => {
-          this.variables.forEach((variable, index) => {
-            variable.type = previousValues[index];
+          previousValues.forEach((type, index) => {
+            this.variables[index].type = type;
           });
         }, 10);
       }
