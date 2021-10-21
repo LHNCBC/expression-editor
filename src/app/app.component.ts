@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { DatePipe } from '@angular/common';
+import { LiveAnnouncer } from '@angular/cdk/a11y';
 
 @Component({
   selector: 'app-root',
@@ -19,7 +20,7 @@ export class AppComponent implements OnInit {
   file = '';
   error = '';
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private liveAnnouncer: LiveAnnouncer) {}
 
   ngOnInit(): void {
     this.onChange();
@@ -33,10 +34,13 @@ export class AppComponent implements OnInit {
     this.fhirPreview = '';
     this.error = '';
 
+
     if (this.formType === '' || this.formType === 'upload') {
+      this.liveAnnouncer.announce('Additional settings must be entered below to load the rule editor.');
       this.fhir = null;
       this.file = '';
     } else {
+      this.liveAnnouncer.announce('The rule editor for the selected for has appeared below the current field.');
       this.linkId = this.originalLinkId;
       this.expressionUri = this.calculatedExpression;
 
@@ -68,7 +72,7 @@ export class AppComponent implements OnInit {
             this.fhir = JSON.parse(e.target.result);
             this.error = '';
           } catch (e) {
-            this.error = 'Could not parse file';
+            this.error = `Could not parse file ${e}`;
           }
         } else {
           this.error = 'Could not read file';

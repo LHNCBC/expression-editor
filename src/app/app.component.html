@@ -13,8 +13,9 @@
   </select>
 </label>
 <div *ngIf="formType == 'upload'" id="upload">
-  <label>Link ID: <input type="text" id="link-id" [(ngModel)]="linkId"></label>
-  <label>Expression URI: <input type="text" id="expression-uri" [(ngModel)]="expressionUri"></label>
+  <p>Please specify the questionnaire item Link ID and the corresponding Expression URI where the output should be placed:</p>
+  <label>Link ID: <input type="text" required id="link-id" [(ngModel)]="linkId"></label>
+  <label>Output Expression URI: <input required type="text" id="expression-uri" [(ngModel)]="expressionUri"></label>
   <label>Questionnaire: <input type="file" id="file-upload" [(ngModel)]="file" accept=".json" (change)="import($event)"></label>
 </div>
 <div id="error" *ngIf="error">
