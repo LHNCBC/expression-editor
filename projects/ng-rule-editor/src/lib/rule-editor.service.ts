@@ -164,7 +164,7 @@ export class RuleEditorService {
                 extension.valueExpression.name,
                 extension.valueExpression.expression,
                 extension.__$index,
-                extension.extension);
+                extension.valueExpression.extension);
               if (fhirPathVarToAdd.type === 'expression') {
                 this.needsAdvancedInterface = true;
               }
@@ -327,8 +327,8 @@ export class RuleEditorService {
    * @param expression
    */
   extractSimpleSyntax(expression): string|null {
-    if (expression.extension) {
-      const customExtension = expression.extension.find((e) => {
+    if (expression.valueExpression && expression.valueExpression.extension) {
+      const customExtension = expression.valueExpression.extension.find((e) => {
         return e.url === this.SIMPLE_SYNTAX_EXTENSION;
       });
 
@@ -551,7 +551,7 @@ export class RuleEditorService {
 
       if (e.type === 'simple') {
         // @ts-ignore
-        variable.extension = [{
+        variable.valueExpression.extension = [{
           url: this.SIMPLE_SYNTAX_EXTENSION,
           valueString: e.simple
         }];
@@ -599,7 +599,7 @@ export class RuleEditorService {
 
     // TODO keep existing extensions
     if (this.syntaxType === 'simple') {
-      finalExpressionExtension.extension = [{
+      finalExpressionExtension.valueExpression.extension = [{
         url: this.SIMPLE_SYNTAX_EXTENSION,
         valueString: this.simpleExpression
       }];

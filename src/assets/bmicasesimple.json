@@ -34,12 +34,12 @@
       "valueExpression": {
         "name": "bmi",
         "language": "text/fhirpath",
-        "expression": "%weight/%height.power(2)"
-      },
-      "extension": [{
-        "url": "http://lhcforms.nlm.nih.gov/fhir/ext/simple-syntax",
-        "valueString": "weight/height^2"
-      }]
+        "expression": "%weight/%height.power(2)",
+        "extension": [{
+          "url": "http://lhcforms.nlm.nih.gov/fhir/ext/simple-syntax",
+          "valueString": "weight/height^2"
+        }]
+      }
     }
   ],
   "date": "2018-09-12T18:03:40-04:00",
@@ -207,12 +207,12 @@
           "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression",
           "valueExpression": {
             "language": "text/fhirpath",
-            "expression": "iif(%bmi<18.5,'underweight',iif(%bmi<25,'normal',iif(%bmi<30,'overweight','obese')))"
-          },
-          "extension": [{
-            "url": "http://lhcforms.nlm.nih.gov/fhir/ext/simple-syntax",
-            "valueString": "iif(bmi<18.5,'underweight',iif(bmi<25,'normal',iif(bmi<30,'overweight','obese')))"
-          }]
+            "expression": "iif(%bmi<18.5,'underweight',iif(%bmi<25,'normal',iif(%bmi<30,'overweight','obese')))",
+            "extension": [{
+              "url": "http://lhcforms.nlm.nih.gov/fhir/ext/simple-syntax",
+              "valueString": "iif(bmi<18.5,'underweight',iif(bmi<25,'normal',iif(bmi<30,'overweight','obese')))"
+            }]
+          }
         }
       ],
       "required": false,
