@@ -47,5 +47,3 @@ Thumbs.db
 
 /cypress/videos/*
 /cypress/screenshots/*
-/cypress/plugins/*
-/cypress/support/*

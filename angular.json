@@ -26,9 +26,9 @@
                 "output": ""
               },
               {
-                "glob": "*",
-                "input": "dist/rule-editor",
-                "output": "rule-editor"
+                "glob": "rule-editor.js",
+                "input": "dist/rule-editor/",
+                "output": ""
               }
             ],
             "styles": [

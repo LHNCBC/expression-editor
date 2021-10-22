@@ -1,7 +1,7 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnChanges, OnInit } from '@angular/core';
 
-import { Variable, VariableType } from '../variable';
-import { CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
+import { Variable, AllVariableType, SimpleVariableType } from '../variable';
+import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { RuleEditorService, SimpleStyle } from '../rule-editor.service';
 
 @Component({
@@ -9,10 +9,11 @@ import { RuleEditorService, SimpleStyle } from '../rule-editor.service';
   templateUrl: './variables.component.html',
   styleUrls: ['./variables.component.css']
 })
-export class VariablesComponent implements OnInit {
+export class VariablesComponent implements OnInit, OnChanges {
   @Input() lhcStyle: SimpleStyle = {};
+  @Input() advancedInterface: boolean;
 
-  variableType = VariableType;
+  variableType: any = SimpleVariableType;
   variableSubscription;
   variables: Variable[];
   levels = [{
@@ -31,6 +32,30 @@ export class VariablesComponent implements OnInit {
     this.variableSubscription = this.ruleEditorService.variablesChange.subscribe((variables) => {
       this.variables = variables;
     });
+  }
+
+  /**
+   * Angular lifecycle hook called when bound property changes
+   */
+  ngOnChanges(changes): void {
+    if (changes.advancedInterface) {
+      this.variableType = this.advancedInterface ? AllVariableType : SimpleVariableType;
+      if (this.variables) {
+        const previousValues = [];
+
+        this.variables.forEach((variable, index) => {
+          previousValues[index] = variable.type;
+          variable.type = '';
+        });
+
+        // Not sure of a better way of setting the previous values than this
+        setTimeout(() => {
+          previousValues.forEach((type, index) => {
+            this.variables[index].type = type;
+          });
+        }, 10);
+      }
+    }
   }
 
   /**
@@ -71,6 +96,19 @@ export class VariablesComponent implements OnInit {
   }
 
   /**
+   * Toggle the advanced interface based on the type
+   */
+  onTypeChange(event): void {
+    if (event.target.value === 'query' || event.target.value === 'expression') {
+      this.ruleEditorService.checkAdvancedInterface(true);
+    } else {
+      // Need to check all other variables and the final expression before we
+      // allow the advanced interface to be removed
+      this.ruleEditorService.checkAdvancedInterface();
+    }
+  }
+
+  /**
    * Get the labels of available variables at the current index
    * @param index - Index of variable we're editing
    */
@@ -80,5 +118,23 @@ export class VariablesComponent implements OnInit {
     const editableVariables = this.variables.map((e) => e.label).slice(0, index);
 
     return uneditableVariables.concat(editableVariables);
+  }
+
+  /**
+   * Update the expression for variable at the given index.
+   * @param i - index
+   * @param expression - new expression to use
+   */
+  updateExpression(i: number, expression): void {
+    this.variables[i].expression = expression;
+  }
+
+  /**
+   * Update the Easy Path for variable at the given index.
+   * @param i - index
+   * @param easyPath - new expression to use
+   */
+  updateSimpleExpression(i: number, easyPath): void {
+    this.variables[i].simple = easyPath;
   }
 }

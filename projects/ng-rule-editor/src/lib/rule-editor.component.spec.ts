@@ -4,6 +4,9 @@ import { RuleEditorComponent } from './rule-editor.component';
 import { UneditableVariablesComponent } from './uneditable-variables/uneditable-variables.component';
 import { VariablesComponent } from './variables/variables.component';
 import { FormsModule } from '@angular/forms';
+import { CaseStatementsComponent } from './case-statements/case-statements.component';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { SyntaxPreviewComponent } from './syntax-preview/syntax-preview.component';
 
 describe('RuleEditorComponent', () => {
   let component: RuleEditorComponent;
@@ -11,8 +14,14 @@ describe('RuleEditorComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ RuleEditorComponent, UneditableVariablesComponent, VariablesComponent ],
-      imports: [ FormsModule ]
+      declarations: [
+        RuleEditorComponent,
+        UneditableVariablesComponent,
+        VariablesComponent,
+        CaseStatementsComponent,
+        SyntaxPreviewComponent
+      ],
+      imports: [ FormsModule, MatSnackBarModule ]
     })
     .compileComponents();
   });

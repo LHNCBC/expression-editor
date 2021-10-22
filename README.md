@@ -25,6 +25,9 @@ object.
 * `expressionLabel` - Heading name to use to show user when entering the
   expression.
 * `titleName` - Main widget heading shown to the user.
+* `advancedInterface` - Show options to edit FHIRPath and x-fhir-query directly
+  in dropdowns. This mode is automatically enabled for complex Questionnaires.
+  This attribute sets the default which can be overridden by the user.
 * `lhcStyle` (object) - Specify custom CSS to be used by the widget for:
   * h1 - Main heading
   * h2 - Secondary headings

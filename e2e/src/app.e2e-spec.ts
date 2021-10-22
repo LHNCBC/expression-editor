@@ -13,14 +13,14 @@ describe('Rule Editor', () => {
       it('should display the editor', async () => {
         await page.navigateTo();
         // Title
-        expect(await page.getTitle()).toEqual('My Rule Editor');
+        expect(await page.getTitle()).toEqual('Rule Editor');
         // Uneditable variables section should not show up
         expect(await page.getNumberOfUneditableVariables()).toEqual(0);
         // Variables section
         expect(await page.getVariablesTitle()).toEqual('Variables');
         expect(await page.getNumberOfVariables()).toEqual(2);
         // Final expression
-        expect(await page.getFinalExpressionTitle()).toEqual('My Expression');
+        expect(await page.getFinalExpressionTitle()).toEqual('Output Calculated Expression');
       });
 
       it('should be possible to add a variable', async () => {
@@ -41,9 +41,7 @@ describe('Rule Editor', () => {
         const lightYellowBackground = 'rgb(255, 255, 238)';
 
         // User styled input fields have a light yellow background. Declared via an attribute
-        expect(await element.all(by.css('lhc-rule-editor input')).first()
-          .getCssValue('background')).toContain(lightYellowBackground);
-        expect(await element(by.id('simple-expression'))
+        expect(await element.all(by.css('lhc-rule-editor input:not([type="checkbox"])')).first()
           .getCssValue('background')).toContain(lightYellowBackground);
       });
     });

@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Subject } from 'rxjs';
 import copy from 'fast-copy';
 
-import { Question, UneditableVariable, Variable } from './variable';
+import { AllVariableType, CASE_REGEX, Question, SimpleVariableType, UneditableVariable, Variable } from './variable';
 import { UNIT_CONVERSION } from './units';
 
 export interface SimpleStyle {
@@ -31,11 +31,14 @@ export class RuleEditorService {
   questionsChange: Subject<Question[]> = new Subject<Question[]>();
   mightBeScoreChange: Subject<boolean> = new Subject<boolean>();
   finalExpressionChange: Subject<string> = new Subject<string>();
+  disableAdvancedChange: Subject<boolean> = new Subject<boolean>();
   uneditableVariables: UneditableVariable[];
   variables: Variable[];
   questions: Question[];
   finalExpression: string;
   simpleExpression: string;
+  caseStatements: boolean;
+  needsAdvancedInterface = false;
 
   private LANGUAGE_FHIRPATH = 'text/fhirpath';
   private LANGUAGE_FHIR_QUERY = 'application/x-fhir-query';
@@ -89,6 +92,32 @@ export class RuleEditorService {
   }
 
   /**
+   * Checks the advanced interface status and allows toggle if no expressions or
+   * queries are present
+   * @param toggleOn - Set the advanced interface on (without having to run checks)
+   */
+  checkAdvancedInterface(toggleOn?: boolean): void {
+    if (toggleOn) {
+      this.needsAdvancedInterface = true;
+    } else {
+      let needsAdvanced = false;
+      // Check variables
+      if (this.variables.find((e) => e.type === 'expression' || e.type === 'query') !== undefined) {
+        needsAdvanced = true;
+      }
+
+      // Check final expression
+      if (this.syntaxType === 'fhirpath') {
+        needsAdvanced = true;
+      }
+
+      this.needsAdvancedInterface = needsAdvanced;
+    }
+
+    this.disableAdvancedChange.next(this.needsAdvancedInterface);
+  }
+
+  /**
    * Get the list of uneditable variables based on the FHIR Questionnaire
    * @param questionnaire - FHIR Questionnaire
    */
@@ -124,25 +153,32 @@ export class RuleEditorService {
       const nonVariableExtensions = [];
 
       // Add an index to each extension which we will then use to get the
-      // variables back in the correct order. _index will be removed on save
-      questionnaire.extension = questionnaire.extension.map((e, i) => ({ ...e, _index: i }));
+      // variables back in the correct order. __$index will be removed on save
+      questionnaire.extension = questionnaire.extension.map((e, i) => ({ ...e, __$index: i }));
 
       questionnaire.extension.forEach((extension) => {
         if (extension.url === this.VARIABLE_EXTENSION && extension.valueExpression) {
           switch (extension.valueExpression.language) {
             case this.LANGUAGE_FHIRPATH:
-              variables.push(
-                this.processVariable(
-                  extension.valueExpression.name,
-                  extension.valueExpression.expression,
-                  extension._index));
+              const fhirPathVarToAdd = this.processVariable(
+                extension.valueExpression.name,
+                extension.valueExpression.expression,
+                extension.__$index,
+                extension.valueExpression.extension);
+              if (fhirPathVarToAdd.type === 'expression') {
+                this.needsAdvancedInterface = true;
+              }
+              variables.push(fhirPathVarToAdd);
               break;
             case this.LANGUAGE_FHIR_QUERY:
-              variables.push(
-                this.processQueryVariable(
-                  extension.valueExpression.name,
-                  extension.valueExpression.expression,
-                  extension._index));
+              const queryVarToAdd = this.processQueryVariable(
+                extension.valueExpression.name,
+                extension.valueExpression.expression,
+                extension.__$index);
+              if (queryVarToAdd.type === 'query') {
+                this.needsAdvancedInterface = true;
+              }
+              variables.push(queryVarToAdd);
               break;
           }
         } else {
@@ -216,6 +252,7 @@ export class RuleEditorService {
       this.uneditableVariablesChange.next(this.uneditableVariables);
 
       this.linkIdToQuestion = {};
+      this.needsAdvancedInterface = false;
       this.processItem(this.fhir.item);
 
       this.variables = this.extractVariables(this.fhir);
@@ -248,10 +285,13 @@ export class RuleEditorService {
         // @ts-ignore
         this.finalExpression = expression.valueExpression.expression;
 
+        this.caseStatements = this.finalExpression.match(CASE_REGEX) !== null;
+
         const simpleSyntax = this.extractSimpleSyntax(expression);
 
         if (simpleSyntax === null && this.finalExpression !== '') {
           this.syntaxType = 'fhirpath';
+          this.needsAdvancedInterface = true;
         } else {
           this.syntaxType = 'simple';
           this.simpleExpression = simpleSyntax;
@@ -287,8 +327,8 @@ export class RuleEditorService {
    * @param expression
    */
   extractSimpleSyntax(expression): string|null {
-    if (expression.extension) {
-      const customExtension = expression.extension.find((e) => {
+    if (expression.valueExpression && expression.valueExpression.extension) {
+      const customExtension = expression.valueExpression.extension.find((e) => {
         return e.url === this.SIMPLE_SYNTAX_EXTENSION;
       });
 
@@ -335,19 +375,22 @@ export class RuleEditorService {
    * @param name - Name to assign variable
    * @param expression - Expression to process
    * @param index - Original order in extension list
+   * @param extensions - Any additional extensions (for simple fhirpath etc)
    * @return Variable type which can be used by the Rule Editor to show a
    * question, expression etc
    * @private
    */
-  private processVariable(name, expression, index?: number): Variable {
+  private processVariable(name, expression, index?: number, extensions?): Variable {
     const matches = expression.match(this.QUESTION_REGEX);
+
+    const simpleExtension = extensions && extensions.find(e => e.url === this.SIMPLE_SYNTAX_EXTENSION);
 
     if (matches !== null) {
       const linkId = matches[1];
       const factor = matches[2];
 
       const variable: Variable = {
-        _index: index,
+        __$index: index,
         label: name,
         type: 'question',
         linkId,
@@ -369,9 +412,17 @@ export class RuleEditorService {
       }
 
       return variable;
+    } else if (simpleExtension !== undefined) {
+      return {
+        __$index: index,
+        label: name,
+        type: 'simple',
+        expression,
+        simple: simpleExtension.valueString
+      };
     } else {
       return {
-        _index: index,
+        __$index: index,
         label: name,
         type: 'expression',
         expression
@@ -399,7 +450,7 @@ export class RuleEditorService {
       const timeIntervalUnits = matches[3];
 
       return {
-        _index: index,
+        __$index: index,
         label: name,
         type: 'queryObservation',
         codes,
@@ -409,7 +460,7 @@ export class RuleEditorService {
       };
     } else {
       return {
-        _index: index,
+        __$index: index,
         label: name,
         type: 'query',
         expression
@@ -488,8 +539,8 @@ export class RuleEditorService {
     const fhir = copy(this.fhir);
 
     const variablesToAdd = this.variables.map((e) => {
-      return {
-        _index: e._index,
+      const variable = {
+        __$index: e.__$index,
         url: this.VARIABLE_EXTENSION,
         valueExpression: {
           name: e.label,
@@ -497,6 +548,16 @@ export class RuleEditorService {
           expression: e.expression
         }
       };
+
+      if (e.type === 'simple') {
+        // @ts-ignore
+        variable.valueExpression.extension = [{
+          url: this.SIMPLE_SYNTAX_EXTENSION,
+          valueString: e.simple
+        }];
+      }
+
+      return variable;
     });
 
     // Split the variables into two buckets: Variables present when
@@ -507,7 +568,7 @@ export class RuleEditorService {
     const variablesAdded = [];
 
     variablesToAdd.forEach(e => {
-      if (e._index === undefined) {
+      if (e.__$index === undefined) {
         variablesAdded.push(e);
       } else {
         variablesPresentInitially.push(e);
@@ -518,15 +579,15 @@ export class RuleEditorService {
       // Introduce variables present before
       fhir.extension = fhir.extension.concat(variablesPresentInitially);
       // Sort by index
-      fhir.extension.sort((a, b) => a._index - b._index);
+      fhir.extension.sort((a, b) => a.__$index - b.__$index);
       // Add variables added by the user
       fhir.extension = fhir.extension.concat(variablesAdded);
     } else {
       fhir.extension = variablesPresentInitially.concat(variablesAdded);
     }
 
-    // Remove _index
-    fhir.extension = fhir.extension.map(({_index, ...other}) => other);
+    // Remove __$index
+    fhir.extension = fhir.extension.map(({__$index, ...other}) => other);
 
     const finalExpressionExtension: any = {
       url,
@@ -538,7 +599,7 @@ export class RuleEditorService {
 
     // TODO keep existing extensions
     if (this.syntaxType === 'simple') {
-      finalExpressionExtension.extension = [{
+      finalExpressionExtension.valueExpression.extension = [{
         url: this.SIMPLE_SYNTAX_EXTENSION,
         valueString: this.simpleExpression
       }];

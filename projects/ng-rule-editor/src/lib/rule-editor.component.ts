@@ -1,5 +1,5 @@
 import { DatePipe } from '@angular/common';
-import { Component, EventEmitter, Input, OnChanges, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnInit, Output } from '@angular/core';
 import { MatRadioChange } from '@angular/material/radio';
 
 import { RuleEditorService, SimpleStyle } from './rule-editor.service';
@@ -10,7 +10,8 @@ import { RuleEditorService, SimpleStyle } from './rule-editor.service';
   templateUrl: 'rule-editor.component.html',
   styleUrls: ['rule-editor.component.css']
 })
-export class RuleEditorComponent implements OnChanges {
+export class RuleEditorComponent implements OnInit, OnChanges {
+  @Input() advancedInterface = false;
   @Input() fhirQuestionnaire = null;
   @Input() itemLinkId = null;
   @Input() submitButtonName = 'Submit';
@@ -29,12 +30,30 @@ export class RuleEditorComponent implements OnChanges {
   calculateSum: boolean;
   suggestions = [];
   variables: string[];
+  caseStatements: boolean;
+  disableInterfaceToggle = false;
 
   private calculateSumSubscription;
   private finalExpressionSubscription;
   private variablesSubscription;
+  private disableAdvancedSubscription;
 
   constructor(private variableService: RuleEditorService) {}
+
+  ngOnInit(): void {
+    this.calculateSumSubscription = this.variableService.mightBeScoreChange.subscribe((mightBeScore) => {
+      this.calculateSum = mightBeScore;
+    });
+    this.finalExpressionSubscription = this.variableService.finalExpressionChange.subscribe((finalExpression) => {
+      this.finalExpression = finalExpression;
+    });
+    this.variablesSubscription = this.variableService.variablesChange.subscribe((variables) => {
+      this.variables = variables.map(e => e.label);
+    });
+    this.disableAdvancedSubscription = this.variableService.disableAdvancedChange.subscribe((disable) => {
+      this.disableInterfaceToggle = disable;
+    });
+  }
 
   /**
    * Angular lifecycle hook called before the component is destroyed
@@ -43,6 +62,7 @@ export class RuleEditorComponent implements OnChanges {
     this.calculateSumSubscription.unsubscribe();
     this.finalExpressionSubscription.unsubscribe();
     this.variablesSubscription.unsubscribe();
+    this.disableAdvancedSubscription.unsubscribe();
   }
 
   /**
@@ -58,23 +78,17 @@ export class RuleEditorComponent implements OnChanges {
   reload(): void {
     if (this.fhirQuestionnaire !== null && this.itemLinkId !== null) {
       this.variableService.import(this.expressionUri, this.fhirQuestionnaire, this.itemLinkId);
+      this.disableInterfaceToggle = this.variableService.needsAdvancedInterface;
+      this.advancedInterface = this.variableService.needsAdvancedInterface;
     }
 
     this.simpleExpression = this.variableService.simpleExpression;
     this.linkIdContext = this.variableService.linkIdContext;
     this.expressionSyntax = this.variableService.syntaxType;
+    this.caseStatements = this.variableService.caseStatements;
     this.calculateSum = this.variableService.mightBeScore;
-    this.calculateSumSubscription = this.variableService.mightBeScoreChange.subscribe((mightBeScore) => {
-      this.calculateSum = mightBeScore;
-    });
     this.finalExpression = this.variableService.finalExpression;
-    this.finalExpressionSubscription = this.variableService.finalExpressionChange.subscribe((finalExpression) => {
-      this.finalExpression = finalExpression;
-    });
     this.variables = this.variableService.variables.map(e => e.label);
-    this.variablesSubscription = this.variableService.variablesChange.subscribe((variables) => {
-      this.variables = variables.map(e => e.label);
-    });
   }
 
   /**
@@ -112,5 +126,32 @@ export class RuleEditorComponent implements OnChanges {
    */
   updateFinalExpression(expression): void {
     this.finalExpression = expression;
+  }
+
+  /**
+   * Update the simple final expression
+   */
+  updateSimpleExpression(simple): void {
+    this.simpleExpression = simple;
+  }
+
+  /**
+   * Toggle the advanced interface based on the type
+   */
+  onTypeChange(event): void {
+    if (event.target.value === 'fhirpath') {
+      this.variableService.checkAdvancedInterface(true);
+    } else {
+      // Need to check all other variables and the final expression before we
+      // allow the advanced interface to be removed
+      this.variableService.checkAdvancedInterface();
+    }
+
+    if (this.variableService.needsAdvancedInterface) {
+      this.advancedInterface = true;
+      this.disableInterfaceToggle = true;
+    } else {
+      this.disableInterfaceToggle = false;
+    }
   }
 }

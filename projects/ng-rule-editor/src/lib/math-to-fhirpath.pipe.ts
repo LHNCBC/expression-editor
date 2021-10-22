@@ -1,14 +1,14 @@
 import { Pipe, PipeTransform } from '@angular/core';
-import * as mathToFhirpath from 'math-to-fhirpath';
+import * as easyPathExpressions from 'easy-path-expressions';
 
 @Pipe({
-  name: 'mathToFhirpath'
+  name: 'easyPathExpressions'
 })
-export class MathToFhirpathPipe implements PipeTransform {
+export class EasyPathExpressionsPipe implements PipeTransform {
 
   transform(value: string, variables: string[]): string {
     if (value !== undefined) {
-      const fhirPath = mathToFhirpath.fhirconvert(value, variables);
+      const fhirPath = easyPathExpressions.fhirconvert(value, variables);
       if (fhirPath !== null) {
         return fhirPath;
       }

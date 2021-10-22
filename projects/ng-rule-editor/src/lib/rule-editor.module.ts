@@ -12,10 +12,11 @@ import { VariablesComponent } from './variables/variables.component';
 import { UneditableVariablesComponent } from './uneditable-variables/uneditable-variables.component';
 import { QuestionComponent } from './question/question.component';
 import { CalculateSumPromptComponent } from './calculate-sum-prompt/calculate-sum-prompt.component';
-import { MathToFhirpathPipe } from './math-to-fhirpath.pipe';
+import { EasyPathExpressionsPipe } from './math-to-fhirpath.pipe';
 import { SyntaxConverterComponent } from './syntax-converter/syntax-converter.component';
 import { SyntaxPreviewComponent } from './syntax-preview/syntax-preview.component';
 import { QueryObservationComponent } from './query-observation/query-observation.component';
+import { CaseStatementsComponent } from './case-statements/case-statements.component';
 
 @NgModule({
   declarations: [
@@ -24,10 +25,11 @@ import { QueryObservationComponent } from './query-observation/query-observation
     UneditableVariablesComponent,
     QuestionComponent,
     CalculateSumPromptComponent,
-    MathToFhirpathPipe,
+    EasyPathExpressionsPipe,
     SyntaxConverterComponent,
     SyntaxPreviewComponent,
-    QueryObservationComponent
+    QueryObservationComponent,
+    CaseStatementsComponent
   ],
   imports: [
     FormsModule,

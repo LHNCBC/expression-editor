@@ -5,7 +5,7 @@ export interface UneditableVariable {
 }
 
 export interface Variable {
-  _index?: number;  // Original index in extension list
+  __$index?: number;  // Original index in extension list
   label: string;
   type: string;
   expression: string;
@@ -24,10 +24,25 @@ export interface Question {
   unit?: string;
 }
 
-export enum VariableType {
+export interface CaseStatement {
+  condition: string;
+  simpleCondition?: string;
+  output: string;
+  simpleOutput?: string;
+}
+
+export enum AllVariableType {
   question = 'Question',
   expression = 'FHIRPath Expression',
-  simple = 'Simple Expression',
+  simple = 'Easy Path Expression',
   query = 'FHIR Query',
   queryObservation = 'FHIR Query (Observation)'
 }
+
+export enum SimpleVariableType {
+  question = 'Question',
+  simple = 'Easy Path Expression',
+  queryObservation = 'FHIR Query (Observation)'
+}
+
+export const CASE_REGEX = /^\s*iif\s*\((.*)\)\s*$/;
