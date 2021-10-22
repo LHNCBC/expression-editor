@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Web Component</title>
+<!--  <link rel="stylesheet" href="/rule-editor/styles.css"/>-->
+
+  <link rel="shortcut icon" href="data:image/x-icon;," type="image/x-icon">
+
+  <script
+    src="https://code.jquery.com/jquery-3.6.0.min.js"
+    integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
+    crossorigin="anonymous"></script>
+</head>
+<body>
+<lhc-rule-editor
+  id="editor"
+  title-name="Test Rule Editor"
+  submit-button-name="Test Submit">
+</lhc-rule-editor>
+
+<pre id="output"></pre>
+
+<script src="rule-editor.js"></script>
+
+<script>
+  const editor = document.getElementById('editor');
+  const output = document.getElementById('output');
+
+  fetch('/phq9.json')
+    .then(response => response.json())
+    .then(data => {
+      editor.fhirQuestionnaire = data;
+      editor.itemLinkId = '/39156-5';
+      editor.titlename = 'test';
+
+      editor.addEventListener('save', (data) => {
+        output.innerText = JSON.stringify(data.detail, null, 2);
+      });
+    });
+</script>
+</body>
+</html>
