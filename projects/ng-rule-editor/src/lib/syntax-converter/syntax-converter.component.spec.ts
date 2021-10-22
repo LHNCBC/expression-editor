@@ -3,6 +3,7 @@ import { FormsModule } from '@angular/forms';
 
 import { SyntaxConverterComponent } from './syntax-converter.component';
 import { SyntaxPreviewComponent } from '../syntax-preview/syntax-preview.component';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 describe('SyntaxConverterComponent', () => {
   let component: SyntaxConverterComponent;
@@ -11,7 +12,7 @@ describe('SyntaxConverterComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       declarations: [ SyntaxConverterComponent, SyntaxPreviewComponent ],
-      imports: [ FormsModule ]
+      imports: [ FormsModule, MatSnackBarModule ]
     })
     .compileComponents();
   });

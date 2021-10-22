@@ -4,8 +4,7 @@
   <div class="variable-header" [style]="lhcStyle.variableHeader" aria-hidden="true">
     <div class="variable-column-label">Label</div>
     <div class="variable-column-type">Type</div>
-    <div class="variable-column-details">Question/FHIRPath Expression</div>
-    <div class="variable-column-actions">Actions</div>
+    <div class="variable-column-details">Question/FHIRPath Expression/FHIR Query</div>
   </div>
   <div cdkDropList (cdkDropListDropped)="drop($event)">
     <div class="variable-row drag-variable" [style]="lhcStyle.variableRow" *ngFor="let variable of variables; index as i" [id]="'row-' + i" cdkDrag>
@@ -14,7 +13,7 @@
         <svg cdkDragHandle xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="handle" viewBox="0 0 16 16">
           <path d="M7 2a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zM7 5a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zM7 8a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>
         </svg>
-        <input [id]="'variable-label-' + i" [(ngModel)]="variable.label" [style]="lhcStyle.input" class="label" aria-label="Variable label" />
+        <input [id]="'variable-label-' + i" [(ngModel)]="variable.label" (change)="onNameChange()" [style]="lhcStyle.input" class="label" aria-label="Variable label" />
       </div>
       <div class="variable-column-type">
         <select [id]="'variable-type-' + i" [(ngModel)]="variable.type" [style]="lhcStyle.select" aria-label="Variable type">
@@ -39,7 +38,7 @@
         </div>
       </div>
       <div class="variable-column-actions">
-        <button class="btn btn-danger remove-variable" aria-label="Remove Line" [style]="lhcStyle.buttonDanger" (click)="onRemove(i)">x</button>
+        <button class="btn btn-danger remove-variable" aria-label="Remove variable" title="Remove variable" [style]="lhcStyle.buttonDanger" (click)="onRemove(i)">x</button>
       </div>
     </div>
     <div *ngIf="!variables.length" class="no-variables">No variables, please <a href="#" (click)="onAdd()">add one</a>.</div>

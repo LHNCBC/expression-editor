@@ -82,6 +82,13 @@ export class RuleEditorService {
   }
 
   /**
+   * Trigger an update (used when changing variable names to update the preview)
+   */
+  update(): void {
+    this.variablesChange.next(this.variables);
+  }
+
+  /**
    * Get the list of uneditable variables based on the FHIR Questionnaire
    * @param questionnaire - FHIR Questionnaire
    */

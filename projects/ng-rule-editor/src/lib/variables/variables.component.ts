@@ -64,6 +64,13 @@ export class VariablesComponent implements OnInit {
   }
 
   /**
+   * Update the preview when the variable name changes
+   */
+  onNameChange(): void {
+    this.ruleEditorService.update();
+  }
+
+  /**
    * Get the labels of available variables at the current index
    * @param index - Index of variable we're editing
    */

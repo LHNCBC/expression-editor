@@ -3,6 +3,7 @@ import { FormsModule } from '@angular/forms';
 
 import { QuestionComponent } from './question.component';
 import { SyntaxPreviewComponent } from '../syntax-preview/syntax-preview.component';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 describe('QuestionComponent', () => {
   let component: QuestionComponent;
@@ -11,7 +12,7 @@ describe('QuestionComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       declarations: [ QuestionComponent, SyntaxPreviewComponent ],
-      imports: [ FormsModule ]
+      imports: [ FormsModule, MatSnackBarModule ]
     })
     .compileComponents();
   });
