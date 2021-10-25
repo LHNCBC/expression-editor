@@ -34,13 +34,13 @@ export class AppComponent implements OnInit {
     this.fhirPreview = '';
     this.error = '';
 
-
     if (this.formType === '' || this.formType === 'upload') {
       this.liveAnnouncer.announce('Additional settings must be entered below to load the rule editor.');
       this.fhir = null;
       this.file = '';
+      this.linkId = '';
     } else {
-      this.liveAnnouncer.announce('The rule editor for the selected for has appeared below the current field.');
+      this.liveAnnouncer.announce('The rule editor for the selected form has appeared below the current field.');
       this.linkId = this.originalLinkId;
       this.expressionUri = this.calculatedExpression;
 

@@ -18,9 +18,14 @@ button.download {
   margin-right: 2em;
 }
 
-#error {
+.error {
   background-color: lightyellow;
   padding: 1em;
   margin: 1em 0;
   border: 1px solid lightgoldenrodyellow;
+}
+
+.warning {
+  font-size: small;
+  color: darkorange;
 }

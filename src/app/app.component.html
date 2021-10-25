@@ -13,12 +13,16 @@
   </select>
 </label>
 <div *ngIf="formType == 'upload'" id="upload">
-  <p>Please specify the questionnaire item Link ID and the corresponding Expression URI where the output should be placed:</p>
+  <p>Please specify the questionnaire item Link ID, the corresponding Expression URI where the output should be placed, and the questionnaire:</p>
   <label>Link ID: <input type="text" required id="link-id" [(ngModel)]="linkId"></label>
   <label>Output Expression URI: <input required type="text" id="expression-uri" [(ngModel)]="expressionUri"></label>
-  <label>Questionnaire: <input type="file" id="file-upload" [(ngModel)]="file" accept=".json" (change)="import($event)"></label>
+  <label>Questionnaire:
+    <input type="file" id="file-upload" [(ngModel)]="file" accept=".json" (change)="import($event)" [disabled]="!linkId || !expressionUri">
+    <span class="warning" *ngIf="!linkId || !expressionUri">Please enter <span *ngIf="!linkId">a Link ID</span>
+      <span *ngIf="!linkId && !expressionUri"> and </span> <span *ngIf="!expressionUri">an Expression URI</span> first</span>
+  </label>
 </div>
-<div id="error" *ngIf="error">
+<div class="error" *ngIf="error">
   {{error}}
 </div>
 
