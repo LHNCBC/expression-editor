@@ -44,7 +44,7 @@ export class AppComponent implements OnInit {
       this.linkId = this.originalLinkId;
       this.expressionUri = this.calculatedExpression;
 
-      this.http.get(`/${this.formType}.json`)
+      this.http.get(`./${this.formType}.json`)
         .subscribe(data => {
           this.fhir = data;
         });

@@ -13,6 +13,7 @@ describe('Rule editor demo', () => {
     it('should successfully upload a JSON file', () => {
       cy.get('select#questionnaire-select').select('Upload your own questionnaire');
 
+      cy.get('#link-id').type('/39156-5');
       cy.get('#file-upload').attachFile('bmi.json');
 
       cy.get('lhc-rule-editor h1').contains('Rule Editor');

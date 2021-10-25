@@ -43,7 +43,7 @@ export class CaseStatementsComponent implements OnInit, OnChanges {
 
   /**
    * Parses the Easy Path expression and populates the case editor. Toggles "use
-   * expressions" off if output is only stirngs.
+   * expressions" off if output is only strings.
    */
   parseSimpleCases(): void {
     this.parseIif(this.simpleExpression, 0);

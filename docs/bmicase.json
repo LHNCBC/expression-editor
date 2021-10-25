@@ -16,7 +16,7 @@
     {
       "url": "http://hl7.org/fhir/StructureDefinition/variable",
       "valueExpression": {
-        "name": "a",
+        "name": "weight",
         "language": "text/fhirpath",
         "expression": "%resource.item.where(linkId='/29463-7').answer.value"
       }
@@ -24,9 +24,17 @@
     {
       "url": "http://hl7.org/fhir/StructureDefinition/variable",
       "valueExpression": {
-        "name": "b",
+        "name": "height",
         "language": "text/fhirpath",
         "expression": "%resource.item.where(linkId='/8302-2').answer.value*0.0254"
+      }
+    },
+    {
+      "url": "http://hl7.org/fhir/StructureDefinition/variable",
+      "valueExpression": {
+        "name": "bmi",
+        "language": "text/fhirpath",
+        "expression": "%weight/%height.power(2)"
       }
     }
   ],
@@ -185,22 +193,17 @@
       ],
       "extension": [
         {
-          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression",
-          "valueExpression": {
-            "description": "BMI calculation",
-            "language": "text/fhirpath",
-            "expression": "%a/(%b.power(2))",
-            "extension": [{
-              "url": "http://lhcforms.nlm.nih.gov/fhir/ext/simple-syntax",
-              "valueString": "a/b^2"
-            }]
-          }
-        },
-        {
           "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unit",
           "valueCoding": {
             "code": "kg/m2",
             "system": "http://unitsofmeasure.org"
+          }
+        },
+        {
+          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression",
+          "valueExpression": {
+            "language": "text/fhirpath",
+            "expression": "iif(%bmi<18.5,'underweight',iif(%bmi<25,'normal',iif(%bmi<30,'overweight','obese')))"
           }
         }
       ],
