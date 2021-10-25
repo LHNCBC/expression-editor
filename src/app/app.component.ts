@@ -25,7 +25,7 @@ export class AppComponent implements OnInit {
     if (event.target.value === '') {
       this.fhir = null;
     } else {
-      this.http.get(`/${event.target.value}.json`)
+      this.http.get(`./${event.target.value}.json`)
         .subscribe(data => {
           this.fhir = data;
         });
