@@ -2,6 +2,15 @@
 
 This project follows [Semantic Versioning](http://semver.org/).
 
+## [1.7.0] 2021-10-28
+### Added
+- Score calculation logic for nested items:
+  - Assume scored items are above (in question order) the total score item.
+  - If an ancestor (in terms of hierarchy) of the scored item is a repeating
+    group, don’t consider items outside that group.
+  - If a preceding item is also a total score item, don’t consider any earlier
+    items.
+
 ## [1.6.0] 2021-10-08
 ### Added
 - Add the ability to upload questionnaires in the demo app.
