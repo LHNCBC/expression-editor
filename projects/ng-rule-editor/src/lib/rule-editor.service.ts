@@ -674,23 +674,65 @@ export class RuleEditorService {
   }
 
   /**
+   * Get a list of item ids based on the logic for `addSumOfScores()`
+   * @param items - FHIR item array
+   * @param linkId - Link ID context
+   * @param level - Nesting level, 0 if root
+   * @param groupLevel - Level at which group exists, -1 if no group
+   */
+  getScoreItemIds(items, linkId: string, level = 0, groupLevel = -1): Array<string> {
+    let scoreItemIds = [];
+
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+
+      if (item.linkId === linkId && groupLevel !== -1) {
+        // Only consider items in this group
+        // TODO
+      } else if (item.linkId === linkId) {
+        // Do not consider items at or below the linkId context required
+        break;
+      } else if (this.hasScoreExtension(item) || item.repeats === true) {
+        // If the current item is already a score calculation or this is
+        // repeating we should not consider it or any items above
+        scoreItemIds = [];
+
+        if (item.repeats) {
+          groupLevel = level;
+        }
+      } else if (this.itemHasScore(item)) {
+        scoreItemIds.push(item.linkId);
+      }
+
+      // Work with nested items
+      if (item.item) {
+        scoreItemIds = scoreItemIds.concat(
+          this.getScoreItemIds(item.item, linkId, level + 1, groupLevel));
+      }
+
+      // TODO deal with repeating groups/
+    }
+
+    console.log(scoreItemIds);
+    return scoreItemIds;
+  }
+
+  /**
    * Given the current FHIR questionnaire definition and a linkId return a new FHIR
    * Questionnaire with a calculated expression at the given linkId which sums up
-   * all the ordinal values in the questionnaire
+   * all the ordinal values in the questionnaire:
+   *  * Assume scored items are above (in question order) the total score item.
+   *  * If an ancestor (in terms of hierarchy) of the scored item is a repeating
+   *  group, don’t consider items outside that group
+   *  * If a preceding item is also a total score item, don’t consider any earlier items.
    */
   addSumOfScores(): object {
     const fhir = this.fhir;
     const linkIdContext = this.linkIdContext;
 
     const variableNames = [];
-    const scoreQuestionLinkIds = [];
-
     // Get an array of linkIds for score questions
-    fhir.item.forEach((item) => {
-      if (item.linkId !== linkIdContext && this.itemHasScore(item)) {
-        scoreQuestionLinkIds.push(item.linkId);
-      }
-    });
+    const scoreQuestionLinkIds = this.getScoreItemIds(fhir.item, linkIdContext);
 
     // Get as many short suggested variable names as we have score questions
     scoreQuestionLinkIds.forEach(() => {
@@ -752,14 +794,15 @@ export class RuleEditorService {
    * Checks if the referenced Questionnaire item is a score calculation added by
    * the Rule Editor
    * @param questionnaire - FHIR Questionnaire
-   * @param linkId - Questionnaire item Link ID to check
+   * @param linkId - Questionnaire item Link ID to check, if not provided check
+   * all items on the questionnaire
    * @return True if the question at linkId is a score calculation created by
    * the Rule Editor, false otherwise
    */
-  isScoreCalculation(questionnaire, linkId): boolean {
+  isScoreCalculation(questionnaire, linkId?): boolean {
     const checkForScore = (item) => {
-      if (linkId === item.linkId) {
-        const isScore = item.extension.find((extension) => !!this.isScoreExtension(extension));
+      if (linkId === undefined || linkId === item.linkId) {
+        const isScore = this.hasScoreExtension(item);
 
         if (isScore) {
           return true;
@@ -778,6 +821,19 @@ export class RuleEditorService {
     };
 
     return !!questionnaire.item.find((item) => checkForScore(item));
+  }
+
+  /**
+   * Returns true if the current item has a score extension
+   * @param item
+   * @private
+   */
+  private hasScoreExtension(item): boolean {
+    if (item.extension) {
+      return item.extension.find((extension) => !!this.isScoreExtension(extension));
+    } else {
+      return false;
+    }
   }
 
   /**

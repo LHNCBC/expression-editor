@@ -4,7 +4,7 @@
   "scripts": {
     "ng": "ng",
     "start": "ng build --watch ng-rule-editor & sleep 25; ng serve; s=$?; kill %1; exit $s",
-    "start-public": "ng serve --host $(uname -n)",
+    "start-public": "ng build --watch ng-rule-editor & sleep 25; ng serve --host $(uname -n); s=$?; kill %1; exit $s",
     "build:concatenate-gh": "concat -o docs/rule-editor.js dist/rule-editor/runtime.js dist/rule-editor/polyfills.js dist/rule-editor/main.js",
     "build:concatenate": "concat -o dist/rule-editor/rule-editor.js dist/rule-editor/runtime.js dist/rule-editor/polyfills.js dist/rule-editor/main.js",
     "build:gh-pages": "ng build ng-rule-editor --prod && ng build rule-editor --prod && ng build --prod --output-path docs --base-href /rule-editor/ && npm run build:concatenate-gh",

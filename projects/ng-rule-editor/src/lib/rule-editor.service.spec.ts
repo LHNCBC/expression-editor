@@ -108,4 +108,58 @@ describe('RuleEditorService', () => {
     // @ts-ignore
     expect(output.item[9].extension[12]).toEqual(outputItem);
   });
+
+  describe('score calculation getScoreItemIds', () => {
+    function score(name): any {
+      return {
+        linkId: name, answerOption: [{
+          extension: [{
+            url: 'http://hl7.org/fhir/StructureDefinition/ordinalValue'
+          }]
+        }]
+      };
+    }
+
+    it('should not include items below total score', () => {
+      const nonScore = {};
+      const total = { linkId: 'test' };
+
+      const testItems = [nonScore, {item:
+          [score('a'), score('b')]}, score('c'), total, score('d')];
+      const itemIds = service.getScoreItemIds(testItems, 'test');
+
+      expect(itemIds).toEqual(['a', 'b', 'c']);
+    });
+
+    fit('should not include items above another total score', () => {
+      const totalScore = {
+        extension: [{
+          url: 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression',
+          valueExpression: {extension:
+              [{url: 'http://lhcforms.nlm.nih.gov/fhir/ext/rule-editor-expression'}]}
+        }]
+      };
+      const nonScore = {};
+      const total = { linkId: 'test' };
+
+      const testItems = [nonScore, { item: [score('a'), score('b')] },
+        totalScore, score('c'), total, score('d')];
+      const itemIds = service.getScoreItemIds(testItems, 'test');
+
+      expect(itemIds).toEqual(['c']);
+    });
+
+    // fit('should only include items in group that the current total score is part of', () => {
+    //   const nonScore = {};
+    //   const total = { linkId: 'test' };
+    //   const firstNested = { item: [score('a'), score('b')], repeats: true };
+    //   const secondNested = { item: [score('a'), score('d'), total], repeats: true };
+    //
+    //   const testItems = [nonScore, firstNested,
+    //     score('c'), , score('d')];
+    //   const itemIds = service.getScoreItemIds(testItems, 'test');
+    //
+    //   expect(itemIds).toEqual(['c']);
+    // });
+  });
 });
