@@ -236,10 +236,12 @@ export class RuleEditorService {
    *  to extract and modify
    * @param questionnaire - FHIR Questionnaire
    * @param linkIdContext - Context to use for final expression
+   * @return true if load was successful
    */
-  import(expressionUri: string, questionnaire, linkIdContext): void {
+  import(expressionUri: string, questionnaire, linkIdContext): boolean {
     this.linkIdContext = linkIdContext;  // TODO change notification for linkId?
     this.fhir = copy(questionnaire);
+    let loadSuccess = false;
 
     if (this.fhir.resourceType === 'Questionnaire' && this.fhir.item && this.fhir.item.length) {
       // If there is at least one score question we will ask the user if they
@@ -305,7 +307,10 @@ export class RuleEditorService {
       }
 
       this.finalExpressionChange.next(this.finalExpression);
+      loadSuccess = true;
     }
+
+    return loadSuccess;
   }
 
   /**

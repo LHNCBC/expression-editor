@@ -32,6 +32,7 @@ export class RuleEditorComponent implements OnInit, OnChanges {
   variables: string[];
   caseStatements: boolean;
   disableInterfaceToggle = false;
+  loadError = false;
 
   private calculateSumSubscription;
   private finalExpressionSubscription;
@@ -77,7 +78,7 @@ export class RuleEditorComponent implements OnInit, OnChanges {
    */
   reload(): void {
     if (this.fhirQuestionnaire !== null && this.itemLinkId !== null) {
-      this.variableService.import(this.expressionUri, this.fhirQuestionnaire, this.itemLinkId);
+      this.loadError = !this.variableService.import(this.expressionUri, this.fhirQuestionnaire, this.itemLinkId);
       this.disableInterfaceToggle = this.variableService.needsAdvancedInterface;
       this.advancedInterface = this.variableService.needsAdvancedInterface;
     }
