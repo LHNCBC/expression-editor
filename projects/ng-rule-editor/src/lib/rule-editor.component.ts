@@ -3,6 +3,7 @@ import { Component, EventEmitter, Input, OnChanges, OnInit, Output } from '@angu
 import { MatRadioChange } from '@angular/material/radio';
 
 import { RuleEditorService, SimpleStyle } from './rule-editor.service';
+import { LiveAnnouncer } from '@angular/cdk/a11y';
 
 @Component({
   // tslint:disable-next-line:component-selector
@@ -21,6 +22,7 @@ export class RuleEditorComponent implements OnInit, OnChanges {
   @Input() lhcStyle: SimpleStyle = {};
   @Output() save = new EventEmitter<object>();
 
+  errorLoading = 'Could not detect a FHIR Questionnaire; please try a different file.';
   expressionSyntax: string;
   simpleExpression: string;
   finalExpression: string;
@@ -39,7 +41,7 @@ export class RuleEditorComponent implements OnInit, OnChanges {
   private variablesSubscription;
   private disableAdvancedSubscription;
 
-  constructor(private variableService: RuleEditorService) {}
+  constructor(private variableService: RuleEditorService, private liveAnnouncer: LiveAnnouncer) {}
 
   ngOnInit(): void {
     this.calculateSumSubscription = this.variableService.mightBeScoreChange.subscribe((mightBeScore) => {
@@ -79,6 +81,9 @@ export class RuleEditorComponent implements OnInit, OnChanges {
   reload(): void {
     if (this.fhirQuestionnaire !== null && this.itemLinkId !== null) {
       this.loadError = !this.variableService.import(this.expressionUri, this.fhirQuestionnaire, this.itemLinkId);
+      if (this.loadError) {
+        this.liveAnnouncer.announce(this.errorLoading);
+      }
       this.disableInterfaceToggle = this.variableService.needsAdvancedInterface;
       this.advancedInterface = this.variableService.needsAdvancedInterface;
     }

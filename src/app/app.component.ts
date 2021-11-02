@@ -72,12 +72,16 @@ export class AppComponent implements OnInit {
           try {
             this.fhir = JSON.parse(e.target.result);
             this.error = '';
+            this.liveAnnouncer.announce(this.formAppearedAnnouncement);
           } catch (e) {
+            this.fhir = '';
             this.error = `Could not parse file: ${e}`;
+            this.liveAnnouncer.announce(this.error);
           }
-          this.liveAnnouncer.announce(this.formAppearedAnnouncement);
         } else {
+          this.fhir = '';
           this.error = 'Could not read file';
+          this.liveAnnouncer.announce(this.error);
         }
       };
 
