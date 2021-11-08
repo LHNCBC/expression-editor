@@ -9,6 +9,7 @@ import { LiveAnnouncer } from '@angular/cdk/a11y';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent implements OnInit {
+  formAppearedAnnouncement = 'The rule editor for the selected form has appeared below the current field.';
   calculatedExpression = 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression';
   originalLinkId = '/39156-5';
 
@@ -40,7 +41,7 @@ export class AppComponent implements OnInit {
       this.file = '';
       this.linkId = '';
     } else {
-      this.liveAnnouncer.announce('The rule editor for the selected form has appeared below the current field.');
+      this.liveAnnouncer.announce(this.formAppearedAnnouncement);
       this.linkId = this.originalLinkId;
       this.expressionUri = this.calculatedExpression;
 
@@ -71,11 +72,16 @@ export class AppComponent implements OnInit {
           try {
             this.fhir = JSON.parse(e.target.result);
             this.error = '';
+            this.liveAnnouncer.announce(this.formAppearedAnnouncement);
           } catch (e) {
-            this.error = `Could not parse file ${e}`;
+            this.fhir = '';
+            this.error = `Could not parse file: ${e}`;
+            this.liveAnnouncer.announce(this.error);
           }
         } else {
+          this.fhir = '';
           this.error = 'Could not read file';
+          this.liveAnnouncer.announce(this.error);
         }
       };
 

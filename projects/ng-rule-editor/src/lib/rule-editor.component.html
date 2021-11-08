@@ -1,5 +1,6 @@
-<lhc-calculate-sum-prompt *ngIf="calculateSum" (export)="addSumOfScores()" [lhcStyle]="lhcStyle"></lhc-calculate-sum-prompt>
-<div *ngIf="!calculateSum">
+<div *ngIf="loadError" class="error">{{errorLoading}}</div>
+<lhc-calculate-sum-prompt *ngIf="calculateSum && !loadError" (export)="addSumOfScores()" [lhcStyle]="lhcStyle"></lhc-calculate-sum-prompt>
+<div *ngIf="!calculateSum && !loadError">
   <h1 [style]="lhcStyle.h1">{{titleName}}</h1>
 
   <span class="checkbox" matTooltip="When in the advanced interface you can edit FHIRPath and x-fhir-query directly. This mode is automatically enabled for complex Questionnaires.">

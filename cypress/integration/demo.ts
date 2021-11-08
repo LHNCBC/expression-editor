@@ -4,7 +4,7 @@ describe('Rule editor demo', () => {
   });
 
   describe('upload', () => {
-    it('should accept a file upload', () => {
+    it('should not show a Rule Editor before uploading a questionnaire', () => {
       cy.get('select#questionnaire-select').select('Upload your own questionnaire');
 
       cy.get('lhc-rule-editor').should('not.exist');
