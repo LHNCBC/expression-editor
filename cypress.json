@@ -2,6 +2,7 @@
   "integrationFolder": "cypress/integration",
   "videosFolder": "cypress/videos",
   "screenshotsFolder": "cypress/screenshots",
-  "fixturesFolder": "cypress/fixtures",
-  "baseUrl": "http://localhost:4200"
+  "fixturesFolder": "src/assets",
+  "baseUrl": "http://localhost:4200",
+  "supportFile": "cypress/support/index.ts"
 }

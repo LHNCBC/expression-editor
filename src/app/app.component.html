@@ -2,16 +2,29 @@
 
 <label>
   Questionnaire:
-  <select (change)="onChange($event)" id="questionnaire-select">
-    <option value="">None</option>
+  <select [(ngModel)]="formType" (change)="onChange()" id="questionnaire-select">
+    <option value="upload">Upload your own questionnaire</option>
     <option value="bmi">BMI Calculation</option>
-    <option value="bmisimple" selected>BMI Calculation (Easy Path expression)</option>
+    <option value="bmisimple">BMI Calculation (Easy Path expression)</option>
     <option value="bmicase">BMI Calculation (with cases)</option>
     <option value="bmicasesimple">BMI Calculation (Easy Path expression with cases)</option>
     <option value="phq9">PHQ9 (no FHIRPath)</option>
     <option value="query">Query</option>
   </select>
 </label>
+<div *ngIf="formType == 'upload'" id="upload">
+  <p>Please specify the questionnaire item Link ID, the corresponding Expression URI where the output should be placed, and the questionnaire:</p>
+  <label>Link ID: <input type="text" required id="link-id" [(ngModel)]="linkId"></label>
+  <label>Output Expression URI: <input required type="text" id="expression-uri" [(ngModel)]="expressionUri"></label>
+  <label>Questionnaire:
+    <input type="file" id="file-upload" [(ngModel)]="file" accept=".json" (change)="import($event)" [disabled]="!linkId || !expressionUri">
+    <span class="warning" *ngIf="!linkId || !expressionUri">Please enter <span *ngIf="!linkId">a Link ID</span>
+      <span *ngIf="!linkId && !expressionUri"> and </span> <span *ngIf="!expressionUri">an Expression URI</span> first</span>
+  </label>
+</div>
+<div class="error" *ngIf="error">
+  {{error}}
+</div>
 
 <div *ngIf="fhir">
   <div class="rule-editor">
@@ -21,7 +34,7 @@
 
       [submitButtonName]="'Save'"
       [expressionLabel]="'Output Calculated Expression'"
-      [expressionUri]="'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression'"
+      [expressionUri]="expressionUri"
       [lhcStyle]="{
         buttonPrimary: { backgroundColor: 'blue', color: 'white' },
         buttonSecondary: { backgroundColor: 'darkgreen', color: 'white' },

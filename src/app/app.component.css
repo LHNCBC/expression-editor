@@ -9,3 +9,23 @@ button.download {
   padding: 0.5em 1em;
   margin: 1em 0;
 }
+
+#upload {
+  padding: 1em 0;
+}
+
+#upload > label {
+  margin-right: 2em;
+}
+
+.error {
+  background-color: lightyellow;
+  padding: 1em;
+  margin: 1em 0;
+  border: 1px solid lightgoldenrodyellow;
+}
+
+.warning {
+  font-size: small;
+  color: darkorange;
+}

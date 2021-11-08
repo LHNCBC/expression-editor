@@ -2,6 +2,10 @@
 
 This project follows [Semantic Versioning](http://semver.org/).
 
+## [1.6.0] 2021-10-08
+### Added
+- Add the ability to upload questionnaires in the demo app.
+
 ## [1.5.0] 2021-09-09
 ### Added
 - Case statement support for the final expression.
