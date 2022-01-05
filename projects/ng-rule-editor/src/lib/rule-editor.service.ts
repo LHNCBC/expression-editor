@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Subject } from 'rxjs';
 import copy from 'fast-copy';
 
-import { AllVariableType, CASE_REGEX, Question, SimpleVariableType, UneditableVariable, Variable } from './variable';
+import { CASE_REGEX, Question, UneditableVariable, Variable } from './variable';
 import { UNIT_CONVERSION } from './units';
 
 export interface SimpleStyle {
@@ -36,6 +36,7 @@ export class RuleEditorService {
   variables: Variable[];
   questions: Question[];
   finalExpression: string;
+  finalExpressionExtension;
   simpleExpression: string;
   caseStatements: boolean;
   needsAdvancedInterface = false;
@@ -118,45 +119,96 @@ export class RuleEditorService {
   }
 
   /**
-   * Get the list of uneditable variables based on the FHIR Questionnaire
+   * Get the list of uneditable variables based on the FHIR Questionnaire:
+   * Launch context + variables outside not on the current item scope
    * @param questionnaire - FHIR Questionnaire
+   * @param linkIdContext - Context to use for final expression
    */
-  getUneditableVariables(questionnaire): UneditableVariable[] {
+  getUneditableVariables(questionnaire, linkIdContext): UneditableVariable[] {
+    const uneditableVariables = [];
+
     if (Array.isArray(questionnaire.extension)) {
-      return questionnaire.extension.reduce((accumulator, extension) => {
+      const variables = questionnaire.extension.reduce((accumulator, extension) => {
         if (extension.url === this.LAUNCH_CONTEXT_URI && extension.extension) {
-          const uneditableVariable = {
+          accumulator.push({
             name: extension.extension.find((e) => e.url === 'name').valueId,
             type: extension.extension.filter((e) => e.url === 'type')?.map((e) => e.valueCode).join('|'),
             description: extension.extension.find((e) => e.url === 'description')?.valueString
-          };
-
-          accumulator.push(uneditableVariable);
+          });
+        } else if (this.isVariable(extension)) {
+          accumulator.push({
+            name: extension.valueExpression.name,
+            type: 'Variable',
+            description: extension.valueExpression.expression,  // Might want to show simplified form
+          });
         }
         return accumulator;
       }, []);
+      uneditableVariables.push(...variables);
     }
 
-    return [];
+    let itemsToVisit = copy(questionnaire.item);
+
+    // Get the variables up to but not including the item with linkId matching
+    while (itemsToVisit && itemsToVisit.length) {
+      const currentItem = itemsToVisit.shift();
+
+      if (currentItem.linkId === linkIdContext) {
+        break;
+      }
+
+      if (currentItem.extension) {
+        currentItem.extension.forEach((extension) => {
+          if (this.isVariable(extension)) {
+            uneditableVariables.push({
+              name: extension.valueExpression.name,
+              type: 'Item variable',
+              description: extension.valueExpression.expression,  // Might want to show simplified form
+            });
+          }
+        });
+      }
+
+      // Add child nodes to start of array
+      if (currentItem.item && currentItem.item.length) {
+        itemsToVisit = currentItem.item.concat(itemsToVisit);
+      }
+    }
+
+    return uneditableVariables;
+  }
+
+  /**
+   * Returns true if extension is a variable with FHIRPath or FHIR Query as the
+   * language
+   * @param extension - FHIR extension
+   * @return true if extension is a variable
+   * @private
+   */
+  private isVariable(extension): boolean {
+    return extension.url === this.VARIABLE_EXTENSION && extension.valueExpression &&
+      (extension.valueExpression.language === this.LANGUAGE_FHIRPATH ||
+        extension.valueExpression.language === this.LANGUAGE_FHIR_QUERY);
   }
 
   /**
    * Get and remove the variables from the FHIR object
-   * @param questionnaire
+   * @param items - Question array
+   * @param linkIdContext - Context to use for extracting variables
    */
-  extractVariables(questionnaire): Variable[] {
-    // Look at the top level fhirpath related extensions to populate the editable variables
-    // TODO look at the focus item variables
+  extractVariables(items, linkIdContext): Variable[] {
+    // Look at the item fhirpath related extensions to populate the editable variables
 
-    if (questionnaire.extension) {
+    const item = items.find((e) => e.linkId === linkIdContext && e.extension);
+    if (item) {
       const variables = [];
       const nonVariableExtensions = [];
 
       // Add an index to each extension which we will then use to get the
       // variables back in the correct order. __$index will be removed on save
-      questionnaire.extension = questionnaire.extension.map((e, i) => ({ ...e, __$index: i }));
+      item.extension = item.extension.map((e, i) => ({ ...e, __$index: i }));
 
-      questionnaire.extension.forEach((extension) => {
+      item.extension.forEach((extension) => {
         if (extension.url === this.VARIABLE_EXTENSION && extension.valueExpression) {
           switch (extension.valueExpression.language) {
             case this.LANGUAGE_FHIRPATH:
@@ -187,12 +239,23 @@ export class RuleEditorService {
       });
 
       // Remove the variables so they can be re-added on export
-      questionnaire.extension = nonVariableExtensions;
+      item.extension = nonVariableExtensions;
 
       return variables;
-    }
+    } else {
+      if (items.item && items.item.length) {
+        for (const searchItem of items.item) {
+          if (searchItem.item) {
+            const ret = this.extractVariables(searchItem.item, linkIdContext);
+            if (ret.length) {
+              return ret;
+            }
+          }
+        }
+      }
 
-    return [];
+      return [];
+    }
   }
 
   /**
@@ -239,7 +302,7 @@ export class RuleEditorService {
    * @return true if load was successful
    */
   import(expressionUri: string, questionnaire, linkIdContext): boolean {
-    this.linkIdContext = linkIdContext;  // TODO change notification for linkId?
+    this.linkIdContext = linkIdContext;
     this.fhir = copy(questionnaire);
     let loadSuccess = false;
 
@@ -250,14 +313,14 @@ export class RuleEditorService {
       this.mightBeScore = this.getScoreQuestionCount(this.fhir, linkIdContext) > SCORE_MIN_QUESTIONS;
       this.mightBeScoreChange.next(this.mightBeScore);
 
-      this.uneditableVariables = this.getUneditableVariables(this.fhir);
+      this.uneditableVariables = this.getUneditableVariables(this.fhir, linkIdContext);
       this.uneditableVariablesChange.next(this.uneditableVariables);
 
       this.linkIdToQuestion = {};
       this.needsAdvancedInterface = false;
       this.processItem(this.fhir.item);
 
-      this.variables = this.extractVariables(this.fhir);
+      this.variables = this.extractVariables(this.fhir.item, linkIdContext);
       this.variablesChange.next(this.variables);
 
       this.questions = [];
@@ -273,11 +336,13 @@ export class RuleEditorService {
 
         const text = e.text;
 
-        this.questions.push({
-          linkId: e.linkId,
-          text: text.length > MAX_Q_LEN ? text.substring(0, MAX_Q_LEN) + '...' : text,
-          unit: this.getQuestionUnits(e.linkId)
-        });
+        if (e.text) {
+          this.questions.push({
+            linkId: e.linkId,
+            text: text.length > MAX_Q_LEN ? text.substring(0, MAX_Q_LEN) + '...' : text,
+            unit: this.getQuestionUnits(e.linkId)
+          });
+        }
       }
       this.questionsChange.next(this.questions);
 
@@ -286,6 +351,7 @@ export class RuleEditorService {
       if (expression !== null) {
         // @ts-ignore
         this.finalExpression = expression.valueExpression.expression;
+        this.finalExpressionExtension = expression;
 
         this.caseStatements = this.finalExpression.match(CASE_REGEX) !== null;
 
@@ -304,6 +370,13 @@ export class RuleEditorService {
         this.syntaxType = 'simple';
         this.simpleExpression = '';
         this.finalExpression = '';
+        this.finalExpressionExtension = {
+          url: expressionUri,
+          valueExpression: {
+            language: 'text/fhirpath',
+            expression: this.finalExpression
+          }
+        };
       }
 
       this.finalExpressionChange.next(this.finalExpression);
@@ -537,9 +610,8 @@ export class RuleEditorService {
    * @param url Extension URL to use for the expression
    * @param finalExpression
    */
-  export(url: string, finalExpression: string): object {
-    // TODO support for different variable scopes
-    // Copy the fhir object so we can export more than once
+  export(url: string, finalExpression): object {
+    // Copy the fhir object, so we can export more than once
     // (if we add our data the second export will have duplicates)
     const fhir = copy(this.fhir);
 
@@ -580,37 +652,12 @@ export class RuleEditorService {
       }
     });
 
-    if (fhir.extension) {
-      // Introduce variables present before
-      fhir.extension = fhir.extension.concat(variablesPresentInitially);
-      // Sort by index
-      fhir.extension.sort((a, b) => a.__$index - b.__$index);
-      // Add variables added by the user
-      fhir.extension = fhir.extension.concat(variablesAdded);
-    } else {
-      fhir.extension = variablesPresentInitially.concat(variablesAdded);
-    }
-
-    // Remove __$index
-    fhir.extension = fhir.extension.map(({__$index, ...other}) => other);
-
-    const finalExpressionExtension: any = {
-      url,
-      valueExpression: {
-        language: this.LANGUAGE_FHIRPATH,
-        expression: finalExpression
-      }
-    };
-
-    // TODO keep existing extensions
     if (this.syntaxType === 'simple') {
-      finalExpressionExtension.valueExpression.extension = [{
-        url: this.SIMPLE_SYNTAX_EXTENSION,
-        valueString: this.simpleExpression
-      }];
+      this.findOrAddExtension(finalExpression.valueExpression.extension, this.SIMPLE_SYNTAX_EXTENSION, 'String', this.simpleExpression);
     }
 
-    this.insertExtensions(fhir.item, this.linkIdContext, [finalExpressionExtension]);
+    // Treat the final expression as an added variable since it needs to go after the variables added
+    this.insertExtensions(fhir.item, this.linkIdContext, variablesPresentInitially, variablesAdded.concat(finalExpression));
 
     // If there are any query observation extensions check to make sure there is
     // a patient launch context. If there is not add one.
@@ -666,6 +713,31 @@ export class RuleEditorService {
   }
 
   /**
+   * Given an extension array, find an extension based on the URI and update the
+   * value for the type. If one does not exist add it to the extension list
+   * @param extension - Extension array
+   * @param uri - URI to search for
+   * @param type - Type of value
+   * @param value - Value
+   * @private
+   */
+  private findOrAddExtension(extension, uri, type, value): void {
+    if (extension instanceof Array) {
+      const index = extension.findIndex((e) =>  e.url === uri);
+      const extensionToAdd = {
+        url: uri,
+        ['value' + type]: value
+      };
+
+      if (index === -1) {
+        extension.push(extensionToAdd);
+      } else {
+        extension[index] = extensionToAdd;
+      }
+    }
+  }
+
+  /**
    * Takes FHIR questionnaire definition and a linkId and returns the FHIR
    * Questionnaire with a calculated expression at the given linkId which sums up
    * all the ordinal values in the questionnaire
@@ -683,7 +755,7 @@ export class RuleEditorService {
    * Questionnaire with a calculated expression at the given linkId which sums up
    * all the ordinal values in the questionnaire
    */
-  addSumOfScores(): object {
+  addSumOfScores(): any {
     const fhir = this.fhir;
     const linkIdContext = this.linkIdContext;
 
@@ -748,7 +820,7 @@ export class RuleEditorService {
     // @ts-ignore
     scoreQuestions.push(totalCalculation);
 
-    this.insertExtensions(fhir.item, linkIdContext, scoreQuestions);
+    this.insertExtensions(fhir.item, linkIdContext, [], scoreQuestions);
 
     return fhir;
   }
@@ -805,7 +877,7 @@ export class RuleEditorService {
    * try to remove scores from all items.
    * @return Questionnaire without the score calculation variable and expression
    */
-  removeSumOfScores(questionnaire, linkId?): object {
+  removeSumOfScores(questionnaire, linkId?): any {
     this.fhir = questionnaire;
 
     const removeItemScoreVariables = (item) => {
@@ -839,17 +911,26 @@ export class RuleEditorService {
     }
   }
 
-  private insertExtensions(items, linkId, extensions): void {
+  private insertExtensions(items, linkId, variablesPresentInitially, variablesAdded): void {
     for (const item of items) {
       if (item.linkId === linkId) {
         if (item.extension) {
-          item.extension = item.extension.concat(extensions);
+          // Introduce variables present before
+          item.extension = item.extension.concat(variablesPresentInitially);
+          // Sort by index
+          item.extension.sort((a, b) => a.__$index - b.__$index);
+          // Add variables added by the user
+          item.extension = item.extension.concat(variablesAdded);
         } else {
-          item.extension = extensions;
+          item.extension = variablesPresentInitially.concat(variablesAdded);
         }
+
+        // Remove __$index
+        item.extension = item.extension.map(({__$index, ...other}) => other);
+
         break;
       } else if (item.item) {
-        this.insertExtensions(item.item, linkId, extensions);
+        this.insertExtensions(item.item, linkId, variablesPresentInitially, variablesAdded);
       }
     }
   }

@@ -17,7 +17,7 @@ describe('Rule Editor', () => {
         // Uneditable variables section should not show up
         expect(await page.getNumberOfUneditableVariables()).toEqual(0);
         // Variables section
-        expect(await page.getVariablesTitle()).toEqual('Variables');
+        expect(await page.getVariablesTitle()).toEqual('Item Variables');
         expect(await page.getNumberOfVariables()).toEqual(2);
         // Final expression
         expect(await page.getFinalExpressionTitle()).toEqual('Output Calculated Expression');

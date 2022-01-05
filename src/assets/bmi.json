@@ -12,24 +12,6 @@
       }
     ]
   },
-  "extension": [
-    {
-      "url": "http://hl7.org/fhir/StructureDefinition/variable",
-      "valueExpression": {
-        "name": "a",
-        "language": "text/fhirpath",
-        "expression": "%resource.item.where(linkId='/29463-7').answer.value"
-      }
-    },
-    {
-      "url": "http://hl7.org/fhir/StructureDefinition/variable",
-      "valueExpression": {
-        "name": "b",
-        "language": "text/fhirpath",
-        "expression": "%resource.item.where(linkId='/8302-2').answer.value*0.0254"
-      }
-    }
-  ],
   "date": "2018-09-12T18:03:40-04:00",
   "identifier": [
     {
@@ -184,6 +166,22 @@
         }
       ],
       "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/variable",
+          "valueExpression": {
+            "name": "a",
+            "language": "text/fhirpath",
+            "expression": "%resource.item.where(linkId='/29463-7').answer.value"
+          }
+        },
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/variable",
+          "valueExpression": {
+            "name": "b",
+            "language": "text/fhirpath",
+            "expression": "%resource.item.where(linkId='/8302-2').answer.value*0.0254"
+          }
+        },
         {
           "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression",
           "valueExpression": {

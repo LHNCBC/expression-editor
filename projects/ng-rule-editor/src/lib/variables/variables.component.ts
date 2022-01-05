@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, OnInit } from '@angular/core';
+import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
 
 import { Variable, AllVariableType, SimpleVariableType } from '../variable';
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
@@ -9,18 +9,13 @@ import { RuleEditorService, SimpleStyle } from '../rule-editor.service';
   templateUrl: './variables.component.html',
   styleUrls: ['./variables.component.css']
 })
-export class VariablesComponent implements OnInit, OnChanges {
+export class VariablesComponent implements OnInit, OnChanges, OnDestroy {
   @Input() lhcStyle: SimpleStyle = {};
   @Input() advancedInterface: boolean;
 
   variableType: any = SimpleVariableType;
   variableSubscription;
   variables: Variable[];
-  levels = [{
-      level: 0,
-      name: 'Top Level Scope'
-    }
-  ];
 
   constructor(private ruleEditorService: RuleEditorService) {}
 
@@ -61,7 +56,7 @@ export class VariablesComponent implements OnInit, OnChanges {
   /**
    * Angular lifecycle hook called before the component is destroyed
    */
-  ngDestroy(): void {
+  ngOnDestroy(): void {
     this.variableSubscription.unsubscribe();
   }
 

@@ -12,32 +12,6 @@
       }
     ]
   },
-  "extension": [
-    {
-      "url": "http://hl7.org/fhir/StructureDefinition/variable",
-      "valueExpression": {
-        "name": "weight",
-        "language": "text/fhirpath",
-        "expression": "%resource.item.where(linkId='/29463-7').answer.value"
-      }
-    },
-    {
-      "url": "http://hl7.org/fhir/StructureDefinition/variable",
-      "valueExpression": {
-        "name": "height",
-        "language": "text/fhirpath",
-        "expression": "%resource.item.where(linkId='/8302-2').answer.value*0.0254"
-      }
-    },
-    {
-      "url": "http://hl7.org/fhir/StructureDefinition/variable",
-      "valueExpression": {
-        "name": "bmi",
-        "language": "text/fhirpath",
-        "expression": "%weight/%height.power(2)"
-      }
-    }
-  ],
   "date": "2018-09-12T18:03:40-04:00",
   "identifier": [
     {
@@ -197,6 +171,30 @@
           "valueCoding": {
             "code": "kg/m2",
             "system": "http://unitsofmeasure.org"
+          }
+        },
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/variable",
+          "valueExpression": {
+            "name": "weight",
+            "language": "text/fhirpath",
+            "expression": "%resource.item.where(linkId='/29463-7').answer.value"
+          }
+        },
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/variable",
+          "valueExpression": {
+            "name": "height",
+            "language": "text/fhirpath",
+            "expression": "%resource.item.where(linkId='/8302-2').answer.value*0.0254"
+          }
+        },
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/variable",
+          "valueExpression": {
+            "name": "bmi",
+            "language": "text/fhirpath",
+            "expression": "%weight/%height.power(2)"
           }
         },
         {

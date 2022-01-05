@@ -1,6 +1,4 @@
-import { DatePipe } from '@angular/common';
-import { Component, EventEmitter, Input, OnChanges, OnInit, Output } from '@angular/core';
-import { MatRadioChange } from '@angular/material/radio';
+import { Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output } from '@angular/core';
 
 import { RuleEditorService, SimpleStyle } from './rule-editor.service';
 import { LiveAnnouncer } from '@angular/cdk/a11y';
@@ -11,7 +9,7 @@ import { LiveAnnouncer } from '@angular/cdk/a11y';
   templateUrl: 'rule-editor.component.html',
   styleUrls: ['rule-editor.component.css']
 })
-export class RuleEditorComponent implements OnInit, OnChanges {
+export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
   @Input() advancedInterface = false;
   @Input() fhirQuestionnaire = null;
   @Input() itemLinkId = null;
@@ -26,9 +24,8 @@ export class RuleEditorComponent implements OnInit, OnChanges {
   expressionSyntax: string;
   simpleExpression: string;
   finalExpression: string;
-  finalExpressionFhirPath: string;
+  finalExpressionExtension;
   linkIdContext: string;
-  datePipe = new DatePipe('en-US');
   calculateSum: boolean;
   suggestions = [];
   variables: string[];
@@ -61,7 +58,7 @@ export class RuleEditorComponent implements OnInit, OnChanges {
   /**
    * Angular lifecycle hook called before the component is destroyed
    */
-  ngDestroy(): void {
+  ngOnDestroy(): void {
     this.calculateSumSubscription.unsubscribe();
     this.finalExpressionSubscription.unsubscribe();
     this.variablesSubscription.unsubscribe();
@@ -71,7 +68,7 @@ export class RuleEditorComponent implements OnInit, OnChanges {
   /**
    * Angular lifecycle hook called on input changes
    */
-  ngOnChanges(args): void {
+  ngOnChanges(): void {
     this.reload();
   }
 
@@ -93,6 +90,7 @@ export class RuleEditorComponent implements OnInit, OnChanges {
     this.expressionSyntax = this.variableService.syntaxType;
     this.caseStatements = this.variableService.caseStatements;
     this.calculateSum = this.variableService.mightBeScore;
+    this.finalExpressionExtension = this.variableService.finalExpressionExtension;
     this.finalExpression = this.variableService.finalExpression;
     this.variables = this.variableService.variables.map(e => e.label);
   }
@@ -101,7 +99,9 @@ export class RuleEditorComponent implements OnInit, OnChanges {
    * Export FHIR Questionnaire and download as a file
    */
   export(): void {
-    this.save.emit(this.variableService.export(this.expressionUri, this.finalExpression));
+    const finalExpression = this.finalExpressionExtension;
+    finalExpression.valueExpression.expression = this.finalExpression;
+    this.save.emit(this.variableService.export(this.expressionUri, finalExpression));
   }
 
   /**
@@ -110,21 +110,6 @@ export class RuleEditorComponent implements OnInit, OnChanges {
    */
   addSumOfScores(): void {
     this.save.emit(this.variableService.addSumOfScores());
-  }
-
-  /**
-   * Called when the syntax type is changed to clean up expressions if the data cannot be converted
-   * @param $event - event from from the caller
-   */
-  onSyntaxChange($event: MatRadioChange): void {
-    const newSyntax = $event.value;
-
-    // Clear the existing expression if switching away from fhirpath
-    if (newSyntax === 'simple') {
-      this.finalExpression = '';
-    }
-
-    this.variableService.syntaxType = newSyntax;
   }
 
   /**

@@ -1,5 +1,5 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { Question } from '../variable';
+import { Component, Input, OnInit } from '@angular/core';
+import { Question, Variable } from '../variable';
 import { RuleEditorService, SimpleStyle } from '../rule-editor.service';
 import { Unit, UNIT_CONVERSION } from '../units';
 
@@ -9,7 +9,7 @@ import { Unit, UNIT_CONVERSION } from '../units';
   styleUrls: ['./question.component.css']
 })
 export class QuestionComponent implements OnInit {
-  @Input() variable;
+  @Input() variable: Variable;
   @Input() lhcStyle: SimpleStyle = {};
   linkId = '';
   questions: Question[];
