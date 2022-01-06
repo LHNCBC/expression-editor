@@ -2,6 +2,12 @@
 
 This project follows [Semantic Versioning](http://semver.org/).
 
+## [2.0.0] 2022-01-06
+### Changed
+- Variables editable in the interface are now from the question specified by
+  linkId. The other variables in the questionnaire show up in the uneditable
+  section.
+
 ## [1.6.0] 2021-10-08
 ### Added
 - Add the ability to upload questionnaires in the demo app.
