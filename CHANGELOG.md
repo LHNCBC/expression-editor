@@ -2,6 +2,11 @@
 
 This project follows [Semantic Versioning](http://semver.org/).
 
+## [1.6.1] 2022-01-10
+### Changed
+- Updates to get `easy-path-expressions` working inside applications using the
+  Angular library.
+
 ## [1.6.0] 2021-10-08
 ### Added
 - Add the ability to upload questionnaires in the demo app.

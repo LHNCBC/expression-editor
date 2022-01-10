@@ -12,7 +12,7 @@ import { VariablesComponent } from './variables/variables.component';
 import { UneditableVariablesComponent } from './uneditable-variables/uneditable-variables.component';
 import { QuestionComponent } from './question/question.component';
 import { CalculateSumPromptComponent } from './calculate-sum-prompt/calculate-sum-prompt.component';
-import { EasyPathExpressionsPipe } from './math-to-fhirpath.pipe';
+import { EasyPathExpressionsPipe } from './easy-path-expressions.pipe';
 import { SyntaxConverterComponent } from './syntax-converter/syntax-converter.component';
 import { SyntaxPreviewComponent } from './syntax-preview/syntax-preview.component';
 import { QueryObservationComponent } from './query-observation/query-observation.component';
