@@ -6,4 +6,4 @@ export declare class EasyPathExpressionsPipe implements PipeTransform {
     static ɵpipe: ɵngcc0.ɵɵPipeDefWithMeta<EasyPathExpressionsPipe, "easyPathExpressions">;
 }
 
-//# sourceMappingURL=math-to-fhirpath.pipe.d.ts.map
+//# sourceMappingURL=easy-path-expressions.pipe.d.ts.map

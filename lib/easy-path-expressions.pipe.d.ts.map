@@ -1,0 +1,1 @@
+{"version":3,"file":"easy-path-expressions.pipe.d.ts","sources":["easy-path-expressions.pipe.d.ts"],"names":[],"mappings":"AAAA;;AACA;AACA;;;AACA","sourcesContent":["import { PipeTransform } from '@angular/core';\nexport declare class EasyPathExpressionsPipe implements PipeTransform {\n    transform(value: string, variables: string[]): string;\n}\n"]}

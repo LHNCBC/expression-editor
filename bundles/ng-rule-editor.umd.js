@@ -19139,14 +19139,14 @@
     };
 
     /**
-     * Full fhirconvert function: validates, converts, then identifies variables.
+     * Full fhirConvert function: validates, converts, then identifies variables.
      * @param {string} str - inputted normal syntax expression
      * @param {Array} vars - array of usable variables entered by user
      * @returns converted fhirpath expression
      */
-    function fhirconvert(str, vars) {
+    function fhirConvert(str, vars) {
         if (validate(str, vars)) {
-            return varfind(convert(str), vars);
+            return varFind(convert(str), vars);
         }
         else {
             return null;
@@ -19179,7 +19179,7 @@
         "OR"
     ];
     // Array of usable functions
-    var funs = [
+    var functions = [
         "CEILING",
         "FLOOR",
         "ABS",
@@ -19188,6 +19188,8 @@
         "SQRT",
         "LN",
         "LOG",
+        "NOT",
+        "LENGTH",
         "ceiling",
         "floor",
         "abs",
@@ -19196,11 +19198,11 @@
         "sqrt",
         "ln",
         "log",
-        "NOT",
         "not",
+        "length"
     ];
     // Array of functions with no arguments
-    var funs2 = [
+    var noArgumentFunctions = [
         "CEILING",
         "FLOOR",
         "ABS",
@@ -19209,6 +19211,7 @@
         "SQRT",
         "LN",
         "NOT",
+        "LENGTH",
         "ceiling",
         "floor",
         "abs",
@@ -19216,7 +19219,8 @@
         "exp",
         "sqrt",
         "ln",
-        "not"
+        "not",
+        "length"
     ];
     /**
      * Verifies normal syntax by confirming var names, function names,
@@ -19226,15 +19230,16 @@
      * @returns boolean, valid or invalid
      */
     function validate(str, vars) {
+        var _a;
         // Operator Validation
         var len = str.length;
         var op = "";
         // Loop to identify operator strings
         for (var j = 0; j < len; j++) {
             // If operator char, append to op
-            if (!(/[a-zA-Z0-9.,\s()\\-]/.test(str[j]))) {
+            if (!(/[a-zA-Z0-9.,'"\s()\\-]/.test(str[j]))) {
                 op = op + str[j];
-                if (j == len - 1 || j == 0) {
+                if (j === len - 1 || j === 0) {
                     return false;
                 }
             }
@@ -19244,31 +19249,31 @@
                     return false;
                 }
                 // Validates expression to left of operator
-                var lsearch = true;
+                var lSearch = true;
                 var op_l = j - op.length - 1;
-                while (lsearch) {
+                while (lSearch) {
                     if (!(/[\s]/.test(str[op_l]))) {
-                        if (!(/[a-zA-Z0-9.,)\\-]/.test(str[op_l]))) {
+                        if (!(/[a-zA-Z0-9.,'")\\-]/.test(str[op_l]))) {
                             return false;
                         }
-                        lsearch = false;
+                        lSearch = false;
                     }
                     else {
                         op_l -= 1;
                     }
                 }
                 // Validates expression to right of operator
-                var rsearch = true;
+                var rSearch = true;
                 var op_r = j;
                 if (op_r > len - 1) {
                     return false;
                 }
-                while (rsearch) {
+                while (rSearch) {
                     if (!(/[\s]/.test(str[op_r]))) {
-                        if (!(/[a-zA-Z0-9.(\\-]/.test(str[op_r]))) {
+                        if (!(/[a-zA-Z0-9.'"(\\-]/.test(str[op_r]))) {
                             return false;
                         }
-                        rsearch = false;
+                        rSearch = false;
                     }
                     else {
                         op_r += 1;
@@ -19281,38 +19286,44 @@
             }
         }
         // Function validation
-        var lcount = 0;
-        var rcount = 0;
+        var lCount = 0;
+        var rCount = 0;
         var substr = "";
-        // Loop to checks parenthesis and identify non-operator strings
+        var inString = false;
+        var inEscape = false;
+        // Loop to checks parenthesis, identify non-operator strings and check strings
         for (var i = 0; i < len; i++) {
-            if (str[i] == "(") {
-                lcount += 1;
-            }
-            if (str[i] == ")") {
-                rcount += 1;
-            }
-            if (rcount > lcount) {
-                return false;
-            }
-            // If usable char, add to substring
-            if (/[a-zA-Z0-9]/.test(str[i])) {
-                substr = substr + str[i];
-            }
-            // Checks if substring is valid
-            if ((str[i + 1] == null || !(/[[a-zA-Z0-9]/.test(str[i + 1])))) {
-                if ((funs.includes(substr) && str[i + 1] == "(") || substr == "") {
-                    substr = "";
+            (_a = isInString(str, i, inString, inEscape), inString = _a.inString, inEscape = _a.inEscape);
+            if (!inString) {
+                if (str[i] === "(") {
+                    lCount += 1;
                 }
-                else if (vars.includes(substr) || (ops.includes(substr) || !(isNaN(substr)))) {
-                    substr = "";
+                if (str[i] === ")") {
+                    rCount += 1;
                 }
-                else {
+                if (rCount > lCount) {
                     return false;
+                }
+                // If usable char, add to substring
+                if (/[a-zA-Z0-9]/.test(str[i])) {
+                    substr = substr + str[i];
+                }
+                // Checks if substring is valid
+                if ((str[i + 1] == null || !(/[[a-zA-Z0-9]/.test(str[i + 1])))) {
+                    if ((functions.includes(substr) && str[i + 1] === "(") || substr === "") {
+                        substr = "";
+                    }
+                    else if (vars.includes(substr) || (ops.includes(substr) || !(isNaN(substr)))) {
+                        substr = "";
+                    }
+                    else {
+                        return false;
+                    }
                 }
             }
         }
-        return lcount == rcount;
+        // Parentheses must be balanced and quotes should end
+        return (lCount === rCount) && !inString;
     }
     /**
      * Identifies convertable functions in expression and converts them recursively.
@@ -19321,10 +19332,12 @@
      */
     function convert(str) {
         var count = 0;
-        if (str.includes("^")) {
-            var i = str.indexOf("^");
-            var base = lfind(str, i);
-            var power = rfind(str, i);
+        var stringMinusQuotes = getStringMinusQuotes(str);
+        var stringParts = getStringParts(str);
+        if (stringMinusQuotes.includes("^")) {
+            var i = indexOutsideQuotes(str, stringParts, "^");
+            var base = lFind(str, i);
+            var power = rFind(str, i);
             str =
                 str.slice(0, i - base.length) +
                     base.trim() +
@@ -19334,10 +19347,10 @@
                     str.slice(i + power.length + 1);
             count += 1;
         }
-        if (str.includes("**")) {
-            var i = str.indexOf("**");
-            var base = lfind(str, i);
-            var power = rfind(str, i + 1);
+        if (stringMinusQuotes.includes("**")) {
+            var i = indexOutsideQuotes(str, stringParts, "**");
+            var base = lFind(str, i);
+            var power = rFind(str, i + 1);
             str =
                 str.slice(0, i - base.length) +
                     base.trim() +
@@ -19347,41 +19360,43 @@
                     str.slice(i + power.length + 2);
             count += 1;
         }
-        for (var f = 0; f < funs2.length; f++) {
-            if (str.includes(funs2[f])) {
-                if (str[str.indexOf(funs2[f]) - 1] != ".") {
-                    str = funcappend(str, funs2[f]);
+        for (var f = 0; f < noArgumentFunctions.length; f++) {
+            if (stringMinusQuotes.includes(noArgumentFunctions[f])) {
+                if (str[indexOutsideQuotes(str, stringParts, noArgumentFunctions[f]) - 1] !== ".") {
+                    str = funcAppend(str, noArgumentFunctions[f]);
                     count += 1;
                 }
             }
         }
-        if (str.includes("LOG")) {
-            str = logappend(str, "LOG");
+        if (stringMinusQuotes.includes("LOG")) {
+            str = logAppend(str, "LOG");
             count += 1;
         }
-        if (str.includes("log")) {
-            if (str[str.indexOf("log") - 1] != ".") {
-                str = logappend(str, "log");
+        if (stringMinusQuotes.includes("log")) {
+            if (str[indexOutsideQuotes(str, stringParts, "log") - 1] !== ".") {
+                str = logAppend(str, "log");
                 count += 1;
             }
         }
         if (str.includes("OR")) {
-            str = str.replace("OR", "or");
+            str = replaceOutsideQuotes(str, stringParts, "OR", "or");
             count += 1;
         }
         if (str.includes("AND")) {
-            str = str.replace("AND", "and");
+            str = replaceOutsideQuotes(str, stringParts, "AND", "and");
             count += 1;
         }
         if (str.includes("||")) {
-            str = str.replace("||", "or");
+            str = replaceOutsideQuotes(str, stringParts, "||", "or");
             count += 1;
         }
         if (str.includes("&&")) {
-            str = str.replace("&&", "and");
+            str = replaceOutsideQuotes(str, stringParts, "&&", "and");
             count += 1;
         }
-        if (count != 0) {
+        // Replace double quotes with single quotes
+        str = replaceOutsideQuotes(str, stringParts, '"', "'", true);
+        if (count !== 0) {
             return convert(str);
         }
         else {
@@ -19394,7 +19409,7 @@
      * @param {string} func - function in inputted normal syntax expression
      * @returns expression with converted function
      */
-    function funcappend(str, func) {
+    function funcAppend(str, func) {
         var i = str.indexOf(func);
         var j = i + func.length;
         var k = j;
@@ -19402,13 +19417,13 @@
         var open = 0;
         var close = 0;
         while (!eq) {
-            if (str[k] == "(") {
+            if (str[k] === "(") {
                 open += 1;
             }
-            if (str[k] == ")") {
+            if (str[k] === ")") {
                 close += 1;
             }
-            if (open == close) {
+            if (open === close) {
                 eq = true;
             }
             else {
@@ -19423,13 +19438,14 @@
             str.slice(k + 1).trim());
     }
     /**
-     * Same as funcappend, but in LOG format
+     * Same as funcAppend, but in LOG format
      * @param {string} str - inputted normal syntax expression
      * @param {string} func - "LOG" or "log"
      * @returns expression with converted log function
      */
-    function logappend(str, func) {
-        var i = str.indexOf(func);
+    function logAppend(str, func) {
+        var stringParts = getStringParts(str);
+        var i = indexOutsideQuotes(str, stringParts, func);
         var j = i + 3;
         var k = j;
         var cma = -1;
@@ -19437,16 +19453,16 @@
         var open = 0;
         var close = 0;
         while (!eq) {
-            if (str[k] == "(") {
+            if (str[k] === "(") {
                 open += 1;
             }
-            if (str[k] == ")") {
+            if (str[k] === ")") {
                 close += 1;
             }
-            if (open == close + 1 && k != j && str[k] == ",") {
+            if (open === close + 1 && k !== j && str[k] === ",") {
                 cma = k;
             }
-            if (open == close) {
+            if (open === close) {
                 eq = true;
             }
             else {
@@ -19468,23 +19484,23 @@
      * @param {int} i - operator index
      * @returns expression to left of operator
      */
-    function lfind(str, i) {
-        if (str[i - 1] != ")") {
+    function lFind(str, i) {
+        if (str[i - 1] !== ")") {
             var search = true;
-            var lstr = "";
+            var lStr = "";
             while (search) {
                 if (i < 2) {
                     search = false;
                 }
-                if (/[a-zA-Z0-9.-\s]/.test(str[i - 1])) {
-                    lstr = str[i - 1] + lstr;
+                if (/[a-zA-Z0-9.\-\s]/.test(str[i - 1])) {
+                    lStr = str[i - 1] + lStr;
                     i -= 1;
                 }
                 else {
                     search = false;
                 }
             }
-            return lstr;
+            return lStr;
         }
         else {
             var eq = false;
@@ -19492,13 +19508,13 @@
             var close = 0;
             var k = i - 1;
             while (!eq) {
-                if (str[k] == "(") {
+                if (str[k] === "(") {
                     open += 1;
                 }
-                if (str[k] == ")") {
+                if (str[k] === ")") {
                     close += 1;
                 }
-                if (open == close) {
+                if (open === close) {
                     eq = true;
                 }
                 else {
@@ -19514,23 +19530,23 @@
      * @param {int} i - operator index
      * @returns expression to right of operator
      */
-    function rfind(str, i) {
-        if (str[i + 1] != "(") {
+    function rFind(str, i) {
+        if (str[i + 1] !== "(") {
             var search = true;
-            var rstr = "";
+            var rStr = "";
             while (search) {
-                if (str[i + 2] == undefined) {
+                if (str[i + 2] === undefined) {
                     search = false;
                 }
                 if (/[a-zA-Z0-9.\s()\\-]/.test(str[i + 1])) {
-                    rstr = rstr + str[i + 1];
+                    rStr = rStr + str[i + 1];
                     i += 1;
                 }
                 else {
                     search = false;
                 }
             }
-            return rstr;
+            return rStr;
         }
         else {
             return str.slice(i + 1, str.slice(i).indexOf(")") + i + 1);
@@ -19542,7 +19558,7 @@
      * @param {Array} vars - array of usable variables
      * @returns converted expression with formatted variables
      */
-    function varfind(str, vars) {
+    function varFind(str, vars) {
         var end = false;
         var i = 0;
         var j = 0;
@@ -19552,7 +19568,7 @@
                 end = true;
             }
             else {
-                if (/[a-zA-Z0-9]/.test(str[i])) {
+                if (/[a-zA-Z0-9'"]/.test(str[i])) {
                     v = v + str[i];
                 }
                 else {
@@ -19575,13 +19591,135 @@
         }
         return str;
     }
+    /**
+     * Check to see if we're in a string given the current status, string and
+     * position
+     * @param str {string} - string to check
+     * @param i {number} - current string index
+     * @param inString {boolean} - current status for in string
+     * @param inEscape {boolean} - current status for escape
+     * @return {{inString: boolean, inEscape: boolean}} inString true if position i
+     *  is inside a string, inEscape true if position i is in an escape sequence
+     */
+    function isInString(str, i, inString, inEscape) {
+        var isQuote = str[i] === "'" || str[i] === '"';
+        if (isQuote && !inString) { // Check for quote start
+            inString = true;
+        }
+        else if (isQuote && inString && !inEscape) {
+            inString = false;
+        }
+        else if (inString && inEscape) {
+            inEscape = false;
+        }
+        else if (inString && !inEscape && str[i] === "\\") {
+            inEscape = true;
+        }
+        return {
+            inString: inString,
+            inEscape: inEscape
+        };
+    }
+    /**
+     * Get the parts of the string which are quotes
+     * @param str - String to check
+     * @return Array of booleans representing if position is part of quotes (which
+     *  should not be processed)
+     */
+    function getStringParts(str) {
+        var _a;
+        var parts = [];
+        var inString = false;
+        var inEscape = false;
+        for (var i = 0; i < str.length; i++) {
+            (_a = isInString(str, i, inString, inEscape), inString = _a.inString, inEscape = _a.inEscape);
+            parts.push(inString);
+        }
+        return parts;
+    }
+    /**
+     * Get only the parts of the string which are not quoted
+     * @param str {string} - String to process
+     * @return {string} - String without quotes
+     */
+    function getStringMinusQuotes(str) {
+        var _a;
+        var parts = [];
+        var inString = false;
+        var inEscape = false;
+        for (var i = 0; i < str.length; i++) {
+            (_a = isInString(str, i, inString, inEscape), inString = _a.inString, inEscape = _a.inEscape);
+            if (!inString) {
+                parts.push(str[i]);
+            }
+        }
+        return parts.join("");
+    }
+    /**
+     * Get the index for the search value but ignore quotes
+     * @param str {string} - String to search
+     * @param stringParts - Array of booleans indicating if inside string.
+     *  Use `getStringParts`
+     * @param value {string} - Value to look for
+     * @return {number} - Index of match, -1 if none (not including quotes)
+     */
+    function indexOutsideQuotes(str, stringParts, value) {
+        var insideQuote = false;
+        var searchIndex = 0;
+        var index;
+        do {
+            index = str.indexOf(value, searchIndex);
+            if (index !== -1 && stringParts[index]) {
+                // The index fell as part of a quote, we should find the next match
+                insideQuote = true;
+                searchIndex = index + 1;
+            }
+            else {
+                insideQuote = false;
+            }
+        } while (index !== -1 && insideQuote);
+        return index;
+    }
+    /**
+     * Replace values not inside quotes
+     * @param str {string} - String to search
+     * @param stringParts - Array of booleans indicating if inside string.
+     *  Use `getStringParts`
+     * @param searchValue {string} - Value to look for
+     * @param replaceValue {string} - Value to replace with
+     * @param replaceAll {boolean} - Replace all matches. Default false.
+     * @return {string} - String with matches replaced outside of quotes
+     */
+    function replaceOutsideQuotes(str, stringParts, searchValue, replaceValue, replaceAll) {
+        if (replaceAll === void 0) { replaceAll = false; }
+        var insideQuote = false;
+        var searchIndex = 0;
+        var tmpStr = str.split("");
+        var index;
+        do {
+            index = str.indexOf(searchValue, searchIndex);
+            if (index !== -1 && stringParts[index] && searchValue !== '"') {
+                // The index fell as part of a quote, we should find the next match
+                // Special case when replacing surrounding quotes
+                insideQuote = true;
+                searchIndex = index + 1;
+            }
+            else if (index !== -1) {
+                insideQuote = false;
+                tmpStr.splice.apply(tmpStr, tslib_1.__spread([index, searchValue.length], replaceValue.split("")));
+                searchIndex += searchValue.length - replaceValue.length;
+                str = tmpStr.join("");
+            }
+        } while (index !== -1 && replaceAll);
+        return tmpStr.join("");
+    }
 
     var EasyPathExpressionsPipe = /** @class */ (function () {
         function EasyPathExpressionsPipe() {
         }
         EasyPathExpressionsPipe.prototype.transform = function (value, variables) {
             if (value !== undefined) {
-                var fhirPath = fhirconvert(value, variables);
+                var fhirPath = fhirConvert(value, variables);
                 if (fhirPath !== null) {
                     return fhirPath;
                 }

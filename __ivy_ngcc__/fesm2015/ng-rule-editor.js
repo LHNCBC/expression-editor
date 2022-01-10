@@ -1939,7 +1939,7 @@ CalculateSumPromptComponent.propDecorators = {
 class EasyPathExpressionsPipe {
     transform(value, variables) {
         if (value !== undefined) {
-            const fhirPath = easyPathExpressions.fhirconvert(value, variables);
+            const fhirPath = easyPathExpressions.fhirConvert(value, variables);
             if (fhirPath !== null) {
                 return fhirPath;
             }

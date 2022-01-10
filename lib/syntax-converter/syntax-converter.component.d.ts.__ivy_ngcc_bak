@@ -1,5 +1,5 @@
 import { EventEmitter, OnChanges } from '@angular/core';
-import { EasyPathExpressionsPipe } from '../math-to-fhirpath.pipe';
+import { EasyPathExpressionsPipe } from '../easy-path-expressions.pipe';
 import { SimpleStyle } from '../rule-editor.service';
 export declare class SyntaxConverterComponent implements OnChanges {
     simple: string;

@@ -1,6 +1,6 @@
 {
   "name": "ng-rule-editor",
-  "version": "1.6.0",
+  "version": "1.6.1",
   "peerDependencies": {
     "@angular/animations": "~11.0.5",
     "@angular/cdk": "^11.1.1",
@@ -14,7 +14,7 @@
     "autocomplete-lhc": "^18.1.2"
   },
   "bundledDependencies": [
-    "math-to-fhirpath"
+    "easy-path-expressions"
   ],
   "main": "bundles/ng-rule-editor.umd.js",
   "module_ivy_ngcc": "__ivy_ngcc__/fesm2015/ng-rule-editor.js",

@@ -1,1 +1,0 @@
-{"version":3,"file":"math-to-fhirpath.pipe.d.ts","sources":["math-to-fhirpath.pipe.d.ts"],"names":[],"mappings":"AAAA;;AACA;AACA;;;AACA","sourcesContent":["import { PipeTransform } from '@angular/core';\nexport declare class EasyPathExpressionsPipe implements PipeTransform {\n    transform(value: string, variables: string[]): string;\n}\n"]}

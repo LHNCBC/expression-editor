@@ -4,7 +4,7 @@ import * as ɵngcc2 from './variables/variables.component';
 import * as ɵngcc3 from './uneditable-variables/uneditable-variables.component';
 import * as ɵngcc4 from './question/question.component';
 import * as ɵngcc5 from './calculate-sum-prompt/calculate-sum-prompt.component';
-import * as ɵngcc6 from './math-to-fhirpath.pipe';
+import * as ɵngcc6 from './easy-path-expressions.pipe';
 import * as ɵngcc7 from './syntax-converter/syntax-converter.component';
 import * as ɵngcc8 from './syntax-preview/syntax-preview.component';
 import * as ɵngcc9 from './query-observation/query-observation.component';
