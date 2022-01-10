@@ -25,6 +25,7 @@ export class CaseStatementsComponent implements OnInit, OnChanges {
   simpleDefaultCase: string;
   cases: Array<CaseStatement> = [{condition: '', simpleCondition: '', output: '', simpleOutput: ''}];
   output = '';
+  hidePreview = false;
 
   constructor(private ruleEditorService: RuleEditorService) { }
 
@@ -207,9 +208,14 @@ export class CaseStatementsComponent implements OnInit, OnChanges {
       this.cases[level].simpleCondition :
       this.cases[level].condition, false);
 
+    const defaultCase = this.transformIfSimple(isSimple ?
+      this.simpleDefaultCase : this.defaultCase, true);
+
+    if (level === 0) {
+      this.hidePreview = condition === '' || output === '' || defaultCase === '';
+    }
+
     if (level === this.cases.length - 1) {
-      const defaultCase = this.transformIfSimple(isSimple ?
-        this.simpleDefaultCase : this.defaultCase, true);
       return `iif(${condition},${output},${defaultCase})`;
     } else {
       return `iif(${condition},${output},${this.getIif(level + 1)})`;
