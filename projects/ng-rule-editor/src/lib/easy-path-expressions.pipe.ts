@@ -8,7 +8,7 @@ export class EasyPathExpressionsPipe implements PipeTransform {
 
   transform(value: string, variables: string[]): string {
     if (value !== undefined) {
-      const fhirPath = easyPathExpressions.fhirconvert(value, variables);
+      const fhirPath = easyPathExpressions.fhirConvert(value, variables);
       if (fhirPath !== null) {
         return fhirPath;
       }
