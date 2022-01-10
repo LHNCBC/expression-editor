@@ -1,8 +1,10 @@
 (function (global, factory) {
-    typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('tslib'), require('@angular/core'), require('@angular/common'), require('@angular/cdk/drag-drop'), require('@angular/animations'), require('@angular/animations/browser'), require('@angular/material/radio')) :
-    typeof define === 'function' && define.amd ? define('ng-rule-editor', ['exports', 'tslib', '@angular/core', '@angular/common', '@angular/cdk/drag-drop', '@angular/animations', '@angular/animations/browser', '@angular/material/radio'], factory) :
-    (global = typeof globalThis !== 'undefined' ? globalThis : global || self, factory(global['ng-rule-editor'] = {}, global.tslib, global.ng.core, global.ng.common, global.ng.cdk.dragDrop, global.ng.animations, global.ng.animations.browser, global.ng.material.radio));
-}(this, (function (exports, tslib_1, i0, common, dragDrop, animations, browser, radio) { 'use strict';
+    typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('tslib'), require('@angular/core'), require('@angular/common'), require('@angular/cdk/a11y'), require('@angular/cdk/drag-drop'), require('@angular/cdk/clipboard'), require('@angular/material/tooltip'), require('@angular/material/radio'), require('@angular/animations'), require('@angular/animations/browser'), require('@angular/material/snack-bar'), require('autocomplete-lhc'), require('@angular/common/http')) :
+    typeof define === 'function' && define.amd ? define('ng-rule-editor', ['exports', 'tslib', '@angular/core', '@angular/common', '@angular/cdk/a11y', '@angular/cdk/drag-drop', '@angular/cdk/clipboard', '@angular/material/tooltip', '@angular/material/radio', '@angular/animations', '@angular/animations/browser', '@angular/material/snack-bar', 'autocomplete-lhc', '@angular/common/http'], factory) :
+    (global = typeof globalThis !== 'undefined' ? globalThis : global || self, factory(global["ng-rule-editor"] = {}, global.tslib, global.ng.core, global.ng.common, global.ng.cdk.a11y, global.ng.cdk.dragDrop, global.ng.cdk.clipboard, global.ng.material.tooltip, global.ng.material.radio, global.ng.animations, global.ng.animations.browser, global.ng.material.snackBar, global.Def, global.ng.common.http));
+})(this, (function (exports, tslib_1, i0, common, a11y, dragDrop, clipboard, tooltip, radio, animations, browser, snackBar, Def, http) { 'use strict';
+
+    function _interopDefaultLegacy (e) { return e && typeof e === 'object' && 'default' in e ? e : { 'default': e }; }
 
     function _interopNamespace(e) {
         if (e && e.__esModule) return e;
@@ -13,19 +15,18 @@
                     var d = Object.getOwnPropertyDescriptor(e, k);
                     Object.defineProperty(n, k, d.get ? d : {
                         enumerable: true,
-                        get: function () {
-                            return e[k];
-                        }
+                        get: function () { return e[k]; }
                     });
                 }
             });
         }
-        n['default'] = e;
+        n["default"] = e;
         return Object.freeze(n);
     }
 
     var tslib_1__namespace = /*#__PURE__*/_interopNamespace(tslib_1);
     var i0__namespace = /*#__PURE__*/_interopNamespace(i0);
+    var Def__default = /*#__PURE__*/_interopDefaultLegacy(Def);
 
     /** PURE_IMPORTS_START  PURE_IMPORTS_END */
     function isFunction(x) {
@@ -2854,7 +2855,14 @@
         if (result instanceof Observable) {
             return result.subscribe(innerSubscriber);
         }
-        return subscribeTo(result)(innerSubscriber);
+        var subscription;
+        try {
+            subscription = subscribeTo(result)(innerSubscriber);
+        }
+        catch (error) {
+            innerSubscriber.error(error);
+        }
+        return subscription;
     }
 
     /** PURE_IMPORTS_START tslib,_map,_observable_from,_innerSubscribe PURE_IMPORTS_END */
@@ -4200,6 +4208,22 @@
         });
     };
 
+    var AllVariableType;
+    (function (AllVariableType) {
+        AllVariableType["question"] = "Question";
+        AllVariableType["expression"] = "FHIRPath Expression";
+        AllVariableType["simple"] = "Easy Path Expression";
+        AllVariableType["query"] = "FHIR Query";
+        AllVariableType["queryObservation"] = "FHIR Query (Observation)";
+    })(AllVariableType || (AllVariableType = {}));
+    var SimpleVariableType;
+    (function (SimpleVariableType) {
+        SimpleVariableType["question"] = "Question";
+        SimpleVariableType["simple"] = "Easy Path Expression";
+        SimpleVariableType["queryObservation"] = "FHIR Query (Observation)";
+    })(SimpleVariableType || (SimpleVariableType = {}));
+    var CASE_REGEX = /^\s*iif\s*\((.*)\)\s*$/;
+
     // Supported unit conversions. Key is the "from" and value is the "to" array
     var UNIT_CONVERSION = {
         kg: [{ unit: 'lbs', factor: 2.20462 }],
@@ -4215,13 +4239,18 @@
             this.questionsChange = new Subject();
             this.mightBeScoreChange = new Subject();
             this.finalExpressionChange = new Subject();
+            this.disableAdvancedChange = new Subject();
+            this.needsAdvancedInterface = false;
             this.LANGUAGE_FHIRPATH = 'text/fhirpath';
+            this.LANGUAGE_FHIR_QUERY = 'application/x-fhir-query';
             this.QUESTION_REGEX = /^%resource\.item\.where\(linkId='(.*)'\)\.answer\.value(?:\*(\d*\.?\d*))?$/;
+            this.QUERY_REGEX = /^Observation\?code=(.+)&date=gt{{today\(\)-(\d+) (.+)}}&patient={{%patient.id}}&_sort=-date&_count=1$/;
             this.VARIABLE_EXTENSION = 'http://hl7.org/fhir/StructureDefinition/variable';
             this.SCORE_VARIABLE_EXTENSION = 'http://lhcforms.nlm.nih.gov/fhir/ext/rule-editor-score-variable';
             this.SCORE_EXPRESSION_EXTENSION = 'http://lhcforms.nlm.nih.gov/fhir/ext/rule-editor-expression';
             this.SIMPLE_SYNTAX_EXTENSION = 'http://lhcforms.nlm.nih.gov/fhir/ext/simple-syntax';
             this.CALCULATED_EXPRESSION = 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression';
+            this.LAUNCH_CONTEXT_URI = 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-launchContext';
             this.linkIdToQuestion = {};
             this.mightBeScore = false;
             this.variables = [];
@@ -4249,15 +4278,44 @@
             this.variables.splice(i, 1);
         };
         /**
-         * Get the list of uneditable variables based on the FHIR Questionnaire
-         * @param fhir - FHIR Questionnaire
+         * Trigger an update (used when changing variable names to update the preview)
          */
-        RuleEditorService.prototype.getUneditableVariables = function (fhir) {
-            var launchContextExtensionUrl = 'http://hl7.org/fhir/StructureDefinition/questionnaire-launchContext';
-            if (Array.isArray(fhir.extension)) {
-                return fhir.extension.reduce(function (accumulator, extension) {
+        RuleEditorService.prototype.update = function () {
+            this.variablesChange.next(this.variables);
+        };
+        /**
+         * Checks the advanced interface status and allows toggle if no expressions or
+         * queries are present
+         * @param toggleOn - Set the advanced interface on (without having to run checks)
+         */
+        RuleEditorService.prototype.checkAdvancedInterface = function (toggleOn) {
+            if (toggleOn) {
+                this.needsAdvancedInterface = true;
+            }
+            else {
+                var needsAdvanced = false;
+                // Check variables
+                if (this.variables.find(function (e) { return e.type === 'expression' || e.type === 'query'; }) !== undefined) {
+                    needsAdvanced = true;
+                }
+                // Check final expression
+                if (this.syntaxType === 'fhirpath') {
+                    needsAdvanced = true;
+                }
+                this.needsAdvancedInterface = needsAdvanced;
+            }
+            this.disableAdvancedChange.next(this.needsAdvancedInterface);
+        };
+        /**
+         * Get the list of uneditable variables based on the FHIR Questionnaire
+         * @param questionnaire - FHIR Questionnaire
+         */
+        RuleEditorService.prototype.getUneditableVariables = function (questionnaire) {
+            var _this = this;
+            if (Array.isArray(questionnaire.extension)) {
+                return questionnaire.extension.reduce(function (accumulator, extension) {
                     var _a, _b;
-                    if (extension.url === launchContextExtensionUrl && extension.extension) {
+                    if (extension.url === _this.LAUNCH_CONTEXT_URI && extension.extension) {
                         var uneditableVariable = {
                             name: extension.extension.find(function (e) { return e.url === 'name'; }).valueId,
                             type: (_a = extension.extension.filter(function (e) { return e.url === 'type'; })) === null || _a === void 0 ? void 0 : _a.map(function (e) { return e.valueCode; }).join('|'),
@@ -4272,29 +4330,43 @@
         };
         /**
          * Get and remove the variables from the FHIR object
-         * @param fhir
+         * @param questionnaire
          */
-        RuleEditorService.prototype.extractVariables = function (fhir) {
+        RuleEditorService.prototype.extractVariables = function (questionnaire) {
             var _this = this;
             // Look at the top level fhirpath related extensions to populate the editable variables
             // TODO look at the focus item variables
-            if (fhir.extension) {
+            if (questionnaire.extension) {
                 var variables_1 = [];
                 var nonVariableExtensions_1 = [];
                 // Add an index to each extension which we will then use to get the
-                // variables back in the correct order. _index will be removed on save
-                fhir.extension = fhir.extension.map(function (e, i) { return (Object.assign(Object.assign({}, e), { _index: i })); });
-                fhir.extension.forEach(function (extension) {
-                    if (extension.url === _this.VARIABLE_EXTENSION &&
-                        extension.valueExpression && extension.valueExpression.language === _this.LANGUAGE_FHIRPATH) {
-                        variables_1.push(_this.processVariable(extension.valueExpression.name, extension.valueExpression.expression, extension._index));
+                // variables back in the correct order. __$index will be removed on save
+                questionnaire.extension = questionnaire.extension.map(function (e, i) { return (Object.assign(Object.assign({}, e), { __$index: i })); });
+                questionnaire.extension.forEach(function (extension) {
+                    if (extension.url === _this.VARIABLE_EXTENSION && extension.valueExpression) {
+                        switch (extension.valueExpression.language) {
+                            case _this.LANGUAGE_FHIRPATH:
+                                var fhirPathVarToAdd = _this.processVariable(extension.valueExpression.name, extension.valueExpression.expression, extension.__$index, extension.valueExpression.extension);
+                                if (fhirPathVarToAdd.type === 'expression') {
+                                    _this.needsAdvancedInterface = true;
+                                }
+                                variables_1.push(fhirPathVarToAdd);
+                                break;
+                            case _this.LANGUAGE_FHIR_QUERY:
+                                var queryVarToAdd = _this.processQueryVariable(extension.valueExpression.name, extension.valueExpression.expression, extension.__$index);
+                                if (queryVarToAdd.type === 'query') {
+                                    _this.needsAdvancedInterface = true;
+                                }
+                                variables_1.push(queryVarToAdd);
+                                break;
+                        }
                     }
                     else {
                         nonVariableExtensions_1.push(extension);
                     }
                 });
                 // Remove the variables so they can be re-added on export
-                fhir.extension = nonVariableExtensions_1;
+                questionnaire.extension = nonVariableExtensions_1;
                 return variables_1;
             }
             return [];
@@ -4316,14 +4388,14 @@
         /**
          * Get the number of ordinalValue on the answers of the questions on the
          * Questionnaire
-         * @param fhir - FHIR Questionnaire
+         * @param questionnaire - FHIR Questionnaire
          * @param linkIdContext - linkId to exclude from calculation
          * @return number of score questions on the questionnaire
          */
-        RuleEditorService.prototype.getScoreQuestionCount = function (fhir, linkIdContext) {
+        RuleEditorService.prototype.getScoreQuestionCount = function (questionnaire, linkIdContext) {
             var _this = this;
             var scoreQuestions = 0;
-            fhir.item.forEach(function (item) {
+            questionnaire.item.forEach(function (item) {
                 if (_this.itemHasScore(item)) {
                     scoreQuestions++;
                 }
@@ -4334,12 +4406,14 @@
          * Import a FHIR Questionnaire to populate questions
          * @param expressionUri - URI of expression extension on linkIdContext question
          *  to extract and modify
-         * @param fhir - FHIR Questionnaire
+         * @param questionnaire - FHIR Questionnaire
          * @param linkIdContext - Context to use for final expression
+         * @return true if load was successful
          */
-        RuleEditorService.prototype.import = function (expressionUri, fhir, linkIdContext) {
+        RuleEditorService.prototype.import = function (expressionUri, questionnaire, linkIdContext) {
             this.linkIdContext = linkIdContext; // TODO change notification for linkId?
-            this.fhir = copy(fhir);
+            this.fhir = copy(questionnaire);
+            var loadSuccess = false;
             if (this.fhir.resourceType === 'Questionnaire' && this.fhir.item && this.fhir.item.length) {
                 // If there is at least one score question we will ask the user if they
                 // want to calculate the score
@@ -4349,6 +4423,7 @@
                 this.uneditableVariables = this.getUneditableVariables(this.fhir);
                 this.uneditableVariablesChange.next(this.uneditableVariables);
                 this.linkIdToQuestion = {};
+                this.needsAdvancedInterface = false;
                 this.processItem(this.fhir.item);
                 this.variables = this.extractVariables(this.fhir);
                 this.variablesChange.next(this.variables);
@@ -4373,17 +4448,28 @@
                 if (expression !== null) {
                     // @ts-ignore
                     this.finalExpression = expression.valueExpression.expression;
-                    this.finalExpressionChange.next(this.finalExpression);
+                    this.caseStatements = this.finalExpression.match(CASE_REGEX) !== null;
                     var simpleSyntax = this.extractSimpleSyntax(expression);
                     if (simpleSyntax === null && this.finalExpression !== '') {
                         this.syntaxType = 'fhirpath';
+                        this.needsAdvancedInterface = true;
                     }
                     else {
                         this.syntaxType = 'simple';
                         this.simpleExpression = simpleSyntax;
                     }
                 }
+                else {
+                    // Reset input to be a blank simple expression if there is nothing on
+                    // the form
+                    this.syntaxType = 'simple';
+                    this.simpleExpression = '';
+                    this.finalExpression = '';
+                }
+                this.finalExpressionChange.next(this.finalExpression);
+                loadSuccess = true;
             }
+            return loadSuccess;
         };
         /**
          * Process nested FHIR Questionnaire items
@@ -4405,8 +4491,8 @@
          */
         RuleEditorService.prototype.extractSimpleSyntax = function (expression) {
             var _this = this;
-            if (expression.extension) {
-                var customExtension = expression.extension.find(function (e) {
+            if (expression.valueExpression && expression.valueExpression.extension) {
+                var customExtension = expression.valueExpression.extension.find(function (e) {
                     return e.url === _this.SIMPLE_SYNTAX_EXTENSION;
                 });
                 if (customExtension !== undefined) {
@@ -4427,7 +4513,7 @@
             try {
                 for (var items_1 = tslib_1.__values(items), items_1_1 = items_1.next(); !items_1_1.done; items_1_1 = items_1.next()) {
                     var item = items_1_1.value;
-                    if (item.extension) {
+                    if (item.linkId === linkId && item.extension) {
                         var extensionIndex = item.extension.findIndex(function (e) {
                             return e.url === expressionUri && e.valueExpression.language === _this.LANGUAGE_FHIRPATH &&
                                 e.valueExpression.expression;
@@ -4459,17 +4545,20 @@
          * @param name - Name to assign variable
          * @param expression - Expression to process
          * @param index - Original order in extension list
+         * @param extensions - Any additional extensions (for simple fhirpath etc)
          * @return Variable type which can be used by the Rule Editor to show a
          * question, expression etc
          * @private
          */
-        RuleEditorService.prototype.processVariable = function (name, expression, index) {
+        RuleEditorService.prototype.processVariable = function (name, expression, index, extensions) {
+            var _this = this;
             var matches = expression.match(this.QUESTION_REGEX);
+            var simpleExtension = extensions && extensions.find(function (e) { return e.url === _this.SIMPLE_SYNTAX_EXTENSION; });
             if (matches !== null) {
                 var linkId = matches[1];
                 var factor_1 = matches[2];
                 var variable = {
-                    _index: index,
+                    __$index: index,
                     label: name,
                     type: 'question',
                     linkId: linkId,
@@ -4488,11 +4577,56 @@
                 }
                 return variable;
             }
+            else if (simpleExtension !== undefined) {
+                return {
+                    __$index: index,
+                    label: name,
+                    type: 'simple',
+                    expression: expression,
+                    simple: simpleExtension.valueString
+                };
+            }
             else {
                 return {
-                    _index: index,
+                    __$index: index,
                     label: name,
                     type: 'expression',
+                    expression: expression
+                };
+            }
+        };
+        /**
+         * Process a x-fhir-query expression into a more user friendly format if
+         * possible. Show a code autocomplete field if possible if not show the
+         * expression editing field.
+         * @param name - Name to assign variable
+         * @param expression - Expression to process
+         * @param index - Original order in extension list
+         * @return Variable type which can be used by the Rule Editor to show a
+         * question, expression etc
+         * @private
+         */
+        RuleEditorService.prototype.processQueryVariable = function (name, expression, index) {
+            var matches = expression.match(this.QUERY_REGEX);
+            if (matches !== null) {
+                var codes = matches[1].split('%2C'); // URL encoded comma ','
+                var timeInterval = parseInt(matches[2], 10);
+                var timeIntervalUnits = matches[3];
+                return {
+                    __$index: index,
+                    label: name,
+                    type: 'queryObservation',
+                    codes: codes,
+                    timeInterval: timeInterval,
+                    timeIntervalUnit: timeIntervalUnits,
+                    expression: expression
+                };
+            }
+            else {
+                return {
+                    __$index: index,
+                    label: name,
+                    type: 'query',
                     expression: expression
                 };
             }
@@ -4584,15 +4718,23 @@
             // (if we add our data the second export will have duplicates)
             var fhir = copy(this.fhir);
             var variablesToAdd = this.variables.map(function (e) {
-                return {
-                    _index: e._index,
+                var variable = {
+                    __$index: e.__$index,
                     url: _this.VARIABLE_EXTENSION,
                     valueExpression: {
                         name: e.label,
-                        language: _this.LANGUAGE_FHIRPATH,
+                        language: e.type === 'query' ? _this.LANGUAGE_FHIR_QUERY : _this.LANGUAGE_FHIRPATH,
                         expression: e.expression
                     }
                 };
+                if (e.type === 'simple') {
+                    // @ts-ignore
+                    variable.valueExpression.extension = [{
+                            url: _this.SIMPLE_SYNTAX_EXTENSION,
+                            valueString: e.simple
+                        }];
+                }
+                return variable;
             });
             // Split the variables into two buckets: Variables present when
             // Questionnaire was imported and variables added by the user using the Rule
@@ -4601,7 +4743,7 @@
             var variablesPresentInitially = [];
             var variablesAdded = [];
             variablesToAdd.forEach(function (e) {
-                if (e._index === undefined) {
+                if (e.__$index === undefined) {
                     variablesAdded.push(e);
                 }
                 else {
@@ -4612,16 +4754,16 @@
                 // Introduce variables present before
                 fhir.extension = fhir.extension.concat(variablesPresentInitially);
                 // Sort by index
-                fhir.extension.sort(function (a, b) { return a._index - b._index; });
+                fhir.extension.sort(function (a, b) { return a.__$index - b.__$index; });
                 // Add variables added by the user
                 fhir.extension = fhir.extension.concat(variablesAdded);
             }
             else {
                 fhir.extension = variablesPresentInitially.concat(variablesAdded);
             }
-            // Remove _index
+            // Remove __$index
             fhir.extension = fhir.extension.map(function (_a) {
-                var _index = _a._index, other = tslib_1.__rest(_a, ["_index"]);
+                var __$index = _a.__$index, other = tslib_1.__rest(_a, ["__$index"]);
                 return other;
             });
             var finalExpressionExtension = {
@@ -4633,21 +4775,65 @@
             };
             // TODO keep existing extensions
             if (this.syntaxType === 'simple') {
-                finalExpressionExtension.extension = [{
+                finalExpressionExtension.valueExpression.extension = [{
                         url: this.SIMPLE_SYNTAX_EXTENSION,
                         valueString: this.simpleExpression
                     }];
             }
             this.insertExtensions(fhir.item, this.linkIdContext, [finalExpressionExtension]);
+            // If there are any query observation extensions check to make sure there is
+            // a patient launch context. If there is not add one.
+            var hasQueryObservations = this.variables.find(function (e) {
+                return e.type === 'queryObservation';
+            });
+            if (hasQueryObservations !== undefined) {
+                var patientLaunchContext = fhir.extension.find(function (extension) {
+                    if (extension.url === _this.LAUNCH_CONTEXT_URI &&
+                        Array.isArray(extension.extension)) {
+                        var patientName = extension.extension.find(function (subExtension) {
+                            return subExtension.url === 'name' && subExtension.valueId === 'patient';
+                        });
+                        if (patientName !== undefined) {
+                            return true;
+                        }
+                    }
+                    return false;
+                });
+                if (patientLaunchContext === undefined) {
+                    // Add launchContext
+                    if (!Array.isArray(fhir.extension)) {
+                        fhir.extension = [];
+                    }
+                    var name = 'patient';
+                    var type = 'Patient';
+                    var description = 'For filling in patient information as the subject for the form';
+                    fhir.extension.push({
+                        url: this.LAUNCH_CONTEXT_URI,
+                        extension: [
+                            { url: 'name', valueId: name },
+                            { url: 'type', valueCode: type },
+                            { url: 'description', valueString: description }
+                        ]
+                    });
+                    this.uneditableVariables.push({
+                        name: name,
+                        type: type,
+                        description: description
+                    });
+                    this.uneditableVariablesChange.next(this.uneditableVariables);
+                }
+            }
             return fhir;
         };
         /**
          * Takes FHIR questionnaire definition and a linkId and returns the FHIR
          * Questionnaire with a calculated expression at the given linkId which sums up
          * all the ordinal values in the questionnaire
+         * @param questionnaire - FHIR Questionnaire
+         * @param linkId - Question linkId
          */
-        RuleEditorService.prototype.addTotalScoreRule = function (fhir, linkId) {
-            this.fhir = fhir;
+        RuleEditorService.prototype.addTotalScoreRule = function (questionnaire, linkId) {
+            this.fhir = questionnaire;
             this.linkIdContext = linkId;
             return this.addSumOfScores();
         };
@@ -4717,22 +4903,64 @@
             return fhir;
         };
         /**
-         * Removes any score calculation added by the rule editor
+         * Checks if the referenced Questionnaire item is a score calculation added by
+         * the Rule Editor
          * @param questionnaire - FHIR Questionnaire
+         * @param linkId - Questionnaire item Link ID to check
+         * @return True if the question at linkId is a score calculation created by
+         * the Rule Editor, false otherwise
+         */
+        RuleEditorService.prototype.isScoreCalculation = function (questionnaire, linkId) {
+            var _this = this;
+            var checkForScore = function (item) {
+                if (linkId === item.linkId) {
+                    var isScore = item.extension.find(function (extension) { return !!_this.isScoreExtension(extension); });
+                    if (isScore) {
+                        return true;
+                    }
+                }
+                if (item.item) {
+                    var subItemHasScore = item.item.find(function (subItem) { return checkForScore(subItem); });
+                    if (subItemHasScore) {
+                        return true;
+                    }
+                }
+                return false;
+            };
+            return !!questionnaire.item.find(function (item) { return checkForScore(item); });
+        };
+        /**
+         * Updates a FHIR questionnaire score calculation on the item identified by
+         * the linkId
+         * @param questionnaire - FHIR Questionnaire
+         * @param linkId - Questionnaire item Link ID to update
+         * @return Questionnaire with updated calculation
+         */
+        RuleEditorService.prototype.updateScoreCalculation = function (questionnaire, linkId) {
+            this.removeSumOfScores(questionnaire, linkId);
+            return this.addTotalScoreRule(questionnaire, linkId);
+        };
+        /**
+         * Removes score calculations added by the rule editor on the entire
+         * questionnaire or on a specific item
+         * @param questionnaire - FHIR Questionnaire
+         * @param linkId - Questionnaire item Link ID where to remove score. If empty
+         * try to remove scores from all items.
          * @return Questionnaire without the score calculation variable and expression
          */
-        RuleEditorService.prototype.removeSumOfScores = function (questionnaire) {
+        RuleEditorService.prototype.removeSumOfScores = function (questionnaire, linkId) {
             var _this = this;
-            // Deep copy
-            var questionnaireWithoutScores = copy(questionnaire);
+            this.fhir = questionnaire;
             var removeItemScoreVariables = function (item) {
-                item.extension = item.extension.filter(function (extension) { return !_this.isScoreExtension(extension); });
+                if (linkId === undefined || linkId === item.linkId) {
+                    item.extension = item.extension.filter(function (extension) { return !_this.isScoreExtension(extension); });
+                }
                 if (item.item) {
                     item.item.forEach(function (subItem) { return removeItemScoreVariables(subItem); });
                 }
             };
-            questionnaireWithoutScores.item.forEach(removeItemScoreVariables);
-            return questionnaireWithoutScores;
+            this.fhir.item.forEach(removeItemScoreVariables);
+            return this.fhir;
         };
         /**
          * Returns true if the extension has an extension for calculating score false otherwise
@@ -4811,8 +5039,10 @@
     RuleEditorService.ctorParameters = function () { return []; };
 
     var RuleEditorComponent = /** @class */ (function () {
-        function RuleEditorComponent(variableService) {
+        function RuleEditorComponent(variableService, liveAnnouncer) {
             this.variableService = variableService;
+            this.liveAnnouncer = liveAnnouncer;
+            this.advancedInterface = false;
             this.fhirQuestionnaire = null;
             this.itemLinkId = null;
             this.submitButtonName = 'Submit';
@@ -4821,9 +5051,27 @@
             this.expressionUri = 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression';
             this.lhcStyle = {};
             this.save = new i0.EventEmitter();
+            this.errorLoading = 'Could not detect a FHIR Questionnaire; please try a different file.';
             this.datePipe = new common.DatePipe('en-US');
             this.suggestions = [];
+            this.disableInterfaceToggle = false;
+            this.loadError = false;
         }
+        RuleEditorComponent.prototype.ngOnInit = function () {
+            var _this = this;
+            this.calculateSumSubscription = this.variableService.mightBeScoreChange.subscribe(function (mightBeScore) {
+                _this.calculateSum = mightBeScore;
+            });
+            this.finalExpressionSubscription = this.variableService.finalExpressionChange.subscribe(function (finalExpression) {
+                _this.finalExpression = finalExpression;
+            });
+            this.variablesSubscription = this.variableService.variablesChange.subscribe(function (variables) {
+                _this.variables = variables.map(function (e) { return e.label; });
+            });
+            this.disableAdvancedSubscription = this.variableService.disableAdvancedChange.subscribe(function (disable) {
+                _this.disableInterfaceToggle = disable;
+            });
+        };
         /**
          * Angular lifecycle hook called before the component is destroyed
          */
@@ -4831,6 +5079,7 @@
             this.calculateSumSubscription.unsubscribe();
             this.finalExpressionSubscription.unsubscribe();
             this.variablesSubscription.unsubscribe();
+            this.disableAdvancedSubscription.unsubscribe();
         };
         /**
          * Angular lifecycle hook called on input changes
@@ -4842,25 +5091,21 @@
          * Re-import fhir and context and show the form
          */
         RuleEditorComponent.prototype.reload = function () {
-            var _this = this;
             if (this.fhirQuestionnaire !== null && this.itemLinkId !== null) {
-                this.variableService.import(this.expressionUri, this.fhirQuestionnaire, this.itemLinkId);
+                this.loadError = !this.variableService.import(this.expressionUri, this.fhirQuestionnaire, this.itemLinkId);
+                if (this.loadError) {
+                    this.liveAnnouncer.announce(this.errorLoading);
+                }
+                this.disableInterfaceToggle = this.variableService.needsAdvancedInterface;
+                this.advancedInterface = this.variableService.needsAdvancedInterface;
             }
             this.simpleExpression = this.variableService.simpleExpression;
             this.linkIdContext = this.variableService.linkIdContext;
             this.expressionSyntax = this.variableService.syntaxType;
+            this.caseStatements = this.variableService.caseStatements;
             this.calculateSum = this.variableService.mightBeScore;
-            this.calculateSumSubscription = this.variableService.mightBeScoreChange.subscribe(function (mightBeScore) {
-                _this.calculateSum = mightBeScore;
-            });
             this.finalExpression = this.variableService.finalExpression;
-            this.finalExpressionSubscription = this.variableService.finalExpressionChange.subscribe(function (finalExpression) {
-                _this.finalExpression = finalExpression;
-            });
             this.variables = this.variableService.variables.map(function (e) { return e.label; });
-            this.variablesSubscription = this.variableService.variablesChange.subscribe(function (variables) {
-                _this.variables = variables.map(function (e) { return e.label; });
-            });
         };
         /**
          * Export FHIR Questionnaire and download as a file
@@ -4893,20 +5138,48 @@
         RuleEditorComponent.prototype.updateFinalExpression = function (expression) {
             this.finalExpression = expression;
         };
+        /**
+         * Update the simple final expression
+         */
+        RuleEditorComponent.prototype.updateSimpleExpression = function (simple) {
+            this.simpleExpression = simple;
+        };
+        /**
+         * Toggle the advanced interface based on the type
+         */
+        RuleEditorComponent.prototype.onTypeChange = function (event) {
+            if (event.target.value === 'fhirpath') {
+                this.variableService.checkAdvancedInterface(true);
+            }
+            else {
+                // Need to check all other variables and the final expression before we
+                // allow the advanced interface to be removed
+                this.variableService.checkAdvancedInterface();
+            }
+            if (this.variableService.needsAdvancedInterface) {
+                this.advancedInterface = true;
+                this.disableInterfaceToggle = true;
+            }
+            else {
+                this.disableInterfaceToggle = false;
+            }
+        };
         return RuleEditorComponent;
     }());
     RuleEditorComponent.decorators = [
         { type: i0.Component, args: [{
                     // tslint:disable-next-line:component-selector
                     selector: 'lhc-rule-editor',
-                    template: "<lhc-calculate-sum-prompt *ngIf=\"calculateSum\" (export)=\"addSumOfScores()\" [lhcStyle]=\"lhcStyle\"></lhc-calculate-sum-prompt>\n<div *ngIf=\"!calculateSum\">\n  <h1 [style]=\"lhcStyle.h1\">{{titleName}}</h1>\n\n  <section id=\"uneditable-variables-section\" class=\"mb-3\">\n    <lhc-uneditable-variables></lhc-uneditable-variables>\n  </section>\n\n  <section id=\"variables-section\" class=\"mb-3\">\n    <lhc-variables [lhcStyle]=\"lhcStyle\"></lhc-variables>\n  </section>\n\n  <section id=\"final-expression-section\" class=\"mb-3\">\n    <h2 [style]=\"lhcStyle.h2\">{{expressionLabel}}</h2>\n\n    <div class=\"flex-container\">\n      <div class=\"expression-type\">\n        <select class=\"form-control\" [(ngModel)]=\"expressionSyntax\" aria-label=\"Expression syntax type\" [ngStyle]=\"lhcStyle.select\">\n          <option value=\"simple\">Simple Expression</option>\n          <option value=\"fhirpath\">FHIRPath Expression</option>\n        </select>\n      </div>\n      <div class=\"expression\" [ngSwitch]=\"expressionSyntax\">\n        <lhc-syntax-converter [expression]=\"simpleExpression\" [variables]=\"variables\" *ngSwitchCase=\"'simple'\" (expressionChange)=\"updateFinalExpression($event)\" [lhcStyle]=\"lhcStyle\"></lhc-syntax-converter>\n        <input aria-label=\"FHIRPath\" *ngSwitchCase=\"'fhirpath'\" id=\"final-expression\" class=\"form-control\" [(ngModel)]=\"finalExpression\" [ngStyle]=\"lhcStyle.input\">\n      </div>\n    </div>\n    <div *ngIf=\"suggestions.length\">{{suggestions|json}}</div>\n  </section>\n\n  <button class=\"primary\" (click)=\"export()\" [ngStyle]=\"lhcStyle.buttonPrimary\" id=\"export\">{{submitButtonName}}</button>\n</div>\n",
-                    styles: [".toolbar-button{height:2.7rem}.file-import{width:4.6rem;color:transparent}.file-import::-webkit-file-upload-button{visibility:hidden}.file-import:before{content:\"Import\";display:inline-block;cursor:pointer;color:#fff}mat-radio-button{margin-left:1em}h1{margin-top:0}.flex-container{display:flex;flex-wrap:wrap;flex-direction:row}.expression,.expression-type{padding:.5rem}.expression-type{flex:0 0 15em}.expression{flex:1 0 auto}input,select{height:2rem;font-size:1rem;width:100%;margin-bottom:.5rem;box-sizing:border-box;border:1px solid #999;background-color:#fff;border-radius:4px;padding:0 .5em}button{height:2.5rem;border:none;border-radius:4px;padding:0 2em;font-size:1rem}.primary{background-color:#00f;color:#fff}@media (max-width:975px){.flex-container{flex-direction:column}.expression,.expression-type{flex:100%}}"]
+                    template: "<div *ngIf=\"loadError\" class=\"error\">{{errorLoading}}</div>\n<lhc-calculate-sum-prompt *ngIf=\"calculateSum && !loadError\" (export)=\"addSumOfScores()\" [lhcStyle]=\"lhcStyle\"></lhc-calculate-sum-prompt>\n<div *ngIf=\"!calculateSum && !loadError\">\n  <h1 [style]=\"lhcStyle.h1\">{{titleName}}</h1>\n\n  <span class=\"checkbox\" matTooltip=\"When in the advanced interface you can edit FHIRPath and x-fhir-query directly. This mode is automatically enabled for complex Questionnaires.\">\n    <input type=\"checkbox\" id=\"advanced-interface\" [disabled]=\"disableInterfaceToggle\"\n           [(ngModel)]=\"advancedInterface\">\n    <label for=\"advanced-interface\">Advanced interface</label>\n  </span>\n\n  <section id=\"uneditable-variables-section\" class=\"mb-3\">\n    <lhc-uneditable-variables></lhc-uneditable-variables>\n  </section>\n\n  <section id=\"variables-section\" class=\"mb-3\">\n    <lhc-variables [lhcStyle]=\"lhcStyle\" [advancedInterface]=\"advancedInterface\"></lhc-variables>\n  </section>\n\n  <section id=\"final-expression-section\" class=\"mb-3\">\n    <h2 [style]=\"lhcStyle.h2\">{{expressionLabel}}</h2>\n\n    <div class=\"checkbox\">\n      <input type=\"checkbox\" id=\"case-statements\" [(ngModel)]=\"caseStatements\">\n      <label for=\"case-statements\">Use case statements</label>\n    </div>\n\n    <div class=\"flex-container\">\n      <div class=\"expression-type\" *ngIf=\"advancedInterface\">\n        <select class=\"form-control\" [(ngModel)]=\"expressionSyntax\" (change)=\"onTypeChange($event)\" aria-label=\"Expression syntax type\" [ngStyle]=\"lhcStyle.select\">\n          <option value=\"simple\">Easy Path Expression</option>\n          <option value=\"fhirpath\">FHIRPath Expression</option>\n        </select>\n      </div>\n      <div *ngIf=\"!caseStatements\" class=\"expression\" [ngSwitch]=\"expressionSyntax\">\n        <lhc-syntax-converter\n          *ngSwitchCase=\"'simple'\"\n          [simple]=\"simpleExpression\"\n          [variables]=\"variables\"\n          (expressionChange)=\"updateFinalExpression($event)\"\n          (simpleChange)=\"updateSimpleExpression($event)\"\n          [lhcStyle]=\"lhcStyle\"></lhc-syntax-converter>\n        <input type=\"text\" aria-label=\"FHIRPath\" *ngSwitchCase=\"'fhirpath'\" id=\"final-expression\" class=\"form-control\" [(ngModel)]=\"finalExpression\" [ngStyle]=\"lhcStyle.input\">\n      </div>\n      <lhc-case-statements\n        *ngIf=\"caseStatements\"\n        [syntax]=\"expressionSyntax\"\n        [simpleExpression]=\"simpleExpression\"\n        [expression]=\"finalExpression\"\n        [lhcStyle]=\"lhcStyle\"\n        (expressionChange)=\"updateFinalExpression($event)\"\n        (simpleChange)=\"updateSimpleExpression($event)\">\n      </lhc-case-statements>\n    </div>\n  </section>\n\n  <button class=\"primary\" (click)=\"export()\" [ngStyle]=\"lhcStyle.buttonPrimary\" id=\"export\">{{submitButtonName}}</button>\n</div>\n",
+                    styles: [".toolbar-button{height:2.7rem}.file-import{width:4.6rem;color:transparent}.file-import::-webkit-file-upload-button{visibility:hidden}.file-import:before{content:\"Import\";display:inline-block;cursor:pointer;color:#fff}mat-radio-button{margin-left:1em}h1{margin-top:0}.flex-container{display:flex;flex-wrap:wrap;flex-direction:row}.expression,.expression-type{display:flex;padding:.5rem}.expression-type{flex:0 0 15em}.expression{flex:1 0 30em;min-width:0}input[type=text],select{height:2rem;font-size:1rem;width:100%;margin-bottom:.5rem;box-sizing:border-box;border:1px solid #999;background-color:#fff;border-radius:4px;padding:0 .5em}button{height:2.5rem;border:none;border-radius:4px;padding:0 2em;font-size:1rem}.primary{background-color:#00f;color:#fff}lhc-case-statements{flex:100%;padding:.5rem}.checkbox{padding:.5rem}@media (max-width:975px){.flex-container{flex-direction:column}.expression,.expression-type{flex:100%}}"]
                 },] }
     ];
     RuleEditorComponent.ctorParameters = function () { return [
-        { type: RuleEditorService }
+        { type: RuleEditorService },
+        { type: a11y.LiveAnnouncer }
     ]; };
     RuleEditorComponent.propDecorators = {
+        advancedInterface: [{ type: i0.Input }],
         fhirQuestionnaire: [{ type: i0.Input }],
         itemLinkId: [{ type: i0.Input }],
         submitButtonName: [{ type: i0.Input }],
@@ -7654,7 +7927,7 @@
                 bufferSize: configOrBufferSize,
                 windowTime: windowTime,
                 refCount: false,
-                scheduler: scheduler
+                scheduler: scheduler,
             };
         }
         return function (source) { return source.lift(shareReplayOperator(config)); };
@@ -7674,7 +7947,9 @@
                 subject = new ReplaySubject(bufferSize, windowTime, scheduler);
                 innerSub = subject.subscribe(this);
                 subscription = source.subscribe({
-                    next: function (value) { subject.next(value); },
+                    next: function (value) {
+                        subject.next(value);
+                    },
                     error: function (err) {
                         hasError = true;
                         subject.error(err);
@@ -7685,6 +7960,9 @@
                         subject.complete();
                     },
                 });
+                if (isComplete) {
+                    subscription = undefined;
+                }
             }
             else {
                 innerSub = subject.subscribe(this);
@@ -7692,6 +7970,7 @@
             this.add(function () {
                 refCount--;
                 innerSub.unsubscribe();
+                innerSub = undefined;
                 if (subscription && !isComplete && useRefCount && refCount === 0) {
                     subscription.unsubscribe();
                     subscription = undefined;
@@ -9261,7 +9540,7 @@
      * behave differently between iOS and Android.
      */
     function _isAndroid() {
-        var userAgent = common.ɵgetDOM() ? common.ɵgetDOM().getUserAgent() : '';
+        var userAgent = common["ɵgetDOM"]() ? common["ɵgetDOM"]().getUserAgent() : '';
         return /android (\d+)/.test(userAgent.toLowerCase());
     }
     /**
@@ -9847,8 +10126,8 @@
         return o != null;
     }
     function toObservable(r) {
-        var obs = i0.ɵisPromise(r) ? from(r) : r;
-        if (!(i0.ɵisObservable(obs)) && (typeof ngDevMode === 'undefined' || ngDevMode)) {
+        var obs = i0["ɵisPromise"](r) ? from(r) : r;
+        if (!(i0["ɵisObservable"](obs)) && (typeof ngDevMode === 'undefined' || ngDevMode)) {
             throw new Error("Expected validator to return Promise or Observable.");
         }
         return obs;
@@ -15983,198 +16262,6 @@
                 },] }
     ];
 
-    var VariableType;
-    (function (VariableType) {
-        VariableType["question"] = "Question";
-        VariableType["expression"] = "FHIRPath Expression";
-        VariableType["simple"] = "Simple Expression";
-    })(VariableType || (VariableType = {}));
-
-    var VariablesComponent = /** @class */ (function () {
-        function VariablesComponent(ruleEditorService) {
-            this.ruleEditorService = ruleEditorService;
-            this.lhcStyle = {};
-            this.variableType = VariableType;
-            this.levels = [{
-                    level: 0,
-                    name: 'Top Level Scope'
-                }
-            ];
-        }
-        /**
-         * Angular lifecycle hook called when the component is initialized
-         */
-        VariablesComponent.prototype.ngOnInit = function () {
-            var _this = this;
-            this.variables = this.ruleEditorService.variables;
-            this.variableSubscription = this.ruleEditorService.variablesChange.subscribe(function (variables) {
-                _this.variables = variables;
-            });
-        };
-        /**
-         * Angular lifecycle hook called before the component is destroyed
-         */
-        VariablesComponent.prototype.ngDestroy = function () {
-            this.variableSubscription.unsubscribe();
-        };
-        /**
-         * Called when adding a new variable
-         */
-        VariablesComponent.prototype.onAdd = function () {
-            this.ruleEditorService.addVariable();
-        };
-        /**
-         * Remove a variable at an index
-         * @param i - index to remove
-         */
-        VariablesComponent.prototype.onRemove = function (i) {
-            this.ruleEditorService.remove(i);
-        };
-        /**
-         * Drag and drop rearrange of variable order
-         * @param event - drag and drop event
-         */
-        VariablesComponent.prototype.drop = function (event) {
-            dragDrop.moveItemInArray(this.variables, event.previousIndex, event.currentIndex);
-        };
-        /**
-         * Get the labels of available variables at the current index
-         * @param index - Index of variable we're editing
-         */
-        VariablesComponent.prototype.getAvailableVariables = function (index) {
-            var uneditableVariables = this.ruleEditorService.uneditableVariables.map(function (e) { return e.name; });
-            // Only return variables up to but not including index
-            var editableVariables = this.variables.map(function (e) { return e.label; }).slice(0, index);
-            return uneditableVariables.concat(editableVariables);
-        };
-        return VariablesComponent;
-    }());
-    VariablesComponent.decorators = [
-        { type: i0.Component, args: [{
-                    selector: 'lhc-variables',
-                    template: "<h2 [style]=\"lhcStyle.h2\">Variables</h2>\n\n<div class=\"container\">\n  <div class=\"variable-header\" [style]=\"lhcStyle.variableHeader\" aria-hidden=\"true\">\n    <div class=\"variable-column-label\">Label</div>\n    <div class=\"variable-column-type\">Type</div>\n    <div class=\"variable-column-details\">Question/FHIRPath Expression</div>\n    <div class=\"variable-column-actions\">Actions</div>\n  </div>\n  <div cdkDropList (cdkDropListDropped)=\"drop($event)\">\n    <div class=\"variable-row drag-variable\" [style]=\"lhcStyle.variableRow\" *ngFor=\"let variable of variables; index as i\" [id]=\"'row-' + i\" cdkDrag>\n      <div class=\"variable-column-label\">\n        <!-- Inline SVG for the row drag and drop handle -->\n        <svg cdkDragHandle xmlns=\"http://www.w3.org/2000/svg\" width=\"20\" height=\"20\" fill=\"currentColor\" class=\"handle\" viewBox=\"0 0 16 16\">\n          <path d=\"M7 2a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zM7 5a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zM7 8a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0z\"/>\n        </svg>\n        <input [id]=\"'variable-label-' + i\" [(ngModel)]=\"variable.label\" [style]=\"lhcStyle.input\" class=\"label\" aria-label=\"Variable label\" />\n      </div>\n      <div class=\"variable-column-type\">\n        <select [id]=\"'variable-type-' + i\" [(ngModel)]=\"variable.type\" [style]=\"lhcStyle.select\" aria-label=\"Variable type\">\n          <option value=\"\" disabled hidden>Select...</option>\n          <option *ngFor=\"let type of variableType | keyvalue\" value=\"{{type.key}}\">{{type.value}}</option>\n        </select>\n      </div>\n      <div class=\"variable-column-details\" [ngSwitch]=\"variable.type\">\n        <lhc-question [variable]=\"variable\" *ngSwitchCase=\"'question'\" [lhcStyle]=\"lhcStyle\"></lhc-question>\n        <div class=\"form-inline\" *ngSwitchCase=\"'simple'\">\n          <input [id]=\"'variable-expression-' + i\" [(ngModel)]=\"variable.simple\" [style]=\"lhcStyle.input\"\n                 aria-label=\"Simple Expression\" />\n          <lhc-syntax-preview [syntax]=\"variable.simple | mathToFhirpath:getAvailableVariables(i)\" [lhcStyle]=\"lhcStyle\"></lhc-syntax-preview>\n        </div>\n        <div class=\"form-inline\" *ngSwitchCase=\"'expression'\">\n          <input [id]=\"'variable-expression-' + i\" [(ngModel)]=\"variable.expression\" [style]=\"lhcStyle.input\" aria-label=\"FHIRPath Expression\" />\n        </div>\n      </div>\n      <div class=\"variable-column-actions\">\n        <button class=\"btn btn-danger remove-variable\" aria-label=\"Remove Line\" [style]=\"lhcStyle.buttonDanger\" (click)=\"onRemove(i)\">x</button>\n      </div>\n    </div>\n    <div *ngIf=\"!variables.length\" class=\"no-variables\">No variables, please <a href=\"#\" (click)=\"onAdd()\">add one</a>.</div>\n  </div>\n</div>\n\n<button id=\"add-variable\" class=\"btn btn-secondary mt-2\" (click)=\"onAdd()\" [ngStyle]=\"lhcStyle.buttonSecondary\">Add variable</button>\n",
-                    styles: ["*{box-sizing:border-box}.variable-header,.variable-row{display:flex;flex-direction:row;flex-wrap:wrap}.variable-column-label>input,.variable-column-type select{width:100%;height:2rem;font-size:1rem}.variable-column-details,.variable-column-label,.variable-column-type{padding:.5rem}.variable-column-label{display:flex;flex:0 0 12em}.label{flex-grow:100}.variable-column-type{flex:0 0 13em}.variable-column-details{flex:1 0 25em;min-width:0}.variable-column-actions button{height:2rem;width:2rem;background-color:#8b0000;color:#fff;padding:0}.variable-column-actions{flex:0 0 auto;padding-top:.5rem;padding-left:.5rem}@media (max-width:975px){.variable-row{flex-direction:column}.variable-column-label,.variable-column-type{flex:100%}.variable-column-details{flex:20 0 10em}.variable-column-actions{flex:auto}}.drag-variable{padding:.75rem 0;border-top:1px solid rgba(0,0,0,.1);color:rgba(0,0,0,.87);display:flex;flex-direction:row;justify-content:space-between;box-sizing:border-box;background:#fff}.handle{cursor:move;margin-top:.4rem}.no-variables{padding:2rem}.cdk-drag-preview{box-sizing:border-box;border-radius:4px;box-shadow:0 5px 5px -3px rgba(0,0,0,.2),0 8px 10px 1px rgba(0,0,0,.14),0 3px 14px 2px rgba(0,0,0,.12)}.cdk-drag-placeholder{opacity:0}.cdk-drag-animating{transition:transform .25s cubic-bezier(0,0,.2,1)}input,select{height:2rem;font-size:1rem;width:100%;margin-bottom:.5rem;box-sizing:border-box;border:1px solid #999;background-color:#fff;border-radius:4px;padding:0 .5em}button{height:2.5rem;border:none;border-radius:4px;padding:0 2em;font-size:1rem}"]
-                },] }
-    ];
-    VariablesComponent.ctorParameters = function () { return [
-        { type: RuleEditorService }
-    ]; };
-    VariablesComponent.propDecorators = {
-        lhcStyle: [{ type: i0.Input }]
-    };
-
-    var UneditableVariablesComponent = /** @class */ (function () {
-        function UneditableVariablesComponent(variableService) {
-            this.variableService = variableService;
-        }
-        /**
-         * Angular lifecycle hook called when the component is initialized
-         */
-        UneditableVariablesComponent.prototype.ngOnInit = function () {
-            var _this = this;
-            this.uneditableVariables = this.variableService.uneditableVariables;
-            this.uneditableVariablesSubscription =
-                this.variableService.uneditableVariablesChange.subscribe(function (variables) {
-                    _this.uneditableVariables = variables;
-                });
-        };
-        /**
-         * Angular lifecycle hook called before the component is destroyed
-         */
-        UneditableVariablesComponent.prototype.ngDestroy = function () {
-            this.uneditableVariablesSubscription.unsubscribe();
-        };
-        return UneditableVariablesComponent;
-    }());
-    UneditableVariablesComponent.decorators = [
-        { type: i0.Component, args: [{
-                    selector: 'lhc-uneditable-variables',
-                    template: "<div *ngIf=\"uneditableVariables.length\">\n  <h2>Un-editable Variables</h2>\n\n  <div class=\"container mb-4\">\n    <div class=\"row font-weight-bold\" aria-hidden=\"true\">\n      <div class=\"col-2\">Label</div>\n      <div class=\"col-2\">Type</div>\n      <div class=\"col-8\">Description</div>\n    </div>\n    <hr>\n    <div class=\"row\" *ngFor=\"let variable of uneditableVariables\">\n      <div class=\"col-2\"><span class=\"sr-only\">Label</span>{{variable.name}}</div>\n      <div class=\"col-2\"><span class=\"sr-only\">Label</span>{{variable.type}}</div>\n      <div class=\"col-8\"><span class=\"sr-only\">Description</span>{{variable.description}}</div>\n    </div>\n  </div>\n</div>\n"
-                },] }
-    ];
-    UneditableVariablesComponent.ctorParameters = function () { return [
-        { type: RuleEditorService }
-    ]; };
-
-    var QuestionComponent = /** @class */ (function () {
-        function QuestionComponent(variableService) {
-            this.variableService = variableService;
-            this.lhcStyle = {};
-            this.linkId = '';
-            this.itemHasScore = false;
-            this.isNonConvertibleUnit = false;
-        }
-        /**
-         * Angular lifecycle hook called when the component is initialized
-         */
-        QuestionComponent.prototype.ngOnInit = function () {
-            var _this = this;
-            this.linkId = this.variable.linkId ? this.variable.linkId : '';
-            this.toUnit = this.variable.unit ? this.variable.unit : '';
-            this.questions = this.variableService.questions;
-            this.onChange(false);
-            this.variableService.questionsChange.subscribe(function (questions) {
-                _this.questions = questions;
-            });
-        };
-        /**
-         * Get the question based on linkId
-         * @param linkId - FHIR linkId
-         */
-        QuestionComponent.prototype.getQuestion = function (linkId) {
-            return this.questions.find(function (q) {
-                return q.linkId === linkId;
-            });
-        };
-        /**
-         * Get the list of units we can convert to based on the starting unit
-         * @param unit - Starting unit
-         */
-        QuestionComponent.prototype.getConversionOptions = function (unit) {
-            return UNIT_CONVERSION[unit];
-        };
-        /**
-         * Called when the questionnaire question or unit is changed
-         * @param isQuestion - The change was for a question
-         */
-        QuestionComponent.prototype.onChange = function (isQuestion) {
-            if (isQuestion) {
-                // Reset the conversion options when the question changes
-                this.toUnit = '';
-            }
-            // If we already have a question selected (as opposed to the select... prompt)
-            if (this.linkId) {
-                var question = this.getQuestion(this.linkId);
-                this.unit = question === null || question === void 0 ? void 0 : question.unit;
-                this.conversionOptions = this.getConversionOptions(this.unit);
-                this.isNonConvertibleUnit = this.unit && !this.conversionOptions;
-                // Check if this is a score
-                if (!this.conversionOptions && !this.isNonConvertibleUnit) {
-                    this.itemHasScore = this.variableService.itemHasScore(this.linkId);
-                }
-                else {
-                    this.itemHasScore = false;
-                }
-                this.variable.expression = this.variableService.valueOrScoreExpression(this.linkId, this.itemHasScore, !this.isNonConvertibleUnit, this.unit, this.toUnit);
-            }
-        };
-        return QuestionComponent;
-    }());
-    QuestionComponent.decorators = [
-        { type: i0.Component, args: [{
-                    selector: 'lhc-question',
-                    template: "<div class=\"form-inline question\">\n  <div class=\"question-select\">\n    <select [(ngModel)]=\"linkId\" (change)=\"onChange(true)\" [style]=\"lhcStyle.select\" aria-label=\"Question\">\n      <option value=\"\" disabled hidden>Select...</option>\n      <option *ngFor=\"let question of questions\" [value]=\"question.linkId\">\n        {{question.text + ' (' + question.linkId + ')'}}\n      </option>\n    </select>\n  </div>\n\n  <div class=\"unit-select\">\n    <select *ngIf=\"conversionOptions\" [(ngModel)]=\"toUnit\" [style]=\"lhcStyle.select\"\n            (change)=\"onChange(false)\" aria-label=\"Unit conversion\">\n      <option value=\"\">Keep form units ({{unit}})</option>\n      <option *ngFor=\"let u of conversionOptions\" value=\"{{u.unit}}\">Convert to {{u.unit}}</option>\n    </select>\n\n    <div *ngIf=\"isNonConvertibleUnit\" class=\"detail\">{{unit}}</div>\n    <div *ngIf=\"itemHasScore\" class=\"detail\">Score</div>\n  </div>\n</div>\n\n<lhc-syntax-preview [syntax]=\"variable.expression\" [lhcStyle]=\"lhcStyle\"></lhc-syntax-preview>\n",
-                    styles: [".question{display:flex;flex-wrap:wrap;flex-direction:row}.detail{margin-top:.5rem}.question-select,.unit-select{box-sizing:border-box;margin-bottom:.5rem}.question-select{flex:50%;padding-right:.5rem}.unit-select{flex:50%;padding-left:.5rem}select{width:100%;font-size:1rem;height:2rem}@media (max-width:975px){.question{flex-direction:column}.question-select,.unit-select{flex:100%;padding:0}}input,select{height:2rem;font-size:1rem;width:100%;margin-bottom:.5rem;box-sizing:border-box;border:1px solid #999;background-color:#fff;border-radius:4px;padding:0 .5em}"]
-                },] }
-    ];
-    QuestionComponent.ctorParameters = function () { return [
-        { type: RuleEditorService }
-    ]; };
-    QuestionComponent.propDecorators = {
-        variable: [{ type: i0.Input }],
-        lhcStyle: [{ type: i0.Input }]
-    };
-
     /**
      * @license Angular v11.0.9
      * (c) 2010-2020 Google LLC. https://angular.io/
@@ -16202,7 +16289,7 @@
             return true;
         };
         return GenericBrowserDomAdapter;
-    }(common.ɵDomAdapter));
+    }(common["ɵDomAdapter"]));
     /**
      * @license
      * Copyright Google LLC All Rights Reserved.
@@ -16211,8 +16298,8 @@
      * found in the LICENSE file at https://angular.io/license
      */
     var ɵ0 = function () {
-        if (i0.ɵglobal['Node']) {
-            return i0.ɵglobal['Node'].prototype.contains || function (node) {
+        if (i0["ɵglobal"]['Node']) {
+            return i0["ɵglobal"]['Node'].prototype.contains || function (node) {
                 return !!(this.compareDocumentPosition(node) & 16);
             };
         }
@@ -16232,7 +16319,7 @@
             return _super !== null && _super.apply(this, arguments) || this;
         }
         BrowserDomAdapter.makeCurrent = function () {
-            common.ɵsetRootDomAdapter(new BrowserDomAdapter());
+            common["ɵsetRootDomAdapter"](new BrowserDomAdapter());
         };
         BrowserDomAdapter.prototype.getProperty = function (el, name) {
             return el[name];
@@ -16326,7 +16413,7 @@
             return true;
         };
         BrowserDomAdapter.prototype.getCookie = function (name) {
-            return common.ɵparseCookieValue(document.cookie, name);
+            return common["ɵparseCookieValue"](document.cookie, name);
         };
         return BrowserDomAdapter;
     }(GenericBrowserDomAdapter));
@@ -16367,7 +16454,7 @@
             // Wait for all application initializers to be completed before removing the styles set by
             // the server.
             injector.get(i0.ApplicationInitStatus).donePromise.then(function () {
-                var dom = common.ɵgetDOM();
+                var dom = common["ɵgetDOM"]();
                 var styles = Array.prototype.slice.apply(document.querySelectorAll("style[ng-transition]"));
                 styles.filter(function (el) { return el.getAttribute('ng-transition') === transitionId; })
                     .forEach(function (el) { return dom.remove(el); });
@@ -16396,7 +16483,7 @@
             i0.setTestabilityGetter(new BrowserGetTestability());
         };
         BrowserGetTestability.prototype.addToWindow = function (registry) {
-            i0.ɵglobal['getAngularTestability'] = function (elem, findInAncestors) {
+            i0["ɵglobal"]['getAngularTestability'] = function (elem, findInAncestors) {
                 if (findInAncestors === void 0) { findInAncestors = true; }
                 var testability = registry.findTestabilityInTree(elem, findInAncestors);
                 if (testability == null) {
@@ -16404,10 +16491,10 @@
                 }
                 return testability;
             };
-            i0.ɵglobal['getAllAngularTestabilities'] = function () { return registry.getAllTestabilities(); };
-            i0.ɵglobal['getAllAngularRootElements'] = function () { return registry.getAllRootElements(); };
+            i0["ɵglobal"]['getAllAngularTestabilities'] = function () { return registry.getAllTestabilities(); };
+            i0["ɵglobal"]['getAllAngularRootElements'] = function () { return registry.getAllRootElements(); };
             var whenAllStable = function (callback /** TODO #9100 */) {
-                var testabilities = i0.ɵglobal['getAllAngularTestabilities']();
+                var testabilities = i0["ɵglobal"]['getAllAngularTestabilities']();
                 var count = testabilities.length;
                 var didWork = false;
                 var decrement = function (didWork_ /** TODO #9100 */) {
@@ -16421,10 +16508,10 @@
                     testability.whenStable(decrement);
                 });
             };
-            if (!i0.ɵglobal['frameworkStabilizers']) {
-                i0.ɵglobal['frameworkStabilizers'] = [];
+            if (!i0["ɵglobal"]['frameworkStabilizers']) {
+                i0["ɵglobal"]['frameworkStabilizers'] = [];
             }
-            i0.ɵglobal['frameworkStabilizers'].push(whenAllStable);
+            i0["ɵglobal"]['frameworkStabilizers'].push(whenAllStable);
         };
         BrowserGetTestability.prototype.findTestabilityInTree = function (registry, elem, findInAncestors) {
             if (elem == null) {
@@ -16437,7 +16524,7 @@
             else if (!findInAncestors) {
                 return null;
             }
-            if (common.ɵgetDOM().isShadowRoot(elem)) {
+            if (common["ɵgetDOM"]().isShadowRoot(elem)) {
                 return this.findTestabilityInTree(registry, elem.host, true);
             }
             return this.findTestabilityInTree(registry, elem.parentElement, true);
@@ -16484,7 +16571,7 @@
             // - closure declares globals itself for minified names, which sometimes clobber our `ng` global
             // - we can't declare a closure extern as the namespace `ng` is already used within Google
             //   for typings for angularJS (via `goog.provide('ng....')`).
-            var ng = i0.ɵglobal['ng'] = i0.ɵglobal['ng'] || {};
+            var ng = i0["ɵglobal"]['ng'] = i0["ɵglobal"]['ng'] || {};
             ng[name] = value;
         }
     }
@@ -16508,7 +16595,7 @@
      * with it.
      */
     function inspectNativeElementR2(element) {
-        return i0.ɵgetDebugNodeR2(element);
+        return i0["ɵgetDebugNodeR2"](element);
     }
     function _createNgProbeR2(coreTokens) {
         exportNgVar(INSPECT_GLOBAL_NAME, inspectNativeElementR2);
@@ -16632,7 +16719,7 @@
             this._doc = _doc;
         }
         EventManagerPlugin.prototype.addGlobalEventListener = function (element, eventName, handler) {
-            var target = common.ɵgetDOM().getGlobalEventTarget(this._doc, element);
+            var target = common["ɵgetDOM"]().getGlobalEventTarget(this._doc, element);
             if (!target) {
                 throw new Error("Unsupported event target " + target + " for event " + eventName);
             }
@@ -16702,7 +16789,7 @@
             this._hostNodes.forEach(function (hostNode) { return _this._addStylesToHost(additions, hostNode); });
         };
         DomSharedStylesHost.prototype.ngOnDestroy = function () {
-            this._styleNodes.forEach(function (styleNode) { return common.ɵgetDOM().remove(styleNode); });
+            this._styleNodes.forEach(function (styleNode) { return common["ɵgetDOM"]().remove(styleNode); });
         };
         return DomSharedStylesHost;
     }(SharedStylesHost));
@@ -17255,7 +17342,7 @@
     HammerGesturesPlugin.ctorParameters = function () { return [
         { type: undefined, decorators: [{ type: i0.Inject, args: [common.DOCUMENT,] }] },
         { type: HammerGestureConfig, decorators: [{ type: i0.Inject, args: [HAMMER_GESTURE_CONFIG,] }] },
-        { type: i0.ɵConsole },
+        { type: i0["ɵConsole"] },
         { type: undefined, decorators: [{ type: i0.Optional }, { type: i0.Inject, args: [HAMMER_LOADER,] }] }
     ]; };
     /**
@@ -17272,7 +17359,7 @@
             provide: EVENT_MANAGER_PLUGINS,
             useClass: HammerGesturesPlugin,
             multi: true,
-            deps: [common.DOCUMENT, HAMMER_GESTURE_CONFIG, i0.ɵConsole, [new i0.Optional(), HAMMER_LOADER]]
+            deps: [common.DOCUMENT, HAMMER_GESTURE_CONFIG, i0["ɵConsole"], [new i0.Optional(), HAMMER_LOADER]]
         },
         { provide: HAMMER_GESTURE_CONFIG, useClass: HammerGestureConfig, deps: [] },
     ];
@@ -17390,7 +17477,7 @@
             var parsedEvent = KeyEventsPlugin.parseEventName(eventName);
             var outsideHandler = KeyEventsPlugin.eventCallback(parsedEvent['fullKey'], handler, this.manager.getZone());
             return this.manager.getZone().runOutsideAngular(function () {
-                return common.ɵgetDOM().onAndCancel(element, parsedEvent['domEventName'], outsideHandler);
+                return common["ɵgetDOM"]().onAndCancel(element, parsedEvent['domEventName'], outsideHandler);
             });
         };
         KeyEventsPlugin.parseEventName = function (eventName) {
@@ -17539,7 +17626,7 @@
         }
         return DomSanitizer;
     }());
-    DomSanitizer.ɵprov = i0.ɵɵdefineInjectable({ factory: function DomSanitizer_Factory() { return i0.ɵɵinject(DomSanitizerImpl); }, token: DomSanitizer, providedIn: "root" });
+    DomSanitizer.ɵprov = i0["ɵɵdefineInjectable"]({ factory: function DomSanitizer_Factory() { return i0["ɵɵinject"](DomSanitizerImpl); }, token: DomSanitizer, providedIn: "root" });
     DomSanitizer.decorators = [
         { type: i0.Injectable, args: [{ providedIn: 'root', useExisting: i0.forwardRef(function () { return DomSanitizerImpl; }) },] }
     ];
@@ -17560,29 +17647,29 @@
                 case i0.SecurityContext.NONE:
                     return value;
                 case i0.SecurityContext.HTML:
-                    if (i0.ɵallowSanitizationBypassAndThrow(value, "HTML" /* Html */)) {
-                        return i0.ɵunwrapSafeValue(value);
+                    if (i0["ɵallowSanitizationBypassAndThrow"](value, "HTML" /* Html */)) {
+                        return i0["ɵunwrapSafeValue"](value);
                     }
-                    return i0.ɵ_sanitizeHtml(this._doc, String(value));
+                    return i0["ɵ_sanitizeHtml"](this._doc, String(value));
                 case i0.SecurityContext.STYLE:
-                    if (i0.ɵallowSanitizationBypassAndThrow(value, "Style" /* Style */)) {
-                        return i0.ɵunwrapSafeValue(value);
+                    if (i0["ɵallowSanitizationBypassAndThrow"](value, "Style" /* Style */)) {
+                        return i0["ɵunwrapSafeValue"](value);
                     }
                     return value;
                 case i0.SecurityContext.SCRIPT:
-                    if (i0.ɵallowSanitizationBypassAndThrow(value, "Script" /* Script */)) {
-                        return i0.ɵunwrapSafeValue(value);
+                    if (i0["ɵallowSanitizationBypassAndThrow"](value, "Script" /* Script */)) {
+                        return i0["ɵunwrapSafeValue"](value);
                     }
                     throw new Error('unsafe value used in a script context');
                 case i0.SecurityContext.URL:
-                    var type = i0.ɵgetSanitizationBypassType(value);
-                    if (i0.ɵallowSanitizationBypassAndThrow(value, "URL" /* Url */)) {
-                        return i0.ɵunwrapSafeValue(value);
+                    var type = i0["ɵgetSanitizationBypassType"](value);
+                    if (i0["ɵallowSanitizationBypassAndThrow"](value, "URL" /* Url */)) {
+                        return i0["ɵunwrapSafeValue"](value);
                     }
-                    return i0.ɵ_sanitizeUrl(String(value));
+                    return i0["ɵ_sanitizeUrl"](String(value));
                 case i0.SecurityContext.RESOURCE_URL:
-                    if (i0.ɵallowSanitizationBypassAndThrow(value, "ResourceURL" /* ResourceUrl */)) {
-                        return i0.ɵunwrapSafeValue(value);
+                    if (i0["ɵallowSanitizationBypassAndThrow"](value, "ResourceURL" /* ResourceUrl */)) {
+                        return i0["ɵunwrapSafeValue"](value);
                     }
                     throw new Error('unsafe value used in a resource URL context (see https://g.co/ng/security#xss)');
                 default:
@@ -17590,23 +17677,23 @@
             }
         };
         DomSanitizerImpl.prototype.bypassSecurityTrustHtml = function (value) {
-            return i0.ɵbypassSanitizationTrustHtml(value);
+            return i0["ɵbypassSanitizationTrustHtml"](value);
         };
         DomSanitizerImpl.prototype.bypassSecurityTrustStyle = function (value) {
-            return i0.ɵbypassSanitizationTrustStyle(value);
+            return i0["ɵbypassSanitizationTrustStyle"](value);
         };
         DomSanitizerImpl.prototype.bypassSecurityTrustScript = function (value) {
-            return i0.ɵbypassSanitizationTrustScript(value);
+            return i0["ɵbypassSanitizationTrustScript"](value);
         };
         DomSanitizerImpl.prototype.bypassSecurityTrustUrl = function (value) {
-            return i0.ɵbypassSanitizationTrustUrl(value);
+            return i0["ɵbypassSanitizationTrustUrl"](value);
         };
         DomSanitizerImpl.prototype.bypassSecurityTrustResourceUrl = function (value) {
-            return i0.ɵbypassSanitizationTrustResourceUrl(value);
+            return i0["ɵbypassSanitizationTrustResourceUrl"](value);
         };
         return DomSanitizerImpl;
     }(DomSanitizer));
-    DomSanitizerImpl.ɵprov = i0.ɵɵdefineInjectable({ factory: function DomSanitizerImpl_Factory() { return domSanitizerImplFactory(i0.ɵɵinject(i0.INJECTOR)); }, token: DomSanitizerImpl, providedIn: "root" });
+    DomSanitizerImpl.ɵprov = i0["ɵɵdefineInjectable"]({ factory: function DomSanitizerImpl_Factory() { return domSanitizerImplFactory(i0["ɵɵinject"](i0.INJECTOR)); }, token: DomSanitizerImpl, providedIn: "root" });
     DomSanitizerImpl.decorators = [
         { type: i0.Injectable, args: [{ providedIn: 'root', useFactory: domSanitizerImplFactory, deps: [i0.Injector] },] }
     ];
@@ -17629,10 +17716,10 @@
     }
     function _document() {
         // Tell ivy about the global document
-        i0.ɵsetDocument(document);
+        i0["ɵsetDocument"](document);
         return document;
     }
-    var ɵ0$4 = common.ɵPLATFORM_BROWSER_ID;
+    var ɵ0$4 = common["ɵPLATFORM_BROWSER_ID"];
     var INTERNAL_BROWSER_PLATFORM_PROVIDERS = [
         { provide: i0.PLATFORM_ID, useValue: ɵ0$4 },
         { provide: i0.PLATFORM_INITIALIZER, useValue: initDomAdapter, multi: true },
@@ -17659,7 +17746,7 @@
     var platformBrowser = i0.createPlatformFactory(i0.platformCore, 'browser', INTERNAL_BROWSER_PLATFORM_PROVIDERS);
     var BROWSER_MODULE_PROVIDERS = [
         BROWSER_SANITIZATION_PROVIDERS,
-        { provide: i0.ɵINJECTOR_SCOPE, useValue: 'root' },
+        { provide: i0["ɵINJECTOR_SCOPE"], useValue: 'root' },
         { provide: i0.ErrorHandler, useFactory: errorHandler, deps: [] },
         {
             provide: EVENT_MANAGER_PLUGINS,
@@ -17733,7 +17820,7 @@
      * Factory to create a `Meta` service instance for the current DOM document.
      */
     function createMeta() {
-        return new Meta(i0.ɵɵinject(common.DOCUMENT));
+        return new Meta(i0["ɵɵinject"](common.DOCUMENT));
     }
     /**
      * A service for managing HTML `<meta>` tags.
@@ -17760,7 +17847,7 @@
     var Meta = /** @class */ (function () {
         function Meta(_doc) {
             this._doc = _doc;
-            this._dom = common.ɵgetDOM();
+            this._dom = common["ɵgetDOM"]();
         }
         /**
          * Retrieves or creates a specific `<meta>` tag element in the current HTML document.
@@ -17892,7 +17979,7 @@
         };
         return Meta;
     }());
-    Meta.ɵprov = i0.ɵɵdefineInjectable({ factory: createMeta, token: Meta, providedIn: "root" });
+    Meta.ɵprov = i0["ɵɵdefineInjectable"]({ factory: createMeta, token: Meta, providedIn: "root" });
     Meta.decorators = [
         { type: i0.Injectable, args: [{ providedIn: 'root', useFactory: createMeta, deps: [] },] }
     ];
@@ -17916,7 +18003,7 @@
      * Factory to create Title service.
      */
     function createTitle() {
-        return new Title(i0.ɵɵinject(common.DOCUMENT));
+        return new Title(i0["ɵɵinject"](common.DOCUMENT));
     }
     /**
      * A service that can be used to get and set the title of a current HTML document.
@@ -17947,7 +18034,7 @@
         };
         return Title;
     }());
-    Title.ɵprov = i0.ɵɵdefineInjectable({ factory: createTitle, token: Title, providedIn: "root" });
+    Title.ɵprov = i0["ɵɵdefineInjectable"]({ factory: createTitle, token: Title, providedIn: "root" });
     Title.decorators = [
         { type: i0.Injectable, args: [{ providedIn: 'root', useFactory: createTitle, deps: [] },] }
     ];
@@ -18009,13 +18096,13 @@
             if (record && isProfilerAvailable) {
                 win.console.profile(profileName);
             }
-            var start = common.ɵgetDOM().performanceNow();
+            var start = common["ɵgetDOM"]().performanceNow();
             var numTicks = 0;
-            while (numTicks < 5 || (common.ɵgetDOM().performanceNow() - start) < 500) {
+            while (numTicks < 5 || (common["ɵgetDOM"]().performanceNow() - start) < 500) {
                 this.appRef.tick();
                 numTicks++;
             }
-            var end = common.ɵgetDOM().performanceNow();
+            var end = common["ɵgetDOM"]().performanceNow();
             if (record && isProfilerAvailable) {
                 win.console.profileEnd(profileName);
             }
@@ -18265,7 +18352,7 @@
         return By;
     }());
     function elementMatches(n, selector) {
-        if (common.ɵgetDOM().isElementNode(n)) {
+        if (common["ɵgetDOM"]().isElementNode(n)) {
             return n.matches && n.matches(selector) ||
                 n.msMatchesSelector && n.msMatchesSelector(selector) ||
                 n.webkitMatchesSelector && n.webkitMatchesSelector(selector);
@@ -18519,7 +18606,7 @@
     ];
     AnimationRendererFactory.ctorParameters = function () { return [
         { type: i0.RendererFactory2 },
-        { type: browser.ɵAnimationEngine },
+        { type: browser["ɵAnimationEngine"] },
         { type: i0.NgZone }
     ]; };
     var BaseAnimationRenderer = /** @class */ (function () {
@@ -18682,20 +18769,20 @@
             return _super.call(this, doc.body, driver, normalizer) || this;
         }
         return InjectableAnimationEngine;
-    }(browser.ɵAnimationEngine));
+    }(browser["ɵAnimationEngine"]));
     InjectableAnimationEngine.decorators = [
         { type: i0.Injectable }
     ];
     InjectableAnimationEngine.ctorParameters = function () { return [
         { type: undefined, decorators: [{ type: i0.Inject, args: [common.DOCUMENT,] }] },
         { type: browser.AnimationDriver },
-        { type: browser.ɵAnimationStyleNormalizer }
+        { type: browser["ɵAnimationStyleNormalizer"] }
     ]; };
     function instantiateSupportedAnimationDriver() {
-        return browser.ɵsupportsWebAnimations() ? new browser.ɵWebAnimationsDriver() : new browser.ɵCssKeyframesDriver();
+        return browser["ɵsupportsWebAnimations"]() ? new browser["ɵWebAnimationsDriver"]() : new browser["ɵCssKeyframesDriver"]();
     }
     function instantiateDefaultStyleNormalizer() {
-        return new browser.ɵWebAnimationsStyleNormalizer();
+        return new browser["ɵWebAnimationsStyleNormalizer"]();
     }
     function instantiateRendererFactory(renderer, engine, zone) {
         return new AnimationRendererFactory(renderer, engine, zone);
@@ -18706,11 +18793,11 @@
     var ANIMATION_MODULE_TYPE = new i0.InjectionToken('AnimationModuleType');
     var SHARED_ANIMATION_PROVIDERS = [
         { provide: animations.AnimationBuilder, useClass: BrowserAnimationBuilder },
-        { provide: browser.ɵAnimationStyleNormalizer, useFactory: instantiateDefaultStyleNormalizer },
-        { provide: browser.ɵAnimationEngine, useClass: InjectableAnimationEngine }, {
+        { provide: browser["ɵAnimationStyleNormalizer"], useFactory: instantiateDefaultStyleNormalizer },
+        { provide: browser["ɵAnimationEngine"], useClass: InjectableAnimationEngine }, {
             provide: i0.RendererFactory2,
             useFactory: instantiateRendererFactory,
-            deps: [DomRendererFactory2, browser.ɵAnimationEngine, i0.NgZone]
+            deps: [DomRendererFactory2, browser["ɵAnimationEngine"], i0.NgZone]
         }
     ];
     /**
@@ -18726,7 +18813,7 @@
      * include them in the BrowserTestingModule.
      */
     var BROWSER_NOOP_ANIMATIONS_PROVIDERS = tslib_1.__spread([
-        { provide: browser.AnimationDriver, useClass: browser.ɵNoopAnimationDriver },
+        { provide: browser.AnimationDriver, useClass: browser["ɵNoopAnimationDriver"] },
         { provide: ANIMATION_MODULE_TYPE, useValue: 'NoopAnimations' }
     ], SHARED_ANIMATION_PROVIDERS);
     /**
@@ -18768,6 +18855,250 @@
                 },] }
     ];
 
+    var VariablesComponent = /** @class */ (function () {
+        function VariablesComponent(ruleEditorService) {
+            this.ruleEditorService = ruleEditorService;
+            this.lhcStyle = {};
+            this.variableType = SimpleVariableType;
+            this.levels = [{
+                    level: 0,
+                    name: 'Top Level Scope'
+                }
+            ];
+        }
+        /**
+         * Angular lifecycle hook called when the component is initialized
+         */
+        VariablesComponent.prototype.ngOnInit = function () {
+            var _this = this;
+            this.variables = this.ruleEditorService.variables;
+            this.variableSubscription = this.ruleEditorService.variablesChange.subscribe(function (variables) {
+                _this.variables = variables;
+            });
+        };
+        /**
+         * Angular lifecycle hook called when bound property changes
+         */
+        VariablesComponent.prototype.ngOnChanges = function (changes) {
+            var _this = this;
+            if (changes.advancedInterface) {
+                this.variableType = this.advancedInterface ? AllVariableType : SimpleVariableType;
+                if (this.variables) {
+                    var previousValues_1 = [];
+                    this.variables.forEach(function (variable, index) {
+                        previousValues_1[index] = variable.type;
+                        variable.type = '';
+                    });
+                    // Not sure of a better way of setting the previous values than this
+                    setTimeout(function () {
+                        previousValues_1.forEach(function (type, index) {
+                            _this.variables[index].type = type;
+                        });
+                    }, 10);
+                }
+            }
+        };
+        /**
+         * Angular lifecycle hook called before the component is destroyed
+         */
+        VariablesComponent.prototype.ngDestroy = function () {
+            this.variableSubscription.unsubscribe();
+        };
+        /**
+         * Called when adding a new variable
+         */
+        VariablesComponent.prototype.onAdd = function () {
+            this.ruleEditorService.addVariable();
+        };
+        /**
+         * Remove a variable at an index
+         * @param i - index to remove
+         */
+        VariablesComponent.prototype.onRemove = function (i) {
+            this.ruleEditorService.remove(i);
+        };
+        /**
+         * Drag and drop rearrange of variable order
+         * @param event - drag and drop event
+         */
+        VariablesComponent.prototype.drop = function (event) {
+            dragDrop.moveItemInArray(this.variables, event.previousIndex, event.currentIndex);
+        };
+        /**
+         * Update the preview when the variable name changes
+         */
+        VariablesComponent.prototype.onNameChange = function () {
+            this.ruleEditorService.update();
+        };
+        /**
+         * Toggle the advanced interface based on the type
+         */
+        VariablesComponent.prototype.onTypeChange = function (event) {
+            if (event.target.value === 'query' || event.target.value === 'expression') {
+                this.ruleEditorService.checkAdvancedInterface(true);
+            }
+            else {
+                // Need to check all other variables and the final expression before we
+                // allow the advanced interface to be removed
+                this.ruleEditorService.checkAdvancedInterface();
+            }
+        };
+        /**
+         * Get the labels of available variables at the current index
+         * @param index - Index of variable we're editing
+         */
+        VariablesComponent.prototype.getAvailableVariables = function (index) {
+            var uneditableVariables = this.ruleEditorService.uneditableVariables.map(function (e) { return e.name; });
+            // Only return variables up to but not including index
+            var editableVariables = this.variables.map(function (e) { return e.label; }).slice(0, index);
+            return uneditableVariables.concat(editableVariables);
+        };
+        /**
+         * Update the expression for variable at the given index.
+         * @param i - index
+         * @param expression - new expression to use
+         */
+        VariablesComponent.prototype.updateExpression = function (i, expression) {
+            this.variables[i].expression = expression;
+        };
+        /**
+         * Update the Easy Path for variable at the given index.
+         * @param i - index
+         * @param easyPath - new expression to use
+         */
+        VariablesComponent.prototype.updateSimpleExpression = function (i, easyPath) {
+            this.variables[i].simple = easyPath;
+        };
+        return VariablesComponent;
+    }());
+    VariablesComponent.decorators = [
+        { type: i0.Component, args: [{
+                    selector: 'lhc-variables',
+                    template: "<h2 [style]=\"lhcStyle.h2\">Variables</h2>\n\n<div class=\"container\">\n  <div class=\"variable-header\" [style]=\"lhcStyle.variableHeader\" aria-hidden=\"true\">\n    <div class=\"variable-column-label\">Label</div>\n    <div class=\"variable-column-type\">Variable Type</div>\n    <div class=\"variable-column-details\">Question/FHIRPath Expression/FHIR Query</div>\n  </div>\n  <div cdkDropList (cdkDropListDropped)=\"drop($event)\">\n    <div class=\"variable-row drag-variable\" [style]=\"lhcStyle.variableRow\" *ngFor=\"let variable of variables; index as i\" [id]=\"'row-' + i\" cdkDrag>\n      <div class=\"variable-column-label\">\n        <!-- Inline SVG for the row drag and drop handle -->\n        <svg cdkDragHandle xmlns=\"http://www.w3.org/2000/svg\" width=\"20\" height=\"20\" fill=\"currentColor\" class=\"handle\" viewBox=\"0 0 16 16\">\n          <path d=\"M7 2a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zM7 5a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zM7 8a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0z\"/>\n        </svg>\n        <input [id]=\"'variable-label-' + i\" [(ngModel)]=\"variable.label\" (change)=\"onNameChange()\" [style]=\"lhcStyle.input\" class=\"label\" aria-label=\"Variable label\" />\n      </div>\n      <div class=\"variable-column-type\">\n        <select [id]=\"'variable-type-' + i\" [(ngModel)]=\"variable.type\" (change)=\"onTypeChange($event)\" [style]=\"lhcStyle.select\" aria-label=\"Variable type\">\n          <option value=\"\" disabled hidden>Select...</option>\n          <option *ngFor=\"let type of variableType | keyvalue\" value=\"{{type.key}}\">{{type.value}}</option>\n        </select>\n      </div>\n      <div class=\"variable-column-details\" [ngSwitch]=\"variable.type\">\n        <lhc-question [variable]=\"variable\" *ngSwitchCase=\"'question'\" [lhcStyle]=\"lhcStyle\"></lhc-question>\n        <lhc-query-observation [variable]=\"variable\" [index]=\"i\" *ngSwitchCase=\"'queryObservation'\" [lhcStyle]=\"lhcStyle\"></lhc-query-observation>\n        <div class=\"form-inline\" *ngSwitchCase=\"'simple'\">\n          <lhc-syntax-converter\n            [id]=\"'variable-expression-' + i\"\n            [simple]=\"variable.simple\"\n            [variables]=\"getAvailableVariables(i)\"\n            [lhcStyle]=\"lhcStyle\"\n            (simpleChange)=\"updateSimpleExpression(i, $event)\"\n            (expressionChange)=\"updateExpression(i, $event)\">\n          </lhc-syntax-converter>\n        </div>\n        <div class=\"form-inline\" *ngSwitchCase=\"'expression'\">\n          <input [id]=\"'variable-expression-' + i\" [(ngModel)]=\"variable.expression\" [style]=\"lhcStyle.input\" aria-label=\"FHIRPath Expression\" />\n        </div>\n        <div class=\"form-inline\" *ngSwitchCase=\"'query'\">\n          <input [id]=\"'variable-expression-' + i\" [(ngModel)]=\"variable.expression\" [style]=\"lhcStyle.input\"\n                 aria-label=\"FHIR Query\" placeholder=\"x-fhir-query\" />\n        </div>\n      </div>\n      <div class=\"variable-column-actions\">\n        <button class=\"btn btn-danger remove-variable\" aria-label=\"Remove variable\" title=\"Remove variable\" [style]=\"lhcStyle.buttonDanger\" (click)=\"onRemove(i)\">x</button>\n      </div>\n    </div>\n    <div *ngIf=\"!variables.length\" class=\"no-variables\">No variables, please <a href=\"#\" (click)=\"onAdd()\">add one</a>.</div>\n  </div>\n</div>\n\n<button id=\"add-variable\" class=\"btn btn-secondary mt-2\" (click)=\"onAdd()\" [ngStyle]=\"lhcStyle.buttonSecondary\">Add variable</button>\n",
+                    styles: ["*{box-sizing:border-box}.variable-header,.variable-row{display:flex;flex-direction:row;flex-wrap:wrap}.variable-header>.variable-column-label{padding-left:1.6em}.variable-column-label>input,.variable-column-type select{width:100%;height:2rem;font-size:1rem}.variable-column-details,.variable-column-label,.variable-column-type{padding:.5rem}.variable-column-label{display:flex;flex:0 0 12em}.label{flex-grow:100}.variable-column-type{flex:0 0 15em}.variable-column-details{flex:1 0 25em;min-width:0}.variable-column-actions button{height:2rem;width:2rem;background-color:#8b0000;color:#fff;padding:0}.variable-column-actions{flex:0 0 auto;padding-top:.5rem;padding-left:.5rem}@media (max-width:975px){.variable-row{flex-direction:column}.variable-column-label,.variable-column-type{flex:100%}.variable-column-details{flex:20 0 10em}.variable-column-actions{flex:auto}}.drag-variable{padding:.75rem 0;border-top:1px solid rgba(0,0,0,.1);color:rgba(0,0,0,.87);display:flex;flex-direction:row;justify-content:space-between;box-sizing:border-box;background:#fff}.handle{cursor:move;margin-top:.4rem}.no-variables{padding:2rem}.cdk-drag-preview{box-sizing:border-box;border-radius:4px;box-shadow:0 5px 5px -3px rgba(0,0,0,.2),0 8px 10px 1px rgba(0,0,0,.14),0 3px 14px 2px rgba(0,0,0,.12)}.cdk-drag-placeholder{opacity:0}.cdk-drag-animating{transition:transform .25s cubic-bezier(0,0,.2,1)}input,select{height:2rem;font-size:1rem;width:100%;margin-bottom:1rem;box-sizing:border-box;border:1px solid #999;background-color:#fff;border-radius:4px;padding:0 .5em}button{height:2.5rem;border:none;border-radius:4px;padding:0 2em;font-size:1rem}"]
+                },] }
+    ];
+    VariablesComponent.ctorParameters = function () { return [
+        { type: RuleEditorService }
+    ]; };
+    VariablesComponent.propDecorators = {
+        lhcStyle: [{ type: i0.Input }],
+        advancedInterface: [{ type: i0.Input }]
+    };
+
+    var UneditableVariablesComponent = /** @class */ (function () {
+        function UneditableVariablesComponent(variableService) {
+            this.variableService = variableService;
+        }
+        /**
+         * Angular lifecycle hook called when the component is initialized
+         */
+        UneditableVariablesComponent.prototype.ngOnInit = function () {
+            var _this = this;
+            this.uneditableVariables = this.variableService.uneditableVariables;
+            this.uneditableVariablesSubscription =
+                this.variableService.uneditableVariablesChange.subscribe(function (variables) {
+                    _this.uneditableVariables = variables;
+                });
+        };
+        /**
+         * Angular lifecycle hook called before the component is destroyed
+         */
+        UneditableVariablesComponent.prototype.ngDestroy = function () {
+            this.uneditableVariablesSubscription.unsubscribe();
+        };
+        return UneditableVariablesComponent;
+    }());
+    UneditableVariablesComponent.decorators = [
+        { type: i0.Component, args: [{
+                    selector: 'lhc-uneditable-variables',
+                    template: "<div *ngIf=\"uneditableVariables.length\">\n  <h2>Variables in Scope for This Item</h2>\n\n  <div class=\"container\">\n    <div class=\"variable-header\">\n      <div class=\"variable-column-label\">Label</div>\n      <div class=\"variable-column-type\">Variable Type</div>\n      <div class=\"variable-column-details\">Description</div>\n    </div>\n    <div class=\"variable-row\" *ngFor=\"let variable of uneditableVariables\">\n      <div class=\"variable-column-label\">{{variable.name}}</div>\n      <div class=\"variable-column-type\">{{variable.type}}</div>\n      <div class=\"variable-column-details\">{{variable.description}}</div>\n    </div>\n  </div>\n</div>\n",
+                    styles: ["*{box-sizing:border-box}.variable-header,.variable-row{display:flex;flex-direction:row;flex-wrap:wrap}.variable-row{border-top:1px solid rgba(0,0,0,.1)}.variable-column-details,.variable-column-label,.variable-column-type{padding:.5rem}.variable-column-label{display:flex;flex:0 0 12em}.variable-column-type{flex:0 0 15em}.variable-column-details{flex:1 0 25em;min-width:0}@media (max-width:975px){.variable-row{flex-direction:column}.variable-column-label,.variable-column-type{flex:100%}.variable-column-details{flex:auto}}"]
+                },] }
+    ];
+    UneditableVariablesComponent.ctorParameters = function () { return [
+        { type: RuleEditorService }
+    ]; };
+
+    var QuestionComponent = /** @class */ (function () {
+        function QuestionComponent(variableService) {
+            this.variableService = variableService;
+            this.lhcStyle = {};
+            this.linkId = '';
+            this.itemHasScore = false;
+            this.isNonConvertibleUnit = false;
+        }
+        /**
+         * Angular lifecycle hook called when the component is initialized
+         */
+        QuestionComponent.prototype.ngOnInit = function () {
+            var _this = this;
+            this.linkId = this.variable.linkId ? this.variable.linkId : '';
+            this.toUnit = this.variable.unit ? this.variable.unit : '';
+            this.questions = this.variableService.questions;
+            this.onChange(false);
+            this.variableService.questionsChange.subscribe(function (questions) {
+                _this.questions = questions;
+            });
+        };
+        /**
+         * Get the question based on linkId
+         * @param linkId - FHIR linkId
+         */
+        QuestionComponent.prototype.getQuestion = function (linkId) {
+            return this.questions.find(function (q) {
+                return q.linkId === linkId;
+            });
+        };
+        /**
+         * Get the list of units we can convert to based on the starting unit
+         * @param unit - Starting unit
+         */
+        QuestionComponent.prototype.getConversionOptions = function (unit) {
+            return UNIT_CONVERSION[unit];
+        };
+        /**
+         * Called when the questionnaire question or unit is changed
+         * @param isQuestion - The change was for a question
+         */
+        QuestionComponent.prototype.onChange = function (isQuestion) {
+            if (isQuestion) {
+                // Reset the conversion options when the question changes
+                this.toUnit = '';
+            }
+            // If we already have a question selected (as opposed to the select... prompt)
+            if (this.linkId) {
+                var question = this.getQuestion(this.linkId);
+                this.unit = question === null || question === void 0 ? void 0 : question.unit;
+                this.conversionOptions = this.getConversionOptions(this.unit);
+                this.isNonConvertibleUnit = this.unit && !this.conversionOptions;
+                // Check if this is a score
+                if (!this.conversionOptions && !this.isNonConvertibleUnit) {
+                    this.itemHasScore = this.variableService.itemHasScore(this.linkId);
+                }
+                else {
+                    this.itemHasScore = false;
+                }
+                this.variable.expression = this.variableService.valueOrScoreExpression(this.linkId, this.itemHasScore, !this.isNonConvertibleUnit, this.unit, this.toUnit);
+            }
+        };
+        return QuestionComponent;
+    }());
+    QuestionComponent.decorators = [
+        { type: i0.Component, args: [{
+                    selector: 'lhc-question',
+                    template: "<div class=\"form-inline question\">\n  <div class=\"question-select\">\n    <select [(ngModel)]=\"linkId\" (change)=\"onChange(true)\" [style]=\"lhcStyle.select\" aria-label=\"Question\">\n      <option value=\"\" disabled hidden>Select...</option>\n      <option *ngFor=\"let question of questions\" [value]=\"question.linkId\">\n        {{question.text + ' (' + question.linkId + ')'}}\n      </option>\n    </select>\n  </div>\n\n  <div class=\"unit-select\">\n    <select *ngIf=\"conversionOptions\" [(ngModel)]=\"toUnit\" [style]=\"lhcStyle.select\"\n            (change)=\"onChange(false)\" aria-label=\"Unit conversion\">\n      <option value=\"\">Keep form units ({{unit}})</option>\n      <option *ngFor=\"let u of conversionOptions\" value=\"{{u.unit}}\">Convert to {{u.unit}}</option>\n    </select>\n\n    <div *ngIf=\"isNonConvertibleUnit\" class=\"detail\">{{unit}}</div>\n    <div *ngIf=\"itemHasScore\" class=\"detail\">Score</div>\n  </div>\n</div>\n\n<lhc-syntax-preview [syntax]=\"variable.expression\" [lhcStyle]=\"lhcStyle\"></lhc-syntax-preview>\n",
+                    styles: [".question{display:flex;flex-wrap:wrap;flex-direction:row}.detail{margin-top:.5rem}.question-select,.unit-select{box-sizing:border-box;margin-bottom:.5rem}.question-select{flex:50%;padding-right:.5rem}.unit-select{flex:50%;padding-left:.5rem}select{width:100%;font-size:1rem;height:2rem}@media (max-width:975px){.question{flex-direction:column}.question-select,.unit-select{flex:100%;padding:0}}input,select{height:2rem;font-size:1rem;width:100%;margin-bottom:.5rem;box-sizing:border-box;border:1px solid #999;background-color:#fff;border-radius:4px;padding:0 .5em}"]
+                },] }
+    ];
+    QuestionComponent.ctorParameters = function () { return [
+        { type: RuleEditorService }
+    ]; };
+    QuestionComponent.propDecorators = {
+        variable: [{ type: i0.Input }],
+        lhcStyle: [{ type: i0.Input }]
+    };
+
     var CalculateSumPromptComponent = /** @class */ (function () {
         function CalculateSumPromptComponent(ruleEditorService) {
             this.ruleEditorService = ruleEditorService;
@@ -18795,8 +19126,8 @@
     CalculateSumPromptComponent.decorators = [
         { type: i0.Component, args: [{
                     selector: 'lhc-calculate-sum-prompt',
-                    template: "<div class=\"score-modal\">\n  <p [style]=\"lhcStyle.description\">It looks like this might be a score calculation.</p>\n\n  <p [style]=\"lhcStyle.description\">Would you like to calculate the sum of scores?</p>\n\n  <button class=\"primary\" (click)=\"onExportClick()\" [style]=\"lhcStyle.buttonPrimary\" id=\"export-score\">Yes</button>\n  <button (click)=\"onCloseClick()\" [style]=\"lhcStyle.buttonSecondary\" id=\"skip-export-score\">No</button>\n</div>\n",
-                    styles: ["*{font-size:1rem}.score-modal{text-align:center}button{margin:0 .5em}"]
+                    template: "<div class=\"score-modal\">\n  <p [style]=\"lhcStyle.description\">It looks like this might be a score calculation.</p>\n\n  <p [style]=\"lhcStyle.description\">Would you like to calculate the sum of scores?</p>\n\n  <button class=\"primary\" (click)=\"onExportClick()\" [style]=\"lhcStyle.buttonPrimary\" id=\"export-score\">Yes</button>\n  <button (click)=\"onCloseClick()\" id=\"skip-export-score\">No</button>\n</div>\n",
+                    styles: ["*{font-size:1rem}.score-modal{text-align:center}button{margin:0 .5em;height:2.5rem;border:none;border-radius:4px;padding:0 2em;font-size:1rem}"]
                 },] }
     ];
     CalculateSumPromptComponent.ctorParameters = function () { return [
@@ -19245,10 +19576,10 @@
         return str;
     }
 
-    var MathToFhirpathPipe = /** @class */ (function () {
-        function MathToFhirpathPipe() {
+    var EasyPathExpressionsPipe = /** @class */ (function () {
+        function EasyPathExpressionsPipe() {
         }
-        MathToFhirpathPipe.prototype.transform = function (value, variables) {
+        EasyPathExpressionsPipe.prototype.transform = function (value, variables) {
             if (value !== undefined) {
                 var fhirPath = fhirconvert(value, variables);
                 if (fhirPath !== null) {
@@ -19257,28 +19588,28 @@
             }
             return 'Not valid';
         };
-        return MathToFhirpathPipe;
+        return EasyPathExpressionsPipe;
     }());
-    MathToFhirpathPipe.decorators = [
+    EasyPathExpressionsPipe.decorators = [
         { type: i0.Pipe, args: [{
-                    name: 'mathToFhirpath'
+                    name: 'easyPathExpressions'
                 },] }
     ];
 
     var SyntaxConverterComponent = /** @class */ (function () {
         function SyntaxConverterComponent() {
             this.lhcStyle = {};
+            this.simpleChange = new i0.EventEmitter();
             this.expressionChange = new i0.EventEmitter();
-            this.jsToFhirPathPipe = new MathToFhirpathPipe();
+            this.jsToFhirPathPipe = new EasyPathExpressionsPipe();
         }
         SyntaxConverterComponent.prototype.ngOnChanges = function () {
-            if (this.expression !== '') {
-                this.onExpressionChange(this.expression);
-            }
+            this.onExpressionChange(this.simple);
         };
-        SyntaxConverterComponent.prototype.onExpressionChange = function (value) {
-            var fhirPath = this.jsToFhirPathPipe.transform(value, this.variables);
+        SyntaxConverterComponent.prototype.onExpressionChange = function (simple) {
+            var fhirPath = this.jsToFhirPathPipe.transform(simple, this.variables);
             this.fhirPathExpression = fhirPath;
+            this.simpleChange.emit(simple);
             this.expressionChange.emit(fhirPath);
         };
         return SyntaxConverterComponent;
@@ -19286,38 +19617,384 @@
     SyntaxConverterComponent.decorators = [
         { type: i0.Component, args: [{
                     selector: 'lhc-syntax-converter',
-                    template: "<input [(ngModel)]=\"expression\" (ngModelChange)=\"onExpressionChange($event)\" id=\"simple-expression\"\n       aria-label=\"Simple Expression\" [style]=\"lhcStyle.input\" />\n<lhc-syntax-preview [syntax]=\"fhirPathExpression\"></lhc-syntax-preview>\n",
+                    template: "<input [(ngModel)]=\"simple\" (ngModelChange)=\"onExpressionChange($event)\" class=\"simple-expression\"\n       aria-label=\"Easy Path Expression\" [style]=\"lhcStyle.input\" />\n<lhc-syntax-preview [syntax]=\"fhirPathExpression\"></lhc-syntax-preview>\n",
                     styles: [":host{width:100%}input,select{height:2rem;font-size:1rem;width:100%;margin-bottom:.5rem;box-sizing:border-box;border:1px solid #999;background-color:#fff;border-radius:4px;padding:0 .5em}"]
                 },] }
     ];
     SyntaxConverterComponent.ctorParameters = function () { return []; };
     SyntaxConverterComponent.propDecorators = {
-        expression: [{ type: i0.Input }],
+        simple: [{ type: i0.Input }],
         variables: [{ type: i0.Input }],
         lhcStyle: [{ type: i0.Input }],
+        simpleChange: [{ type: i0.Output }],
         expressionChange: [{ type: i0.Output }]
     };
 
     var SyntaxPreviewComponent = /** @class */ (function () {
-        function SyntaxPreviewComponent() {
+        function SyntaxPreviewComponent(snackBar) {
+            this.snackBar = snackBar;
             this.showWhenEmpty = false;
         }
         SyntaxPreviewComponent.prototype.ngOnInit = function () {
+        };
+        /**
+         * Show an ephemeral notification that the value was copied.
+         */
+        SyntaxPreviewComponent.prototype.copyNotification = function () {
+            this.snackBar.open('Copied to clipboard', null, {
+                duration: 2000
+            });
         };
         return SyntaxPreviewComponent;
     }());
     SyntaxPreviewComponent.decorators = [
         { type: i0.Component, args: [{
                     selector: 'lhc-syntax-preview',
-                    template: "<div class=\"syntax-preview text-muted\" [ngStyle]=\"lhcStyle\" *ngIf=\"syntax || showWhenEmpty\">\n  FHIRPath: <pre class=\"d-inline text-muted\" title=\"{{syntax}}\">{{syntax}}</pre>\n</div>\n",
-                    styles: [":host{overflow:hidden}.syntax-preview{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.text-muted{margin:0;color:#555;font-size:.8rem}"]
+                    template: "<div class=\"text-muted syntax-preview\" [ngStyle]=\"lhcStyle\" *ngIf=\"syntax || showWhenEmpty\">\n  <div class=\"fhirpath\">\n    FHIRPath:\n    <pre class=\"d-inline text-muted syntax\" matTooltip=\"{{syntax}}\">\n      {{syntax}}\n    </pre>\n  </div>\n  <button class=\"copy\" #toolTip=\"matTooltip\" matTooltip=\"Copy to clipboard\"\n          [cdkCopyToClipboard]=\"syntax\" (click)=\"copyNotification(toolTip)\" aria-label=\"Copy to clipboard\">\n    <!-- Copy icon https://fonts.google.com/icons?icon.query=copy -->\n    <svg xmlns=\"http://www.w3.org/2000/svg\" height=\"16px\" viewBox=\"0 0 24 24\" width=\"24px\" fill=\"#000000\">\n      <path d=\"M0 0h24v24H0V0z\" fill=\"none\"/>\n      <path d=\"M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z\"/>\n    </svg>\n  </button>\n</div>\n",
+                    styles: [".syntax,:host{overflow:hidden}.syntax{white-space:nowrap;text-overflow:ellipsis}.text-muted{margin:0;color:#555;font-size:.8rem}.syntax-preview{display:flex;width:100%}.fhirpath{flex:1 0 10em;min-width:0;padding-right:1em}.copy{margin-top:1em;flex:0 0 3em;border:none;background:transparent}::ng-deep .mat-tooltip{overflow-wrap:break-word}"]
                 },] }
     ];
-    SyntaxPreviewComponent.ctorParameters = function () { return []; };
+    SyntaxPreviewComponent.ctorParameters = function () { return [
+        { type: snackBar.MatSnackBar }
+    ]; };
     SyntaxPreviewComponent.propDecorators = {
         syntax: [{ type: i0.Input }],
         lhcStyle: [{ type: i0.Input }],
         showWhenEmpty: [{ type: i0.Input }]
+    };
+
+    var QueryObservationComponent = /** @class */ (function () {
+        function QueryObservationComponent(http) {
+            this.http = http;
+            this.queryUrl = 'https://clinicaltables.nlm.nih.gov/api/loinc_items/v3/search?df=text,LOINC_NUM';
+            this.lhcStyle = {};
+        }
+        QueryObservationComponent.prototype.ngOnInit = function () {
+            if (this.variable !== undefined) {
+                this.codes = (this.variable.codes !== undefined) ? this.variable.codes : [];
+                this.timeInterval = this.variable.timeInterval || 1;
+                this.timeIntervalUnit = this.variable.timeIntervalUnit || 'months';
+                this.expression = this.variable.expression;
+            }
+            else {
+                this.codes = [];
+            }
+        };
+        /**
+         * After the autocomplete is ready to be interacted with fetch the name for
+         * any codes already in the query search.
+         */
+        QueryObservationComponent.prototype.ngAfterViewInit = function () {
+            var _this = this;
+            this.autoComplete = new Def__default["default"].Autocompleter.Search(this.autoCompleteElement.nativeElement, this.queryUrl, {
+                tableFormat: true,
+                valueCols: [0, 1],
+                colHeaders: ['Text', 'LOINC Number'],
+                maxSelect: '*'
+            });
+            this.codes.forEach(function (code) {
+                var matches = code.match(/http:\/\/loinc.org\|(.+)/);
+                if (matches !== null) {
+                    var loincCode_1 = matches[1];
+                    // LOINC Code
+                    _this.http.get(_this.queryUrl + "&terms=" + loincCode_1)
+                        .subscribe(function (data) {
+                        var namePosition = 3;
+                        var name = [data[namePosition][0][0], loincCode_1].join(' - ');
+                        _this.autoComplete.storeSelectedItem(name, loincCode_1);
+                        _this.autoComplete.addToSelectedArea(name);
+                    });
+                }
+                else {
+                    // Non-loinc code
+                    _this.autoComplete.storeSelectedItem(code, undefined);
+                    _this.autoComplete.addToSelectedArea(code);
+                }
+            });
+            Def__default["default"].Autocompleter.Event.observeListSelections("autocomplete-" + this.index, function () {
+                var selectedItemData = _this.autoComplete.getSelectedItemData();
+                // If there is no code then this is not a loinc code and we need to get
+                // the value from the array above
+                _this.codes = _this.autoComplete.getSelectedCodes().map(function (code, index) {
+                    return (code === undefined) ? selectedItemData[index].text : "http://loinc.org|" + code;
+                });
+                _this.onChange();
+            });
+        };
+        /**
+         * Angular lifecycle hook
+         */
+        QueryObservationComponent.prototype.ngOnDestroy = function () {
+            if (this.autoComplete !== undefined) {
+                this.autoComplete.destroy();
+            }
+        };
+        /**
+         * On changes update the expression and preview
+         */
+        QueryObservationComponent.prototype.onChange = function () {
+            // Separate with URL encoded version of the comma: ','
+            var codes = this.codes.join('%2C');
+            this.variable.expression = this.expression =
+                "Observation?code=" + codes + "&" +
+                    ("date=gt{{today()-" + this.timeInterval + " " + this.timeIntervalUnit + "}}&") +
+                    "patient={{%patient.id}}&_sort=-date&_count=1";
+        };
+        return QueryObservationComponent;
+    }());
+    QueryObservationComponent.decorators = [
+        { type: i0.Component, args: [{
+                    selector: 'lhc-query-observation',
+                    template: "<div class=\"form-inline query\">\n  <div class=\"query-select\">\n    <input [style]=\"lhcStyle.input\" placeholder=\"LOINC Name / LOINC Number / Other Code\"\n           class=\"query-autocomplete\" #autoComplete id=\"autocomplete-{{index}}\" />\n  </div>\n  <div class=\"time-input\">\n    <input [style]=\"lhcStyle.input\" [(ngModel)]=\"timeInterval\" (change)=\"onChange()\"\n           aria-label=\"Time interval\" type=\"number\" min=\"1\" />\n  </div>\n  <div class=\"time-select\">\n    <select [style]=\"lhcStyle.input\" [(ngModel)]=\"timeIntervalUnit\"\n            (change)=\"onChange()\" aria-label=\"Time interval units\">\n      <option value=\"days\">Day(s)</option>\n      <option value=\"weeks\">Week(s)</option>\n      <option value=\"months\">Month(s)</option>\n      <option value=\"years\">Year(s)</option>\n    </select>\n  </div>\n</div>\n<div class=\"syntax-preview text-muted\" [ngStyle]=\"lhcStyle\" *ngIf=\"codes.length\">\n  x-fhir-query: <pre class=\"d-inline text-muted\" title=\"{{expression}}\">{{expression}}</pre>\n</div>\n",
+                    styles: [".query{display:flex;flex-wrap:wrap;flex-direction:row}.detail{margin-top:.5rem}.question-select,.unit-select{box-sizing:border-box;margin-bottom:.5rem}.query-select{flex:1 0 6em;padding-right:.5rem}.time-input,.time-select{flex:0 0 7em;padding-left:.5rem}select{width:100%;font-size:1rem;height:2rem}@media (max-width:975px){.question{flex-direction:column}.question-select,.unit-select{flex:100%;padding:0}}input,select{height:2rem;font-size:1rem;width:100%;margin-bottom:.5rem;box-sizing:border-box;border:1px solid #999;background-color:#fff;border-radius:4px;padding:0 .5em}.text-muted{margin:0;color:#555;font-size:.8rem}.syntax-preview{margin-top:1em}.syntax-preview>pre{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}"]
+                },] }
+    ];
+    QueryObservationComponent.ctorParameters = function () { return [
+        { type: http.HttpClient }
+    ]; };
+    QueryObservationComponent.propDecorators = {
+        variable: [{ type: i0.Input }],
+        index: [{ type: i0.Input }],
+        lhcStyle: [{ type: i0.Input }],
+        autoCompleteElement: [{ type: i0.ViewChild, args: ['autoComplete',] }]
+    };
+
+    var CaseStatementsComponent = /** @class */ (function () {
+        function CaseStatementsComponent(ruleEditorService) {
+            this.ruleEditorService = ruleEditorService;
+            this.lhcStyle = {};
+            this.expressionChange = new i0.EventEmitter();
+            this.simpleChange = new i0.EventEmitter();
+            this.STRING_REGEX = /^'(.*)'$/;
+            this.pipe = new EasyPathExpressionsPipe();
+            this.outputExpressions = true;
+            this.cases = [{ condition: '', simpleCondition: '', output: '', simpleOutput: '' }];
+            this.output = '';
+        }
+        /**
+         * Angular lifecycle hook for initialization
+         */
+        CaseStatementsComponent.prototype.ngOnInit = function () {
+            if (this.syntax === 'fhirpath' && this.expression !== undefined) {
+                this.parseIif(this.expression, 0);
+            }
+            else if (this.syntax === 'simple' && this.simpleExpression !== undefined) {
+                this.parseSimpleCases();
+            }
+            this.output = this.getIif(0);
+        };
+        /**
+         * Parses the Easy Path expression and populates the case editor. Toggles "use
+         * expressions" off if output is only strings.
+         */
+        CaseStatementsComponent.prototype.parseSimpleCases = function () {
+            var _this = this;
+            this.parseIif(this.simpleExpression, 0);
+            // If all output values are strings toggle off "use expressions"
+            var outputString = this.cases.find(function (e) { return (!_this.isString(e.simpleOutput)); });
+            var defaultIsString = this.isString(this.simpleDefaultCase);
+            if (outputString === undefined && defaultIsString) {
+                this.outputExpressions = false;
+                // Remove quotes from output strings and default case
+                this.cases.forEach(function (e) {
+                    e.simpleOutput = _this.removeQuotes(e.simpleOutput);
+                });
+                this.simpleDefaultCase = this.removeQuotes(this.simpleDefaultCase);
+            }
+        };
+        /**
+         * Checks if the expression is a string
+         */
+        CaseStatementsComponent.prototype.isString = function (expression) {
+            return this.STRING_REGEX.test(expression);
+        };
+        /**
+         * Removes surrounding quotes
+         */
+        CaseStatementsComponent.prototype.removeQuotes = function (expression) {
+            return expression.match(this.STRING_REGEX)[1];
+        };
+        /**
+         * Angular lifecycle hook for changes
+         */
+        CaseStatementsComponent.prototype.ngOnChanges = function (changes) {
+            if (changes.syntax && this.syntax === 'simple' && changes.syntax.firstChange === false) {
+                this.parseSimpleCases();
+                this.onChange();
+            }
+            else if (changes.syntax && this.syntax === 'fhirpath' && changes.syntax.firstChange === false) {
+                this.outputExpressions = true;
+                this.parseIif(this.expression, 0);
+                this.onChange();
+            }
+        };
+        /**
+         * Called when adding a new case
+         */
+        CaseStatementsComponent.prototype.onAdd = function () {
+            this.cases.push({ condition: '', simpleCondition: '', output: '', simpleOutput: '' });
+            this.onChange();
+            // TODO select next input box that was added
+        };
+        /**
+         * Remove the case at an index
+         * @param i - index to remove
+         */
+        CaseStatementsComponent.prototype.onRemove = function (i) {
+            this.cases.splice(i, 1);
+            this.onChange();
+        };
+        /**
+         * Angular lifecycle hook for changes
+         */
+        CaseStatementsComponent.prototype.onChange = function () {
+            this.output = this.getIif(0);
+            this.expressionChange.emit(this.output);
+            this.simpleChange.emit(this.simpleExpression);
+        };
+        /**
+         * Parse iif expression at specified level. Top level is 0
+         * @param expression - expression to parse
+         * @param level - depth or level of expression nesting
+         */
+        CaseStatementsComponent.prototype.parseIif = function (expression, level) {
+            // If expressions don't start with iif( and end with ) they cannot be parsed
+            var matches = expression.match(CASE_REGEX);
+            if (matches !== null) {
+                var iifContents = matches[1];
+                var commaMatches = 0;
+                var nestingLevel = 0;
+                var comma1 = -1;
+                var comma2 = -1;
+                // Check where the ',' is relative to depth as indicated by parenthesis
+                for (var i = 0; i < iifContents.length; i++) {
+                    switch (iifContents[i]) {
+                        case '(':
+                            nestingLevel++;
+                            break;
+                        case ')':
+                            nestingLevel--;
+                            break;
+                        case ',':
+                            if (nestingLevel === 0) {
+                                commaMatches++;
+                                if (comma1 === -1) {
+                                    comma1 = i;
+                                }
+                                else if (comma2 === -1) {
+                                    comma2 = i;
+                                }
+                            }
+                            break;
+                    }
+                }
+                if (commaMatches === 2 && nestingLevel === 0) {
+                    // Clear out any existing cases if we have a match for iif
+                    if (level === 0) {
+                        this.cases = [];
+                    }
+                    var condition = iifContents.substring(0, comma1).trim();
+                    var trueCase = iifContents.substring(comma1 + 1, comma2).trim();
+                    var falseCase = iifContents.substring(comma2 + 1, iifContents.length).trim();
+                    if (this.syntax === 'simple') {
+                        var variableNames = this.ruleEditorService.variables.map(function (e) { return e.label; });
+                        this.cases.push({
+                            simpleCondition: condition,
+                            simpleOutput: trueCase,
+                            condition: this.pipe.transform(condition, variableNames),
+                            output: this.pipe.transform(trueCase, variableNames)
+                        });
+                    }
+                    else {
+                        this.cases.push({
+                            condition: condition,
+                            output: trueCase
+                        });
+                    }
+                    var parseResult = this.parseIif(falseCase, level + 1);
+                    if (parseResult === false && this.syntax !== 'simple') {
+                        this.defaultCase = falseCase;
+                    }
+                    else if (parseResult === false && this.syntax === 'simple') {
+                        this.simpleDefaultCase = falseCase;
+                    }
+                    return true;
+                }
+            }
+            return false;
+        };
+        /**
+         * Get an iif expression given a nesting level
+         * @param level - nesting level
+         */
+        CaseStatementsComponent.prototype.getIif = function (level) {
+            var isSimple = this.syntax === 'simple';
+            var output = this.transformIfSimple(isSimple ?
+                this.cases[level].simpleOutput :
+                this.cases[level].output, true);
+            var condition = this.transformIfSimple(isSimple ?
+                this.cases[level].simpleCondition :
+                this.cases[level].condition, false);
+            if (level === this.cases.length - 1) {
+                var defaultCase = this.transformIfSimple(isSimple ?
+                    this.simpleDefaultCase : this.defaultCase, true);
+                return "iif(" + condition + "," + output + "," + defaultCase + ")";
+            }
+            else {
+                return "iif(" + condition + "," + output + "," + this.getIif(level + 1) + ")";
+            }
+        };
+        /**
+         * Transform the expression parameter if the syntax type is Easy Path,
+         * otherwise return the expression. Additionally if this is an output column
+         * and output expressions are off surround with quotes.
+         * @param expression - Easy Path or FHIRPath expression
+         * @param isOutput - True if processing an output or default value
+         * @return FHIRPath Expression
+         */
+        CaseStatementsComponent.prototype.transformIfSimple = function (expression, isOutput) {
+            if (expression === undefined) {
+                return '';
+            }
+            var processedExpression = expression;
+            if (isOutput && !this.outputExpressions) {
+                processedExpression = "'" + processedExpression + "'"; // TODO should we escape the expression?
+            }
+            // Convert when syntax is simple but not in the output column is outputExpressions is disabled
+            if (this.syntax === 'simple' && !(isOutput && !this.outputExpressions)) {
+                return this.pipe.transform(processedExpression, this.ruleEditorService.variables.map(function (e) { return e.label; }));
+            }
+            else {
+                return processedExpression;
+            }
+        };
+        /**
+         * Drag and drop rearrange of variable order
+         * @param event - drag and drop event
+         */
+        CaseStatementsComponent.prototype.drop = function (event) {
+            dragDrop.moveItemInArray(this.cases, event.previousIndex, event.currentIndex);
+            this.onChange();
+        };
+        return CaseStatementsComponent;
+    }());
+    CaseStatementsComponent.decorators = [
+        { type: i0.Component, args: [{
+                    selector: 'lhc-case-statements',
+                    template: "<div class=\"container\">\n  <div class=\"case-header\" [style]=\"lhcStyle.variableHeader\" aria-hidden=\"true\">\n    <div class=\"case-condition-column\">When expression is true</div>\n    <div class=\"case-output-column\">\n      Output\n      <input type=\"checkbox\" id=\"output-expressions\" [(ngModel)]=\"outputExpressions\" (change)=\"onChange()\">\n      <label for=\"output-expressions\">Use expressions (strings if unchecked)</label>\n    </div>\n  </div>\n  <div cdkDropList (cdkDropListDropped)=\"drop($event)\">\n    <div class=\"case-row drag-case\" [style]=\"lhcStyle.variableRow\" *ngFor=\"let caseStatement of cases; index as i\" [id]=\"'row-' + i\" cdkDrag>\n      <div class=\"case-condition-column\">\n        <!-- Inline SVG for the row drag and drop handle -->\n        <svg cdkDragHandle xmlns=\"http://www.w3.org/2000/svg\" width=\"20\" height=\"20\" fill=\"currentColor\" class=\"handle\" viewBox=\"0 0 16 16\">\n          <path d=\"M7 2a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zM7 5a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zM7 8a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0z\"/>\n        </svg>\n        <input *ngIf=\"syntax !== 'simple'\" type=\"text\" [id]=\"'case-condition-' + i\" [(ngModel)]=\"caseStatement.condition\" (ngModelChange)=\"onChange()\" [style]=\"lhcStyle.input\" class=\"condition\" aria-label=\"Case condition\" />\n        <input *ngIf=\"syntax === 'simple'\" type=\"text\" [id]=\"'case-condition-' + i\" [(ngModel)]=\"caseStatement.simpleCondition\" (ngModelChange)=\"onChange()\" [style]=\"lhcStyle.input\" class=\"condition\" aria-label=\"Case condition\" />\n        <span class=\"arrow\">\u2192</span>\n      </div>\n      <div class=\"case-output-column\">\n        <input *ngIf=\"syntax !== 'simple'\" type=\"text\" [id]=\"'case-output-' + i\" [(ngModel)]=\"caseStatement.output\" (ngModelChange)=\"onChange()\" [style]=\"lhcStyle.input\" class=\"output\" aria-label=\"Case output\" />\n        <input *ngIf=\"syntax === 'simple'\" type=\"text\" [id]=\"'case-output-' + i\" [(ngModel)]=\"caseStatement.simpleOutput\" (ngModelChange)=\"onChange()\" [style]=\"lhcStyle.input\" class=\"output\" aria-label=\"Case output\" />\n      </div>\n      <div class=\"case-column-actions\" *ngIf=\"cases.length > 1\">\n        <button class=\"btn btn-danger remove-case\" aria-label=\"Remove case\" title=\"Remove case\" [style]=\"lhcStyle.buttonDanger\" (click)=\"onRemove(i)\">x</button>\n      </div>\n    </div>\n  </div>\n</div>\n\n<button id=\"add-case\" class=\"btn btn-secondary mt-2\" (click)=\"onAdd()\" [ngStyle]=\"lhcStyle.buttonSecondary\">Add case</button>\n\n<div class=\"case-row\">\n  <div class=\"case-condition-column\"></div>\n  <div class=\"case-output-column\">\n    <label>\n      Default output value:\n      <input *ngIf=\"syntax !== 'simple'\" type=\"text\" [(ngModel)]=\"defaultCase\" (ngModelChange)=\"onChange()\" [style]=\"lhcStyle.input\" class=\"default\" />\n      <input *ngIf=\"syntax === 'simple'\" type=\"text\" [(ngModel)]=\"simpleDefaultCase\" (ngModelChange)=\"onChange()\" [style]=\"lhcStyle.input\" class=\"default\" />\n    </label>\n  </div>\n</div>\n<lhc-syntax-preview [lhcStyle]=\"lhcStyle\" [syntax]=\"output\"></lhc-syntax-preview>\n",
+                    styles: ["*{box-sizing:border-box}.case-header,.case-row{display:flex;flex-direction:row;flex-wrap:wrap}.case-header>.case-column-label{padding-left:1.6em}.case-condition-column>input,.case-output-column select{width:100%;height:2rem;font-size:1rem}.case-condition-column,.case-output-column{padding:.5rem}.case-condition-column{display:flex;flex:0 0 50%}.condition,.output{flex-grow:100}.case-actions-column{flex:auto}.case-output-column{flex:1 0 40%;min-width:0}.case-column-actions button{height:2rem;width:2rem;background-color:#8b0000;color:#fff;padding:0}.case-column-actions{flex:0 0 auto;padding-top:.5rem;padding-left:.5rem}@media (max-width:975px){.case-row{flex-direction:column}.case-condition-column{flex:100%}.case-output-column{flex:20 0 10em}.case-actions-column{flex:auto}}.drag-case{padding:.75rem 0;border-top:1px solid rgba(0,0,0,.1);color:rgba(0,0,0,.87);display:flex;flex-direction:row;justify-content:space-between;box-sizing:border-box;background:#fff}.handle{cursor:move;margin-top:.4rem}.cdk-drag-preview{box-sizing:border-box;border-radius:4px;box-shadow:0 5px 5px -3px rgba(0,0,0,.2),0 8px 10px 1px rgba(0,0,0,.14),0 3px 14px 2px rgba(0,0,0,.12)}.cdk-drag-placeholder{opacity:0}.cdk-drag-animating{transition:transform .25s cubic-bezier(0,0,.2,1)}#output-expressions{margin-left:2em}input[type=text],select{height:2rem;font-size:1rem;width:100%;margin-bottom:1rem;box-sizing:border-box;border:1px solid #999;background-color:#fff;border-radius:4px;padding:0 .5em}button{height:2.5rem;border:none;border-radius:4px;padding:0 2em;font-size:1rem}.arrow{font-size:1.6em;padding-left:.5em}.default{margin-top:.5rem}.syntax{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.text-muted{margin:0;color:#555;font-size:.8rem}.copy{margin-top:1em;flex:0 0 3em;border:none;background:transparent}::ng-deep .mat-tooltip{overflow-wrap:break-word}"]
+                },] }
+    ];
+    CaseStatementsComponent.ctorParameters = function () { return [
+        { type: RuleEditorService }
+    ]; };
+    CaseStatementsComponent.propDecorators = {
+        lhcStyle: [{ type: i0.Input }],
+        syntax: [{ type: i0.Input }],
+        simpleExpression: [{ type: i0.Input }],
+        expression: [{ type: i0.Input }],
+        expressionChange: [{ type: i0.Output }],
+        simpleChange: [{ type: i0.Output }]
     };
 
     var RuleEditorModule = /** @class */ (function () {
@@ -19333,15 +20010,20 @@
                         UneditableVariablesComponent,
                         QuestionComponent,
                         CalculateSumPromptComponent,
-                        MathToFhirpathPipe,
+                        EasyPathExpressionsPipe,
                         SyntaxConverterComponent,
-                        SyntaxPreviewComponent
+                        SyntaxPreviewComponent,
+                        QueryObservationComponent,
+                        CaseStatementsComponent
                     ],
                     imports: [
                         FormsModule,
                         BrowserAnimationsModule,
                         dragDrop.DragDropModule,
-                        radio.MatRadioModule
+                        radio.MatRadioModule,
+                        clipboard.ClipboardModule,
+                        tooltip.MatTooltipModule,
+                        snackBar.MatSnackBarModule
                     ],
                     exports: [
                         RuleEditorComponent
@@ -19360,15 +20042,17 @@
     exports.RuleEditorComponent = RuleEditorComponent;
     exports.RuleEditorModule = RuleEditorModule;
     exports.RuleEditorService = RuleEditorService;
-    exports.ɵa = VariablesComponent;
-    exports.ɵb = UneditableVariablesComponent;
-    exports.ɵc = QuestionComponent;
-    exports.ɵd = CalculateSumPromptComponent;
-    exports.ɵe = MathToFhirpathPipe;
-    exports.ɵf = SyntaxConverterComponent;
-    exports.ɵg = SyntaxPreviewComponent;
+    exports["ɵa"] = VariablesComponent;
+    exports["ɵb"] = UneditableVariablesComponent;
+    exports["ɵc"] = QuestionComponent;
+    exports["ɵd"] = CalculateSumPromptComponent;
+    exports["ɵe"] = EasyPathExpressionsPipe;
+    exports["ɵf"] = SyntaxConverterComponent;
+    exports["ɵg"] = SyntaxPreviewComponent;
+    exports["ɵh"] = QueryObservationComponent;
+    exports["ɵi"] = CaseStatementsComponent;
 
     Object.defineProperty(exports, '__esModule', { value: true });
 
-})));
+}));
 //# sourceMappingURL=ng-rule-editor.umd.js.map

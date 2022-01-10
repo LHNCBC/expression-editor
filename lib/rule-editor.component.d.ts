@@ -1,9 +1,13 @@
 import { DatePipe } from '@angular/common';
-import { EventEmitter, OnChanges } from '@angular/core';
+import { EventEmitter, OnChanges, OnInit } from '@angular/core';
 import { MatRadioChange } from '@angular/material/radio';
 import { RuleEditorService, SimpleStyle } from './rule-editor.service';
-export declare class RuleEditorComponent implements OnChanges {
+import { LiveAnnouncer } from '@angular/cdk/a11y';
+import * as ɵngcc0 from '@angular/core';
+export declare class RuleEditorComponent implements OnInit, OnChanges {
     private variableService;
+    private liveAnnouncer;
+    advancedInterface: boolean;
     fhirQuestionnaire: any;
     itemLinkId: any;
     submitButtonName: string;
@@ -12,6 +16,7 @@ export declare class RuleEditorComponent implements OnChanges {
     expressionUri: string;
     lhcStyle: SimpleStyle;
     save: EventEmitter<object>;
+    errorLoading: string;
     expressionSyntax: string;
     simpleExpression: string;
     finalExpression: string;
@@ -21,10 +26,15 @@ export declare class RuleEditorComponent implements OnChanges {
     calculateSum: boolean;
     suggestions: any[];
     variables: string[];
+    caseStatements: boolean;
+    disableInterfaceToggle: boolean;
+    loadError: boolean;
     private calculateSumSubscription;
     private finalExpressionSubscription;
     private variablesSubscription;
-    constructor(variableService: RuleEditorService);
+    private disableAdvancedSubscription;
+    constructor(variableService: RuleEditorService, liveAnnouncer: LiveAnnouncer);
+    ngOnInit(): void;
     /**
      * Angular lifecycle hook called before the component is destroyed
      */
@@ -55,4 +65,16 @@ export declare class RuleEditorComponent implements OnChanges {
      * Update the final expression
      */
     updateFinalExpression(expression: any): void;
+    /**
+     * Update the simple final expression
+     */
+    updateSimpleExpression(simple: any): void;
+    /**
+     * Toggle the advanced interface based on the type
+     */
+    onTypeChange(event: any): void;
+    static ɵfac: ɵngcc0.ɵɵFactoryDef<RuleEditorComponent, never>;
+    static ɵcmp: ɵngcc0.ɵɵComponentDefWithMeta<RuleEditorComponent, "lhc-rule-editor", never, { "advancedInterface": "advancedInterface"; "fhirQuestionnaire": "fhirQuestionnaire"; "itemLinkId": "itemLinkId"; "submitButtonName": "submitButtonName"; "titleName": "titleName"; "expressionLabel": "expressionLabel"; "expressionUri": "expressionUri"; "lhcStyle": "lhcStyle"; }, { "save": "save"; }, never, never>;
 }
+
+//# sourceMappingURL=rule-editor.component.d.ts.map

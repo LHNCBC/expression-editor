@@ -1,6 +1,6 @@
 {
   "name": "ng-rule-editor",
-  "version": "1.1.0",
+  "version": "1.6.0",
   "peerDependencies": {
     "@angular/animations": "~11.0.5",
     "@angular/cdk": "^11.1.1",
@@ -9,17 +9,31 @@
     "@angular/material": "^11.1.1"
   },
   "dependencies": {
-    "tslib": "^2.0.0"
+    "tslib": "^2.0.0",
+    "jquery": "^3.6.0",
+    "autocomplete-lhc": "^18.1.2"
   },
   "bundledDependencies": [
     "math-to-fhirpath"
   ],
   "main": "bundles/ng-rule-editor.umd.js",
+  "module_ivy_ngcc": "__ivy_ngcc__/fesm2015/ng-rule-editor.js",
   "module": "fesm2015/ng-rule-editor.js",
+  "es2015_ivy_ngcc": "__ivy_ngcc__/fesm2015/ng-rule-editor.js",
   "es2015": "fesm2015/ng-rule-editor.js",
   "esm2015": "esm2015/ng-rule-editor.js",
+  "fesm2015_ivy_ngcc": "__ivy_ngcc__/fesm2015/ng-rule-editor.js",
   "fesm2015": "fesm2015/ng-rule-editor.js",
   "typings": "ng-rule-editor.d.ts",
   "metadata": "ng-rule-editor.metadata.json",
-  "sideEffects": false
+  "sideEffects": false,
+  "__processed_by_ivy_ngcc__": {
+    "es2015": "11.0.9",
+    "fesm2015": "11.0.9",
+    "module": "11.0.9",
+    "typings": "11.0.9"
+  },
+  "scripts": {
+    "prepublishOnly": "node --eval \"console.error('ERROR: Trying to publish a package that has been compiled by NGCC. This is not allowed.\\nPlease delete and rebuild the package, without compiling with NGCC, before attempting to publish.\\nNote that NGCC may have been run by importing this package into another project that is being built with Ivy enabled.\\n')\" && exit 1"
+  }
 }

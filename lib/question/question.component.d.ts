@@ -2,6 +2,7 @@ import { OnInit } from '@angular/core';
 import { Question } from '../variable';
 import { RuleEditorService, SimpleStyle } from '../rule-editor.service';
 import { Unit } from '../units';
+import * as ɵngcc0 from '@angular/core';
 export declare class QuestionComponent implements OnInit {
     private variableService;
     variable: any;
@@ -33,4 +34,8 @@ export declare class QuestionComponent implements OnInit {
      * @param isQuestion - The change was for a question
      */
     onChange(isQuestion: any): void;
+    static ɵfac: ɵngcc0.ɵɵFactoryDef<QuestionComponent, never>;
+    static ɵcmp: ɵngcc0.ɵɵComponentDefWithMeta<QuestionComponent, "lhc-question", never, { "lhcStyle": "lhcStyle"; "variable": "variable"; }, {}, never, never>;
 }
+
+//# sourceMappingURL=question.component.d.ts.map

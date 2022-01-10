@@ -1,0 +1,4 @@
+import { PipeTransform } from '@angular/core';
+export declare class EasyPathExpressionsPipe implements PipeTransform {
+    transform(value: string, variables: string[]): string;
+}

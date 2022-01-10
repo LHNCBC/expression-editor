@@ -4,13 +4,16 @@ export interface UneditableVariable {
     description?: string;
 }
 export interface Variable {
-    _index?: number;
+    __$index?: number;
     label: string;
     type: string;
     expression: string;
     simple?: string;
     linkId?: string;
     unit?: string;
+    codes?: Array<string>;
+    timeInterval?: number;
+    timeIntervalUnit?: string;
 }
 export interface Question {
     linkId: string;
@@ -18,8 +21,22 @@ export interface Question {
     itemHasScore?: boolean;
     unit?: string;
 }
-export declare enum VariableType {
+export interface CaseStatement {
+    condition: string;
+    simpleCondition?: string;
+    output: string;
+    simpleOutput?: string;
+}
+export declare enum AllVariableType {
     question = "Question",
     expression = "FHIRPath Expression",
-    simple = "Simple Expression"
+    simple = "Easy Path Expression",
+    query = "FHIR Query",
+    queryObservation = "FHIR Query (Observation)"
 }
+export declare enum SimpleVariableType {
+    question = "Question",
+    simple = "Easy Path Expression",
+    queryObservation = "FHIR Query (Observation)"
+}
+export declare const CASE_REGEX: RegExp;
