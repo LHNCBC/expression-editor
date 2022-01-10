@@ -9,11 +9,9 @@
     "build:concatenate": "concat -o dist/rule-editor/rule-editor.js dist/rule-editor/runtime.js dist/rule-editor/polyfills.js dist/rule-editor/main.js",
     "build:gh-pages": "ng build ng-rule-editor --configuration production && ng build rule-editor --configuration production && ng build --configuration production --output-path docs --base-href /rule-editor/ && npm run build:concatenate-gh",
     "build": "ng build ng-rule-editor --configuration production && ng build rule-editor --configuration production && npm run build:concatenate && ng build",
-    "test": "ng test --watch=false && ng run demo:cypress-run && npm run webdriver-manager-update && npm run test:protractor",
+    "test": "ng test --watch=false && ng run demo:cypress-run",
     "test:unit": "ng test --watch=false",
     "lint": "ng lint",
-    "webdriver-manager-update": "node node_modules/protractor/bin/webdriver-manager update --versions.chrome $(google-chrome --version |awk '{print $NF}')",
-    "test:protractor": "ng serve & sleep 25; protractor e2e/protractor.conf.js; s=$?; kill %1; exit $s",
     "test:e2e": "ng e2e"
   },
   "dependencies": {
