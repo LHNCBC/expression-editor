@@ -14,6 +14,6 @@
     "autocomplete-lhc": "^18.1.2"
   },
   "bundledDependencies": [
-    "math-to-fhirpath"
+    "easy-path-expressions"
   ]
 }

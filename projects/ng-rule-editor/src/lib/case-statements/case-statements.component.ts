@@ -2,7 +2,7 @@ import { Component, EventEmitter, Input, OnChanges, OnInit, Output } from '@angu
 import { RuleEditorService, SimpleStyle } from '../rule-editor.service';
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { CASE_REGEX, CaseStatement, Variable } from '../variable';
-import { EasyPathExpressionsPipe } from '../math-to-fhirpath.pipe';
+import { EasyPathExpressionsPipe } from '../easy-path-expressions.pipe';
 
 @Component({
   selector: 'lhc-case-statements',

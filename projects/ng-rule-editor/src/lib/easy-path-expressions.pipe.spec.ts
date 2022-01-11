@@ -1,4 +1,4 @@
-import { EasyPathExpressionsPipe } from './math-to-fhirpath.pipe';
+import { EasyPathExpressionsPipe } from './easy-path-expressions.pipe';
 
 describe('JsToFhirPathPipe', () => {
   it('create an instance', () => {

@@ -1,11 +1,11 @@
 {
   "$schema": "../../node_modules/ng-packagr/ng-package.schema.json",
   "dest": "../../dist/ng-rule-editor",
-  "allowedNonPeerDependencies": ["math-to-fhirpath", "jquery", "autocomplete-lhc"],
+  "allowedNonPeerDependencies": ["easy-path-expressions", "jquery", "autocomplete-lhc"],
   "lib": {
     "entryFile": "src/public-api.ts",
     "umdModuleIds": {
-      "math-to-fhirpath": "mathToFhirpath",
+      "easy-path-expressions": "easyPathExpressions",
       "autocomplete-lhc": "Def"
     }
   }

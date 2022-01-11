@@ -2,12 +2,17 @@
 
 This project follows [Semantic Versioning](http://semver.org/).
 
-## [2.0.0] 2022-01-06
+## [2.0.0] 2022-01-11
 ### Changed
 - Variables editable in the interface are now from the question specified by
   linkId. The other variables in the questionnaire show up in the uneditable
   section.
 - Updated Angular version to 12.
+
+## [1.6.1] 2022-01-10
+### Changed
+- Updates to get `easy-path-expressions` working inside applications using the
+  Angular library.
 
 ## [1.6.0] 2021-10-08
 ### Added
