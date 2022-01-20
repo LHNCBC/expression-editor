@@ -16,7 +16,7 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
   @Input() submitButtonName = 'Submit';
   @Input() titleName = 'Rule Editor';
   @Input() expressionLabel = 'Final Expression';
-  @Input() expressionUri = 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression';
+  @Input() expressionUri = '';
   @Input() lhcStyle: SimpleStyle = {};
   @Output() save = new EventEmitter<object>();
 
@@ -27,7 +27,6 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
   finalExpressionExtension;
   linkIdContext: string;
   calculateSum: boolean;
-  suggestions = [];
   variables: string[];
   caseStatements: boolean;
   disableInterfaceToggle = false;
@@ -76,7 +75,7 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
    * Re-import fhir and context and show the form
    */
   reload(): void {
-    if (this.fhirQuestionnaire !== null && this.itemLinkId !== null) {
+    if (this.fhirQuestionnaire instanceof Object) {
       this.loadError = !this.variableService.import(this.expressionUri, this.fhirQuestionnaire, this.itemLinkId);
       if (this.loadError) {
         this.liveAnnouncer.announce(this.errorLoading);

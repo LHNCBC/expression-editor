@@ -20,7 +20,7 @@ describe('Rule Editor', () => {
         expect(await page.getVariablesTitle()).toEqual('Item Variables');
         expect(await page.getNumberOfVariables()).toEqual(2);
         // Final expression
-        expect(await page.getFinalExpressionTitle()).toEqual('Output Calculated Expression');
+        expect(await page.getFinalExpressionTitle()).toEqual('Output Expression');
       });
 
       it('should be possible to add a variable', async () => {

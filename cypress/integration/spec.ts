@@ -90,7 +90,7 @@ describe('Rule editor', () => {
         cy.get('.default').type('obese');
         // Add a default value
 
-        // CHeck the output expression
+        // Check the output expression
         cy.get('lhc-case-statements > lhc-syntax-preview').contains(
           `iif(%bmi<18.5,'underweight',iif(%bmi<25,'normal',iif(%bmi<30,'overweight','obese')))`);
       });

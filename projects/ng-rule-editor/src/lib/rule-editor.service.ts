@@ -123,8 +123,9 @@ export class RuleEditorService {
    * Launch context + variables outside not on the current item scope
    * @param questionnaire - FHIR Questionnaire
    * @param linkIdContext - Context to use for final expression
+   * @param launchContextOnly - Only show the launch context related extensions (default: false)
    */
-  getUneditableVariables(questionnaire, linkIdContext): UneditableVariable[] {
+  getUneditableVariables(questionnaire, linkIdContext, launchContextOnly = false): UneditableVariable[] {
     const uneditableVariables = [];
 
     if (Array.isArray(questionnaire.extension)) {
@@ -135,7 +136,7 @@ export class RuleEditorService {
             type: extension.extension.filter((e) => e.url === 'type')?.map((e) => e.valueCode).join('|'),
             description: extension.extension.find((e) => e.url === 'description')?.valueString
           });
-        } else if (this.isVariable(extension)) {
+        } else if (this.isVariable(extension) && !launchContextOnly) {
           accumulator.push({
             name: extension.valueExpression.name,
             type: 'Variable',
@@ -150,7 +151,7 @@ export class RuleEditorService {
     let itemsToVisit = copy(questionnaire.item);
 
     // Get the variables up to but not including the item with linkId matching
-    while (itemsToVisit && itemsToVisit.length) {
+    while (itemsToVisit && itemsToVisit.length && !launchContextOnly) {
       const currentItem = itemsToVisit.shift();
 
       if (currentItem.linkId === linkIdContext) {
@@ -195,58 +196,19 @@ export class RuleEditorService {
    * Get and remove the variables from the FHIR object
    * @param items - Question array
    * @param linkIdContext - Context to use for extracting variables
+   * @return Array of variables
    */
-  extractVariables(items, linkIdContext): Variable[] {
+  extractVariablesFromItems(items, linkIdContext): Variable[] {
     // Look at the item fhirpath related extensions to populate the editable variables
 
     const item = items.find((e) => e.linkId === linkIdContext && e.extension);
     if (item) {
-      const variables = [];
-      const nonVariableExtensions = [];
-
-      // Add an index to each extension which we will then use to get the
-      // variables back in the correct order. __$index will be removed on save
-      item.extension = item.extension.map((e, i) => ({ ...e, __$index: i }));
-
-      item.extension.forEach((extension) => {
-        if (extension.url === this.VARIABLE_EXTENSION && extension.valueExpression) {
-          switch (extension.valueExpression.language) {
-            case this.LANGUAGE_FHIRPATH:
-              const fhirPathVarToAdd = this.processVariable(
-                extension.valueExpression.name,
-                extension.valueExpression.expression,
-                extension.__$index,
-                extension.valueExpression.extension);
-              if (fhirPathVarToAdd.type === 'expression') {
-                this.needsAdvancedInterface = true;
-              }
-              variables.push(fhirPathVarToAdd);
-              break;
-            case this.LANGUAGE_FHIR_QUERY:
-              const queryVarToAdd = this.processQueryVariable(
-                extension.valueExpression.name,
-                extension.valueExpression.expression,
-                extension.__$index);
-              if (queryVarToAdd.type === 'query') {
-                this.needsAdvancedInterface = true;
-              }
-              variables.push(queryVarToAdd);
-              break;
-          }
-        } else {
-          nonVariableExtensions.push(extension);
-        }
-      });
-
-      // Remove the variables so they can be re-added on export
-      item.extension = nonVariableExtensions;
-
-      return variables;
+      return this.extractVariablesFromExtensions(item);
     } else {
       if (items.item && items.item.length) {
         for (const searchItem of items.item) {
           if (searchItem.item) {
-            const ret = this.extractVariables(searchItem.item, linkIdContext);
+            const ret = this.extractVariablesFromItems(searchItem.item, linkIdContext);
             if (ret.length) {
               return ret;
             }
@@ -254,6 +216,68 @@ export class RuleEditorService {
         }
       }
 
+      return [];
+    }
+  }
+
+  /**
+   * Get and remove the variables from an item or FHIR questionnaire
+   * @param item - FHIR Questionnaire or item
+   * @return Array of variables
+   * @private
+   */
+  private extractVariablesFromExtensions(item): Variable[] {
+    const variables = [];
+    const nonVariableExtensions = [];
+
+    // Add an index to each extension which we will then use to get the
+    // variables back in the correct order. __$index will be removed on save
+    item.extension = item.extension.map((e, i) => ({...e, __$index: i}));
+
+    item.extension.forEach((extension) => {
+      if (extension.url === this.VARIABLE_EXTENSION && extension.valueExpression) {
+        switch (extension.valueExpression.language) {
+          case this.LANGUAGE_FHIRPATH:
+            const fhirPathVarToAdd = this.processVariable(
+              extension.valueExpression.name,
+              extension.valueExpression.expression,
+              extension.__$index,
+              extension.valueExpression.extension);
+            if (fhirPathVarToAdd.type === 'expression') {
+              this.needsAdvancedInterface = true;
+            }
+            variables.push(fhirPathVarToAdd);
+            break;
+          case this.LANGUAGE_FHIR_QUERY:
+            const queryVarToAdd = this.processQueryVariable(
+              extension.valueExpression.name,
+              extension.valueExpression.expression,
+              extension.__$index);
+            if (queryVarToAdd.type === 'query') {
+              this.needsAdvancedInterface = true;
+            }
+            variables.push(queryVarToAdd);
+            break;
+        }
+      } else {
+        nonVariableExtensions.push(extension);
+      }
+    });
+
+    // Remove the variables so they can be re-added on export
+    item.extension = nonVariableExtensions;
+
+    return variables;
+  }
+
+  /**
+   * Get and remove the variables from the FHIR object
+   * @param fhir - FHIR Questionnaire
+   */
+  extractTopLevelVariables(fhir): Variable[] {
+    if (fhir.extension instanceof Array) {
+      return this.extractVariablesFromExtensions(fhir);
+    } else {
       return [];
     }
   }
@@ -304,23 +328,32 @@ export class RuleEditorService {
   import(expressionUri: string, questionnaire, linkIdContext): boolean {
     this.linkIdContext = linkIdContext;
     this.fhir = copy(questionnaire);
-    let loadSuccess = false;
+    const loadSuccess = this.fhir.resourceType === 'Questionnaire';
 
-    if (this.fhir.resourceType === 'Questionnaire' && this.fhir.item && this.fhir.item.length) {
+    if (loadSuccess && this.fhir.item && this.fhir.item.length) {
       // If there is at least one score question we will ask the user if they
       // want to calculate the score
       const SCORE_MIN_QUESTIONS = 1;
       this.mightBeScore = this.getScoreQuestionCount(this.fhir, linkIdContext) > SCORE_MIN_QUESTIONS;
       this.mightBeScoreChange.next(this.mightBeScore);
 
-      this.uneditableVariables = this.getUneditableVariables(this.fhir, linkIdContext);
-      this.uneditableVariablesChange.next(this.uneditableVariables);
 
       this.linkIdToQuestion = {};
       this.needsAdvancedInterface = false;
       this.processItem(this.fhir.item);
 
-      this.variables = this.extractVariables(this.fhir.item, linkIdContext);
+      if (linkIdContext !== undefined && linkIdContext !== '') {
+        this.uneditableVariables = this.getUneditableVariables(this.fhir, linkIdContext);
+        this.variables = this.extractVariablesFromItems(this.fhir.item, linkIdContext);
+      } else {
+        this.uneditableVariables = this.getUneditableVariables(this.fhir, linkIdContext, true);
+        this.variables = this.extractTopLevelVariables(this.fhir);
+
+        // Since we don't have a target item the output expression does not make sense so hide it.
+        expressionUri = '';
+      }
+
+      this.uneditableVariablesChange.next(this.uneditableVariables);
       this.variablesChange.next(this.variables);
 
       this.questions = [];
@@ -346,41 +379,42 @@ export class RuleEditorService {
       }
       this.questionsChange.next(this.questions);
 
-      const expression = this.extractExpression(expressionUri, this.fhir.item, linkIdContext);
+      if (expressionUri) {
+        const expression = this.extractExpression(expressionUri, this.fhir.item, linkIdContext);
 
-      if (expression !== null) {
-        // @ts-ignore
-        this.finalExpression = expression.valueExpression.expression;
-        this.finalExpressionExtension = expression;
+        if (expression !== null) {
+          // @ts-ignore
+          this.finalExpression = expression.valueExpression.expression;
+          this.finalExpressionExtension = expression;
 
-        this.caseStatements = this.finalExpression.match(CASE_REGEX) !== null;
+          this.caseStatements = this.finalExpression.match(CASE_REGEX) !== null;
 
-        const simpleSyntax = this.extractSimpleSyntax(expression);
+          const simpleSyntax = this.extractSimpleSyntax(expression);
 
-        if (simpleSyntax === null && this.finalExpression !== '') {
-          this.syntaxType = 'fhirpath';
-          this.needsAdvancedInterface = true;
-        } else {
-          this.syntaxType = 'simple';
-          this.simpleExpression = simpleSyntax;
-        }
-      } else {
-        // Reset input to be a blank simple expression if there is nothing on
-        // the form
-        this.syntaxType = 'simple';
-        this.simpleExpression = '';
-        this.finalExpression = '';
-        this.finalExpressionExtension = {
-          url: expressionUri,
-          valueExpression: {
-            language: 'text/fhirpath',
-            expression: this.finalExpression
+          if (simpleSyntax === null && this.finalExpression !== '') {
+            this.syntaxType = 'fhirpath';
+            this.needsAdvancedInterface = true;
+          } else {
+            this.syntaxType = 'simple';
+            this.simpleExpression = simpleSyntax;
           }
-        };
-      }
+        } else {
+          // Reset input to be a blank simple expression if there is nothing on
+          // the form
+          this.syntaxType = 'simple';
+          this.simpleExpression = '';
+          this.finalExpression = '';
+          this.finalExpressionExtension = {
+            url: expressionUri,
+            valueExpression: {
+              language: 'text/fhirpath',
+              expression: this.finalExpression
+            }
+          };
+        }
 
-      this.finalExpressionChange.next(this.finalExpression);
-      loadSuccess = true;
+        this.finalExpressionChange.next(this.finalExpression);
+      }
     }
 
     return loadSuccess;
@@ -656,8 +690,12 @@ export class RuleEditorService {
       this.findOrAddExtension(finalExpression.valueExpression.extension, this.SIMPLE_SYNTAX_EXTENSION, 'String', this.simpleExpression);
     }
 
-    // Treat the final expression as an added variable since it needs to go after the variables added
-    this.insertExtensions(fhir.item, this.linkIdContext, variablesPresentInitially, variablesAdded.concat(finalExpression));
+    if (this.linkIdContext !== undefined && this.linkIdContext !== null && this.linkIdContext !== '') {
+      // Treat the final expression as an added variable since it needs to go after the variables added
+      this.insertExtensions(fhir, fhir.item, this.linkIdContext, variablesPresentInitially, variablesAdded.concat(finalExpression));
+    } else {
+      this.insertExtensions(fhir, fhir.item, this.linkIdContext, variablesPresentInitially, variablesAdded);
+    }
 
     // If there are any query observation extensions check to make sure there is
     // a patient launch context. If there is not add one.
@@ -820,7 +858,7 @@ export class RuleEditorService {
     // @ts-ignore
     scoreQuestions.push(totalCalculation);
 
-    this.insertExtensions(fhir.item, linkIdContext, [], scoreQuestions);
+    this.insertExtensions(fhir, fhir.item, linkIdContext, [], scoreQuestions);
 
     return fhir;
   }
@@ -911,27 +949,35 @@ export class RuleEditorService {
     }
   }
 
-  private insertExtensions(items, linkId, variablesPresentInitially, variablesAdded): void {
-    for (const item of items) {
-      if (item.linkId === linkId) {
-        if (item.extension) {
-          // Introduce variables present before
-          item.extension = item.extension.concat(variablesPresentInitially);
-          // Sort by index
-          item.extension.sort((a, b) => a.__$index - b.__$index);
-          // Add variables added by the user
-          item.extension = item.extension.concat(variablesAdded);
-        } else {
-          item.extension = variablesPresentInitially.concat(variablesAdded);
+  private insertExtensions(fhir, items, linkId, variablesPresentInitially, variablesAdded): void {
+    if (linkId === undefined || linkId === null || linkId === '') {
+      addOrInsertExtensions(fhir);
+    } else {
+      for (const item of items) {
+        if (item.linkId === linkId) {
+          addOrInsertExtensions(item);
+
+          break;
+        } else if (item.item) {
+          this.insertExtensions(fhir, item.item, linkId, variablesPresentInitially, variablesAdded);
         }
-
-        // Remove __$index
-        item.extension = item.extension.map(({__$index, ...other}) => other);
-
-        break;
-      } else if (item.item) {
-        this.insertExtensions(item.item, linkId, variablesPresentInitially, variablesAdded);
       }
+    }
+
+    function addOrInsertExtensions(item): void {
+      if (item.extension) {
+        // Introduce variables present before
+        item.extension = item.extension.concat(variablesPresentInitially);
+        // Sort by index
+        item.extension.sort((a, b) => a.__$index - b.__$index);
+        // Add variables added by the user
+        item.extension = item.extension.concat(variablesAdded);
+      } else {
+        item.extension = variablesPresentInitially.concat(variablesAdded);
+      }
+
+      // Remove __$index
+      item.extension = item.extension.map(({__$index, ...other}) => other);
     }
   }
 

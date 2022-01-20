@@ -17,7 +17,7 @@
     <lhc-variables [lhcStyle]="lhcStyle" [advancedInterface]="advancedInterface"></lhc-variables>
   </section>
 
-  <section id="final-expression-section" class="mb-3">
+  <section id="final-expression-section" class="mb-3" *ngIf="expressionUri">
     <h2 [style]="lhcStyle.h2">{{expressionLabel}}</h2>
 
     <div class="checkbox">
