@@ -4,5 +4,6 @@
   "screenshotsFolder": "cypress/screenshots",
   "fixturesFolder": "src/assets",
   "baseUrl": "http://localhost:4203",
-  "supportFile": "cypress/support/index.ts"
+  "supportFile": "cypress/support/index.ts",
+  "pluginsFile": false
 }
