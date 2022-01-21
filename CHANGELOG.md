@@ -8,7 +8,6 @@ This project follows [Semantic Versioning](http://semver.org/).
   linkId. The other variables in the questionnaire show up in the uneditable
   section.
 - Updated form upload in the demo to be easier to use.
-- Updated Angular version to 12.
 
 ## [1.6.1] 2022-01-10
 ### Changed
