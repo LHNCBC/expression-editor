@@ -20,7 +20,7 @@
   <span *ngIf="fhir">
     <label>
       Question:
-      <select required id="link-id" [(ngModel)]="linkId">
+      <select required id="link-id" [(ngModel)]="linkId" (change)="doNotAskToCalculateScore = true">
         <option value="">None (Edit top level variables)</option>
         <option *ngFor="let currentLinkId of linkIds" [value]="currentLinkId.linkId">{{currentLinkId.text}}</option>
       </select>
@@ -58,6 +58,7 @@
         input: { backgroundColor: '#ffe' },
         select: { backgroundColor: '#ffe' }
       }"
+      [doNotAskToCalculateScore]="doNotAskToCalculateScore"
       (save)="onSave($event)">
     </lhc-rule-editor>
   </div>

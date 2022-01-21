@@ -40,6 +40,7 @@ export class RuleEditorService {
   simpleExpression: string;
   caseStatements: boolean;
   needsAdvancedInterface = false;
+  doNotAskToCalculateScore = false;
 
   private LANGUAGE_FHIRPATH = 'text/fhirpath';
   private LANGUAGE_FHIR_QUERY = 'application/x-fhir-query';
@@ -331,12 +332,13 @@ export class RuleEditorService {
     const loadSuccess = this.fhir.resourceType === 'Questionnaire';
 
     if (loadSuccess && this.fhir.item && this.fhir.item.length) {
-      // If there is at least one score question we will ask the user if they
-      // want to calculate the score
-      const SCORE_MIN_QUESTIONS = 1;
-      this.mightBeScore = this.getScoreQuestionCount(this.fhir, linkIdContext) > SCORE_MIN_QUESTIONS;
-      this.mightBeScoreChange.next(this.mightBeScore);
-
+      if (!this.doNotAskToCalculateScore) {
+        // If there is at least one score question we will ask the user if they
+        // want to calculate the score
+        const SCORE_MIN_QUESTIONS = 1;
+        this.mightBeScore = this.getScoreQuestionCount(this.fhir, linkIdContext) > SCORE_MIN_QUESTIONS;
+        this.mightBeScoreChange.next(this.mightBeScore);
+      }
 
       this.linkIdToQuestion = {};
       this.needsAdvancedInterface = false;

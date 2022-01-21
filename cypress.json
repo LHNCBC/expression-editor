@@ -3,6 +3,6 @@
   "videosFolder": "cypress/videos",
   "screenshotsFolder": "cypress/screenshots",
   "fixturesFolder": "src/assets",
-  "baseUrl": "http://localhost:4200",
+  "baseUrl": "http://localhost:4203",
   "supportFile": "cypress/support/index.ts"
 }

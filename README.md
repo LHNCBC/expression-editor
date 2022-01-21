@@ -28,6 +28,8 @@ object.
 * `advancedInterface` - Show options to edit FHIRPath and x-fhir-query directly
   in dropdowns. This mode is automatically enabled for complex Questionnaires.
   This attribute sets the default which can be overridden by the user.
+* `doNotAskToCalculateScore` - Do not ask the user if they would like to
+  calculate a score.
 * `lhcStyle` (object) - Specify custom CSS to be used by the widget for:
   * h1 - Main heading
   * h2 - Secondary headings
@@ -120,8 +122,8 @@ in the `dist/` directory. Use the `--prod` flag for a production build.
 
 Run `npm start` after building to see the two ways to use the widget:
 
-* The Angular Library can be used at [http://localhost:4200](http://localhost:4200).
-* The Web Component can be used at [http://localhost:4200/web-component.html](http://localhost:4200/web-component.html).
+* The Angular Library can be used at [http://localhost:4202](http://localhost:4202).
+* The Web Component can be used at [http://localhost:4202/web-component.html](http://localhost:4202/web-component.html).
 
 ## Running tests
 

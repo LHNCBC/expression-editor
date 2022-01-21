@@ -31,7 +31,6 @@ export class AppComponent implements OnInit {
       uri: 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression'
     }
   ];
-  defaultUri = this.expressionTypes.find(e => e.selected).uri;
 
   fhirPreview: string;
   linkId = '';
@@ -42,6 +41,7 @@ export class AppComponent implements OnInit {
   formType = 'bmisimple';
   file = '';
   error = '';
+  doNotAskToCalculateScore = false;
 
   constructor(private http: HttpClient, private liveAnnouncer: LiveAnnouncer) {}
 
@@ -56,6 +56,7 @@ export class AppComponent implements OnInit {
     // Clear out preview when changing forms
     this.fhirPreview = '';
     this.error = '';
+    this.doNotAskToCalculateScore = false;
 
     if (this.formType === '' || this.formType === 'upload') {
       this.liveAnnouncer.announce('Additional settings must be entered below to load the rule editor.');
@@ -91,6 +92,8 @@ export class AppComponent implements OnInit {
 
       fileReader.onload = (e) => {
         if (typeof e.target.result === 'string') {
+          this.doNotAskToCalculateScore = false;
+          this.linkId = '';
           try {
             this.fhir = JSON.parse(e.target.result);
             this.error = '';

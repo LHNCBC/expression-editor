@@ -11,6 +11,7 @@ import { LiveAnnouncer } from '@angular/cdk/a11y';
 })
 export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
   @Input() advancedInterface = false;
+  @Input() doNotAskToCalculateScore = false;
   @Input() fhirQuestionnaire = null;
   @Input() itemLinkId = null;
   @Input() submitButtonName = 'Submit';
@@ -76,6 +77,7 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
    */
   reload(): void {
     if (this.fhirQuestionnaire instanceof Object) {
+      this.variableService.doNotAskToCalculateScore = this.doNotAskToCalculateScore;
       this.loadError = !this.variableService.import(this.expressionUri, this.fhirQuestionnaire, this.itemLinkId);
       if (this.loadError) {
         this.liveAnnouncer.announce(this.errorLoading);
