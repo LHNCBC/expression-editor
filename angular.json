@@ -18,6 +18,7 @@
             "main": "src/main.ts",
             "polyfills": "src/polyfills.ts",
             "tsConfig": "tsconfig.app.json",
+            "aot": true,
             "assets": [
               {
                 "glob": "*",
@@ -37,13 +38,7 @@
             ],
             "scripts": [
               "./node_modules/jquery/dist/jquery.min.js"
-            ],
-            "vendorChunk": true,
-            "extractLicenses": false,
-            "buildOptimizer": false,
-            "sourceMap": true,
-            "optimization": false,
-            "namedChunks": true
+            ]
           },
           "configurations": {
             "production": {
@@ -73,8 +68,7 @@
                 }
               ]
             }
-          },
-          "defaultConfiguration": ""
+          }
         },
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
@@ -250,17 +244,12 @@
             "main": "projects/rule-editor/src/main.ts",
             "polyfills": "projects/rule-editor/src/polyfills.ts",
             "tsConfig": "projects/rule-editor/tsconfig.app.json",
+            "aot": true,
             "assets": [],
             "styles": [],
             "scripts": [
               "./node_modules/jquery/dist/jquery.min.js"
-            ],
-            "vendorChunk": true,
-            "extractLicenses": false,
-            "buildOptimizer": false,
-            "sourceMap": true,
-            "optimization": false,
-            "namedChunks": true
+            ]
           },
           "configurations": {
             "production": {
@@ -290,8 +279,7 @@
                 }
               ]
             }
-          },
-          "defaultConfiguration": ""
+          }
         },
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
