@@ -113,4 +113,24 @@ describe('RuleEditorService', () => {
     // @ts-ignore
     expect(output.item[9].extension[12]).toEqual(outputItem);
   });
+
+  it('should get item ancestors correctly', () => {
+    // Link ids repeat but should not affect getAncestors
+    const item = { linkId: 'notTarget' };
+    const nested = { linkId: 'notTarget', item: [item, item]};
+    const items = [
+      nested,
+      nested,
+      {
+        linkId: 'root',
+        item: [item, { linkId: 'nested', item: [{linkId: 'target'}]}, item]
+      },
+      nested
+    ];
+    const output = service.getAncestors(items, 'target', []);
+
+    expect(output.length).toEqual(2);
+    expect(output[0].linkId).toEqual('root');
+    expect(output[1].linkId).toEqual('nested');
+  });
 });

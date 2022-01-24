@@ -86,14 +86,15 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
       this.advancedInterface = this.variableService.needsAdvancedInterface;
     }
 
+    this.caseStatements = this.variableService.caseStatements;
     this.simpleExpression = this.variableService.simpleExpression;
     this.linkIdContext = this.variableService.linkIdContext;
     this.expressionSyntax = this.variableService.syntaxType;
-    this.caseStatements = this.variableService.caseStatements;
     this.calculateSum = this.variableService.mightBeScore;
     this.finalExpressionExtension = this.variableService.finalExpressionExtension;
     this.finalExpression = this.variableService.finalExpression;
-    this.variables = this.variableService.variables.map(e => e.label);
+    this.variables = this.variableService.uneditableVariables.map(e => e.name).concat(
+      this.variableService.variables.map(e => e.label));
   }
 
   /**

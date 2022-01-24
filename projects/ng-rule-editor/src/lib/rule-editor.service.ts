@@ -149,35 +149,57 @@ export class RuleEditorService {
       uneditableVariables.push(...variables);
     }
 
-    let itemsToVisit = copy(questionnaire.item);
+    // Get the variables on item ancestors where linkId matches
+    if (questionnaire.item instanceof Array && !launchContextOnly) {
+      const ancestors = this.getAncestors(questionnaire.item, linkIdContext, []);
 
-    // Get the variables up to but not including the item with linkId matching
-    while (itemsToVisit && itemsToVisit.length && !launchContextOnly) {
-      const currentItem = itemsToVisit.shift();
+      if (ancestors instanceof Array) {
+        const ancestorVariables = [];
 
-      if (currentItem.linkId === linkIdContext) {
-        break;
-      }
-
-      if (currentItem.extension) {
-        currentItem.extension.forEach((extension) => {
-          if (this.isVariable(extension)) {
-            uneditableVariables.push({
-              name: extension.valueExpression.name,
-              type: 'Item variable',
-              description: extension.valueExpression.expression,  // Might want to show simplified form
+        ancestors.forEach(currentItem => {
+          if (currentItem.extension instanceof Array) {
+            currentItem.extension.forEach((extension) => {
+              if (this.isVariable(extension)) {
+                uneditableVariables.push({
+                  name: extension.valueExpression.name,
+                  type: 'Item variable',
+                  description: extension.valueExpression.expression,  // Might want to show simplified form
+                });
+              }
             });
           }
         });
-      }
 
-      // Add child nodes to start of array
-      if (currentItem.item && currentItem.item.length) {
-        itemsToVisit = currentItem.item.concat(itemsToVisit);
+        uneditableVariables.push(...ancestorVariables);
       }
     }
 
     return uneditableVariables;
+  }
+
+  /**
+   * Find the ancestors of an item given the linkId and return those items.
+   * @param items - Items array
+   * @param linkIdContext - Context to use to find item
+   * @param ancestors - Array of ancestor items. Empty array for root level
+   * @return
+   */
+  getAncestors(items, linkIdContext, ancestors): Array<any> {
+    for (const currentItem of items) {
+      if (currentItem.linkId === linkIdContext) {
+        return ancestors;
+      }
+
+      if (currentItem.item instanceof Array) {
+        const tmp = this.getAncestors(currentItem.item, linkIdContext, ancestors.concat(currentItem));
+
+        if (tmp !== null) {
+          return tmp;
+        }
+      }
+    }
+
+    return null;
   }
 
   /**
@@ -342,6 +364,7 @@ export class RuleEditorService {
 
       this.linkIdToQuestion = {};
       this.needsAdvancedInterface = false;
+      this.caseStatements = false;
       this.processItem(this.fhir.item);
 
       if (linkIdContext !== undefined && linkIdContext !== '') {
