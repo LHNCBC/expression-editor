@@ -154,8 +154,6 @@ export class RuleEditorService {
       const ancestors = this.getAncestors(questionnaire.item, linkIdContext, []);
 
       if (ancestors instanceof Array) {
-        const ancestorVariables = [];
-
         ancestors.forEach(currentItem => {
           if (currentItem.extension instanceof Array) {
             currentItem.extension.forEach((extension) => {
@@ -169,8 +167,6 @@ export class RuleEditorService {
             });
           }
         });
-
-        uneditableVariables.push(...ancestorVariables);
       }
     }
 
