@@ -176,18 +176,18 @@ export class RuleEditorService {
   /**
    * Find the ancestors of an item given the linkId and return those items.
    * @param items - Items array
-   * @param linkIdContext - Context to use to find item
+   * @param itemLinkId - The item for which to determine ancestors
    * @param ancestors - Array of ancestor items. Empty array for root level
    * @return
    */
-  getAncestors(items, linkIdContext, ancestors): Array<any> {
+  getAncestors(items, itemLinkId, ancestors): Array<any> {
     for (const currentItem of items) {
-      if (currentItem.linkId === linkIdContext) {
+      if (currentItem.linkId === itemLinkId) {
         return ancestors;
       }
 
       if (currentItem.item instanceof Array) {
-        const tmp = this.getAncestors(currentItem.item, linkIdContext, ancestors.concat(currentItem));
+        const tmp = this.getAncestors(currentItem.item, itemLinkId, ancestors.concat(currentItem));
 
         if (tmp !== null) {
           return tmp;

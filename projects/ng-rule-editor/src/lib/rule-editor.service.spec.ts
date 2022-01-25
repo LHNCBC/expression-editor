@@ -115,7 +115,8 @@ describe('RuleEditorService', () => {
   });
 
   it('should get item ancestors correctly', () => {
-    // Link ids repeat but should not affect getAncestors
+    // In the test data below, the linkIds repeat, but that should not affect
+    // getAncestors
     const item = { linkId: 'notTarget' };
     const nested = { linkId: 'notTarget', item: [item, item]};
     const items = [
