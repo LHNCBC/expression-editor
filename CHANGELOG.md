@@ -2,6 +2,13 @@
 
 This project follows [Semantic Versioning](http://semver.org/).
 
+## [2.0.0] 2022-01-11
+### Changed
+- Variables editable in the interface are now from the question specified by
+  linkId. The other variables in the questionnaire show up in the uneditable
+  section.
+- Updated form upload in the demo to be easier to use.
+
 ## [1.6.1] 2022-01-10
 ### Changed
 - Updates to get `easy-path-expressions` working inside applications using the

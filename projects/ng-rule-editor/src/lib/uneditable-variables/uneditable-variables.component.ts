@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { RuleEditorService } from '../rule-editor.service';
 import { UneditableVariable } from '../variable';
 
@@ -7,7 +7,7 @@ import { UneditableVariable } from '../variable';
   templateUrl: './uneditable-variables.component.html',
   styleUrls: ['./uneditable-variables.component.css']
 })
-export class UneditableVariablesComponent implements OnInit {
+export class UneditableVariablesComponent implements OnInit, OnDestroy {
   uneditableVariables: UneditableVariable[];
   uneditableVariablesSubscription;
 
@@ -27,7 +27,7 @@ export class UneditableVariablesComponent implements OnInit {
   /**
    * Angular lifecycle hook called before the component is destroyed
    */
-  ngDestroy(): void {
+  ngOnDestroy(): void {
     this.uneditableVariablesSubscription.unsubscribe();
   }
 }

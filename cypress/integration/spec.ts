@@ -43,7 +43,7 @@ describe('Rule editor', () => {
         cy.get('.default').should('have.value', 'obese');
 
         cy.get('lhc-case-statements > lhc-syntax-preview').contains(
-          "iif(%bmi<18.5,'underweight',iif(%bmi<25,'normal',iif(%bmi<30,'overweight','obese')))");
+          `iif(%bmi<18.5,'underweight',iif(%bmi<25,'normal',iif(%bmi<30,'overweight','obese')))`);
       });
 
       it('should display the FHIRPath case editor when importing questionnaire with FHIRPath in final expression', () => {
@@ -54,15 +54,15 @@ describe('Rule editor', () => {
         cy.get('#case-statements').should('be.checked');
         cy.get('#output-expressions').should('be.checked');
         cy.get('#case-condition-0').should('have.value', '%bmi<18.5');
-        cy.get('#case-output-0').should('have.value', "'underweight'");
+        cy.get('#case-output-0').should('have.value', `'underweight'`);
         cy.get('#case-condition-1').should('have.value', '%bmi<25');
-        cy.get('#case-output-1').should('have.value', "'normal'");
+        cy.get('#case-output-1').should('have.value', `'normal'`);
         cy.get('#case-condition-2').should('have.value', '%bmi<30');
-        cy.get('#case-output-2').should('have.value', "'overweight'");
-        cy.get('.default').should('have.value', "'obese'");
+        cy.get('#case-output-2').should('have.value', `'overweight'`);
+        cy.get('.default').should('have.value', `'obese'`);
 
         cy.get('lhc-case-statements > lhc-syntax-preview').contains(
-          "iif(%bmi<18.5,'underweight',iif(%bmi<25,'normal',iif(%bmi<30,'overweight','obese')))");
+          `iif(%bmi<18.5,'underweight',iif(%bmi<25,'normal',iif(%bmi<30,'overweight','obese')))`);
       });
 
       it('should be able to add cases to a questionnaire that does not have them', () => {
@@ -90,9 +90,9 @@ describe('Rule editor', () => {
         cy.get('.default').type('obese');
         // Add a default value
 
-        // CHeck the output expression
+        // Check the output expression
         cy.get('lhc-case-statements > lhc-syntax-preview').contains(
-          "iif(%bmi<18.5,'underweight',iif(%bmi<25,'normal',iif(%bmi<30,'overweight','obese')))");
+          `iif(%bmi<18.5,'underweight',iif(%bmi<25,'normal',iif(%bmi<30,'overweight','obese')))`);
       });
     });
   });

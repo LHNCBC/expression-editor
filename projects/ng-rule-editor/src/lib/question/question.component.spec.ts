@@ -20,7 +20,7 @@ describe('QuestionComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(QuestionComponent);
     component = fixture.componentInstance;
-    component.variable = {};
+    component.variable = {label: '', type: '', expression: ''};
     fixture.detectChanges();
   });
 

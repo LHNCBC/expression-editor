@@ -13,19 +13,36 @@
   </select>
 </label>
 <div *ngIf="formType == 'upload'" id="upload">
-  <p>Please specify the questionnaire item Link ID, the corresponding Expression URI where the output should be placed, and the questionnaire:</p>
-  <label>Link ID: <input type="text" required id="link-id" [(ngModel)]="linkId"></label>
-  <label>Output Expression URI: <input required type="text" id="expression-uri" [(ngModel)]="expressionUri"></label>
+  <p>Please specify the questionnaire, item Link ID, and the corresponding Expression URI where the output should be placed:</p>
   <label>Questionnaire:
-    <input type="file" id="file-upload" [(ngModel)]="file" accept=".json" (change)="import($event)" [disabled]="!linkId || !expressionUri">
-    <span class="warning" *ngIf="!linkId || !expressionUri">Please enter <span *ngIf="!linkId">a Link ID</span>
-      <span *ngIf="!linkId && !expressionUri"> and </span> <span *ngIf="!expressionUri">an Expression URI</span> first</span>
+    <input type="file" id="file-upload" [(ngModel)]="file" accept=".json" (change)="prepareForImport($event)">
   </label>
+  <span *ngIf="fhir">
+    <label>
+      Question:
+      <select required id="link-id" [(ngModel)]="linkId" (change)="doNotAskToCalculateScore = true">
+        <option value="">None (Edit top level variables)</option>
+        <option *ngFor="let currentLinkId of linkIds" [value]="currentLinkId.linkId">{{currentLinkId.text}}</option>
+      </select>
+    </label>
+    <label [hidden]="!linkId">
+      Output Expression:
+      <div id="expression-entry">
+        <select (change)="expressionChange($event)">
+          <option value="">None</option>
+          <option *ngFor="let expressionType of expressionTypes" [value]="expressionType.uri" [selected]="expressionType.selected">
+            {{expressionType.name}}
+          </option>
+          <option value="custom">Other...</option>
+        </select>
+        <input *ngIf="customExpressionUri" required type="text" id="expression-uri" [(ngModel)]="expressionUri">
+      </div>
+    </label>
+  </span>
 </div>
 <div class="error" *ngIf="error">
   {{error}}
 </div>
-
 <div *ngIf="fhir">
   <div class="rule-editor">
     <lhc-rule-editor
@@ -33,14 +50,15 @@
       [itemLinkId]="linkId"
 
       [submitButtonName]="'Save'"
-      [expressionLabel]="'Output Calculated Expression'"
-      [expressionUri]="expressionUri"
+      [expressionLabel]="'Output Expression'"
+      [expressionUri]="linkId ? expressionUri : ''"
       [lhcStyle]="{
-        buttonPrimary: { backgroundColor: 'blue', color: 'white' },
+        buttonPrimary: { backgroundColor: 'navy', color: 'white' },
         buttonSecondary: { backgroundColor: 'darkgreen', color: 'white' },
         input: { backgroundColor: '#ffe' },
         select: { backgroundColor: '#ffe' }
       }"
+      [doNotAskToCalculateScore]="doNotAskToCalculateScore"
       (save)="onSave($event)">
     </lhc-rule-editor>
   </div>

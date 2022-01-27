@@ -26,8 +26,19 @@ const outputItem = {
 };
 
 describe('RuleEditorService', () => {
-  const linkId = '/39156-5';
+  const LINK_ID = '/39156-5';
+  const BMI_INDEX = 3;
+  const EXPRESSION_URI = 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression';
+
   let service: RuleEditorService;
+  const emptyCalculatedExpression = {
+    url: EXPRESSION_URI,
+    valueExpression: {
+      language: 'text/fhirpath',
+      expression: ''
+    }
+  };
+  const TEST_EXTENSION = { url: 'http://example.com/test' };
 
   beforeEach(() => {
     TestBed.configureTestingModule({});
@@ -39,40 +50,34 @@ describe('RuleEditorService', () => {
   });
 
   it('should keep extension order on save with no modifications', () => {
-    const EXPRESSION_URI = 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression';
-    const TEST_EXTENSION = { url: 'http://example.com/test' };
-
     // @ts-ignore
-    bmi.extension.push(TEST_EXTENSION);
-    service.import(EXPRESSION_URI, bmi, linkId);
-    const saved = service.export(EXPRESSION_URI, '');
+    bmi.item[BMI_INDEX].extension.push(TEST_EXTENSION);
+    service.import(EXPRESSION_URI, bmi, LINK_ID);
+    const saved = service.export(EXPRESSION_URI, emptyCalculatedExpression);
 
     // Make sure the test extension is still at the end
 
     // @ts-ignore
-    expect(saved.extension[saved.extension.length - 1]).toEqual(TEST_EXTENSION);
+    expect(saved.item[BMI_INDEX].extension[saved.item[BMI_INDEX].extension.length - 2]).toEqual(TEST_EXTENSION);
   });
 
   it('should keep extension order on save when adding a variable', () => {
-    const EXPRESSION_URI = 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression';
-    const TEST_EXTENSION = { url: 'http://example.com/test' };
-
     // @ts-ignore
-    bmi.extension.push(TEST_EXTENSION);
-    service.import(EXPRESSION_URI, bmi, linkId);
+    bmi.item[BMI_INDEX].extension.push(TEST_EXTENSION);
+    service.import(EXPRESSION_URI, bmi, LINK_ID);
 
     service.addVariable();
-    const saved = service.export(EXPRESSION_URI, '');
+    const saved = service.export(EXPRESSION_URI, emptyCalculatedExpression);
 
     // Make sure the test extension is second from last
     // @ts-ignore
-    expect(saved.extension[saved.extension.length - 2]).toEqual(TEST_EXTENSION);
+    expect(saved.item[BMI_INDEX].extension[saved.item[BMI_INDEX].extension.length - 3]).toEqual(TEST_EXTENSION);
   });
 
   it('should be able to add and remove scores', () => {
 
     service.import('http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression',
-      phq9, linkId);
+      phq9, LINK_ID);
     const original = phq9;
 
     // Check to make sure we start with the expected number of extensions on the target item
@@ -80,32 +85,53 @@ describe('RuleEditorService', () => {
     const CONTEXT_INDEX = 9;
     expect(original.item[CONTEXT_INDEX].extension.length).toEqual(INITIAL_EXTENSION_COUNT);
 
-    expect(service.isScoreCalculation(original, linkId)).toBeFalse();
+    expect(service.isScoreCalculation(original, LINK_ID)).toBeFalse();
 
     const withScores = service.addSumOfScores();
     const withScoresCopy = copy(withScores);
 
-    expect(service.isScoreCalculation(withScores, linkId)).toBeTrue();
+    expect(service.isScoreCalculation(withScores, LINK_ID)).toBeTrue();
 
-    expect(withScores['item'][CONTEXT_INDEX].extension.length).toEqual(INITIAL_EXTENSION_COUNT + 11);
+    expect(withScores.item[CONTEXT_INDEX].extension.length).toEqual(INITIAL_EXTENSION_COUNT + 11);
 
-    expect(service.updateScoreCalculation(withScores, linkId)).toEqual(withScoresCopy);
+    expect(service.updateScoreCalculation(withScores, LINK_ID)).toEqual(withScoresCopy);
 
     const removedScores = service.removeSumOfScores(withScores);
 
-    expect(removedScores['item'][CONTEXT_INDEX].extension.length).toEqual(INITIAL_EXTENSION_COUNT);
+    expect(removedScores.item[CONTEXT_INDEX].extension.length).toEqual(INITIAL_EXTENSION_COUNT);
     expect(removedScores).toEqual(phq9);
   });
 
   it('should return scored questionnaire with total score', () => {
-    const output = service.addTotalScoreRule(copy(phq9), linkId);
+    const output = service.addTotalScoreRule(copy(phq9), LINK_ID);
     // @ts-ignore
     expect(output.item[9].extension[14]).toEqual(outputTotalScore);
   });
 
   it('should return scored questionnaire with var10', () => {
-    const output = service.addTotalScoreRule(copy(phq9), linkId);
+    const output = service.addTotalScoreRule(copy(phq9), LINK_ID);
     // @ts-ignore
     expect(output.item[9].extension[12]).toEqual(outputItem);
+  });
+
+  it('should get item ancestors correctly', () => {
+    // In the test data below, the linkIds repeat, but that should not affect
+    // getAncestors
+    const item = { linkId: 'notTarget' };
+    const nested = { linkId: 'notTarget', item: [item, item]};
+    const items = [
+      nested,
+      nested,
+      {
+        linkId: 'root',
+        item: [item, { linkId: 'nested', item: [{linkId: 'target'}]}, item]
+      },
+      nested
+    ];
+    const output = service.getAncestors(items, 'target', []);
+
+    expect(output.length).toEqual(2);
+    expect(output[0].linkId).toEqual('root');
+    expect(output[1].linkId).toEqual('nested');
   });
 });

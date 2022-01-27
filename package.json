@@ -1,9 +1,9 @@
 {
   "name": "rule-editor",
-  "version": "1.6.1",
+  "version": "2.0.0",
   "scripts": {
     "ng": "ng",
-    "start": "ng build --watch ng-rule-editor & sleep 25; ng serve; s=$?; kill %1; exit $s",
+    "start": "ng build --watch ng-rule-editor & sleep 25; ng serve --port 4202; s=$?; kill %1; exit $s",
     "start-public": "ng build --watch ng-rule-editor & sleep 25; node bin/start-public.js; s=$?; kill %1; exit $s",
     "build:concatenate-gh": "concat -o docs/rule-editor.js dist/rule-editor/runtime.js dist/rule-editor/polyfills.js dist/rule-editor/main.js",
     "build:concatenate": "concat -o dist/rule-editor/rule-editor.js dist/rule-editor/runtime.js dist/rule-editor/polyfills.js dist/rule-editor/main.js",
@@ -13,8 +13,8 @@
     "test:unit": "ng test --watch=false",
     "lint": "ng lint",
     "webdriver-manager-update": "node node_modules/protractor/bin/webdriver-manager update --versions.chrome $(google-chrome --version |awk '{print $NF}')",
-    "test:protractor": "ng serve & sleep 25; protractor e2e/protractor.conf.js; s=$?; kill %1; exit $s",
-    "test:e2e": "ng e2e"
+    "test:protractor": "ng serve --port 4203 & sleep 25; protractor e2e/protractor.conf.js; s=$?; kill %1; exit $s",
+    "test:e2e": "ng e2e --port 4203"
   },
   "dependencies": {
     "@angular/animations": "~11.0.5",
