@@ -822,10 +822,7 @@ export class RuleEditorService {
     for (let i = 0; i < items.length; i++) {
       const item = items[i];
 
-      if (item.linkId === linkId && groupLevel !== -1) {
-        // Only consider items in this group
-        // TODO
-      } else if (item.linkId === linkId) {
+      if (item.linkId === linkId) {
         // Do not consider items at or below the linkId context required
         break;
       } else if (this.hasScoreExtension(item) || item.repeats === true) {
@@ -845,8 +842,6 @@ export class RuleEditorService {
         scoreItemIds = scoreItemIds.concat(
           this.getScoreItemIds(item.item, linkId, level + 1, groupLevel));
       }
-
-      // TODO deal with repeating groups/
     }
 
     console.log(scoreItemIds);
