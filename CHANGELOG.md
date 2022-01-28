@@ -25,7 +25,6 @@ This project follows [Semantic Versioning](http://semver.org/).
 ### Changed
 - Updates to get `easy-path-expressions` working inside applications using the
   Angular library.
->>>>>>> hide-preview-empty-case-statements
 
 ## [1.6.0] 2021-10-08
 ### Added

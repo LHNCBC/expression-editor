@@ -858,8 +858,6 @@ export class RuleEditorService {
    * Questionnaire with a calculated expression at the given linkId which sums up
    * all the ordinal values in the questionnaire:
    *  * Assume scored items are above (in question order) the total score item.
-   *  * If an ancestor (in terms of hierarchy) of the scored item is a repeating
-   *  group, don’t consider items outside that group
    *  * If a preceding item is also a total score item, don’t consider any earlier items.
    */
   addSumOfScores(): any {
