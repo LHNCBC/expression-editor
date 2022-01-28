@@ -2,7 +2,6 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { VariablesComponent } from './variables.component';
 import { FormsModule } from '@angular/forms';
-import { Component } from '@angular/core';
 
 describe('VariablesComponent', () => {
   let component: VariablesComponent;
@@ -26,10 +25,3 @@ describe('VariablesComponent', () => {
     expect(component).toBeTruthy();
   });
 });
-
-@Component({
-  selector: 'app-question',
-  template: ''
-})
-class MockQuestionComponent {
-}

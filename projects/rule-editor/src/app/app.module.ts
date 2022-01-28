@@ -1,5 +1,5 @@
 import { BrowserModule } from '@angular/platform-browser';
-import { Injector, NgModule } from '@angular/core';
+import { DoBootstrap, Injector, NgModule } from '@angular/core';
 
 import { RuleEditorComponent, RuleEditorModule } from 'projects/ng-rule-editor/src/public-api';
 import { createCustomElement } from '@angular/elements';
@@ -13,7 +13,7 @@ import { createCustomElement } from '@angular/elements';
   providers: [],
   bootstrap: []
 })
-export class AppModule {
+export class AppModule implements DoBootstrap {
   constructor(private injector: Injector) {}
 
   ngDoBootstrap(): void {

@@ -73,11 +73,16 @@ button {
 
 lhc-case-statements {
   flex: 100%;
+  width: 100%;
   padding: 0.5rem;
 }
 
 .checkbox {
   padding: 0.5rem;
+}
+
+#export {
+  margin-top: 1em;
 }
 
 @media (max-width: 975px) {

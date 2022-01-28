@@ -12,14 +12,36 @@ export class AppComponent implements OnInit {
   formAppearedAnnouncement = 'The rule editor for the selected form has appeared below the current field.';
   calculatedExpression = 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression';
   originalLinkId = '/39156-5';
+  expressionTypes = [
+    {
+      name: 'Answer Expression',
+      uri: 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-answerExpression'
+    },
+    {
+      name: 'Calculated Expression',
+      uri: 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression',
+      selected: true
+    },
+    {
+      name: 'Enable When Expression',
+      uri: 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-enableWhenExpression',
+    },
+    {
+      name: 'Initial Expression',
+      uri: 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression'
+    }
+  ];
 
   fhirPreview: string;
-  linkId = this.originalLinkId;
+  linkId = '';
+  linkIds;
   expressionUri = this.calculatedExpression;
+  customExpressionUri = false;
   fhir = null;
   formType = 'bmisimple';
   file = '';
   error = '';
+  doNotAskToCalculateScore = false;
 
   constructor(private http: HttpClient, private liveAnnouncer: LiveAnnouncer) {}
 
@@ -34,6 +56,7 @@ export class AppComponent implements OnInit {
     // Clear out preview when changing forms
     this.fhirPreview = '';
     this.error = '';
+    this.doNotAskToCalculateScore = false;
 
     if (this.formType === '' || this.formType === 'upload') {
       this.liveAnnouncer.announce('Additional settings must be entered below to load the rule editor.');
@@ -63,15 +86,20 @@ export class AppComponent implements OnInit {
    * Import a questionnaire from a file using the linkId and expression URI
    * @param fileInput - input file change event
    */
-  import(fileInput): void {
+  prepareForImport(fileInput): void {
     if (fileInput.target.files && fileInput.target.files[0]) {
       const fileReader = new FileReader();
 
       fileReader.onload = (e) => {
         if (typeof e.target.result === 'string') {
+          this.doNotAskToCalculateScore = false;
+          this.linkId = '';
           try {
             this.fhir = JSON.parse(e.target.result);
             this.error = '';
+            if (this.fhir && this.fhir.item instanceof Array) {
+              this.linkIds = this.getQuestionnaireLinkIds(this.fhir.item);
+            }
             this.liveAnnouncer.announce(this.formAppearedAnnouncement);
           } catch (e) {
             this.fhir = '';
@@ -87,6 +115,39 @@ export class AppComponent implements OnInit {
 
       fileReader.readAsText(fileInput.target.files[0]);
     }
+  }
+
+  /**
+   * Get the list of item link IDs in the questionnaire
+   * @param items - FHIR questionnaire item array
+   * @param level - Depth of item nesting, starting at 0
+   * @return Array of link IDs.
+   */
+  getQuestionnaireLinkIds(items, level = 0): Array<string> {
+    let linkIds = [];
+
+    items.forEach((item) => {
+      if (item.linkId) {
+        if (item.text) {
+          const indent = `${'—'.repeat(level)} `;
+          linkIds.push({
+            linkId: item.linkId,
+            text: `${indent} ${item.text} (${item.linkId})`
+          });
+        } else {
+          linkIds.push({
+            linkId: item.linkId,
+            text: item.linkId
+          });
+        }
+      }
+
+      if (item.item instanceof Array) {
+        linkIds = linkIds.concat(this.getQuestionnaireLinkIds(item.item, level + 1));
+      }
+    });
+
+    return linkIds;
   }
 
   /**
@@ -107,5 +168,21 @@ export class AppComponent implements OnInit {
     a.download = name ? `${name}.json` : `fhirpath-${date}.json`;
     a.click();
     window.URL.revokeObjectURL(url);
+  }
+
+  /**
+   * Called when the expression type changes
+   * @param $event - Event
+   */
+  expressionChange($event): void {
+    const newValue = $event.target.value;
+
+    if (newValue === 'custom') {
+      this.customExpressionUri = true;
+      this.expressionUri = '';
+    } else {
+      this.customExpressionUri = false;
+      this.expressionUri = newValue;
+    }
   }
 }

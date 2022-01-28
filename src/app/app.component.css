@@ -14,8 +14,16 @@ button.download {
   padding: 1em 0;
 }
 
-#upload > label {
-  margin-right: 2em;
+#upload, #link-id {
+  margin-right: 3em;
+}
+
+#expression-entry {
+  display: inline-block;
+}
+
+#link-id, #expression-entry {
+  width: 18em;
 }
 
 .error {

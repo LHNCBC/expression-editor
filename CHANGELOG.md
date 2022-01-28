@@ -2,14 +2,30 @@
 
 This project follows [Semantic Versioning](http://semver.org/).
 
-## [1.7.0] 2021-10-28
+## [2.1.0] 2021-01-28
 ### Added
 - Score calculation logic for nested items:
   - Assume scored items are above (in question order) the total score item.
-  - If an ancestor (in terms of hierarchy) of the scored item is a repeating
-    group, don’t consider items outside that group.
   - If a preceding item is also a total score item, don’t consider any earlier
     items.
+
+## [2.0.1] 2022-01-28
+### Changed
+- Hide instant preview in case statements when condition, output and default is
+  not entered.
+
+## [2.0.0] 2022-01-11
+### Changed
+- Variables editable in the interface are now from the question specified by
+  linkId. The other variables in the questionnaire show up in the uneditable
+  section.
+- Updated form upload in the demo to be easier to use.
+
+## [1.6.1] 2022-01-10
+### Changed
+- Updates to get `easy-path-expressions` working inside applications using the
+  Angular library.
+>>>>>>> hide-preview-empty-case-statements
 
 ## [1.6.0] 2021-10-08
 ### Added
