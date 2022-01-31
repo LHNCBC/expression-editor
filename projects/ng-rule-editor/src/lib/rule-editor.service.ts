@@ -322,14 +322,29 @@ export class RuleEditorService {
    * Questionnaire
    * @param questionnaire - FHIR Questionnaire
    * @param linkIdContext - linkId to exclude from calculation
-   * @return number of score questions on the questionnaire
+   * @return number of score questions on the questionnaire, -1 if not should
+   *   not calculate score (has repeating groups which are not supported)
    */
   getScoreQuestionCount(questionnaire, linkIdContext): number {
     let scoreQuestions = 0;
 
     questionnaire.item.forEach((item) => {
+      if (item.repeats) {
+        return -1;
+      }
+
       if (this.itemHasScore(item)) {
         scoreQuestions++;
+      }
+
+      if (item.item instanceof Array) {
+        const nestedScoreQuestionCount = this.getScoreQuestionCount(item, linkIdContext);
+
+        if (nestedScoreQuestionCount === -1) {
+          return -1;
+        } else {
+          scoreQuestions += nestedScoreQuestionCount;
+        }
       }
     });
 
@@ -844,7 +859,6 @@ export class RuleEditorService {
       }
     }
 
-    console.log(scoreItemIds);
     return scoreItemIds;
   }
 
