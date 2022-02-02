@@ -967,7 +967,8 @@ export class RuleEditorService {
   }
 
   /**
-   * Returns true if the current item has a score extension
+   * Returns true if the current item has a custom score extension (indicating
+   * it was previously modified by the Rule Editor)
    * @param item
    * @private
    */
