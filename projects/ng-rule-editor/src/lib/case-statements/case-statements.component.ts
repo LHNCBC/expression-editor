@@ -218,7 +218,7 @@ export class CaseStatementsComponent implements OnInit, OnChanges {
       this.hidePreview = condition === '' || output === '' || defaultCase === '';
 
       if (!this.hidePreview && previousValue !== this.hidePreview) {
-        this.liveAnnouncer.announce('A preview has appeared below.');
+        this.liveAnnouncer.announce('A FHIRPath conversion preview has appeared below.');
       }
     }
 
