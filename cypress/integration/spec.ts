@@ -78,6 +78,9 @@ describe('Rule editor', () => {
         cy.get('#output-expressions').should('be.checked');
         cy.get('#output-expressions').uncheck();
 
+        // Preview should not show up initially
+        cy.get('lhc-case-statements > lhc-syntax-preview').should('not.exist');
+
         // Add a conditions and outputs
         cy.get('#case-condition-0').type('bmi<18.5');
         cy.get('#case-output-0').type('underweight');

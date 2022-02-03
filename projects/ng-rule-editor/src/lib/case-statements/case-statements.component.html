@@ -41,4 +41,4 @@
     </label>
   </div>
 </div>
-<lhc-syntax-preview [lhcStyle]="lhcStyle" [syntax]="output"></lhc-syntax-preview>
+<lhc-syntax-preview [lhcStyle]="lhcStyle" [syntax]="output" *ngIf="!hidePreview"></lhc-syntax-preview>

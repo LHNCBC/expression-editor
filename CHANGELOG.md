@@ -2,6 +2,11 @@
 
 This project follows [Semantic Versioning](http://semver.org/).
 
+## [2.0.1] 2022-01-28
+### Changed
+- Hide instant preview in case statements when condition, output and default is
+  not entered.
+
 ## [2.0.0] 2022-01-11
 ### Changed
 - Variables editable in the interface are now from the question specified by
