@@ -124,6 +124,16 @@ describe('RuleEditorService', () => {
         }]
       };
     }
+    const totalScore = {
+      linkId: '',
+      extension: [{
+        url: 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression',
+        valueExpression: {
+          extension:
+            [{url: 'http://lhcforms.nlm.nih.gov/fhir/ext/rule-editor-expression'}]
+        }
+      }]
+    };
 
     it('should not include items below total score', () => {
       const nonScore = {};
@@ -139,15 +149,6 @@ describe('RuleEditorService', () => {
     });
 
     it('should not include items above another total score', () => {
-      const totalScore = {
-        extension: [{
-          url: 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression',
-          valueExpression: {
-            extension:
-              [{url: 'http://lhcforms.nlm.nih.gov/fhir/ext/rule-editor-expression'}]
-          }
-        }]
-      };
       const nonScore = {};
       const total = {linkId: 'test'};
 
@@ -156,6 +157,15 @@ describe('RuleEditorService', () => {
       const itemIds = service.getScoreItemIds(testItems, 'test');
 
       expect(itemIds).toEqual(['c']);
+    });
+
+    it('should not include items below another total score', () => {
+      const total = {linkId: 'test'};
+
+      const testItems = [score('a'), totalScore, score('b'), total, score('c')];
+      const itemIds = service.getScoreItemIds(testItems, 'test');
+
+      expect(itemIds).toEqual(['b']);
     });
   });
 

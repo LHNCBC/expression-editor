@@ -320,25 +320,25 @@ export class RuleEditorService {
   /**
    * Get the number of ordinalValue on the answers of the questions on the
    * Questionnaire
-   * @param questionnaire - FHIR Questionnaire
+   * @param item - FHIR Questionnaire or item
    * @param linkIdContext - linkId to exclude from calculation
    * @return number of score questions on the questionnaire, -1 if not should
    *   not calculate score (has repeating groups which are not supported)
    */
-  getScoreQuestionCount(questionnaire, linkIdContext): number {
+  getScoreQuestionCount(item, linkIdContext): number {
     let scoreQuestions = 0;
 
-    questionnaire.item.forEach((item) => {
-      if (item.repeats) {
+    item.item.forEach((currentItem) => {
+      if (currentItem.repeats) {
         return -1;
       }
 
-      if (this.itemHasScore(item)) {
+      if (this.itemHasScore(currentItem)) {
         scoreQuestions++;
       }
 
-      if (item.item instanceof Array) {
-        const nestedScoreQuestionCount = this.getScoreQuestionCount(item, linkIdContext);
+      if (currentItem.item instanceof Array) {
+        const nestedScoreQuestionCount = this.getScoreQuestionCount(currentItem, linkIdContext);
 
         if (nestedScoreQuestionCount === -1) {
           return -1;
@@ -828,10 +828,8 @@ export class RuleEditorService {
    * Get a list of item ids based on the logic for `addSumOfScores()`
    * @param items - FHIR item array
    * @param linkId - Link ID context
-   * @param level - Nesting level, 0 if root
-   * @param groupLevel - Level at which group exists, -1 if no group
    */
-  getScoreItemIds(items, linkId: string, level = 0, groupLevel = -1): Array<string> {
+  getScoreItemIds(items, linkId: string): Array<string> {
     let scoreItemIds = [];
 
     for (let i = 0; i < items.length; i++) {
@@ -840,14 +838,10 @@ export class RuleEditorService {
       if (item.linkId === linkId) {
         // Do not consider items at or below the linkId context required
         break;
-      } else if (this.hasScoreExtension(item) || item.repeats === true) {
+      } else if (this.hasRuleEditorExtension(item) || item.repeats === true) {
         // If the current item is already a score calculation or this is
         // repeating we should not consider it or any items above
         scoreItemIds = [];
-
-        if (item.repeats) {
-          groupLevel = level;
-        }
       } else if (this.itemHasScore(item)) {
         scoreItemIds.push(item.linkId);
       }
@@ -855,7 +849,7 @@ export class RuleEditorService {
       // Work with nested items
       if (item.item) {
         scoreItemIds = scoreItemIds.concat(
-          this.getScoreItemIds(item.item, linkId, level + 1, groupLevel));
+          this.getScoreItemIds(item.item, linkId));
       }
     }
 
@@ -945,7 +939,7 @@ export class RuleEditorService {
   isScoreCalculation(questionnaire, linkId?): boolean {
     const checkForScore = (item) => {
       if (linkId === undefined || linkId === item.linkId) {
-        const isScore = this.hasScoreExtension(item);
+        const isScore = this.hasRuleEditorExtension(item);
 
         if (isScore) {
           return true;
@@ -967,14 +961,14 @@ export class RuleEditorService {
   }
 
   /**
-   * Returns true if the current item has a custom score extension (indicating
-   * it was previously modified by the Rule Editor)
+   * Returns true if the current item has a custom Rule Editor score extension
+   * (indicating it was previously modified by the Rule Editor)
    * @param item
    * @private
    */
-  private hasScoreExtension(item): boolean {
+  private hasRuleEditorExtension(item): boolean {
     if (item.extension) {
-      return item.extension.find((extension) => !!this.isScoreExtension(extension));
+      return item.extension.find((extension) => !!this.isRuleEditorExtension(extension));
     } else {
       return false;
     }
@@ -1005,7 +999,7 @@ export class RuleEditorService {
 
     const removeItemScoreVariables = (item) => {
       if (linkId === undefined || linkId === item.linkId) {
-        item.extension = item.extension.filter((extension) => !this.isScoreExtension(extension));
+        item.extension = item.extension.filter((extension) => !this.isRuleEditorExtension(extension));
       }
 
       if (item.item) {
@@ -1023,7 +1017,7 @@ export class RuleEditorService {
    * @param extension - FHIR Extension object
    * @private
    */
-  private isScoreExtension(extension): boolean {
+  private isRuleEditorExtension(extension): boolean {
     if (extension.valueExpression && extension.valueExpression.extension &&
       extension.valueExpression.extension.length) {
       return !!extension.valueExpression.extension.find(e => e &&
