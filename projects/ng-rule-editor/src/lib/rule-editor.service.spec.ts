@@ -161,8 +161,18 @@ describe('RuleEditorService', () => {
 
     it('should not include items below another total score', () => {
       const total = {linkId: 'test'};
+      const existingTotalScore = {
+        linkId: '',
+        extension: [{
+          url: 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression',
+          valueExpression: {
+            extension:
+              [{url: 'http://lhcforms.nlm.nih.gov/fhir/ext/rule-editor-expression'}]
+          }
+        }]
+      };
 
-      const testItems = [score('a'), totalScore, score('b'), total, score('c')];
+      const testItems = [score('a'), existingTotalScore, score('b'), total, score('c')];
       const itemIds = service.getScoreItemIds(testItems, 'test');
 
       expect(itemIds).toEqual(['b']);
