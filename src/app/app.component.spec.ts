@@ -30,6 +30,6 @@ describe('AppComponent', () => {
     const fixture = TestBed.createComponent(AppComponent);
     fixture.detectChanges();
     const compiled = fixture.nativeElement;
-    expect(compiled.querySelector('h1').textContent).toContain('Demo Application');
+    expect(compiled.querySelector('h1').textContent).toContain('Rule Editor Demo');
   });
 });
