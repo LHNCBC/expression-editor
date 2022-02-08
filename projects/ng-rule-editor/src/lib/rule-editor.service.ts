@@ -322,29 +322,20 @@ export class RuleEditorService {
    * Questionnaire
    * @param item - FHIR Questionnaire or item
    * @param linkIdContext - linkId to exclude from calculation
-   * @return number of score questions on the questionnaire, -1 if not should
-   *   not calculate score (has repeating groups which are not supported)
+   * @return number of score questions on the questionnaire
    */
   getScoreQuestionCount(item, linkIdContext): number {
     let scoreQuestions = 0;
 
     item.item.forEach((currentItem) => {
-      if (currentItem.repeats) {
-        return -1;
-      }
-
-      if (this.itemHasScore(currentItem)) {
+      if (!currentItem.repeats && this.itemHasScore(currentItem)) {
         scoreQuestions++;
       }
 
       if (currentItem.item instanceof Array) {
         const nestedScoreQuestionCount = this.getScoreQuestionCount(currentItem, linkIdContext);
 
-        if (nestedScoreQuestionCount === -1) {
-          return -1;
-        } else {
-          scoreQuestions += nestedScoreQuestionCount;
-        }
+        scoreQuestions += nestedScoreQuestionCount;
       }
     });
 
@@ -835,10 +826,15 @@ export class RuleEditorService {
     for (let i = 0; i < items.length; i++) {
       const item = items[i];
 
+      // Repeating items are currently not supported
+      if (item.repeats) {
+        continue;
+      }
+
       if (item.linkId === linkId) {
         // Do not consider items at or below the linkId context required
         break;
-      } else if (this.hasRuleEditorExtension(item) || item.repeats === true) {
+      } else if (this.hasRuleEditorExtension(item)) {
         // If the current item is already a score calculation or this is
         // repeating we should not consider it or any items above
         scoreItemIds = [];
