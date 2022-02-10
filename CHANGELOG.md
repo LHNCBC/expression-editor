@@ -2,8 +2,11 @@
 
 This project follows [Semantic Versioning](http://semver.org/).
 
-## [2.1.0] 2021-01-28
+## [3.0.0] 2021-01-28
 ### Added
+- Updated URI used for score calculation extensions from:
+  `http://lhcforms.nlm.nih.gov/fhir/ext/rule-editor-expression` to
+  `http://lhcforms.nlm.nih.gov/fhir/ext/rule-editor-score-expression`
 - Score calculation logic for nested items:
   - Assume scored items are above (in question order) the total score item.
   - If a preceding item is also a total score item, don’t consider any earlier
