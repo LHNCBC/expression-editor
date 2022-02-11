@@ -2,6 +2,12 @@
 
 This project follows [Semantic Versioning](http://semver.org/).
 
+## [3.0.1] 2021-02-04
+### Added
+- Added a help link to the demo app.
+- Stopped minifying files for the demo app.
+- Updated easy-path-expressions.
+
 ## [3.0.0] 2021-01-28
 ### Added
 - Updated URI used for score calculation extensions from:
