@@ -11,7 +11,7 @@ const outputTotalScore = {
     description: 'Total score calculation',
     language: 'text/fhirpath',
     expression: 'iif(%any_questions_answered, iif(%a.exists(), %a, 0) + iif(%b.exists(), %b, 0) + iif(%c.exists(), %c, 0) + iif(%d.exists(), %d, 0) + iif(%e.exists(), %e, 0) + iif(%f.exists(), %f, 0) + iif(%g.exists(), %g, 0) + iif(%h.exists(), %h, 0) + iif(%i.exists(), %i, 0), {})',
-    extension: [{url: 'http://lhcforms.nlm.nih.gov/fhir/ext/rule-editor-expression'}]
+    extension: [{url: RuleEditorService.SCORE_EXPRESSION_EXTENSION}]
   }
 };
 
@@ -38,7 +38,7 @@ describe('RuleEditorService', () => {
       expression: ''
     }
   };
-  const TEST_EXTENSION = { url: 'http://example.com/test' };
+  const TEST_EXTENSION = {url: 'http://example.com/test'};
 
   beforeEach(() => {
     TestBed.configureTestingModule({});
@@ -112,6 +112,71 @@ describe('RuleEditorService', () => {
     const output = service.addTotalScoreRule(copy(phq9), LINK_ID);
     // @ts-ignore
     expect(output.item[9].extension[12]).toEqual(outputItem);
+  });
+
+  describe('score calculation getScoreItemIds', () => {
+    function score(name): any {
+      return {
+        linkId: name, answerOption: [{
+          extension: [{
+            url: 'http://hl7.org/fhir/StructureDefinition/ordinalValue'
+          }]
+        }]
+      };
+    }
+    const totalScore = {
+      linkId: '',
+      extension: [{
+        url: 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression',
+        valueExpression: {
+          extension:
+            [{url: RuleEditorService.SCORE_EXPRESSION_EXTENSION}]
+        }
+      }]
+    };
+
+    it('should not include items below total score', () => {
+      const nonScore = {};
+      const total = {linkId: 'test'};
+
+      const testItems = [nonScore, {
+        item:
+          [score('a'), score('b')]
+      }, score('c'), total, score('d')];
+      const itemIds = service.getScoreItemIds(testItems, 'test');
+
+      expect(itemIds).toEqual(['a', 'b', 'c']);
+    });
+
+    it('should not include items above another total score', () => {
+      const nonScore = {};
+      const total = {linkId: 'test'};
+
+      const testItems = [nonScore, {item: [score('a'), score('b')]},
+        totalScore, score('c'), total, score('d')];
+      const itemIds = service.getScoreItemIds(testItems, 'test');
+
+      expect(itemIds).toEqual(['c']);
+    });
+
+    it('should not include items below another total score', () => {
+      const total = {linkId: 'test'};
+      const existingTotalScore = {
+        linkId: '',
+        extension: [{
+          url: 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression',
+          valueExpression: {
+            extension:
+              [{url: RuleEditorService.SCORE_EXPRESSION_EXTENSION}]
+          }
+        }]
+      };
+
+      const testItems = [score('a'), existingTotalScore, score('b'), total, score('c')];
+      const itemIds = service.getScoreItemIds(testItems, 'test');
+
+      expect(itemIds).toEqual(['b']);
+    });
   });
 
   it('should get item ancestors correctly', () => {

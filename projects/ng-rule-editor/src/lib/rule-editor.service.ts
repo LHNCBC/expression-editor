@@ -23,6 +23,10 @@ export interface SimpleStyle {
   providedIn: 'root'
 })
 export class RuleEditorService {
+  static SCORE_VARIABLE_EXTENSION = 'http://lhcforms.nlm.nih.gov/fhir/ext/rule-editor-score-variable';
+  static SCORE_EXPRESSION_EXTENSION = 'http://lhcforms.nlm.nih.gov/fhir/ext/rule-editor-score-expression';
+  static SIMPLE_SYNTAX_EXTENSION = 'http://lhcforms.nlm.nih.gov/fhir/ext/simple-syntax';
+
   syntaxType = 'simple';
   linkIdContext: string;
   uneditableVariablesChange: Subject<UneditableVariable[]> =
@@ -47,9 +51,6 @@ export class RuleEditorService {
   private QUESTION_REGEX = /^%resource\.item\.where\(linkId='(.*)'\)\.answer\.value(?:\*(\d*\.?\d*))?$/;
   private QUERY_REGEX = /^Observation\?code=(.+)&date=gt{{today\(\)-(\d+) (.+)}}&patient={{%patient.id}}&_sort=-date&_count=1$/;
   private VARIABLE_EXTENSION = 'http://hl7.org/fhir/StructureDefinition/variable';
-  private SCORE_VARIABLE_EXTENSION = 'http://lhcforms.nlm.nih.gov/fhir/ext/rule-editor-score-variable';
-  private SCORE_EXPRESSION_EXTENSION = 'http://lhcforms.nlm.nih.gov/fhir/ext/rule-editor-expression';
-  private SIMPLE_SYNTAX_EXTENSION = 'http://lhcforms.nlm.nih.gov/fhir/ext/simple-syntax';
   private CALCULATED_EXPRESSION = 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression';
   private LAUNCH_CONTEXT_URI = 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-launchContext';
 
@@ -320,16 +321,22 @@ export class RuleEditorService {
   /**
    * Get the number of ordinalValue on the answers of the questions on the
    * Questionnaire
-   * @param questionnaire - FHIR Questionnaire
+   * @param item - FHIR Questionnaire or item
    * @param linkIdContext - linkId to exclude from calculation
    * @return number of score questions on the questionnaire
    */
-  getScoreQuestionCount(questionnaire, linkIdContext): number {
+  getScoreQuestionCount(item, linkIdContext): number {
     let scoreQuestions = 0;
 
-    questionnaire.item.forEach((item) => {
-      if (this.itemHasScore(item)) {
+    item.item.forEach((currentItem) => {
+      if (!currentItem.repeats && this.itemHasScore(currentItem)) {
         scoreQuestions++;
+      }
+
+      if (currentItem.item instanceof Array) {
+        const nestedScoreQuestionCount = this.getScoreQuestionCount(currentItem, linkIdContext);
+
+        scoreQuestions += nestedScoreQuestionCount;
       }
     });
 
@@ -462,7 +469,7 @@ export class RuleEditorService {
   extractSimpleSyntax(expression): string|null {
     if (expression.valueExpression && expression.valueExpression.extension) {
       const customExtension = expression.valueExpression.extension.find((e) => {
-        return e.url === this.SIMPLE_SYNTAX_EXTENSION;
+        return e.url === RuleEditorService.SIMPLE_SYNTAX_EXTENSION;
       });
 
       if (customExtension !== undefined) {
@@ -516,7 +523,7 @@ export class RuleEditorService {
   private processVariable(name, expression, index?: number, extensions?): Variable {
     const matches = expression.match(this.QUESTION_REGEX);
 
-    const simpleExtension = extensions && extensions.find(e => e.url === this.SIMPLE_SYNTAX_EXTENSION);
+    const simpleExtension = extensions && extensions.find(e => e.url === RuleEditorService.SIMPLE_SYNTAX_EXTENSION);
 
     if (matches !== null) {
       const linkId = matches[1];
@@ -684,7 +691,7 @@ export class RuleEditorService {
       if (e.type === 'simple') {
         // @ts-ignore
         variable.valueExpression.extension = [{
-          url: this.SIMPLE_SYNTAX_EXTENSION,
+          url: RuleEditorService.SIMPLE_SYNTAX_EXTENSION,
           valueString: e.simple
         }];
       }
@@ -708,7 +715,7 @@ export class RuleEditorService {
     });
 
     if (this.syntaxType === 'simple') {
-      this.findOrAddExtension(finalExpression.valueExpression.extension, this.SIMPLE_SYNTAX_EXTENSION, 'String', this.simpleExpression);
+      this.findOrAddExtension(finalExpression.valueExpression.extension, RuleEditorService.SIMPLE_SYNTAX_EXTENSION, 'String', this.simpleExpression);
     }
 
     if (this.linkIdContext !== undefined && this.linkIdContext !== null && this.linkIdContext !== '') {
@@ -810,23 +817,56 @@ export class RuleEditorService {
   }
 
   /**
+   * Get a list of item ids based on the logic for `addSumOfScores()`
+   * @param items - FHIR item array
+   * @param linkId - Link ID context
+   */
+  getScoreItemIds(items, linkId: string): Array<string> {
+    let scoreItemIds = [];
+
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+
+      // Repeating items are currently not supported
+      if (item.repeats) {
+        continue;
+      }
+
+      if (item.linkId === linkId) {
+        // Do not consider items at or below the linkId context required
+        break;
+      } else if (this.hasRuleEditorExtension(item)) {
+        // If the current item is already a score calculation or this is
+        // repeating we should not consider it or any items above
+        scoreItemIds = [];
+      } else if (this.itemHasScore(item)) {
+        scoreItemIds.push(item.linkId);
+      }
+
+      // Work with nested items
+      if (item.item) {
+        scoreItemIds = scoreItemIds.concat(
+          this.getScoreItemIds(item.item, linkId));
+      }
+    }
+
+    return scoreItemIds;
+  }
+
+  /**
    * Given the current FHIR questionnaire definition and a linkId return a new FHIR
    * Questionnaire with a calculated expression at the given linkId which sums up
-   * all the ordinal values in the questionnaire
+   * all the ordinal values in the questionnaire:
+   *  * Assume scored items are above (in question order) the total score item.
+   *  * If a preceding item is also a total score item, don’t consider any earlier items.
    */
   addSumOfScores(): any {
     const fhir = this.fhir;
     const linkIdContext = this.linkIdContext;
 
     const variableNames = [];
-    const scoreQuestionLinkIds = [];
-
     // Get an array of linkIds for score questions
-    fhir.item.forEach((item) => {
-      if (item.linkId !== linkIdContext && this.itemHasScore(item)) {
-        scoreQuestionLinkIds.push(item.linkId);
-      }
-    });
+    const scoreQuestionLinkIds = this.getScoreItemIds(fhir.item, linkIdContext);
 
     // Get as many short suggested variable names as we have score questions
     scoreQuestionLinkIds.forEach(() => {
@@ -843,7 +883,7 @@ export class RuleEditorService {
             `.where(valueCoding.code=%resource.item.where(linkId = '${e}').answer.valueCoding.code).extension` +
             `.where(url='http://hl7.org/fhir/StructureDefinition/ordinalValue').valueDecimal`,
           extension: [{
-            url: this.SCORE_VARIABLE_EXTENSION
+            url: RuleEditorService.SCORE_VARIABLE_EXTENSION
           }]
         }
       };
@@ -856,7 +896,7 @@ export class RuleEditorService {
         language: this.LANGUAGE_FHIRPATH,
         expression: variableNames.map((e) => `%${e}.exists()`).join(' or '),
         extension: [{
-          url: this.SCORE_VARIABLE_EXTENSION
+          url: RuleEditorService.SCORE_VARIABLE_EXTENSION
         }]
       }
     };
@@ -870,7 +910,7 @@ export class RuleEditorService {
         language: this.LANGUAGE_FHIRPATH,
         expression: `iif(%any_questions_answered, ${sumString}, {})`,
         extension: [{
-          url: this.SCORE_EXPRESSION_EXTENSION
+          url: RuleEditorService.SCORE_EXPRESSION_EXTENSION
         }]
       }
     };
@@ -888,14 +928,15 @@ export class RuleEditorService {
    * Checks if the referenced Questionnaire item is a score calculation added by
    * the Rule Editor
    * @param questionnaire - FHIR Questionnaire
-   * @param linkId - Questionnaire item Link ID to check
+   * @param linkId - Questionnaire item Link ID to check, if not provided check
+   * all items on the questionnaire
    * @return True if the question at linkId is a score calculation created by
    * the Rule Editor, false otherwise
    */
-  isScoreCalculation(questionnaire, linkId): boolean {
+  isScoreCalculation(questionnaire, linkId?): boolean {
     const checkForScore = (item) => {
-      if (linkId === item.linkId) {
-        const isScore = item.extension.find((extension) => !!this.isScoreExtension(extension));
+      if (linkId === undefined || linkId === item.linkId) {
+        const isScore = this.hasRuleEditorExtension(item);
 
         if (isScore) {
           return true;
@@ -914,6 +955,20 @@ export class RuleEditorService {
     };
 
     return !!questionnaire.item.find((item) => checkForScore(item));
+  }
+
+  /**
+   * Returns true if the current item has a custom Rule Editor score extension
+   * (indicating it was previously modified by the Rule Editor)
+   * @param item
+   * @private
+   */
+  private hasRuleEditorExtension(item): boolean {
+    if (item.extension) {
+      return item.extension.find((extension) => !!this.isRuleEditorExtension(extension));
+    } else {
+      return false;
+    }
   }
 
   /**
@@ -941,7 +996,7 @@ export class RuleEditorService {
 
     const removeItemScoreVariables = (item) => {
       if (linkId === undefined || linkId === item.linkId) {
-        item.extension = item.extension.filter((extension) => !this.isScoreExtension(extension));
+        item.extension = item.extension.filter((extension) => !this.isRuleEditorExtension(extension));
       }
 
       if (item.item) {
@@ -959,12 +1014,12 @@ export class RuleEditorService {
    * @param extension - FHIR Extension object
    * @private
    */
-  private isScoreExtension(extension): boolean {
+  private isRuleEditorExtension(extension): boolean {
     if (extension.valueExpression && extension.valueExpression.extension &&
       extension.valueExpression.extension.length) {
       return !!extension.valueExpression.extension.find(e => e &&
-        (e.url === this.SCORE_VARIABLE_EXTENSION ||
-          e.url === this.SCORE_EXPRESSION_EXTENSION));
+        (e.url === RuleEditorService.SCORE_VARIABLE_EXTENSION ||
+          e.url === RuleEditorService.SCORE_EXPRESSION_EXTENSION));
     } else {
       return false;
     }
