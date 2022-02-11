@@ -23,6 +23,10 @@ export interface SimpleStyle {
   providedIn: 'root'
 })
 export class RuleEditorService {
+  static SCORE_VARIABLE_EXTENSION = 'http://lhcforms.nlm.nih.gov/fhir/ext/rule-editor-score-variable';
+  static SCORE_EXPRESSION_EXTENSION = 'http://lhcforms.nlm.nih.gov/fhir/ext/rule-editor-score-expression';
+  static SIMPLE_SYNTAX_EXTENSION = 'http://lhcforms.nlm.nih.gov/fhir/ext/simple-syntax';
+
   syntaxType = 'simple';
   linkIdContext: string;
   uneditableVariablesChange: Subject<UneditableVariable[]> =
@@ -47,9 +51,6 @@ export class RuleEditorService {
   private QUESTION_REGEX = /^%resource\.item\.where\(linkId='(.*)'\)\.answer\.value(?:\*(\d*\.?\d*))?$/;
   private QUERY_REGEX = /^Observation\?code=(.+)&date=gt{{today\(\)-(\d+) (.+)}}&patient={{%patient.id}}&_sort=-date&_count=1$/;
   private VARIABLE_EXTENSION = 'http://hl7.org/fhir/StructureDefinition/variable';
-  private SCORE_VARIABLE_EXTENSION = 'http://lhcforms.nlm.nih.gov/fhir/ext/rule-editor-score-variable';
-  private SCORE_EXPRESSION_EXTENSION = 'http://lhcforms.nlm.nih.gov/fhir/ext/rule-editor-expression';
-  private SIMPLE_SYNTAX_EXTENSION = 'http://lhcforms.nlm.nih.gov/fhir/ext/simple-syntax';
   private CALCULATED_EXPRESSION = 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression';
   private LAUNCH_CONTEXT_URI = 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-launchContext';
 
@@ -322,29 +323,20 @@ export class RuleEditorService {
    * Questionnaire
    * @param item - FHIR Questionnaire or item
    * @param linkIdContext - linkId to exclude from calculation
-   * @return number of score questions on the questionnaire, -1 if not should
-   *   not calculate score (has repeating groups which are not supported)
+   * @return number of score questions on the questionnaire
    */
   getScoreQuestionCount(item, linkIdContext): number {
     let scoreQuestions = 0;
 
     item.item.forEach((currentItem) => {
-      if (currentItem.repeats) {
-        return -1;
-      }
-
-      if (this.itemHasScore(currentItem)) {
+      if (!currentItem.repeats && this.itemHasScore(currentItem)) {
         scoreQuestions++;
       }
 
       if (currentItem.item instanceof Array) {
         const nestedScoreQuestionCount = this.getScoreQuestionCount(currentItem, linkIdContext);
 
-        if (nestedScoreQuestionCount === -1) {
-          return -1;
-        } else {
-          scoreQuestions += nestedScoreQuestionCount;
-        }
+        scoreQuestions += nestedScoreQuestionCount;
       }
     });
 
@@ -477,7 +469,7 @@ export class RuleEditorService {
   extractSimpleSyntax(expression): string|null {
     if (expression.valueExpression && expression.valueExpression.extension) {
       const customExtension = expression.valueExpression.extension.find((e) => {
-        return e.url === this.SIMPLE_SYNTAX_EXTENSION;
+        return e.url === RuleEditorService.SIMPLE_SYNTAX_EXTENSION;
       });
 
       if (customExtension !== undefined) {
@@ -531,7 +523,7 @@ export class RuleEditorService {
   private processVariable(name, expression, index?: number, extensions?): Variable {
     const matches = expression.match(this.QUESTION_REGEX);
 
-    const simpleExtension = extensions && extensions.find(e => e.url === this.SIMPLE_SYNTAX_EXTENSION);
+    const simpleExtension = extensions && extensions.find(e => e.url === RuleEditorService.SIMPLE_SYNTAX_EXTENSION);
 
     if (matches !== null) {
       const linkId = matches[1];
@@ -699,7 +691,7 @@ export class RuleEditorService {
       if (e.type === 'simple') {
         // @ts-ignore
         variable.valueExpression.extension = [{
-          url: this.SIMPLE_SYNTAX_EXTENSION,
+          url: RuleEditorService.SIMPLE_SYNTAX_EXTENSION,
           valueString: e.simple
         }];
       }
@@ -723,7 +715,7 @@ export class RuleEditorService {
     });
 
     if (this.syntaxType === 'simple') {
-      this.findOrAddExtension(finalExpression.valueExpression.extension, this.SIMPLE_SYNTAX_EXTENSION, 'String', this.simpleExpression);
+      this.findOrAddExtension(finalExpression.valueExpression.extension, RuleEditorService.SIMPLE_SYNTAX_EXTENSION, 'String', this.simpleExpression);
     }
 
     if (this.linkIdContext !== undefined && this.linkIdContext !== null && this.linkIdContext !== '') {
@@ -835,10 +827,15 @@ export class RuleEditorService {
     for (let i = 0; i < items.length; i++) {
       const item = items[i];
 
+      // Repeating items are currently not supported
+      if (item.repeats) {
+        continue;
+      }
+
       if (item.linkId === linkId) {
         // Do not consider items at or below the linkId context required
         break;
-      } else if (this.hasRuleEditorExtension(item) || item.repeats === true) {
+      } else if (this.hasRuleEditorExtension(item)) {
         // If the current item is already a score calculation or this is
         // repeating we should not consider it or any items above
         scoreItemIds = [];
@@ -886,7 +883,7 @@ export class RuleEditorService {
             `.where(valueCoding.code=%resource.item.where(linkId = '${e}').answer.valueCoding.code).extension` +
             `.where(url='http://hl7.org/fhir/StructureDefinition/ordinalValue').valueDecimal`,
           extension: [{
-            url: this.SCORE_VARIABLE_EXTENSION
+            url: RuleEditorService.SCORE_VARIABLE_EXTENSION
           }]
         }
       };
@@ -899,7 +896,7 @@ export class RuleEditorService {
         language: this.LANGUAGE_FHIRPATH,
         expression: variableNames.map((e) => `%${e}.exists()`).join(' or '),
         extension: [{
-          url: this.SCORE_VARIABLE_EXTENSION
+          url: RuleEditorService.SCORE_VARIABLE_EXTENSION
         }]
       }
     };
@@ -913,7 +910,7 @@ export class RuleEditorService {
         language: this.LANGUAGE_FHIRPATH,
         expression: `iif(%any_questions_answered, ${sumString}, {})`,
         extension: [{
-          url: this.SCORE_EXPRESSION_EXTENSION
+          url: RuleEditorService.SCORE_EXPRESSION_EXTENSION
         }]
       }
     };
@@ -1021,8 +1018,8 @@ export class RuleEditorService {
     if (extension.valueExpression && extension.valueExpression.extension &&
       extension.valueExpression.extension.length) {
       return !!extension.valueExpression.extension.find(e => e &&
-        (e.url === this.SCORE_VARIABLE_EXTENSION ||
-          e.url === this.SCORE_EXPRESSION_EXTENSION));
+        (e.url === RuleEditorService.SCORE_VARIABLE_EXTENSION ||
+          e.url === RuleEditorService.SCORE_EXPRESSION_EXTENSION));
     } else {
       return false;
     }

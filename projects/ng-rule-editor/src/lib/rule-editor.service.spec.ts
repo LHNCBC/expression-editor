@@ -11,7 +11,7 @@ const outputTotalScore = {
     description: 'Total score calculation',
     language: 'text/fhirpath',
     expression: 'iif(%any_questions_answered, iif(%a.exists(), %a, 0) + iif(%b.exists(), %b, 0) + iif(%c.exists(), %c, 0) + iif(%d.exists(), %d, 0) + iif(%e.exists(), %e, 0) + iif(%f.exists(), %f, 0) + iif(%g.exists(), %g, 0) + iif(%h.exists(), %h, 0) + iif(%i.exists(), %i, 0), {})',
-    extension: [{url: 'http://lhcforms.nlm.nih.gov/fhir/ext/rule-editor-expression'}]
+    extension: [{url: RuleEditorService.SCORE_EXPRESSION_EXTENSION}]
   }
 };
 
@@ -130,7 +130,7 @@ describe('RuleEditorService', () => {
         url: 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression',
         valueExpression: {
           extension:
-            [{url: 'http://lhcforms.nlm.nih.gov/fhir/ext/rule-editor-expression'}]
+            [{url: RuleEditorService.SCORE_EXPRESSION_EXTENSION}]
         }
       }]
     };
@@ -161,8 +161,18 @@ describe('RuleEditorService', () => {
 
     it('should not include items below another total score', () => {
       const total = {linkId: 'test'};
+      const existingTotalScore = {
+        linkId: '',
+        extension: [{
+          url: 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression',
+          valueExpression: {
+            extension:
+              [{url: RuleEditorService.SCORE_EXPRESSION_EXTENSION}]
+          }
+        }]
+      };
 
-      const testItems = [score('a'), totalScore, score('b'), total, score('c')];
+      const testItems = [score('a'), existingTotalScore, score('b'), total, score('c')];
       const itemIds = service.getScoreItemIds(testItems, 'test');
 
       expect(itemIds).toEqual(['b']);
