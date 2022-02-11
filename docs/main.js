@@ -370,14 +370,14 @@ var AppComponent = /** @class */ (function () {
     AppComponent.ɵfac = function AppComponent_Factory(t) { return new (t || AppComponent)(_angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵdirectiveInject"](_angular_common_http__WEBPACK_IMPORTED_MODULE_2__["HttpClient"]), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵdirectiveInject"](_angular_cdk_a11y__WEBPACK_IMPORTED_MODULE_3__["LiveAnnouncer"])); };
     AppComponent.ɵcmp = _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵdefineComponent"]({ type: AppComponent, selectors: [["app-root"]], decls: 27, vars: 4, consts: [["href", "https://github.com/NLMLHC/rule-editor#the-lhc-rule-editor"], ["id", "questionnaire-select", 3, "ngModel", "ngModelChange", "change"], ["value", "upload"], ["value", "bmi"], ["value", "bmisimple"], ["value", "bmicase"], ["value", "bmicasesimple"], ["value", "phq9"], ["value", "query"], ["id", "upload", 4, "ngIf"], ["class", "error", 4, "ngIf"], [4, "ngIf"], ["id", "upload"], ["type", "file", "id", "file-upload", "accept", ".json", 3, "ngModel", "ngModelChange", "change"], ["required", "", "id", "link-id", 3, "ngModel", "ngModelChange", "change"], ["value", ""], [3, "value", 4, "ngFor", "ngForOf"], [3, "hidden"], ["id", "expression-entry"], [3, "change"], [3, "value", "selected", 4, "ngFor", "ngForOf"], ["value", "custom"], ["required", "", "type", "text", "id", "expression-uri", 3, "ngModel", "ngModelChange", 4, "ngIf"], [3, "value"], [3, "value", "selected"], ["required", "", "type", "text", "id", "expression-uri", 3, "ngModel", "ngModelChange"], [1, "error"], [1, "rule-editor"], [3, "fhirQuestionnaire", "itemLinkId", "submitButtonName", "expressionLabel", "expressionUri", "lhcStyle", "doNotAskToCalculateScore", "save"], ["class", "download", 3, "click", 4, "ngIf"], ["id", "output"], [1, "download", 3, "click"]], template: function AppComponent_Template(rf, ctx) { if (rf & 1) {
             _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementStart"](0, "h1");
-            _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵtext"](1, "Demo Application");
+            _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵtext"](1, "Rule Editor Demo");
             _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementEnd"]();
             _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementStart"](2, "p");
-            _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵtext"](3, "Find more documentation in the ");
+            _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵtext"](3, " The Rule Editor is a widget which helps you add FHIRPath expressions to a FHIR Questionnaire. For documentation refer to the ");
             _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementStart"](4, "a", 0);
             _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵtext"](5, "Readme on GitHub");
             _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementEnd"]();
-            _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵtext"](6, ".");
+            _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵtext"](6, ". In the demo below you can choose one of the provided questionnaires or upload your own to be able to add, remove or rearrange variables and expressions.\n");
             _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementEnd"]();
             _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementStart"](7, "label");
             _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵtext"](8, " Questionnaire: ");
@@ -614,9 +614,6 @@ var RuleEditorService = /*#__PURE__*/function () {
     this.QUESTION_REGEX = /^%resource\.item\.where\(linkId='(.*)'\)\.answer\.value(?:\*(\d*\.?\d*))?$/;
     this.QUERY_REGEX = /^Observation\?code=(.+)&date=gt{{today\(\)-(\d+) (.+)}}&patient={{%patient.id}}&_sort=-date&_count=1$/;
     this.VARIABLE_EXTENSION = 'http://hl7.org/fhir/StructureDefinition/variable';
-    this.SCORE_VARIABLE_EXTENSION = 'http://lhcforms.nlm.nih.gov/fhir/ext/rule-editor-score-variable';
-    this.SCORE_EXPRESSION_EXTENSION = 'http://lhcforms.nlm.nih.gov/fhir/ext/rule-editor-expression';
-    this.SIMPLE_SYNTAX_EXTENSION = 'http://lhcforms.nlm.nih.gov/fhir/ext/simple-syntax';
     this.CALCULATED_EXPRESSION = 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression';
     this.LAUNCH_CONTEXT_URI = 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-launchContext';
     this.linkIdToQuestion = {};
@@ -948,8 +945,7 @@ var RuleEditorService = /*#__PURE__*/function () {
      * Questionnaire
      * @param item - FHIR Questionnaire or item
      * @param linkIdContext - linkId to exclude from calculation
-     * @return number of score questions on the questionnaire, -1 if not should
-     *   not calculate score (has repeating groups which are not supported)
+     * @return number of score questions on the questionnaire
      */
 
   }, {
@@ -959,22 +955,14 @@ var RuleEditorService = /*#__PURE__*/function () {
 
       var scoreQuestions = 0;
       item.item.forEach(function (currentItem) {
-        if (currentItem.repeats) {
-          return -1;
-        }
-
-        if (_this3.itemHasScore(currentItem)) {
+        if (!currentItem.repeats && _this3.itemHasScore(currentItem)) {
           scoreQuestions++;
         }
 
         if (currentItem.item instanceof Array) {
           var nestedScoreQuestionCount = _this3.getScoreQuestionCount(currentItem, linkIdContext);
 
-          if (nestedScoreQuestionCount === -1) {
-            return -1;
-          } else {
-            scoreQuestions += nestedScoreQuestionCount;
-          }
+          scoreQuestions += nestedScoreQuestionCount;
         }
       });
       return scoreQuestions;
@@ -1110,11 +1098,9 @@ var RuleEditorService = /*#__PURE__*/function () {
   }, {
     key: "extractSimpleSyntax",
     value: function extractSimpleSyntax(expression) {
-      var _this5 = this;
-
       if (expression.valueExpression && expression.valueExpression.extension) {
         var customExtension = expression.valueExpression.extension.find(function (e) {
-          return e.url === _this5.SIMPLE_SYNTAX_EXTENSION;
+          return e.url === RuleEditorService.SIMPLE_SYNTAX_EXTENSION;
         });
 
         if (customExtension !== undefined) {
@@ -1134,7 +1120,7 @@ var RuleEditorService = /*#__PURE__*/function () {
   }, {
     key: "extractExpression",
     value: function extractExpression(expressionUri, items, linkId) {
-      var _this6 = this;
+      var _this5 = this;
 
       var _iterator3 = Object(_home_mazilumt_dev_pr_rule_editor_node_modules_babel_runtime_helpers_esm_createForOfIteratorHelper__WEBPACK_IMPORTED_MODULE_1__["default"])(items),
           _step3;
@@ -1145,7 +1131,7 @@ var RuleEditorService = /*#__PURE__*/function () {
 
           if (item.linkId === linkId && item.extension) {
             var extensionIndex = item.extension.findIndex(function (e) {
-              return e.url === expressionUri && e.valueExpression.language === _this6.LANGUAGE_FHIRPATH && e.valueExpression.expression;
+              return e.url === expressionUri && e.valueExpression.language === _this5.LANGUAGE_FHIRPATH && e.valueExpression.expression;
             });
 
             if (extensionIndex !== -1) {
@@ -1181,11 +1167,9 @@ var RuleEditorService = /*#__PURE__*/function () {
   }, {
     key: "processVariable",
     value: function processVariable(name, expression, index, extensions) {
-      var _this7 = this;
-
       var matches = expression.match(this.QUESTION_REGEX);
       var simpleExtension = extensions && extensions.find(function (e) {
-        return e.url === _this7.SIMPLE_SYNTAX_EXTENSION;
+        return e.url === RuleEditorService.SIMPLE_SYNTAX_EXTENSION;
       });
 
       if (matches !== null) {
@@ -1373,7 +1357,7 @@ var RuleEditorService = /*#__PURE__*/function () {
   }, {
     key: "export",
     value: function _export(url, finalExpression) {
-      var _this8 = this;
+      var _this6 = this;
 
       // Copy the fhir object, so we can export more than once
       // (if we add our data the second export will have duplicates)
@@ -1381,10 +1365,10 @@ var RuleEditorService = /*#__PURE__*/function () {
       var variablesToAdd = this.variables.map(function (e) {
         var variable = {
           __$index: e.__$index,
-          url: _this8.VARIABLE_EXTENSION,
+          url: _this6.VARIABLE_EXTENSION,
           valueExpression: {
             name: e.label,
-            language: e.type === 'query' ? _this8.LANGUAGE_FHIR_QUERY : _this8.LANGUAGE_FHIRPATH,
+            language: e.type === 'query' ? _this6.LANGUAGE_FHIR_QUERY : _this6.LANGUAGE_FHIRPATH,
             expression: e.expression
           }
         };
@@ -1392,7 +1376,7 @@ var RuleEditorService = /*#__PURE__*/function () {
         if (e.type === 'simple') {
           // @ts-ignore
           variable.valueExpression.extension = [{
-            url: _this8.SIMPLE_SYNTAX_EXTENSION,
+            url: RuleEditorService.SIMPLE_SYNTAX_EXTENSION,
             valueString: e.simple
           }];
         }
@@ -1414,7 +1398,7 @@ var RuleEditorService = /*#__PURE__*/function () {
       });
 
       if (this.syntaxType === 'simple') {
-        this.findOrAddExtension(finalExpression.valueExpression.extension, this.SIMPLE_SYNTAX_EXTENSION, 'String', this.simpleExpression);
+        this.findOrAddExtension(finalExpression.valueExpression.extension, RuleEditorService.SIMPLE_SYNTAX_EXTENSION, 'String', this.simpleExpression);
       }
 
       if (this.linkIdContext !== undefined && this.linkIdContext !== null && this.linkIdContext !== '') {
@@ -1432,7 +1416,7 @@ var RuleEditorService = /*#__PURE__*/function () {
 
       if (hasQueryObservations !== undefined) {
         var patientLaunchContext = fhir.extension.find(function (extension) {
-          if (extension.url === _this8.LAUNCH_CONTEXT_URI && Array.isArray(extension.extension)) {
+          if (extension.url === _this6.LAUNCH_CONTEXT_URI && Array.isArray(extension.extension)) {
             var patientName = extension.extension.find(function (subExtension) {
               return subExtension.url === 'name' && subExtension.valueId === 'patient';
             });
@@ -1534,12 +1518,16 @@ var RuleEditorService = /*#__PURE__*/function () {
       var scoreItemIds = [];
 
       for (var i = 0; i < items.length; i++) {
-        var item = items[i];
+        var item = items[i]; // Repeating items are currently not supported
+
+        if (item.repeats) {
+          continue;
+        }
 
         if (item.linkId === linkId) {
           // Do not consider items at or below the linkId context required
           break;
-        } else if (this.hasRuleEditorExtension(item) || item.repeats === true) {
+        } else if (this.hasRuleEditorExtension(item)) {
           // If the current item is already a score calculation or this is
           // repeating we should not consider it or any items above
           scoreItemIds = [];
@@ -1566,7 +1554,7 @@ var RuleEditorService = /*#__PURE__*/function () {
   }, {
     key: "addSumOfScores",
     value: function addSumOfScores() {
-      var _this9 = this;
+      var _this7 = this;
 
       var fhir = this.fhir;
       var linkIdContext = this.linkIdContext;
@@ -1575,17 +1563,17 @@ var RuleEditorService = /*#__PURE__*/function () {
       var scoreQuestionLinkIds = this.getScoreItemIds(fhir.item, linkIdContext); // Get as many short suggested variable names as we have score questions
 
       scoreQuestionLinkIds.forEach(function () {
-        variableNames.push(_this9.getNewLabelName(variableNames));
+        variableNames.push(_this7.getNewLabelName(variableNames));
       });
       var scoreQuestions = scoreQuestionLinkIds.map(function (e, i) {
         return {
-          url: _this9.VARIABLE_EXTENSION,
+          url: _this7.VARIABLE_EXTENSION,
           valueExpression: {
             name: variableNames[i],
-            language: _this9.LANGUAGE_FHIRPATH,
+            language: _this7.LANGUAGE_FHIRPATH,
             expression: "%questionnaire.item.where(linkId = '".concat(e, "').answerOption") + ".where(valueCoding.code=%resource.item.where(linkId = '".concat(e, "').answer.valueCoding.code).extension") + ".where(url='http://hl7.org/fhir/StructureDefinition/ordinalValue').valueDecimal",
             extension: [{
-              url: _this9.SCORE_VARIABLE_EXTENSION
+              url: RuleEditorService.SCORE_VARIABLE_EXTENSION
             }]
           }
         };
@@ -1599,7 +1587,7 @@ var RuleEditorService = /*#__PURE__*/function () {
             return "%".concat(e, ".exists()");
           }).join(' or '),
           extension: [{
-            url: this.SCORE_VARIABLE_EXTENSION
+            url: RuleEditorService.SCORE_VARIABLE_EXTENSION
           }]
         }
       };
@@ -1613,7 +1601,7 @@ var RuleEditorService = /*#__PURE__*/function () {
           language: this.LANGUAGE_FHIRPATH,
           expression: "iif(%any_questions_answered, ".concat(sumString, ", {})"),
           extension: [{
-            url: this.SCORE_EXPRESSION_EXTENSION
+            url: RuleEditorService.SCORE_EXPRESSION_EXTENSION
           }]
         }
       };
@@ -1636,11 +1624,11 @@ var RuleEditorService = /*#__PURE__*/function () {
   }, {
     key: "isScoreCalculation",
     value: function isScoreCalculation(questionnaire, linkId) {
-      var _this10 = this;
+      var _this8 = this;
 
       var checkForScore = function checkForScore(item) {
         if (linkId === undefined || linkId === item.linkId) {
-          var isScore = _this10.hasRuleEditorExtension(item);
+          var isScore = _this8.hasRuleEditorExtension(item);
 
           if (isScore) {
             return true;
@@ -1674,11 +1662,11 @@ var RuleEditorService = /*#__PURE__*/function () {
   }, {
     key: "hasRuleEditorExtension",
     value: function hasRuleEditorExtension(item) {
-      var _this11 = this;
+      var _this9 = this;
 
       if (item.extension) {
         return item.extension.find(function (extension) {
-          return !!_this11.isRuleEditorExtension(extension);
+          return !!_this9.isRuleEditorExtension(extension);
         });
       } else {
         return false;
@@ -1710,14 +1698,14 @@ var RuleEditorService = /*#__PURE__*/function () {
   }, {
     key: "removeSumOfScores",
     value: function removeSumOfScores(questionnaire, linkId) {
-      var _this12 = this;
+      var _this10 = this;
 
       this.fhir = questionnaire;
 
       var removeItemScoreVariables = function removeItemScoreVariables(item) {
         if (linkId === undefined || linkId === item.linkId) {
           item.extension = item.extension.filter(function (extension) {
-            return !_this12.isRuleEditorExtension(extension);
+            return !_this10.isRuleEditorExtension(extension);
           });
         }
 
@@ -1740,11 +1728,9 @@ var RuleEditorService = /*#__PURE__*/function () {
   }, {
     key: "isRuleEditorExtension",
     value: function isRuleEditorExtension(extension) {
-      var _this13 = this;
-
       if (extension.valueExpression && extension.valueExpression.extension && extension.valueExpression.extension.length) {
         return !!extension.valueExpression.extension.find(function (e) {
-          return e && (e.url === _this13.SCORE_VARIABLE_EXTENSION || e.url === _this13.SCORE_EXPRESSION_EXTENSION);
+          return e && (e.url === RuleEditorService.SCORE_VARIABLE_EXTENSION || e.url === RuleEditorService.SCORE_EXPRESSION_EXTENSION);
         });
       } else {
         return false;
@@ -1827,6 +1813,10 @@ var RuleEditorService = /*#__PURE__*/function () {
 
   return RuleEditorService;
 }();
+
+RuleEditorService.SCORE_VARIABLE_EXTENSION = 'http://lhcforms.nlm.nih.gov/fhir/ext/rule-editor-score-variable';
+RuleEditorService.SCORE_EXPRESSION_EXTENSION = 'http://lhcforms.nlm.nih.gov/fhir/ext/rule-editor-score-expression';
+RuleEditorService.SIMPLE_SYNTAX_EXTENSION = 'http://lhcforms.nlm.nih.gov/fhir/ext/simple-syntax';
 
 RuleEditorService.ɵfac = function RuleEditorService_Factory(t) {
   return new (t || RuleEditorService)();
@@ -2034,11 +2024,11 @@ var UneditableVariablesComponent = /*#__PURE__*/function () {
   Object(_home_mazilumt_dev_pr_rule_editor_node_modules_babel_runtime_helpers_esm_createClass__WEBPACK_IMPORTED_MODULE_4__["default"])(UneditableVariablesComponent, [{
     key: "ngOnInit",
     value: function ngOnInit() {
-      var _this14 = this;
+      var _this11 = this;
 
       this.uneditableVariables = this.variableService.uneditableVariables;
       this.uneditableVariablesSubscription = this.variableService.uneditableVariablesChange.subscribe(function (variables) {
-        _this14.uneditableVariables = variables;
+        _this11.uneditableVariables = variables;
       });
     }
     /**
@@ -2315,14 +2305,14 @@ var QuestionComponent = /*#__PURE__*/function () {
   Object(_home_mazilumt_dev_pr_rule_editor_node_modules_babel_runtime_helpers_esm_createClass__WEBPACK_IMPORTED_MODULE_4__["default"])(QuestionComponent, [{
     key: "ngOnInit",
     value: function ngOnInit() {
-      var _this15 = this;
+      var _this12 = this;
 
       this.linkId = this.variable.linkId ? this.variable.linkId : '';
       this.toUnit = this.variable.unit ? this.variable.unit : '';
       this.questions = this.variableService.questions;
       this.onChange(false);
       this.variableService.questionsChange.subscribe(function (questions) {
-        _this15.questions = questions;
+        _this12.questions = questions;
       });
     }
     /**
@@ -2514,7 +2504,7 @@ var QueryObservationComponent = /*#__PURE__*/function () {
   }, {
     key: "ngAfterViewInit",
     value: function ngAfterViewInit() {
-      var _this16 = this;
+      var _this13 = this;
 
       this.autoComplete = new autocomplete_lhc__WEBPACK_IMPORTED_MODULE_16___default.a.Autocompleter.Search(this.autoCompleteElement.nativeElement, this.queryUrl, {
         tableFormat: true,
@@ -2528,31 +2518,31 @@ var QueryObservationComponent = /*#__PURE__*/function () {
         if (matches !== null) {
           var loincCode = matches[1]; // LOINC Code
 
-          _this16.http.get("".concat(_this16.queryUrl, "&terms=").concat(loincCode)).subscribe(function (data) {
+          _this13.http.get("".concat(_this13.queryUrl, "&terms=").concat(loincCode)).subscribe(function (data) {
             var namePosition = 3;
             var name = [data[namePosition][0][0], loincCode].join(' - ');
 
-            _this16.autoComplete.storeSelectedItem(name, loincCode);
+            _this13.autoComplete.storeSelectedItem(name, loincCode);
 
-            _this16.autoComplete.addToSelectedArea(name);
+            _this13.autoComplete.addToSelectedArea(name);
           });
         } else {
           // Non-loinc code
-          _this16.autoComplete.storeSelectedItem(code, undefined);
+          _this13.autoComplete.storeSelectedItem(code, undefined);
 
-          _this16.autoComplete.addToSelectedArea(code);
+          _this13.autoComplete.addToSelectedArea(code);
         }
       });
       autocomplete_lhc__WEBPACK_IMPORTED_MODULE_16___default.a.Autocompleter.Event.observeListSelections("autocomplete-".concat(this.index), function () {
-        var selectedItemData = _this16.autoComplete.getSelectedItemData(); // If there is no code then this is not a loinc code and we need to get
+        var selectedItemData = _this13.autoComplete.getSelectedItemData(); // If there is no code then this is not a loinc code and we need to get
         // the value from the array above
 
 
-        _this16.codes = _this16.autoComplete.getSelectedCodes().map(function (code, index) {
+        _this13.codes = _this13.autoComplete.getSelectedCodes().map(function (code, index) {
           return code === undefined ? selectedItemData[index].text : "http://loinc.org|".concat(code);
         });
 
-        _this16.onChange();
+        _this13.onChange();
       });
     }
     /**
@@ -3090,11 +3080,11 @@ var VariablesComponent = /*#__PURE__*/function () {
   Object(_home_mazilumt_dev_pr_rule_editor_node_modules_babel_runtime_helpers_esm_createClass__WEBPACK_IMPORTED_MODULE_4__["default"])(VariablesComponent, [{
     key: "ngOnInit",
     value: function ngOnInit() {
-      var _this17 = this;
+      var _this14 = this;
 
       this.variables = this.ruleEditorService.variables;
       this.variableSubscription = this.ruleEditorService.variablesChange.subscribe(function (variables) {
-        _this17.variables = variables;
+        _this14.variables = variables;
       });
     }
     /**
@@ -3104,7 +3094,7 @@ var VariablesComponent = /*#__PURE__*/function () {
   }, {
     key: "ngOnChanges",
     value: function ngOnChanges(changes) {
-      var _this18 = this;
+      var _this15 = this;
 
       if (changes.advancedInterface) {
         this.variableType = this.advancedInterface ? AllVariableType : SimpleVariableType;
@@ -3118,7 +3108,7 @@ var VariablesComponent = /*#__PURE__*/function () {
 
           setTimeout(function () {
             previousValues.forEach(function (type, index) {
-              _this18.variables[index].type = type;
+              _this15.variables[index].type = type;
             });
           }, 10);
         }
@@ -3555,10 +3545,11 @@ function CaseStatementsComponent_lhc_syntax_preview_20_Template(rf, ctx) {
 }
 
 var CaseStatementsComponent = /*#__PURE__*/function () {
-  function CaseStatementsComponent(ruleEditorService) {
+  function CaseStatementsComponent(ruleEditorService, liveAnnouncer) {
     Object(_home_mazilumt_dev_pr_rule_editor_node_modules_babel_runtime_helpers_esm_classCallCheck__WEBPACK_IMPORTED_MODULE_3__["default"])(this, CaseStatementsComponent);
 
     this.ruleEditorService = ruleEditorService;
+    this.liveAnnouncer = liveAnnouncer;
     this.lhcStyle = {};
     this.expressionChange = new _angular_core__WEBPACK_IMPORTED_MODULE_6__["EventEmitter"]();
     this.simpleChange = new _angular_core__WEBPACK_IMPORTED_MODULE_6__["EventEmitter"]();
@@ -3598,12 +3589,12 @@ var CaseStatementsComponent = /*#__PURE__*/function () {
   }, {
     key: "parseSimpleCases",
     value: function parseSimpleCases() {
-      var _this19 = this;
+      var _this16 = this;
 
       this.parseIif(this.simpleExpression, 0); // If all output values are strings toggle off "use expressions"
 
       var outputString = this.cases.find(function (e) {
-        return !_this19.isString(e.simpleOutput);
+        return !_this16.isString(e.simpleOutput);
       });
       var defaultIsString = this.isString(this.simpleDefaultCase);
 
@@ -3611,7 +3602,7 @@ var CaseStatementsComponent = /*#__PURE__*/function () {
         this.outputExpressions = false; // Remove quotes from output strings and default case
 
         this.cases.forEach(function (e) {
-          e.simpleOutput = _this19.removeQuotes(e.simpleOutput);
+          e.simpleOutput = _this16.removeQuotes(e.simpleOutput);
         });
         this.simpleDefaultCase = this.removeQuotes(this.simpleDefaultCase);
       }
@@ -3786,7 +3777,12 @@ var CaseStatementsComponent = /*#__PURE__*/function () {
       var defaultCase = this.transformIfSimple(isSimple ? this.simpleDefaultCase : this.defaultCase, true);
 
       if (level === 0) {
+        var previousValue = this.hidePreview;
         this.hidePreview = condition === '' || output === '' || defaultCase === '';
+
+        if (!this.hidePreview && previousValue !== this.hidePreview) {
+          this.liveAnnouncer.announce('A FHIRPath conversion preview has appeared below.');
+        }
       }
 
       if (level === this.cases.length - 1) {
@@ -3843,7 +3839,7 @@ var CaseStatementsComponent = /*#__PURE__*/function () {
 }();
 
 CaseStatementsComponent.ɵfac = function CaseStatementsComponent_Factory(t) {
-  return new (t || CaseStatementsComponent)(_angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵdirectiveInject"](RuleEditorService));
+  return new (t || CaseStatementsComponent)(_angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵdirectiveInject"](RuleEditorService), _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵdirectiveInject"](_angular_cdk_a11y__WEBPACK_IMPORTED_MODULE_9__["LiveAnnouncer"]));
 };
 
 CaseStatementsComponent.ɵcmp = _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵdefineComponent"]({
@@ -3943,6 +3939,8 @@ CaseStatementsComponent.ɵcmp = _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵ
   }], function () {
     return [{
       type: RuleEditorService
+    }, {
+      type: _angular_cdk_a11y__WEBPACK_IMPORTED_MODULE_9__["LiveAnnouncer"]
     }];
   }, {
     lhcStyle: [{
@@ -4240,21 +4238,21 @@ var RuleEditorComponent = /*#__PURE__*/function () {
   Object(_home_mazilumt_dev_pr_rule_editor_node_modules_babel_runtime_helpers_esm_createClass__WEBPACK_IMPORTED_MODULE_4__["default"])(RuleEditorComponent, [{
     key: "ngOnInit",
     value: function ngOnInit() {
-      var _this20 = this;
+      var _this17 = this;
 
       this.calculateSumSubscription = this.variableService.mightBeScoreChange.subscribe(function (mightBeScore) {
-        _this20.calculateSum = mightBeScore;
+        _this17.calculateSum = mightBeScore;
       });
       this.finalExpressionSubscription = this.variableService.finalExpressionChange.subscribe(function (finalExpression) {
-        _this20.finalExpression = finalExpression;
+        _this17.finalExpression = finalExpression;
       });
       this.variablesSubscription = this.variableService.variablesChange.subscribe(function (variables) {
-        _this20.variables = variables.map(function (e) {
+        _this17.variables = variables.map(function (e) {
           return e.label;
         });
       });
       this.disableAdvancedSubscription = this.variableService.disableAdvancedChange.subscribe(function (disable) {
-        _this20.disableInterfaceToggle = disable;
+        _this17.disableInterfaceToggle = disable;
       });
     }
     /**
