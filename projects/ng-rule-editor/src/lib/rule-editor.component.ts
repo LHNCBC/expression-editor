@@ -16,6 +16,7 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
   @Input() itemLinkId = null;
   @Input() submitButtonName = 'Submit';
   @Input() titleName = 'Rule Editor';
+  @Input() userExpressionChoices = null;
   @Input() expressionLabel = 'Final Expression';
   @Input() expressionUri = '';
   @Input() lhcStyle: SimpleStyle = {};

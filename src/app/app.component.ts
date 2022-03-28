@@ -23,6 +23,14 @@ export class AppComponent implements OnInit {
       selected: true
     },
     {
+      name: 'Calculated/Initial Expression (user editable)',
+      uri: 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression',
+      userExpressionChoices: [
+        { name: 'Calculated Expression', uri: 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression' },
+        { name: 'Initial Expression', uri: 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression' }
+      ]
+    },
+    {
       name: 'Enable When Expression',
       uri: 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-enableWhenExpression',
     },
@@ -36,6 +44,7 @@ export class AppComponent implements OnInit {
   linkId = '';
   linkIds;
   expressionUri = this.calculatedExpression;
+  userExpressionChoices = null;
   customExpressionUri = false;
   fhir = null;
   formType = 'bmisimple';
@@ -177,12 +186,18 @@ export class AppComponent implements OnInit {
   expressionChange($event): void {
     const newValue = $event.target.value;
 
-    if (newValue === 'custom') {
+    if (newValue === '') {
+      this.customExpressionUri = false;
+      this.expressionUri = newValue;
+    } else if (newValue === 'custom') {
+      this.userExpressionChoices = null;
       this.customExpressionUri = true;
       this.expressionUri = '';
     } else {
+      const currentExpression = this.expressionTypes[newValue];
+      this.userExpressionChoices = currentExpression.userExpressionChoices;
       this.customExpressionUri = false;
-      this.expressionUri = newValue;
+      this.expressionUri = currentExpression.uri;
     }
   }
 }
