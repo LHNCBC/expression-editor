@@ -22,6 +22,15 @@ describe('Rule editor demo', () => {
       // Updating the linkId should update the Rule Editor instantly
       cy.get('select#link-id').select('/39156-5');
       cy.get('#final-expression').should('have.value', '(%a/(%b.power(2))).round(1)');
+
+      cy.get('#expression-entry > select').select('2');
+      cy.get('#expression-type').find(':selected').contains('Computed continuously');
+
+      cy.get('#export').click();
+      cy.get('#output').contains('http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression');
+      cy.get('#expression-type').select('Only computed when the form loads');
+      cy.get('#export').click();
+      cy.get('#output').contains('http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression');
     });
   });
 });
