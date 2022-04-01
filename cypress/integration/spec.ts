@@ -4,6 +4,61 @@ describe('Rule editor', () => {
   });
 
   describe('Angular Library', () => {
+    describe('BMI calculation', () => {
+      it('should display the editor', () => {
+        cy.title().should('eq', 'Rule Editor');
+        // Uneditable variables section should not show up
+        cy.get('#uneditable-variables-section .variable-row').should('have.length', 0);
+        // Variables section
+        cy.get('lhc-variables > h2').should('contain', 'Item Variables');
+        cy.get('#variables-section .variable-row').should('have.length', 2);
+        // Final expression
+        cy.get('#final-expression-section h2').should('contain', 'Output Expression');
+      });
+
+      it('should be possible to add a variable', () => {
+        cy.get('#variables-section .variable-row').should('have.length', 2);
+        cy.get('#add-variable').click();
+        cy.get('#variables-section .variable-row').should('have.length', 3);
+      });
+
+      it('should be possible to remove a variable', () => {
+        cy.get('#variables-section .variable-row').should('have.length', 2);
+        cy.get('.remove-variable').last().click();
+        cy.get('#variables-section .variable-row').should('have.length', 1);
+      });
+
+      it('should produce the correct FHIR Questionnaire', () => {
+        cy.get('#export').click();
+        cy.get('#output').contains('"expression": "%a/%b.power(2)"');
+      });
+
+      it('should be user stylable', () => {
+        // User styled input fields have a light yellow background. Declared via an attribute
+        cy.get('lhc-rule-editor input:not([type="checkbox"])').first()
+          .should('have.attr', 'style', 'background-color: rgb(255, 255, 238);');
+      });
+    });
+
+    describe('PHQ9 score calculation', () => {
+      beforeEach(() => {
+        cy.get('#questionnaire-select').select('PHQ9 (no FHIRPath)');
+      });
+
+      it('should display the editor', () => {
+        // Only the prompt for score calculation should show up
+        cy.get('.rule-editor').contains('Would you like to calculate the sum of scores?');
+      });
+
+      it('should produce the calculation', () => {
+        cy.get('#export-score').click();
+        cy.get('#output').contains('"expression": "iif(%any_questions_answered, iif(%a.exists(), %a, 0) + iif(%b.exists(), %b, 0) + ' +
+          'iif(%c.exists(), %c, 0) + iif(%d.exists(), %d, 0) + iif(%e.exists(), %e, 0) + iif(%f.exists(), %f, 0) + ' +
+          'iif(%g.exists(), %g, 0) + iif(%h.exists(), %h, 0) + iif(%i.exists(), %i, 0), {})"'
+        );
+      });
+    });
+
     describe('Query support', () => {
       it('should display the query editor', () => {
         // Check the demo questionnaire load
