@@ -32,6 +32,10 @@ h1 {
   flex-direction: row;
 }
 
+.flex-vertical {
+  flex-direction: column;
+}
+
 .expression, .expression-type {
   display: flex;
   padding: 0.5rem;

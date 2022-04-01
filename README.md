@@ -30,6 +30,9 @@ object.
   This attribute sets the default which can be overridden by the user.
 * `doNotAskToCalculateScore` - Do not ask the user if they would like to
   calculate a score.
+* `userExpressionChoices` - Choices of expression type to output. Array of
+  objects with `name` and `uri` values of choices to present to the user in a
+  dropdown. If no value is provided the dropdown will not be present.
 * `lhcStyle` (object) - Specify custom CSS to be used by the widget for:
   * h1 - Main heading
   * h2 - Secondary headings

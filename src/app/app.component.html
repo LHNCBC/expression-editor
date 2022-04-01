@@ -37,7 +37,7 @@
       <div id="expression-entry">
         <select (change)="expressionChange($event)">
           <option value="">None</option>
-          <option *ngFor="let expressionType of expressionTypes" [value]="expressionType.uri" [selected]="expressionType.selected">
+          <option *ngFor="let expressionType of expressionTypes; let i = index" [value]="i" [selected]="expressionType.selected">
             {{expressionType.name}}
           </option>
           <option value="custom">Other...</option>
@@ -59,6 +59,7 @@
       [submitButtonName]="'Save'"
       [expressionLabel]="'Output Expression'"
       [expressionUri]="linkId ? expressionUri : ''"
+      [userExpressionChoices]=userExpressionChoices
       [lhcStyle]="{
         buttonPrimary: { backgroundColor: 'navy', color: 'white' },
         buttonSecondary: { backgroundColor: 'darkgreen', color: 'white' },

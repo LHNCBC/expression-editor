@@ -20,6 +20,13 @@
   <section id="final-expression-section" class="mb-3" *ngIf="expressionUri">
     <h2 [style]="lhcStyle.h2">{{expressionLabel}}</h2>
 
+    <div class="expression-type flex-vertical" *ngIf="userExpressionChoices">
+      <label for="expression-type">Expression Type</label>
+      <select id="expression-type" class="form-control" aria-label="Expression type" [ngStyle]="lhcStyle.select" [(ngModel)]="finalExpressionExtension.url">
+        <option *ngFor="let choice of userExpressionChoices" [value]="choice.uri">{{choice.name}}</option>
+      </select>
+    </div>
+
     <div class="checkbox">
       <input type="checkbox" id="case-statements" [(ngModel)]="caseStatements">
       <label for="case-statements">Use case statements</label>
