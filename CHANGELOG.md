@@ -2,6 +2,10 @@
 
 This project follows [Semantic Versioning](http://semver.org/).
 
+## [3.1.1] 2022-03-31
+### Changed
+- Replaced Protractor tests with Cypress.
+
 ## [3.1.0] 2021-03-28
 ### Added
 - Added the ability to select the output expression type within the Rule Editor.
@@ -13,7 +17,7 @@ This project follows [Semantic Versioning](http://semver.org/).
 - Stopped minifying files for the demo app.
 - Updated easy-path-expressions.
 
-## [3.0.0] 2021-01-28
+## [3.0.0] 2022-01-28
 ### Added
 - Updated URI used for score calculation extensions from:
   `http://lhcforms.nlm.nih.gov/fhir/ext/rule-editor-expression` to
