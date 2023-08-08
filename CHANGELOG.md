@@ -2,6 +2,11 @@
 
 This project follows [Semantic Versioning](http://semver.org/).
 
+## [3.2.0] 2023-08-08
+### Changed
+- Upgrade to Node v16.15.0
+- Renamed bashrc to bashrc.rule_editor 
+
 ## [3.1.1] 2022-03-31
 ### Changed
 - Replaced Protractor tests with Cypress.
