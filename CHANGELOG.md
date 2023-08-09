@@ -2,7 +2,7 @@
 
 This project follows [Semantic Versioning](http://semver.org/).
 
-## [3.2.0] 2023-08-08
+## [3.1.2] 2023-08-08
 ### Changed
 - Upgrade to Node v16.15.0
 - Renamed bashrc to bashrc.rule_editor 
@@ -11,12 +11,12 @@ This project follows [Semantic Versioning](http://semver.org/).
 ### Changed
 - Replaced Protractor tests with Cypress.
 
-## [3.1.0] 2021-03-28
+## [3.1.0] 2022-03-28
 ### Added
 - Added the ability to select the output expression type within the Rule Editor.
   There is now an option to enable this functionality.
 
-## [3.0.1] 2021-02-04
+## [3.0.1] 2022-02-04
 ### Added
 - Added a help link to the demo app.
 - Stopped minifying files for the demo app.
