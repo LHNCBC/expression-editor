@@ -3,10 +3,6 @@
   "dest": "../../dist/ng-rule-editor",
   "allowedNonPeerDependencies": ["easy-path-expressions", "jquery", "autocomplete-lhc"],
   "lib": {
-    "entryFile": "src/public-api.ts",
-    "umdModuleIds": {
-      "easy-path-expressions": "easyPathExpressions",
-      "autocomplete-lhc": "Def"
-    }
+    "entryFile": "src/public-api.ts"
   }
 }
