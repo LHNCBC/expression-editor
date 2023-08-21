@@ -42,30 +42,27 @@ export class QuestionComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   /**
-   * After the autocomplete is ready to be interacted with fetch the name for
+   * After the autocompleter is ready to be interacted with fetch the name for
    * any codes already in the query search.
    */
   ngAfterViewInit(): void {
     const keys = this.questions.map(e => e.text + ' (' + e.linkId + ')');
     const vals = this.questions.map(v => v.linkId);
 
+    let question;
+    if (this.linkId)
+      question = this.getQuestion(this.linkId);
+
     let opts = {
       tableFormat: false,
       codes: vals
     }
 
-    if (this.linkId) {
-      opts['defaultValue'] = this.linkId;
-    }
-
     this.autoComplete = new Def.Autocompleter.Prefetch(
-    this.autoCompleteElement.nativeElement, keys, opts);
+      this.autoCompleteElement.nativeElement, keys, opts);
 
-    // This is needed on the first load if the question was pre-populated.  Element has 
-    // to be in 'focus' for the selected value to show up.
-    this.autoCompleteElement.nativeElement.focus();
-    // And this is needed for the last element to close out the drop-down
-    this.autoCompleteElement.nativeElement.blur();
+    if (question && this.linkId)
+      this.autoComplete.setFieldToListValue(question.text + ' (' + this.linkId + ')');
 
     Def.Autocompleter.Event.observeListSelections(`question-${this.index}`, (res) => {
       if (res.val_typed_in !== res.final_val && res.hasOwnProperty('item_code') && res.item_code) {
