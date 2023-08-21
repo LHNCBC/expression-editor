@@ -234,7 +234,6 @@ export class AppComponent implements OnInit, OnDestroy {
    * Angular lifecycle hook
    */
   ngOnDestroy(): void {
-    console.log('ngOnDestroy::----');
     if (this.autoComplete !== undefined) {
       this.autoComplete.destroy();
     }
