@@ -1,14 +1,18 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, ElementRef, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { DatePipe } from '@angular/common';
 import { LiveAnnouncer } from '@angular/cdk/a11y';
+import Def from 'autocomplete-lhc';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
-export class AppComponent implements OnInit {
+export class AppComponent implements OnInit, OnDestroy {
+  @ViewChild('autoComplete', {static: false}) autoCompleteElement: ElementRef;
+  autoComplete;
+
   formAppearedAnnouncement = 'The rule editor for the selected form has appeared below the current field.';
   calculatedExpression = 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression';
   originalLinkId = '/39156-5';
@@ -52,7 +56,7 @@ export class AppComponent implements OnInit {
   error = '';
   doNotAskToCalculateScore = false;
 
-  constructor(private http: HttpClient, private liveAnnouncer: LiveAnnouncer) {}
+  constructor(private http: HttpClient, private liveAnnouncer: LiveAnnouncer, private changeDetectorRef: ChangeDetectorRef) {}
 
   ngOnInit(): void {
     this.onChange();
@@ -108,6 +112,8 @@ export class AppComponent implements OnInit {
             this.error = '';
             if (this.fhir && this.fhir.item instanceof Array) {
               this.linkIds = this.getQuestionnaireLinkIds(this.fhir.item);
+
+              this.composeAutocomplete();
             }
             this.liveAnnouncer.announce(this.formAppearedAnnouncement);
           } catch (e) {
@@ -125,6 +131,29 @@ export class AppComponent implements OnInit {
       fileReader.readAsText(fileInput.target.files[0]);
     }
   }
+
+  composeAutocomplete(): void {
+    const keys = this.linkIds.map(e => e.text);
+    const vals = this.linkIds.map(v => v.linkId);
+
+    let opts = {
+      tableFormat: false,
+      codes: vals
+    }
+
+    this.changeDetectorRef.detectChanges();
+
+    this.autoComplete = new Def.Autocompleter.Prefetch(
+      this.autoCompleteElement.nativeElement, keys, opts);
+
+    Def.Autocompleter.Event.observeListSelections('question', (res) => {
+      if (res.val_typed_in !== res.final_val && res.item_code) {
+        this.linkId = res.item_code;
+      }
+    });
+
+  }
+
 
   /**
    * Get the list of item link IDs in the questionnaire
@@ -200,4 +229,15 @@ export class AppComponent implements OnInit {
       this.expressionUri = currentExpression.uri;
     }
   }
+
+  /**
+   * Angular lifecycle hook
+   */
+  ngOnDestroy(): void {
+    console.log('ngOnDestroy::----');
+    if (this.autoComplete !== undefined) {
+      this.autoComplete.destroy();
+    }
+  }
+
 }
