@@ -132,6 +132,9 @@ export class AppComponent implements OnInit, OnDestroy {
     }
   }
 
+  /**
+   * Generate the autocomplete list 
+   */
   composeAutocomplete(): void {
     const keys = this.linkIds.map(e => e.text);
     const vals = this.linkIds.map(v => v.linkId);
