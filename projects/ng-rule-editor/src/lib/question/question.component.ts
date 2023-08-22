@@ -42,11 +42,20 @@ export class QuestionComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   /**
+   * Get the Question Field Item
+   * @param itemText - Question Text  
+   * @param itemCode - Question Code 
+   */
+  getQuestionFieldItem(itemText, itemCode): string {
+    return itemText + ' (' + itemCode + ')'; 
+  }
+
+  /**
    * After the autocompleter is ready to be interacted with fetch the name for
    * any codes already in the query search.
    */
   ngAfterViewInit(): void {
-    const keys = this.questions.map(e => e.text + ' (' + e.linkId + ')');
+    const keys = this.questions.map(e => this.getQuestionFieldItem(e.text, e.linkId));
     const vals = this.questions.map(v => v.linkId);
 
     let question;
@@ -62,7 +71,7 @@ export class QuestionComponent implements OnInit, AfterViewInit, OnDestroy {
       this.autoCompleteElement.nativeElement, keys, opts);
 
     if (question && this.linkId)
-      this.autoComplete.setFieldToListValue(question.text + ' (' + this.linkId + ')');
+      this.autoComplete.setFieldToListValue(this.getQuestionFieldItem(question.text, this.linkId));
 
     Def.Autocompleter.Event.observeListSelections(`question-${this.index}`, (res) => {
       if (res.val_typed_in !== res.final_val && res.hasOwnProperty('item_code') && res.item_code) {
