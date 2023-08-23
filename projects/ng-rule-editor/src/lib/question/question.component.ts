@@ -1,18 +1,22 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { AfterViewInit, Component, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { Question, Variable } from '../variable';
 import { RuleEditorService, SimpleStyle } from '../rule-editor.service';
 import { Unit, UNIT_CONVERSION } from '../units';
+import Def from 'autocomplete-lhc';
 
 @Component({
   selector: 'lhc-question',
   templateUrl: './question.component.html',
   styleUrls: ['./question.component.css']
 })
-export class QuestionComponent implements OnInit {
+export class QuestionComponent implements OnInit, AfterViewInit, OnDestroy {
   @Input() variable: Variable;
   @Input() lhcStyle: SimpleStyle = {};
+  @Input() index: number;
+  @ViewChild('autoComplete') autoCompleteElement;
+  autoComplete;
   linkId = '';
-  questions: Question[];
+  questions: Question[] = [];
   itemHasScore = false;
   isNonConvertibleUnit = false;
   toUnit: string;
@@ -27,13 +31,65 @@ export class QuestionComponent implements OnInit {
   ngOnInit(): void {
     this.linkId = this.variable.linkId ? this.variable.linkId : '';
     this.toUnit = this.variable.unit ? this.variable.unit : '';
-    this.questions = this.variableService.questions;
+    if (this.variableService.questions)
+      this.questions = this.variableService.questions;
 
     this.onChange(false);
 
     this.variableService.questionsChange.subscribe((questions) => {
       this.questions = questions;
     });
+  }
+
+  /**
+   * Get the Question Field Item
+   * @param itemText - Question Text  
+   * @param itemCode - Question Code 
+   */
+  getQuestionFieldItem(itemText, itemCode): string {
+    return itemText + ' (' + itemCode + ')'; 
+  }
+
+  /**
+   * After the autocompleter is ready to be interacted with fetch the name for
+   * any codes already in the query search.
+   */
+  ngAfterViewInit(): void {
+    const keys = this.questions.map(e => this.getQuestionFieldItem(e.text, e.linkId));
+    const vals = this.questions.map(v => v.linkId);
+
+    let question;
+    if (this.linkId)
+      question = this.getQuestion(this.linkId);
+
+    let opts = {
+      tableFormat: false,
+      codes: vals
+    }
+
+    this.autoComplete = new Def.Autocompleter.Prefetch(
+      this.autoCompleteElement.nativeElement, keys, opts);
+
+    if (question && this.linkId)
+      this.autoComplete.setFieldToListValue(this.getQuestionFieldItem(question.text, this.linkId));
+
+    Def.Autocompleter.Event.observeListSelections(`question-${this.index}`, (res) => {
+      if (res.val_typed_in !== res.final_val && res.hasOwnProperty('item_code') && res.item_code) {
+        this.linkId = res.item_code;
+        this.onChange(true);
+      }
+    });
+  }
+
+  /**
+   * Angular lifecycle hook
+   */
+  ngOnDestroy(): void {
+    if (this.autoComplete !== undefined) {
+      // This is required to clear all the tracking observers
+      this.autoComplete.clearStoredSelection();
+      this.autoComplete.destroy();
+    }
   }
 
   /**

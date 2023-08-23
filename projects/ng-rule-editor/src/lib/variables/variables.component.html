@@ -22,7 +22,7 @@
         </select>
       </div>
       <div class="variable-column-details" [ngSwitch]="variable.type">
-        <lhc-question [variable]="variable" *ngSwitchCase="'question'" [lhcStyle]="lhcStyle"></lhc-question>
+        <lhc-question [variable]="variable" [index]="i" *ngSwitchCase="'question'" [lhcStyle]="lhcStyle"></lhc-question>
         <lhc-query-observation [variable]="variable" [index]="i" *ngSwitchCase="'queryObservation'" [lhcStyle]="lhcStyle"></lhc-query-observation>
         <div class="form-inline" *ngSwitchCase="'simple'">
           <lhc-syntax-converter

@@ -20,7 +20,9 @@ describe('Rule editor demo', () => {
       cy.get('#final-expression').should('not.exist');
 
       // Updating the linkId should update the Rule Editor instantly
-      cy.get('select#link-id').select('/39156-5');
+      cy.get('#question').type('bmi');
+      cy.contains('39156-5').click();
+
       cy.get('#final-expression').should('have.value', '(%a/(%b.power(2))).round(1)');
 
       cy.get('#expression-entry > select').select('2');

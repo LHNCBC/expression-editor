@@ -2,7 +2,11 @@
 
 This project follows [Semantic Versioning](http://semver.org/).
 
-## [3.1.3] 2023-08-i4
+## [3.1.4] 2023-08-17
+### Added
+- Added autocomplete to question selection 
+
+## [3.1.3] 2023-08-14
 ### Changed
 - Upgrade to Angular v15.2.4
 - Upgrade dependencies

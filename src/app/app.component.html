@@ -27,10 +27,8 @@
   <span *ngIf="fhir">
     <label>
       Question:
-      <select required id="link-id" [(ngModel)]="linkId" (change)="doNotAskToCalculateScore = true">
-        <option value="">None (Edit top level variables)</option>
-        <option *ngFor="let currentLinkId of linkIds" [value]="currentLinkId.linkId">{{currentLinkId.text}}</option>
-      </select>
+      <input placeholder="Please select" class="query-autocomplete" #autoComplete id="question" />
+
     </label>
     <label [hidden]="!linkId">
       Output Expression:

@@ -38,6 +38,15 @@ describe('Rule editor', () => {
         cy.get('lhc-rule-editor input:not([type="checkbox"])').first()
           .should('have.attr', 'style', 'background-color: rgb(255, 255, 238);');
       });
+
+      it('should be able to select autocomplete question', () => {
+        cy.get('#question-1').clear().type('bmi');
+        cy.contains('39156-5').click();
+        cy.get('#question-1').parent().next('.unit-select').children('select').should('not.exist');
+        cy.get('#question-1').clear().type('height');
+        cy.contains('8302-2').click();
+        cy.get('#question-1').parent().next('.unit-select').children('select').should('exist'); 
+      });
     });
 
     describe('PHQ9 score calculation', () => {

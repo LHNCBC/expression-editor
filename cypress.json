@@ -5,5 +5,6 @@
   "fixturesFolder": "src/assets",
   "baseUrl": "http://localhost:4203",
   "supportFile": "cypress/support/index.ts",
-  "pluginsFile": false
+  "pluginsFile": false,
+  "video" : false 
 }
