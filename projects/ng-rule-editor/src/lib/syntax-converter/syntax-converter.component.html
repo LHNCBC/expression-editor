@@ -1,3 +1,11 @@
-<input [(ngModel)]="simple" (ngModelChange)="onExpressionChange($event)" class="simple-expression"
-       aria-label="Easy Path Expression" [style]="lhcStyle.input" />
+<div class="epex">
+
+  <button class="epex" (click)="openHelp()" matTooltip="Easy Path Expression Help." >?</button>
+
+  <lhc-easy-path-expression-help [display]="showHelp" [variables]="variables" (onCloseModal)="closeHelp()" ></lhc-easy-path-expression-help>
+
+  <input [(ngModel)]="simple" (ngModelChange)="onExpressionChange($event)" class="simple-expression epex"
+       aria-label="Easy Path Expression Text Input" [style]="lhcStyle.input" />
+
+</div>
 <lhc-syntax-preview [syntax]="fhirPathExpression"></lhc-syntax-preview>
