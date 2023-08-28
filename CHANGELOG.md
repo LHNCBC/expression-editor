@@ -2,6 +2,10 @@
 
 This project follows [Semantic Versioning](http://semver.org/).
 
+## [3.1.5] 2023-08-28
+### Added
+- Added help section for Easy Path Expression 
+
 ## [3.1.4] 2023-08-17
 ### Added
 - Added autocomplete to question selection 
