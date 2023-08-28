@@ -1,0 +1,84 @@
+<div *ngIf="display" [attr.aria-hidden]="!display"  role="dialog" aria-modal="true"  id="myModal" class="modal" attr.aria-label="Eash Path Express Help Modal." >
+  <div class="modal-content" aria-modal="true" cdkTrapFocus >
+    <div class="modal-header">
+      <button (click)= "closeHelp()" class="close" aria-label="Close button.  Click here to close the Eash Path Expression Help Modal Dialog and return to the main screen.">&times;</button>
+      <h2 aria-label="Easy Path Expression Help Modal">Easy Path Expression Help</h2>
+    </div>
+    <div class="modal-body">
+      <label>
+      Easy Path Expression is a syntax parser that converts basic mathematical expressions into FHIRPath notation. Easy Path Expressions can be written using numbers, variable names, mathematical operators, and various functions.
+       </label>
+
+       <section id="variables" class="help_section" (click)="toggleVariablesSection()" >
+         <strong><a href="#" (focus)="toggleVariablesSection()" >Available Variables</a><i [class]="help_arrow_vars"></i></strong>
+         <ul *ngIf="sectionArr[0]" >
+           <li *ngFor="let v of variables">{{v}}</li>
+         </ul>
+       </section>
+       
+       <section id="usableOperators" class="help_section" (click)="toggleUsableOperatorItems()" >
+         <strong><a href="#" (focus)="toggleUsableOperatorsSection()" (click)="toggleUsableOperatorItems()">Usable Operators</a> <i [class]="help_arrow_ops"></i></strong>
+         <ul *ngIf="sectionArr[1] && !operatorItemsReadOnly" id="clickableOperator" >
+           <li class="text" *ngFor="let item of usableOperators" ><a href="#" (focus)="getLiveAnnouncementForItem(usableOperators2[item])">{{item}}</a>
+             <p>
+               <strong>Description:</strong>
+               {{usableOperators2[item].description}}
+             </p>
+             <p>
+               <strong>Usage:</strong>
+               {{usableOperators2[item].usage}}
+             </p>
+             <p>
+               <strong>Output:</strong>
+               {{usableOperators2[item].output}}
+             </p>
+               <strong>Example:</strong>
+               <pre class="help_example" *ngFor="let ex of usableOperators2[item].example">
+                 {{ex}}
+               </pre>
+
+           </li>
+         </ul>
+         <ul *ngIf="sectionArr[1] && operatorItemsReadOnly" >
+           <li *ngFor="let item of usableOperators">{{item}}</li>
+
+         </ul>
+
+       </section>
+
+       <section id="usableFunctions" class="help_section" (click)="toggleUsableFunctionItems()" >
+         <strong><a href="#" (focus)="toggleUsableFunctionsSection()" (click)="toggleUsableFunctionItems()" >Usable Functions</a><i [class]="help_arrow_funcs"></i></strong>
+
+         <ul *ngIf="sectionArr[2] && !functionItemsReadOnly" id="clickableFunction" >
+           <li *ngFor="let func of usableFunctions" ><a href="#" (focus)="getLiveAnnouncementForItem(usableFunctions2[func])" class="help_item" >{{func}}</a>
+             <p>
+               <strong>Description:</strong>
+               {{usableFunctions2[func].description}}
+             </p>
+             <p>
+               <strong>Usage:</strong>
+               {{usableFunctions2[func].usage}}
+             </p>
+             <p>
+               <strong>Output:</strong>
+               {{usableFunctions2[func].output}}
+             </p>
+               <strong class="help_item">Example:</strong>
+               <pre class="help_example" *ngFor="let ex of usableFunctions2[func].example">
+                 {{ex}}
+               </pre>
+           </li>
+         </ul>
+         <ul *ngIf="sectionArr[2] && functionItemsReadOnly" >
+           <li *ngFor="let func of usableFunctions">{{func}}</li>
+
+         </ul>
+
+       </section>
+
+    </div>
+    <div class="modal-footer">
+    </div>
+  </div>
+</div>
+
