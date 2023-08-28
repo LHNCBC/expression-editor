@@ -31,7 +31,9 @@ export class EasyPathExpressionHelpComponent {
     "-" : {
       "description" : "The Subtraction operator denoted by a minus symbol.  It subtracts the second operand from the first operand.",
       "usage" : "operand1 - operand2",
-      "example" : ["2 - 2 return 0"],
+      "usageScreenReader" : "operand1 minus operand2",
+      "example" : ["2 - 2 returns 0"],
+      "exampleScreenReader" : ["2 minus 2 returns 0"],
       "output" : "integer or number"
     },
     "*" : {
@@ -44,12 +46,14 @@ export class EasyPathExpressionHelpComponent {
       "description" : "The Division operator denoted by a slash symbol. It divides the first operand by the second operand.  In an attempt to divide by zero, empty object is returned.",
       "usage" : "operand1 / operand2",
       "example" : ["2 / 2 returns 1"],
-      "output" : "decimal"
+      "output" : "decimal or empty object"
     },
     "^" : {
       "description" : "The Power operator denoted by a carat symbol.  It returns the result of raising the first operand to the power of the second operand.",
       "usage" : "operand1^operand2",
+      "usageScreenReader" : "operand1 carat operand2", 
       "example" : ["2^3 returns 8"],
+      "exampleScreenReader" : ["2 carat 3 returns 8"],
       "output": "integer or decimal"
     },
     "**" : {
@@ -61,16 +65,24 @@ export class EasyPathExpressionHelpComponent {
     "!=" : {
       "description" : "The Not Equals operator denoted by the exclamation mark and equal symbols.  It returns true if the equal operator returns false and false if the equal returns true.  It returns empty object if equal returns empty.",
       "usage" : "operand1 != operand2",
+      "usageScreenReader" : "operand1 exclamation mark equal operand2",
       "example" : [
          "2 != 3 returns true",
          "2 != 2 returns false"
       ],
-      "output" : "boolean"
+      "exampleScreenReader" : [
+         "2 exclamation mark equal 3 returns true",
+         "2 exclamation mark equal 2 returns false"
+      ],
+
+      "output" : "boolean or empty object"
     },
     "!~" : {
       "description" : "The Not Equivalent operator denoted by the exclamation mark and tilda symbols. It returns true if the equivalent operator returns false and vice versa.",
       "usage" : "operand1 !~ operand2",
+      "usageScreenReader" : "operand1 exclamatory mark tilda operand2",
       "example" : ["2 !~ 3"],
+      "exampleScreenReader" : ["2 exclamatory mark tilda 3"],
       "output" : "boolean"
     },
     ">=" : {
@@ -154,94 +166,150 @@ export class EasyPathExpressionHelpComponent {
     "CEILING()" : {
       "description" : "The CEILING function rounds up and return the smallest integer greater than or equal to a given number.",
       "usage" : "CEILING([expression]) where expression can be numbers, variable names, mathematical operators, and various functions",
+      "usageScreenReader" : "CEILING open parenthesis [expression] close parenthesis  where expression can be numbers, variable names, mathematical operators, and various functions",
       "example" : [
                     "CEILING(0.95) returns 1",
                     "CEILING(3.3) returns 4",
                     "CEILING(4) returns 4",
                     "CEILING(-7.01) returns -7"
                    ],
+      "exampleScreenReader" : [
+                    "CEILING open parenthesis 0.95 close parenthesis returns 1",
+                    "CEILING open parenthesis 3.3 close parenthesis returns 4",
+                    "CEILING open parenthesis 4 close parenthesis returns 4",
+                    "CEILING open parenthesis -7.01 close parenthesis returns -7"
+                   ],
+
       "output" : "integer"
     },
     "FLOOR()" : {
       "description" : "The FLOOR function rounds down and returns the largest integer less than or equal to a given number.",
       "usage" : "FLOOR([expression]) where expression can be numbers, variable names, mathematical operators, and various functions",
+      "usageScreenReader" : "FLOOR open parenthesis [expression] close parenthesis where expression can be numbers, variable names, mathematical operators, and various functions",
       "example" : [
                      "FLOOR(5.95) returns 5",
                      "FLOOR(5.05) returns 5",
                      "FLOOR(5) returns 5",
                      "FLOOR(-5.05) returns -6"
                   ],
+      "exampleScreenReader" : [
+                     "FLOOR open parenthesis 5.95 close parenthesis returns 5",
+                     "FLOOR open parenthesis 5.05 close parenthesis returns 5",
+                     "FLOOR open parenthesis 5 close parenthesis returns 5",
+                     "FLOOR open parenthesis -5.05 close parenthesis returns -6"
+                  ],
+
       "output" : "integer"
     },
     "ABS()" : {
       "description" : "The ABS function returns the absolute value of a number.",
       "usage" : "ABS([expression]) where expression can be numbers, variable names, mathematical operators, and various functions",
+      "usageScreenReader" : "ABS open parenthesis [expression] close parenthesis where expression can be numbers, variable names, mathematical operators, and various functions",
       "example" : [
                      "ABS(3) returns 3",
                      "ABS(-3) returns 3"
+                  ],
+      "exampleScreenReader" : [
+                     "ABS open parenthesis 3 close parenthesis returns 3",
+                     "ABS open parenthesis -3 close parenthesis returns 3"
                   ],
       "output" : "integer or decimal or quantity"
     },
     "LOG()" : {
       "description" : "The LOG function returns the logarithm of a number.  This function accepts two input parameters: base and value.",
       "usage" : "LOG([Base],[Value])",
+      "usageScreenReader" : "LOG open parenthesis [Base] comma [Value] close parenthesis", 
       "example" : [
                     "LOG(2, 10) returns 4.0"
+                  ],
+      "exampleScreenReader" : [
+                    "LOG open parenthesis 2 comma 10 close parenthesis returns 4.0"
                   ],
       "output" : "decimal"
     },
     "TRUNCATE()" : {
       "description" : "The TRUNCATE function returns the integer portion of the input.",
       "usage" : "TRUNCATE([expression]) where expression can be numbers, variable names, mathematical operators, and various functions",
+      "usageScreenReader" : "TRUNCATE open parenthesis [expression] close parenthesis where expression can be numbers, variable names, mathematical operators, and various functions",
       "example" : [
                     "TRUNCATE(13.37) returns 13",
                     "TRUNCATE(42.84) returns 42",
                     "TRUNCATE(0.123) returns 0",
                     "TRUNCATE(-0.123) return -0"
                   ],
+      "exampleScreenReader" : [
+                    "TRUNCATE open parenthesis 13.37 close parenthesis returns 13",
+                    "TRUNCATE open parenthesis 42.84 close parenthesis returns 42",
+                    "TRUNCATE open parenthesis 0.123 close parenthesis returns 0",
+                    "TRUNCATE open parenthesis -0.123 close parenthesis return -0"
+                  ],
       "output" : "integer"
     },
     "EXP()" : {
       "description" : "The EXP function returns e raised to the power of the input.",
       "usage" : "EXP([expression]) where expression can be numbers, variable names, mathematical operators, and various functions",
+      "usageScreenReader" : "EXP open parenthesis [expression] close parenthesis where expression can be numbers, variable names, mathematical operators, and various functions",
       "example" : [
                     "EXP(0) returns 1",
                     "EXP(1) returns 2.718281828459",
                     "EXP(-1) returns 0.36787944117144233",
                     "EXP(2) returns 7.38905609893065"
                   ],
+      "exampleScreenReader" : [
+                    "EXP open parenthesis 0 close parenthesis returns 1",
+                    "EXP open parenthesis 1 close parenthesis returns 2.718281828459",
+                    "EXP open parenthesis -1 close parenthesis returns 0.36787944117144233",
+                    "EXP open parenthesis 2 close parenthesis returns 7.38905609893065"
+                  ],
       "output" : "decimal"
     },
     "SQRT()" : {
       "description" : "The SQRT returns the square root of the input number.",
       "usage" : "SQRT([expression]) where expression can be numbers, variable names, mathematical operators, and various functions",
+      "usageScreenReader" : "SQRT open parenthesis [expression] close parenthesis where expression can be numbers, variable names, mathematical operators, and various functions",
       "example" : [
                   "SQRT(4) returns 2.0"
+                  ],
+      "exampleScreenReader" : [
+                  "SQRT open parenthesis 4 close parenthesis returns 2.0"
                   ],
       "output" : "decimal"
     },
     "LN()" : {
       "description" : "The LN function returns the natural logarithm of the input.",
       "usage" : "LN([expression]) where expression can be numbers, variable names, mathematical operators, and various functions",
+      "usageScreenReader" : "LN open parenthesis [expression] close parenthesis where expression can be numbers, variable names, mathematical operators, and various functions",
       "example" : [
                     "LN(1) returns 0.0",
+                  ],
+      "exampleScreenReader" : [
+                    "LN open paenthesis 1 close parenthesis returns 0.0",
                   ],
       "output" : "decimal"
     },
     "NOT()" : {
       "description" : "The Logical NOT function takes truth to falsity and vice versa.",
       "usage" : "NOT([expression])",
+      "usageScreenReader" : "NOT open parenthesis [expression] close parenthesis",
       "example" : [
                     "NOT(false) returns true",
                     "NOT(true) returns false"
+                  ],
+      "exampleScreenReader" : [
+                    "NOT open parenthesis false close parenthesis returns true",
+                    "NOT open parenthesis true close parenthesis returns false"
                   ],
       "output" : "boolean"
     },
     "LENGTH()" : {
       "description" : "The LENGTH function returns the length of the input string.",
       "usage" : "LENGTH([expression])",
+      "usageScreenReader" : "LENGTH open parenthesis [expression] close parenthesis",
       "example" : [
                   "LENGTH('abc') returns 3"
+                  ],
+      "exampleScreenReader" : [
+                  "LENGTH open parenthesis 'abc' close parenthesis returns 3"
                   ],
       "output" : "integer"
     },
@@ -325,11 +393,15 @@ export class EasyPathExpressionHelpComponent {
    */
   getLiveAnnouncementForItem(item) {
     let announceText = item.description + "   ";
-    announceText += "The usage is " + item.usage + ".   ";
+
+    let usage = (item.hasOwnProperty('usageScreenReader'))?item.usageScreenReader:item.usage;
+    announceText += "The usage is " + usage + ".   ";
     announceText += "The expected output is " + item.output + ".  ";
 
-    for (let i = 0; i < item.example.length; i++) {
-      announceText += "Example " + (i + 1) + ".  "  + item.example[i] + ". ";
+    let ex = (item.hasOwnProperty('exampleScreenReader'))?item.exampleScreenReader:item.example;
+
+    for (let i = 0; i < ex.length; i++) {
+      announceText += "Example " + (i + 1) + ".  "  + ex[i] + ". ";
     }
 
     this.liveAnnouncer.announce(announceText);
