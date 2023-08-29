@@ -18,7 +18,7 @@ describe('Rule editor', () => {
 
       it('should be able to browse through the Variables section', () => {
 	cy.get('#easy-path-exp-help').click();
-        cy.get('#variables').click();
+        cy.get('#variables>strong>a').click();
         cy.get('#variables>ul>li')
           .should('exist')
           .should('have.length', 2);
@@ -28,7 +28,7 @@ describe('Rule editor', () => {
 
       it('should be able to browse through the Usable Operators section', () => {
         cy.get('#easy-path-exp-help').click();
-        cy.get('#usableOperators').click();
+        cy.get('#usableOperators>strong>a').click();
         cy.get('#usableOperators>ul>li')
           .should('exist')
           .should('have.length', 17);
@@ -38,16 +38,17 @@ describe('Rule editor', () => {
           .eq(0)
           .within(() => {
             cy.get('a').should('contain', '+');
-            cy.get('p').should('have.length', 3);
-            cy.get('p').eq(0).find('strong').should('contain', 'Description:');
-            cy.get('p').eq(0).find('span').should('include.text', 'The Addition operator denoted by a plus symbol.');
-            cy.get('p').eq(1).find('strong').should('contain', 'Usage:');
-            cy.get('p').eq(1).find('span').should('contain', 'operand1 + operand2');
-            cy.get('p').eq(2).find('strong').should('contain', 'Output:');
-            cy.get('p').eq(2).find('span').should('contain', 'integer, number or string');
-            cy.get('div>pre').should('have.length', 1);
-            cy.get('div>strong').should('contain', 'Example:');
-            cy.get('div>pre.help_example').eq(0).should('contain', '2 + 2 returns 4');
+            cy.get('a').click();
+            cy.get('div#operator-detail>p').should('have.length', 3);
+            cy.get('div#operator-detail>p').eq(0).find('strong').should('contain', 'Description:');
+            cy.get('div#operator-detail>p').eq(0).find('span').should('include.text', 'The Addition operator denoted by a plus symbol.');
+            cy.get('div#operator-detail>p').eq(1).find('strong').should('contain', 'Usage:');
+            cy.get('div#operator-detail>p').eq(1).find('span').should('contain', 'operand1 + operand2');
+            cy.get('div#operator-detail>p').eq(2).find('strong').should('contain', 'Output:');
+            cy.get('div#operator-detail>p').eq(2).find('span').should('contain', 'integer, number or string');
+            cy.get('div#operator-detail>div>pre').should('have.length', 1);
+            cy.get('div#operator-detail>div>strong').should('contain', 'Example:');
+            cy.get('div#operator-detail>div>pre.help_example').eq(0).should('contain', '2 + 2 returns 4');
           });
 
         // Accessing the last operator in the list.
@@ -55,6 +56,7 @@ describe('Rule editor', () => {
           .eq(16)
           .within(() => {
             cy.get('a').should('contain', 'implies');
+            cy.get('a').click();
             cy.get('p').should('have.length', 3);
             cy.get('p').eq(0).find('strong').should('contain', 'Description:');
             cy.get('p').eq(0).find('span').should('include.text', 'The implies boolean operator');
@@ -70,7 +72,7 @@ describe('Rule editor', () => {
 
       it('should be able to browse through the Usable Functions section', () => {
         cy.get('#easy-path-exp-help').click();
-        cy.get('#usableFunctions').click();
+        cy.get('#usableFunctions>strong>a').click();
         cy.get('#usableFunctions>ul>li')
           .should('exist')
           .should('have.length', 10);
@@ -80,6 +82,7 @@ describe('Rule editor', () => {
           .eq(0)
           .within(() => {
             cy.get('a.help_item').should('contain', 'CEILING()');
+            cy.get('a.help_item').click();
             cy.get('p').should('have.length', 3);
             cy.get('p').eq(0).find('strong').should('contain', 'Description:');
             cy.get('p').eq(0).find('span').should('include.text', 'The CEILING function rounds up');
@@ -98,6 +101,7 @@ describe('Rule editor', () => {
           .within(() => {
             // Accessing the last function
             cy.get('a.help_item').should('contain', 'LENGTH()');
+            cy.get('a.help_item').click();
             cy.get('p').should('have.length', 3);
             cy.get('p').eq(0).find('strong').should('contain', 'Description:');
             cy.get('p').eq(0).find('span').should('include.text', 'The LENGTH function returns the length of the input string.');
@@ -114,7 +118,12 @@ describe('Rule editor', () => {
       it('should be able to close the modal dialog', () => {
         cy.get('#easy-path-exp-help').click();
         cy.get('.close').click();
-      }); 
+      });
+
+      it('should be able to close the modal dialog from the overlay', () => {
+        cy.get('#easy-path-exp-help').click();
+        cy.get('#easy-path-exp-help-overlay').click();
+      });
     });
 
     describe('Easy Path Expressions Help from the Output Expression section', () => {
@@ -135,3 +144,4 @@ describe('Rule editor', () => {
 
   });
 });
+
