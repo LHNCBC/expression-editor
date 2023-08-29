@@ -26,7 +26,8 @@ export class EasyPathExpressionHelpComponent {
       "description" : "The Addition operator denoted by a plus symbol. For integer, decimal, and quantity, adds the operands.  For strings, concatenates the second operand to the first operand.",
       "usage" : "operand1 + operand2",
       "example" : ["2 + 2 returns 4"],
-      "output" : "integer, number or string"
+      "output" : "integer, number or string",
+      "display" : false
     },
     "-" : {
       "description" : "The Subtraction operator denoted by a minus symbol.  It subtracts the second operand from the first operand.",
@@ -34,19 +35,22 @@ export class EasyPathExpressionHelpComponent {
       "usageScreenReader" : "operand1 minus operand2",
       "example" : ["2 - 2 returns 0"],
       "exampleScreenReader" : ["2 minus 2 returns 0"],
-      "output" : "integer or number"
+      "output" : "integer or number",
+      "display" : false
     },
     "*" : {
       "description" : "The Multiplication operator denoted by a star symbol. It multiplies the first operand by the second operand.",
       "usage" : "operand1 * operand2",
       "example" : ["2 * 2 returns 4"],
-      "output" : "integer, number, or appropriate unit"
+      "output" : "integer, number, or appropriate unit",
+      "display" : false
     },
     "/" : {
       "description" : "The Division operator denoted by a slash symbol. It divides the first operand by the second operand.  In an attempt to divide by zero, empty object is returned.",
       "usage" : "operand1 / operand2",
       "example" : ["2 / 2 returns 1"],
-      "output" : "decimal or empty object"
+      "output" : "decimal or empty object",
+      "display" : false
     },
     "^" : {
       "description" : "The Power operator denoted by a carat symbol.  It returns the result of raising the first operand to the power of the second operand.",
@@ -54,13 +58,15 @@ export class EasyPathExpressionHelpComponent {
       "usageScreenReader" : "operand1 carat operand2", 
       "example" : ["2^3 returns 8"],
       "exampleScreenReader" : ["2 carat 3 returns 8"],
-      "output": "integer or decimal"
+      "output": "integer or decimal",
+      "display" : false
     },
     "**" : {
       "description" : "The Power operator denoted by the ** symbol.  It returns the result of raising the first operand to the power of the second operand.",
       "usage" : "operand1**operand2",
       "example" : ["2**3 returns 8"],
-      "output" : "integer or decimal"
+      "output" : "integer or decimal",
+      "display" : false
     },
     "!=" : {
       "description" : "The Not Equals operator denoted by the exclamation mark and equal symbols.  It returns true if the equal operator returns false and false if the equal returns true.  It returns empty object if equal returns empty.",
@@ -74,8 +80,8 @@ export class EasyPathExpressionHelpComponent {
          "2 exclamation mark equal 3 returns true",
          "2 exclamation mark equal 2 returns false"
       ],
-
-      "output" : "boolean or empty object"
+      "output" : "boolean or empty object",
+      "display" : false
     },
     "!~" : {
       "description" : "The Not Equivalent operator denoted by the exclamation mark and tilda symbols. It returns true if the equivalent operator returns false and vice versa.",
@@ -83,7 +89,8 @@ export class EasyPathExpressionHelpComponent {
       "usageScreenReader" : "operand1 exclamatory mark tilda operand2",
       "example" : ["2 !~ 3"],
       "exampleScreenReader" : ["2 exclamatory mark tilda 3"],
-      "output" : "boolean"
+      "output" : "boolean",
+      "display" : false
     },
     ">=" : {
       "description" : "The Greater or Equal operator denoted by the greater than and equal symbols.  It returns true if the first operand is greater than or equal to the second.",
@@ -92,7 +99,8 @@ export class EasyPathExpressionHelpComponent {
         "2 >= 3 returns false",
         "3 >= 3 returns true"
       ],
-      "output" : "boolean"
+      "output" : "boolean",
+      "display" : false
     },
     "<=" : {
       "description" : "The Less or Equal operator denoted by the less than and equal symbols.  It returns true if the first operand is less than or equal to the second.",
@@ -101,7 +109,8 @@ export class EasyPathExpressionHelpComponent {
         "2 <= 3 returns true",
         "4 <= 3 returns false"
       ],
-      "output" : "boolean"
+      "output" : "boolean",
+      "display" : false
     },
     "=" : {
       "description" : "The equal operator denoted by the equal symbol.  It returns true if the first operand is equal to the second.",
@@ -110,7 +119,8 @@ export class EasyPathExpressionHelpComponent {
         "2 = 3 returns false",
         "3 = 3 returns true" 
       ],
-      "output" : "boolean"
+      "output" : "boolean",
+      "display" : false
     },
     "&&": {
       "description" : "The and boolean operator returns true if both operands evalute to true, false if either operand evalues to false.",
@@ -119,7 +129,8 @@ export class EasyPathExpressionHelpComponent {
         "true && true returns true",
         "true && false returns false"
       ],
-      "output" : "boolean"
+      "output" : "boolean",
+      "display" : false
     },
     "||": {
       "description" : "The or boolean operator returns false if both operands evaluate to false, true if either operand evaluates to true.",
@@ -128,7 +139,8 @@ export class EasyPathExpressionHelpComponent {
         "true || false returns true",
         "false || false returns false"
       ],
-      "output" : "boolean"
+      "output" : "boolean",
+      "display" : false
     },
     "xor": {
       "description" : "The xor boolean operator returns true if exactly one of the operands evalutes to true, false if either both operands evaluate to true or both operands evaluate to false.",
@@ -143,7 +155,8 @@ export class EasyPathExpressionHelpComponent {
         "true and true returns true",
         "true and false returns false"
       ],
-      "output" : "boolean"
+      "output" : "boolean",
+      "display" : false
     },
     "or": {
       "description" : "The or boolean operator returns false if both operands evaluate to false, true if either operand evaluates to true.",
@@ -152,13 +165,15 @@ export class EasyPathExpressionHelpComponent {
         "true or false returns true",
         "false or false returns false"
       ],
-      "output" : "boolean"
+      "output" : "boolean",
+      "display" : false
     },
     "implies": {
       "description" : "The implies boolean operator. If the first operand evaluates to true, this operator returns the boolean evaluation of the second operand.  If the first operand evaluates to false, this operator returns true.",
       "usage" : "operand1 implies operand2",
       "example" : ["a implies b"],
-      "output" : "boolean"
+      "output" : "boolean",
+      "display" : false
     },
   };
 
@@ -180,7 +195,8 @@ export class EasyPathExpressionHelpComponent {
                     "CEILING open parenthesis -7.01 close parenthesis returns -7"
                    ],
 
-      "output" : "integer"
+      "output" : "integer",
+      "display" : false
     },
     "FLOOR()" : {
       "description" : "The FLOOR function rounds down and returns the largest integer less than or equal to a given number.",
@@ -199,7 +215,8 @@ export class EasyPathExpressionHelpComponent {
                      "FLOOR open parenthesis -5.05 close parenthesis returns -6"
                   ],
 
-      "output" : "integer"
+      "output" : "integer",
+      "display" : false
     },
     "ABS()" : {
       "description" : "The ABS function returns the absolute value of a number.",
@@ -213,7 +230,8 @@ export class EasyPathExpressionHelpComponent {
                      "ABS open parenthesis 3 close parenthesis returns 3",
                      "ABS open parenthesis -3 close parenthesis returns 3"
                   ],
-      "output" : "integer or decimal or quantity"
+      "output" : "integer or decimal or quantity",
+      "display" : false
     },
     "LOG()" : {
       "description" : "The LOG function returns the logarithm of a number.  This function accepts two input parameters: base and value.",
@@ -225,7 +243,8 @@ export class EasyPathExpressionHelpComponent {
       "exampleScreenReader" : [
                     "LOG open parenthesis 2 comma 10 close parenthesis returns 4.0"
                   ],
-      "output" : "decimal"
+      "output" : "decimal",
+      "display" : false
     },
     "TRUNCATE()" : {
       "description" : "The TRUNCATE function returns the integer portion of the input.",
@@ -243,7 +262,8 @@ export class EasyPathExpressionHelpComponent {
                     "TRUNCATE open parenthesis 0.123 close parenthesis returns 0",
                     "TRUNCATE open parenthesis -0.123 close parenthesis return -0"
                   ],
-      "output" : "integer"
+      "output" : "integer",
+      "display" : false
     },
     "EXP()" : {
       "description" : "The EXP function returns e raised to the power of the input.",
@@ -261,7 +281,8 @@ export class EasyPathExpressionHelpComponent {
                     "EXP open parenthesis -1 close parenthesis returns 0.36787944117144233",
                     "EXP open parenthesis 2 close parenthesis returns 7.38905609893065"
                   ],
-      "output" : "decimal"
+      "output" : "decimal",
+      "display" : false
     },
     "SQRT()" : {
       "description" : "The SQRT returns the square root of the input number.",
@@ -273,7 +294,8 @@ export class EasyPathExpressionHelpComponent {
       "exampleScreenReader" : [
                   "SQRT open parenthesis 4 close parenthesis returns 2.0"
                   ],
-      "output" : "decimal"
+      "output" : "decimal",
+      "display" : false
     },
     "LN()" : {
       "description" : "The LN function returns the natural logarithm of the input.",
@@ -285,7 +307,8 @@ export class EasyPathExpressionHelpComponent {
       "exampleScreenReader" : [
                     "LN open paenthesis 1 close parenthesis returns 0.0",
                   ],
-      "output" : "decimal"
+      "output" : "decimal",
+      "display" : false
     },
     "NOT()" : {
       "description" : "The Logical NOT function takes truth to falsity and vice versa.",
@@ -299,7 +322,8 @@ export class EasyPathExpressionHelpComponent {
                     "NOT open parenthesis false close parenthesis returns true",
                     "NOT open parenthesis true close parenthesis returns false"
                   ],
-      "output" : "boolean"
+      "output" : "boolean",
+      "display" : false
     },
     "LENGTH()" : {
       "description" : "The LENGTH function returns the length of the input string.",
@@ -311,7 +335,8 @@ export class EasyPathExpressionHelpComponent {
       "exampleScreenReader" : [
                   "LENGTH open parenthesis 'abc' close parenthesis returns 3"
                   ],
-      "output" : "integer"
+      "output" : "integer",
+      "display" : false
     },
   };
 
@@ -320,11 +345,23 @@ export class EasyPathExpressionHelpComponent {
   operatorItemsReadOnly = true;
   functionItemsReadOnly = true;
 
+  currentActiveOpenedItem = '';
+
+  /**
+   * Close Help Modal
+   */
   closeHelp() {
     this.showHideSection(false, false, false);
 
     this.operatorItemsReadOnly = true;
     this.functionItemsReadOnly = true;
+
+    if (this.currentActiveOpenedItem !== '') {
+      if (this.usableFunctions2.hasOwnProperty(this.currentActiveOpenedItem))
+        this.usableFunctions2[this.currentActiveOpenedItem].display = false;
+      else if (this.usableOperators2.hasOwnProperty(this.currentActiveOpenedItem))
+        this.usableOperators2[this.currentActiveOpenedItem].display = false;
+    }
 
     this.onCloseModal.emit();
   }
@@ -367,33 +404,59 @@ export class EasyPathExpressionHelpComponent {
     }
   }
 
+  getLiveAnncounementForSection(item) {
+    console.log('getLiveAnnouncementForSection');
+    let announceText = '';
+
+    if (item === 'operators')
+      announceText = "There are 17 operators available in this section.  Use the ENTER key to enter this section.";
+    else if (item === 'functions')
+      announceText = "There are 10 functions available in this section.  Use the ENTER key to go through each function.";
+
+    this.liveAnnouncer.announce(announceText);
+  }
+
   /**
    * Show the Usable Operators section and invoke the live announcer
    */
   toggleUsableOperatorsSection() {
-    if (this.operatorItemsReadOnly)
-      this.liveAnnouncer.announce("There are 17 operators available in this section.  Use the ENTER key to enter this section.");
-    this.showHideSection(false, true, false);
-
-    this.functionItemsReadOnly = true;
-  }
-
-  /**
-   * Toggle to display detail information for each of the operators and invoke the live announcer 
-   */
-  toggleUsableOperatorItems() {
     this.liveAnnouncer.announce('Entering the Usable Operators Items section. Use the tab button to scroll through each operator.');
-    this.sectionArr[1] = true;
+    this.showHideSection(false, true, false);
 
     this.operatorItemsReadOnly = false;
   }
 
   /**
-   * Prepare Live Announcer with the description of the selected item 
+   * Toggle to display detail information for each of the operators and invoke the live announcer 
+   */
+  toggleUsableOperatorItem(item) {
+    if (this.currentActiveOpenedItem !== '') {
+      if (this.usableOperators2.hasOwnProperty(this.currentActiveOpenedItem))
+        this.usableOperators2[this.currentActiveOpenedItem].display = false;
+      else if (this.usableFunctions2.hasOwnProperty(this.currentActiveOpenedItem))
+        this.usableFunctions2[this.currentActiveOpenedItem].display = false;
+    }
+    this.usableOperators2[item].display = true;
+    this.currentActiveOpenedItem = item;
+
+    this.getLiveAnnouncementDetailForItem(this.usableOperators2[item]);
+  }
+
+  /**
+   * Prepare Live Announcer with the description of the selected item
    */
   getLiveAnnouncementForItem(item) {
-    let announceText = item.description + "   ";
+    let announceText = item.description + "  Click the Enter key to get more detail.";
 
+    this.liveAnnouncer.announce(announceText);
+  }
+  /**
+   * Prepare Live Announcer with the detail of the selected item
+   */
+  getLiveAnnouncementDetailForItem(item) {
+    let announceText = '';
+
+    announceText += item.description + " ";
     let usage = (item.hasOwnProperty('usageScreenReader'))?item.usageScreenReader:item.usage;
     announceText += "The usage is " + usage + ".   ";
     announceText += "The expected output is " + item.output + ".  ";
@@ -410,25 +473,25 @@ export class EasyPathExpressionHelpComponent {
   /**
    * Show the Usable Functions section and invoke the live announcer
    */
-  toggleUsableFunctionsSection() {
-
-    if (this.functionItemsReadOnly)
-      this.liveAnnouncer.announce("There are 10 functions available in this section.  Use the ENTER key to go through each function.");
+  toggleUsableFunctionsSection(action) {
+    this.liveAnnouncer.announce('Entering the Usable Functions Items section. Use the tab button to scroll through each function.');
 
     this.showHideSection(false, false, true);
 
-    this.operatorItemsReadOnly = true;
+    this.functionItemsReadOnly = false;
   }
 
-  /**
-   * Toggle to display detail information for each of the operators and invoke the live announcer
-   */
-  toggleUsableFunctionItems() {
+  toggleUsableFunctionItem(item) {
+    if (this.currentActiveOpenedItem !== '') {
+      if (this.usableFunctions2.hasOwnProperty(this.currentActiveOpenedItem))
+        this.usableFunctions2[this.currentActiveOpenedItem].display = false;
+      else if (this.usableOperators2.hasOwnProperty(this.currentActiveOpenedItem))
+        this.usableOperators2[this.currentActiveOpenedItem].display = false;
+    }
+    this.usableFunctions2[item].display = true;
+    this.currentActiveOpenedItem = item;
 
-    this.liveAnnouncer.announce('Entering the Usable Functions Items section. Use the tab button to scroll through each function.');
-    this.sectionArr[2] = true;
-
-    this.functionItemsReadOnly = false;
+    this.getLiveAnnouncementDetailForItem(this.usableFunctions2[item]);
   }
 
 }
