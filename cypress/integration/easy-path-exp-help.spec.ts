@@ -17,7 +17,7 @@ describe('Rule editor', () => {
       });
 
       it('should be able to browse through the Variables section', () => {
-	cy.get('#easy-path-exp-help').click();
+        cy.get('#easy-path-exp-help').click();
         cy.get('#variables>strong>a').click();
         cy.get('#variables>ul>li')
           .should('exist')
@@ -118,11 +118,13 @@ describe('Rule editor', () => {
       it('should be able to close the modal dialog', () => {
         cy.get('#easy-path-exp-help').click();
         cy.get('.close').click();
+        cy.get('.modal-content').should('not.exist');
       });
 
       it('should be able to close the modal dialog from the overlay', () => {
         cy.get('#easy-path-exp-help').click();
-        cy.get('#easy-path-exp-help-overlay').click();
+        cy.get('#easy-path-exp-help-overlay').click(50, 50);
+        cy.get('.modal-content').should('not.exist');
       });
     });
 
@@ -139,9 +141,17 @@ describe('Rule editor', () => {
       it('should be able to close the modal dialog', () => {
         cy.get('#easy-path-exp-help').click();
         cy.get('.close').click();
+        cy.get('.modal-content').should('not.exist');
+      });
+
+      it('should be able to close the modal dialog from the overlay', () => {
+        cy.get('#easy-path-exp-help').click();
+        cy.get('#easy-path-exp-help-overlay').click(50, 50);
+        cy.get('.modal-content').should('not.exist');
       });
     });
 
   });
 });
+
 

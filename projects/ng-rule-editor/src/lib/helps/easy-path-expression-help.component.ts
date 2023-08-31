@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, ViewChild, ElementRef } from '@angular/core';
 import { LiveAnnouncer } from '@angular/cdk/a11y';
 
 @Component({
@@ -10,6 +10,7 @@ export class EasyPathExpressionHelpComponent {
   @Input() display = false;
   @Input() variables;
   @Output() onCloseModal = new EventEmitter();
+  @ViewChild('modal') modal: ElementRef;
 
   constructor(private liveAnnouncer: LiveAnnouncer) {}
 
@@ -348,6 +349,22 @@ export class EasyPathExpressionHelpComponent {
   currentActiveOpenedItem = '';
 
   /**
+   * Close Help Modal from the Overlay - allowed the modal to be closed
+   * if clicking outside of the modal
+   */
+  overlayCloseHelp(event) {
+    if (event.path) {
+      if (event.path.indexOf(this.modal.nativeElement) === -1) {
+        this.closeHelp();
+      }
+    } else if (event.target) {
+      if (event.target instanceof HTMLDivElement) {
+        this.closeHelp();
+      }
+    }
+  }
+
+  /**
    * Close Help Modal
    */
   closeHelp() {
@@ -405,13 +422,7 @@ export class EasyPathExpressionHelpComponent {
   }
 
   getLiveAnncounementForSection(item) {
-    console.log('getLiveAnnouncementForSection');
-    let announceText = '';
-
-    if (item === 'operators')
-      announceText = "There are 17 operators available in this section.  Use the ENTER key to enter this section.";
-    else if (item === 'functions')
-      announceText = "There are 10 functions available in this section.  Use the ENTER key to go through each function.";
+    let announceText = 'Use the ENTER key to enter this section.';
 
     this.liveAnnouncer.announce(announceText);
   }
@@ -420,7 +431,7 @@ export class EasyPathExpressionHelpComponent {
    * Show the Usable Operators section and invoke the live announcer
    */
   toggleUsableOperatorsSection() {
-    this.liveAnnouncer.announce('Entering the Usable Operators Items section. Use the tab button to scroll through each operator.');
+    this.liveAnnouncer.announce('Entering the Usable Operators Items section. Use the tab button to move to each operator.');
     this.showHideSection(false, true, false);
 
     this.operatorItemsReadOnly = false;
@@ -430,16 +441,19 @@ export class EasyPathExpressionHelpComponent {
    * Toggle to display detail information for each of the operators and invoke the live announcer 
    */
   toggleUsableOperatorItem(item) {
-    if (this.currentActiveOpenedItem !== '') {
+    if (this.currentActiveOpenedItem !== '' && this.currentActiveOpenedItem !== item) {
       if (this.usableOperators2.hasOwnProperty(this.currentActiveOpenedItem))
         this.usableOperators2[this.currentActiveOpenedItem].display = false;
       else if (this.usableFunctions2.hasOwnProperty(this.currentActiveOpenedItem))
         this.usableFunctions2[this.currentActiveOpenedItem].display = false;
     }
-    this.usableOperators2[item].display = true;
-    this.currentActiveOpenedItem = item;
-
-    this.getLiveAnnouncementDetailForItem(this.usableOperators2[item]);
+    this.usableOperators2[item].display = !this.usableOperators2[item].display;
+    
+    if (this.usableOperators2[item].display) {
+      this.currentActiveOpenedItem = item;
+      this.getLiveAnnouncementDetailForItem(this.usableOperators2[item]);
+    } else
+      this.currentActiveOpenedItem = '';
   }
 
   /**
@@ -474,7 +488,7 @@ export class EasyPathExpressionHelpComponent {
    * Show the Usable Functions section and invoke the live announcer
    */
   toggleUsableFunctionsSection(action) {
-    this.liveAnnouncer.announce('Entering the Usable Functions Items section. Use the tab button to scroll through each function.');
+    this.liveAnnouncer.announce('Entering the Usable Functions Items section. Use the tab button to move to each function.');
 
     this.showHideSection(false, false, true);
 
@@ -482,16 +496,20 @@ export class EasyPathExpressionHelpComponent {
   }
 
   toggleUsableFunctionItem(item) {
-    if (this.currentActiveOpenedItem !== '') {
+    if (this.currentActiveOpenedItem !== '' && this.currentActiveOpenedItem !== item) {
       if (this.usableFunctions2.hasOwnProperty(this.currentActiveOpenedItem))
         this.usableFunctions2[this.currentActiveOpenedItem].display = false;
       else if (this.usableOperators2.hasOwnProperty(this.currentActiveOpenedItem))
         this.usableOperators2[this.currentActiveOpenedItem].display = false;
     }
-    this.usableFunctions2[item].display = true;
-    this.currentActiveOpenedItem = item;
 
-    this.getLiveAnnouncementDetailForItem(this.usableFunctions2[item]);
+    this.usableFunctions2[item].display = !this.usableFunctions2[item].display;
+
+    if (this.usableFunctions2[item].display) {
+      this.currentActiveOpenedItem = item;
+      this.getLiveAnnouncementDetailForItem(this.usableFunctions2[item]);
+    } else
+      this.currentActiveOpenedItem = '';
   }
 
 }
