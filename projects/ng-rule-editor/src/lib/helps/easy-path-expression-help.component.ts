@@ -354,11 +354,12 @@ export class EasyPathExpressionHelpComponent {
    */
   overlayCloseHelp(event) {
     if (event.path) {
+      console.log("overlayCloseHelp::event path");
       if (event.path.indexOf(this.modal.nativeElement) === -1) {
         this.closeHelp();
       }
     } else if (event.target) {
-      if (event.target instanceof HTMLDivElement) {
+      if (event.target instanceof HTMLDivElement && event.target.hasOwnProperty("__zone_symbol__clickfalse")) {
         this.closeHelp();
       }
     }
@@ -368,6 +369,7 @@ export class EasyPathExpressionHelpComponent {
    * Close Help Modal
    */
   closeHelp() {
+    this.liveAnnouncer.announce("The help dialog closed. You are now back on the Rule Editor screen.");
     this.showHideSection(false, false, false);
 
     this.operatorItemsReadOnly = true;
@@ -421,6 +423,9 @@ export class EasyPathExpressionHelpComponent {
     }
   }
 
+  /**
+   * Invoke the live announcer to the selected section
+   */
   getLiveAnncounementForSection(item) {
     let announceText = 'Use the ENTER key to enter this section.';
 
