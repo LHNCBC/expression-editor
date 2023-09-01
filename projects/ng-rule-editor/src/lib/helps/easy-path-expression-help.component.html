@@ -5,16 +5,23 @@
   role="dialog"
   aria-modal="true"
   id="easy-path-exp-help-overlay"
-  class="modal" attr.aria-label="Easy Path Expressions help dialog" >
+  class="modal">
 
   <div class="modal-content" #modal aria-modal="true" cdkTrapFocus >
     <div class="modal-header">
-      <button (click)= "closeHelp()" class="close" aria-label="Close button.  Click here to close the Easy Path Expressions help dialog and return to the main screen.">&times;</button>
-      <h2 aria-label="Easy Path Expressions help dialog">Easy Path Expressions Help</h2>
+      <button
+        (click)= "closeHelp()"
+        class="close"
+        aria-label="Close button.  Click here to close the Easy Path
+          Expressions help dialog and return to the Rule Editor screen.">&times;
+      </button>
+      <h2>Easy Path Expressions Help</h2>
     </div>
     <div class="modal-body">
       <label>
-        Easy Path Expressions is a syntax parser that converts basic mathematical expressions into FHIRPath notation. Easy Path Expressions can be written using numbers, variable names, mathematical operators, and various functions.
+        Easy Path Expressions is a syntax parser that converts basic mathematical
+        expressions into FHIRPath notation. Easy Path Expressions can be written
+        using numbers, variable names, mathematical operators, and various functions.
       </label>
 
       <section id="variables" class="help_section"  >
