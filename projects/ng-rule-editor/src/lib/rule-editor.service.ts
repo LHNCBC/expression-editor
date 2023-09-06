@@ -732,6 +732,12 @@ export class RuleEditorService {
     });
 
     if (hasQueryObservations !== undefined) {
+      // Adding check, extension is optional and may not be available
+      // which would failed when calling the "find" method
+      if (!Array.isArray(fhir.extension)) {
+        fhir.extension = [];
+      }
+
       const patientLaunchContext = fhir.extension.find((extension) => {
         if (extension.url === this.LAUNCH_CONTEXT_URI &&
             Array.isArray(extension.extension)) {

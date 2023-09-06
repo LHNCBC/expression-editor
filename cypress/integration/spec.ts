@@ -47,6 +47,18 @@ describe('Rule editor', () => {
         cy.contains('8302-2').click();
         cy.get('#question-1').parent().next('.unit-select').children('select').should('exist'); 
       });
+
+      it('should display the output when the Save(export) button is clicked', () => {
+        cy.get('select#questionnaire-select').select('BMI Calculation');
+        cy.wait(500);
+        cy.get('#variable-type-0').select('FHIR Query (Observation)');
+        cy.get('#autocomplete-0').type('weight');
+        cy.contains('29463-7').click();
+        cy.contains('Weight - 29463-7');
+        cy.get('#export').click();
+        cy.get('pre#output').contains('(%a/(%b.power(2))).round(1)');
+      });
+
     });
 
     describe('PHQ9 score calculation', () => {
