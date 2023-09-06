@@ -766,12 +766,22 @@ export class RuleEditorService {
           ]
         });
 
-        this.uneditableVariables.push({
-          name,
-          type,
-          description
+        // Check to see if the uneditable variable alredy exists.  Returns true
+        // if exists, otherwise returns false.
+        const isDefinedUneditableVariable = this.uneditableVariables.find((u) => {
+          return u.name === name && u.type === type;
         });
-        this.uneditableVariablesChange.next(this.uneditableVariables);
+
+        // Only add if it does not exists.
+        if (!isDefinedUneditableVariable) {
+          this.uneditableVariables.push({
+            name,
+            type,
+            description
+          });
+
+          this.uneditableVariablesChange.next(this.uneditableVariables);
+        }
       }
     }
 

@@ -105,6 +105,10 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
     const finalExpression = this.finalExpressionExtension;
     finalExpression.valueExpression.expression = this.finalExpression;
     this.save.emit(this.variableService.export(this.expressionUri, finalExpression));
+
+    // When saving, we need to update the variables list
+    this.variables = this.variableService.uneditableVariables.map(e => e.name).concat(
+      this.variableService.variables.map(e => e.label));
   }
 
   /**

@@ -66,6 +66,46 @@ describe('Rule editor', () => {
           'iif(%g.exists(), %g, 0) + iif(%h.exists(), %h, 0) + iif(%i.exists(), %i, 0), {})"'
         );
       });
+
+      it('should be able to access uneditable variable and no duplicate', () => {
+        cy.get('#questionnaire-select').select('PHQ9 (no FHIRPath)');
+        cy.get('.rule-editor').contains('Would you like to calculate the sum of scores?');
+        // Click no
+        cy.get('#skip-export-score').click();
+
+        // Variables section should be empty.
+        cy.get('lhc-variables > h2').should('contain', 'Item Variables');
+        cy.get('#variables-section .variable-row').should('have.length', 0);
+
+        // Add a variable and select FHIR Query (Observation) variable type
+        cy.get('#add-variable').click();
+        cy.get('#variables-section .variable-row').should('have.length', 1);
+        cy.get('#variable-type-0').select('FHIR Query (Observation)');
+        cy.get('#autocomplete-0').type('weight');
+        cy.contains('29463-7').click();
+        cy.contains('Weight - 29463-7');
+
+        // Uneditable variables section should be empty
+        cy.get('#uneditable-variables-section .variable-row').should('have.length', 0);
+
+        // Click Save
+        cy.get('#export').click();
+
+        // Uneditable variables section should now have one item
+        cy.get('#uneditable-variables-section .variable-row').should('have.length', 1);
+
+        // Click Save again
+        cy.get('#export').click();
+
+        // Uneditable variables section should still only have one item
+        cy.get('#uneditable-variables-section .variable-row').should('have.length', 1);
+
+        // Enter the uneditable variable 'patient' to the Output Expression,
+        // it should be valid.
+        cy.get('input.simple-expression').clear().type('patient');
+        cy.get('lhc-syntax-preview>div>div>pre').contains('%patient');
+      });
+
     });
 
     describe('Query support', () => {
