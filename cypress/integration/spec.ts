@@ -51,10 +51,14 @@ describe('Rule editor', () => {
       it('should display the output when the Save(export) button is clicked', () => {
         cy.get('select#questionnaire-select').select('BMI Calculation');
         cy.wait(500);
+
+        // Select FHIR Query (Observation) for Variable Type
         cy.get('#variable-type-0').select('FHIR Query (Observation)');
         cy.get('#autocomplete-0').type('weight');
         cy.contains('29463-7').click();
         cy.contains('Weight - 29463-7');
+
+        // Save (Export) should output the questionnaire for the given Variable Type
         cy.get('#export').click();
         cy.get('pre#output').contains('(%a/(%b.power(2))).round(1)');
       });
