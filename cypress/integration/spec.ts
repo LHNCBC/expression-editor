@@ -47,6 +47,37 @@ describe('Rule editor', () => {
         cy.contains('8302-2').click();
         cy.get('#question-1').parent().next('.unit-select').children('select').should('exist'); 
       });
+
+
+      it('should URL encoded the output for the x-fhir-output', () => {
+        cy.get('#questionnaire-select').select('BMI Calculation (Easy Path expression)');
+        
+        // Add a variable
+        cy.get('#add-variable').click();
+        cy.get('#variables-section .variable-row').should('have.length', 3);
+        
+        // Select FHIR Query (Observation) as Variable Type
+        cy.get('#variable-type-2').select('FHIR Query (Observation)');
+        
+        // Select Code 1
+        cy.get('#autocomplete-2').type('Vit A Bld-mCnc');
+        cy.contains('2922-3').click();
+        cy.contains('Vit A Bld-mCnc - 2922-3');
+
+        // Select Code 2
+        cy.get('#autocomplete-2').type('CV B blend Ab Ser-Imp');
+        cy.contains('20996-5').click();
+        cy.contains('CV B blend Ab Ser-Imp - 20996-5');
+
+        // Check the x-fhir-output
+        cy.get('lhc-query-observation>div.syntax-preview>pre.d-inline').should('contain', 'Observation?code=http://loinc.org|2922-3%2Chttp://loinc.org|20996-5&date=gt{{today()-1 months}}&patient={{%patient.id}}&_sort=-date&_count=1');
+
+        // Click Save
+        cy.get('#export').click();
+
+        // Export output should contain the URL Encoded of the x-fhir-output
+        cy.get('pre#output').should('contain', 'Observation?code=http%3A%2F%2Floinc.org%7C2922-3%2Chttp%3A%2F%2Floinc.org%7C20996-5&date=gt%7B%7Btoday()-1%20months%7D%7D&patient=%7B%7B%25patient.id%7D%7D&_sort=-date&_count=1');
+      });      
     });
 
     describe('PHQ9 score calculation', () => {
