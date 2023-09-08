@@ -4,7 +4,7 @@ This project follows [Semantic Versioning](http://semver.org/).
 
 ## [3.1.5] 2023-08-28
 ### Added
-- Added help section for Easy Path Expression 
+- Added help sections for Easy Path Expressions and FHIRPath Expressions 
 
 ## [3.1.4] 2023-08-17
 ### Added
