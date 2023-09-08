@@ -18,7 +18,9 @@ import { SyntaxConverterComponent } from './syntax-converter/syntax-converter.co
 import { SyntaxPreviewComponent } from './syntax-preview/syntax-preview.component';
 import { QueryObservationComponent } from './query-observation/query-observation.component';
 import { CaseStatementsComponent } from './case-statements/case-statements.component';
-import { EasyPathExpressionHelpComponent } from './helps/easy-path-expression-help.component';
+import { EasyPathExpressionHelpComponent } from './helps/easy-path-expression-help/easy-path-expression-help.component';
+import { FhirpathExpressionHelpComponent } from './helps/fhirpath-expression-help/fhirpath-expression-help.component';
+import { HelpsComponent } from './helps/helps.component';
 
 @NgModule({
   declarations: [
@@ -32,7 +34,9 @@ import { EasyPathExpressionHelpComponent } from './helps/easy-path-expression-he
     SyntaxPreviewComponent,
     QueryObservationComponent,
     CaseStatementsComponent,
-    EasyPathExpressionHelpComponent
+    EasyPathExpressionHelpComponent,
+    FhirpathExpressionHelpComponent,
+    HelpsComponent
   ],
   imports: [
     FormsModule,
