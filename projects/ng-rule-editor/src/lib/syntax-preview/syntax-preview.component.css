@@ -20,8 +20,8 @@
 }
 
 .fhirpath {
-  padding-left: 25px;
-  flex: 1 0 10em;
+  padding-left: 0px;
+  flex: 1 0 1em;
   min-width: 0;
   padding-right: 1em;
 }
