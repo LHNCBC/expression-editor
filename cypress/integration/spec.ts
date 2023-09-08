@@ -50,7 +50,7 @@ describe('Rule editor', () => {
 
       it('should display the output when the Save(export) button is clicked', () => {
         cy.get('select#questionnaire-select').select('BMI Calculation');
-        cy.wait(500);
+        cy.get('#variable-type-0 option').should('have.length', 6);
 
         // Select FHIR Query (Observation) for Variable Type
         cy.get('#variable-type-0').select('FHIR Query (Observation)');
@@ -60,7 +60,7 @@ describe('Rule editor', () => {
 
         // Save (Export) should output the questionnaire for the given Variable Type
         cy.get('#export').click();
-        cy.get('pre#output').contains('(%a/(%b.power(2))).round(1)');
+        cy.get('pre#output').should('contain.text', '(%a/(%b.power(2))).round(1)');
       });
 
     });
