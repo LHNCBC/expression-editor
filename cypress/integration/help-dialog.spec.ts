@@ -9,25 +9,17 @@ describe('Rule editor', () => {
         cy.get('select#questionnaire-select').select('BMI Calculation');
         cy.get('#add-variable').click();
         cy.get('#variable-type-2').select('Easy Path Expression');
-        cy.get('#easy-path-exp-help')
+        cy.get('#exp-help-button-2')
           .should('exist')
           .should('have.length', 1);
-        cy.get('#easy-path-exp-help').click();
+        cy.get('#exp-help-button-2').click();
         cy.get('.modal-content').should('exist');
       });
 
-      it('should be able to browse through the Variables section', () => {
-        cy.get('#easy-path-exp-help').click();
-        cy.get('#variables>strong>a').click();
-        cy.get('#variables>ul>li')
-          .should('exist')
-          .should('have.length', 2);
-        cy.get('#variables>ul>li').eq(0).should('contain', 'a');
-        cy.get('#variables>ul>li').eq(1).should('contain', 'b');
-      });
-
       it('should be able to browse through the Usable Operators section', () => {
-        cy.get('#easy-path-exp-help').click();
+        cy.get('#add-variable').click();
+        cy.get('#variable-type-2').select('Easy Path Expression');
+        cy.get('#exp-help-button-2').click();
         cy.get('#usableOperators>strong>a').click();
         cy.get('#usableOperators>ul>li')
           .should('exist')
@@ -71,7 +63,9 @@ describe('Rule editor', () => {
       });
 
       it('should be able to browse through the Usable Functions section', () => {
-        cy.get('#easy-path-exp-help').click();
+        cy.get('#add-variable').click();
+        cy.get('#variable-type-2').select('Easy Path Expression');
+        cy.get('#exp-help-button-2').click();
         cy.get('#usableFunctions>strong>a').click();
         cy.get('#usableFunctions>ul>li')
           .should('exist')
@@ -116,13 +110,17 @@ describe('Rule editor', () => {
       });
 
       it('should be able to close the modal dialog', () => {
-        cy.get('#easy-path-exp-help').click();
+        cy.get('#add-variable').click();
+        cy.get('#variable-type-2').select('Easy Path Expression');
+        cy.get('#exp-help-button-2').click();
         cy.get('.close').click();
         cy.get('.modal-content').should('not.exist');
       });
 
       it('should be able to close the modal dialog from the overlay', () => {
-        cy.get('#easy-path-exp-help').click();
+        cy.get('#add-variable').click();
+        cy.get('#variable-type-2').select('Easy Path Expression');
+        cy.get('#exp-help-button-2').click();
         cy.get('#easy-path-exp-help-overlay').click(50, 50);
         cy.get('.modal-content').should('not.exist');
       });
@@ -131,27 +129,67 @@ describe('Rule editor', () => {
     describe('Easy Path Expressions Help from the Output Expression section', () => {
       it('should be able to select the Easy Path Expressions Help from the Output Expression section', () => {
         cy.get('select#questionnaire-select').select('BMI Calculation (Easy Path expression)');
-        cy.get('#easy-path-exp-help')
+        cy.get('#exp-help-button-final')
           .should('exist')
           .should('have.length', 1);
-        cy.get('#easy-path-exp-help').click();
+        cy.get('#exp-help-button-final').click();
+        cy.get('.modal-content').should('exist');
+      });   
+    });
+  });
+
+  describe('FHIRPath Expressions Help Modal Dialog', () => {
+    describe('FHIRPath Expressions Help from the Item Variables section', () => {
+      it('should be able to select the FHIRPath Expressions Help if the FHIRPath Expression Var Type is selected', () => {
+        cy.get('select#questionnaire-select').select('BMI Calculation');
+        cy.get('#add-variable').click();
+        cy.get('#variable-type-2').select('FHIRPath Expression');
+        cy.get('#exp-help-button-2')
+          .should('exist')
+          .should('have.length', 1);
+        cy.get('#exp-help-button-2').click();
         cy.get('.modal-content').should('exist');
       });
 
+      it('should be able to browse through the Dialog content', () => {
+        cy.get('select#questionnaire-select').select('BMI Calculation');
+        cy.get('#add-variable').click();
+        cy.get('#variable-type-2').select('FHIRPath Expression');
+        cy.get('#exp-help-button-2').click();
+        cy.get('#links > ul > li').should('have.length', 2);
+        cy.get('#links > ul > li').eq(0).find('a').should('have.text', 'FHIRPath ');
+        cy.get('#links > ul > li').eq(1).find('a').should('have.text', 'FHIR specification ');
+      });
+      
       it('should be able to close the modal dialog', () => {
-        cy.get('#easy-path-exp-help').click();
+        cy.get('select#questionnaire-select').select('BMI Calculation');
+        cy.get('#add-variable').click();
+        cy.get('#variable-type-2').select('FHIRPath Expression');
+        cy.get('#exp-help-button-2').click();
         cy.get('.close').click();
         cy.get('.modal-content').should('not.exist');
       });
 
       it('should be able to close the modal dialog from the overlay', () => {
-        cy.get('#easy-path-exp-help').click();
+        cy.get('select#questionnaire-select').select('BMI Calculation');
+        cy.get('#add-variable').click();
+        cy.get('#variable-type-2').select('FHIRPath Expression');
+        cy.get('#exp-help-button-2').click();
         cy.get('#easy-path-exp-help-overlay').click(50, 50);
         cy.get('.modal-content').should('not.exist');
       });
     });
-
+    describe('FHIRPath Expressions Help from the Output Expression section', () => {
+      it('should be able to select the FHIRPath Expressions Help from the Output Expression section', () => {
+        cy.get('select#questionnaire-select').select('BMI Calculation');
+        cy.get('#variable-type-final').find('option:selected').should('have.text', 'FHIRPath Expression');
+        cy.get('#exp-help-button-final')
+          .should('exist')
+          .should('have.length', 1);
+        cy.get('#exp-help-button-final').click();
+        cy.get('.modal-content').should('exist');
+      });   
+    });    
   });
 });
-
 

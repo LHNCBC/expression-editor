@@ -155,7 +155,7 @@ describe('Rule editor', () => {
         cy.get('#add-variable').click();
         cy.get('#variable-label-2').type('{backspace}bmi');
         cy.get('#variable-type-2').select('Easy Path Expression');
-        cy.get('#variable-expression-2>div>input').type('a/b^2');
+        cy.get('#simple-expression-2').type('a/b^2');
 
         cy.get('#case-statements').should('not.be.checked');
         cy.get('#case-statements').check();

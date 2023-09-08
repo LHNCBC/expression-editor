@@ -1,51 +1,38 @@
 <div 
   *ngIf="display"
-  (click)="overlayCloseHelp($event)"
-  [attr.aria-hidden]="!display"
-  role="dialog"
+  cdkTrapFocus
+  [cdkTrapFocusAutoCapture]="true"
+  (click)="overlayCloseHelp($event)" 
+  [attr.aria-hidden]="!display"  
+  role="dialog" 
   aria-modal="true"
-  id="easy-path-exp-help-overlay"
+  cdkFocusInitial
+  id="easy-path-exp-help-overlay" 
   class="modal">
 
-  <div class="modal-content" #modal aria-modal="true" cdkTrapFocus >
-    <div class="modal-header">
-      <button
-        (click)= "closeHelp()"
-        class="close"
-        aria-label="Close button.  Click here to close the Easy Path
-          Expressions help dialog and return to the Rule Editor screen.">&times;
-      </button>
+  <div class="modal-content" #modal aria-modal="true">
+    <div class="modal-header"  >
+      <button (click)= "closeHelp()" class="close" aria-label="Close">&times;</button>
       <h2>Easy Path Expressions Help</h2>
     </div>
     <div class="modal-body">
       <label>
-        Easy Path Expressions is a syntax parser that converts basic mathematical
-        expressions into FHIRPath notation. Easy Path Expressions can be written
-        using numbers, variable names, mathematical operators, and various functions.
+        Easy Path Expressions is a syntax parser that converts basic mathematical expressions into FHIRPath notation. Easy Path Expressions can be written using numbers, variable names, mathematical operators, and various functions.
       </label>
-
-      <section id="variables" class="help_section"  >
-        <strong>
-          <a href="#" (click)="toggleVariablesSection()" >Available Variables</a>
-          <i [class]="help_arrow_vars"></i>
-        </strong>
-        <ul *ngIf="sectionArr[0]" >
-          <li *ngFor="let v of variables">{{v}}</li>
-        </ul>
-      </section>
-       
-      <section id="usableOperators" class="help_section"  >
+     
+      <section id="usableOperators" class="help_section" >
         <strong>
           <a href="#"
-            (focus)="getLiveAnncounementForSection('operators')"
+            
+            (focus)="getLiveAnncounementForSection('operators')" 
             (click)="toggleUsableOperatorsSection()">Usable Operators
           </a>
           <i [class]="help_arrow_ops"></i>
         </strong>
-        <ul *ngIf="sectionArr[1] && !operatorItemsReadOnly" id="clickableOperator" >
+        <ul *ngIf="sectionArr[0] && !operatorItemsReadOnly" id="clickableOperator" >
           <li class="text" *ngFor="let item of usableOperators" >
-            <a href="#"
-              (focus)="getLiveAnnouncementForItem(usableOperators2[item])"
+            <a href="#" 
+              (focus)="getLiveAnnouncementForItem(usableOperators2[item])" 
               (click)="toggleUsableOperatorItem(item)">{{item}}
             </a>
             <div id="operator-detail" *ngIf="usableOperators2[item].display">
@@ -70,7 +57,7 @@
             </div>
           </li>
         </ul>
-         <ul *ngIf="sectionArr[1] && operatorItemsReadOnly" >
+         <ul *ngIf="sectionArr[0] && operatorItemsReadOnly" >
            <li *ngFor="let item of usableOperators">{{item}}</li>
          </ul>
 
@@ -78,18 +65,18 @@
 
       <section id="usableFunctions" class="help_section"  >
         <strong>
-          <a href="#"
-            (focus)="getLiveAnncounementForSection('functions')"
+          <a href="#" 
+            (focus)="getLiveAnncounementForSection('functions')" 
             (click)="toggleUsableFunctionsSection()" >Usable Functions
           </a>
           <i [class]="help_arrow_funcs"></i>
         </strong>
 
-        <ul *ngIf="sectionArr[2] && !functionItemsReadOnly" id="clickableFunction" >
+        <ul *ngIf="sectionArr[1] && !functionItemsReadOnly" id="clickableFunction" >
           <li *ngFor="let func of usableFunctions" >
-            <a href="#"
-              (focus)="getLiveAnnouncementForItem(usableFunctions2[func])"
-              (click)="toggleUsableFunctionItem(func)"
+            <a href="#" 
+              (focus)="getLiveAnnouncementForItem(usableFunctions2[func])" 
+              (click)="toggleUsableFunctionItem(func)" 
               class="help_item" >{{func}}
             </a>
             <div id="function-detail" *ngIf="usableFunctions2[func].display">
@@ -114,7 +101,7 @@
             </div>
           </li>
         </ul>
-        <ul *ngIf="sectionArr[2] && functionItemsReadOnly" >
+        <ul *ngIf="sectionArr[1] && functionItemsReadOnly" >
           <li *ngFor="let func of usableFunctions">{{func}}</li>
         </ul>
       </section>

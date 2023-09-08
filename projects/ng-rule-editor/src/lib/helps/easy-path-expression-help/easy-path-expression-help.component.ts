@@ -8,14 +8,14 @@ import { LiveAnnouncer } from '@angular/cdk/a11y';
 })
 export class EasyPathExpressionHelpComponent {
   @Input() display = false;
-  @Input() variables;
+  //@Input() variables;
   @Output() onCloseModal = new EventEmitter();
   @ViewChild('modal') modal: ElementRef;
 
   constructor(private liveAnnouncer: LiveAnnouncer) {}
 
   arrow_arr = ["arrow right", "arrow down"];
-  help_arrow_vars = this.arrow_arr[0];
+  //help_arrow_vars = this.arrow_arr[0];
   help_arrow_ops = this.arrow_arr[0];
   help_arrow_funcs = this.arrow_arr[0];
 
@@ -341,7 +341,7 @@ export class EasyPathExpressionHelpComponent {
     },
   };
 
-  sectionArr = [false, false, false];
+  sectionArr = [false, false];
 
   operatorItemsReadOnly = true;
   functionItemsReadOnly = true;
@@ -354,23 +354,22 @@ export class EasyPathExpressionHelpComponent {
    */
   overlayCloseHelp(event) {
     if (event.path) {
-      console.log("overlayCloseHelp::event path");
       if (event.path.indexOf(this.modal.nativeElement) === -1) {
         this.closeHelp();
       }
     } else if (event.target) {
-      if (event.target instanceof HTMLDivElement && event.target.hasOwnProperty("__zone_symbol__clickfalse")) {
+      if (event.target instanceof HTMLDivElement) {
         this.closeHelp();
       }
     }
   }
-
+  
   /**
    * Close Help Modal
    */
   closeHelp() {
-    this.liveAnnouncer.announce("The help dialog closed. You are now back on the Rule Editor screen.");
-    this.showHideSection(false, false, false);
+    //this.liveAnnouncer.announce('Closing Help Dialog.  Returning to the Rule Editor screen');
+    this.showHideSection(false, false);
 
     this.operatorItemsReadOnly = true;
     this.functionItemsReadOnly = true;
@@ -388,12 +387,12 @@ export class EasyPathExpressionHelpComponent {
   /**
    * Function to handle show/hide of all three help sections 
    */
-  showHideSection(variablesFlag, usableOperatorsFlag, usableFunctionsFlag) {
-    this.sectionArr[0] = variablesFlag;
-    this.sectionArr[1] = usableOperatorsFlag;
-    this.sectionArr[2] = usableFunctionsFlag;
+  showHideSection(usableOperatorsFlag, usableFunctionsFlag) {
+    //this.sectionArr[0] = variablesFlag;
+    this.sectionArr[0] = usableOperatorsFlag;
+    this.sectionArr[1] = usableFunctionsFlag;
 
-    this.help_arrow_vars = this.arrow_arr[variablesFlag?1:0];
+    //this.help_arrow_vars = this.arrow_arr[variablesFlag?1:0];
     this.help_arrow_ops = this.arrow_arr[usableOperatorsFlag?1:0];
     this.help_arrow_funcs = this.arrow_arr[usableFunctionsFlag?1:0];
   }
@@ -401,6 +400,7 @@ export class EasyPathExpressionHelpComponent {
   /**
    * Show the Variables section and invoke the live announcer 
    */
+/*  
   toggleVariablesSection() {
     this.showHideSection(true, false, false);
 
@@ -422,10 +422,7 @@ export class EasyPathExpressionHelpComponent {
       this.liveAnnouncer.announce(helpText);
     }
   }
-
-  /**
-   * Invoke the live announcer to the selected section
-   */
+*/
   getLiveAnncounementForSection(item) {
     let announceText = 'Use the ENTER key to enter this section.';
 
@@ -437,7 +434,7 @@ export class EasyPathExpressionHelpComponent {
    */
   toggleUsableOperatorsSection() {
     this.liveAnnouncer.announce('Entering the Usable Operators Items section. Use the tab button to move to each operator.');
-    this.showHideSection(false, true, false);
+    this.showHideSection(true, false);
 
     this.operatorItemsReadOnly = false;
   }
@@ -495,7 +492,7 @@ export class EasyPathExpressionHelpComponent {
   toggleUsableFunctionsSection(action) {
     this.liveAnnouncer.announce('Entering the Usable Functions Items section. Use the tab button to move to each function.');
 
-    this.showHideSection(false, false, true);
+    this.showHideSection(false, true);
 
     this.functionItemsReadOnly = false;
   }
