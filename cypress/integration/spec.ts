@@ -62,12 +62,20 @@ describe('Rule editor', () => {
         // Select Code 1
         cy.get('#autocomplete-2').type('Vit A Bld-mCnc');
         cy.contains('2922-3').click();
-        cy.contains('Vit A Bld-mCnc - 2922-3');
+
+        // Confirm that the selection is displayed
+        cy.get('div#row-2')
+          .find('div.query-select > span.autocomp_selected > ul > li')
+          .should('have.text', '×Vit A Bld-mCnc - 2922-3');
 
         // Select Code 2
         cy.get('#autocomplete-2').type('CV B blend Ab Ser-Imp');
         cy.contains('20996-5').click();
-        cy.contains('CV B blend Ab Ser-Imp - 20996-5');
+
+        // Confirm that the selection is displayed
+        cy.get('div#row-2')
+          .find('div.query-select > span.autocomp_selected > ul > li')
+          .should('contain.text', '×CV B blend Ab Ser-Imp - 20996-5');
 
         // Check the x-fhir-output
         cy.get('lhc-query-observation>div.syntax-preview>pre.d-inline').should('contain', 'Observation?code=http://loinc.org|2922-3%2Chttp://loinc.org|20996-5&date=gt{{today()-1 months}}&patient={{%patient.id}}&_sort=-date&_count=1');
