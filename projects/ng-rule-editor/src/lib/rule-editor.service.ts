@@ -732,20 +732,23 @@ export class RuleEditorService {
     });
 
     if (hasQueryObservations !== undefined) {
-      const patientLaunchContext = fhir.extension.find((extension) => {
-        if (extension.url === this.LAUNCH_CONTEXT_URI &&
-            Array.isArray(extension.extension)) {
-          const patientName = extension.extension.find((subExtension) => {
-            return subExtension.url === 'name' && subExtension.valueId === 'patient';
-          });
+      let patientLaunchContext;
+      if (fhir.extension && fhir.hasOwnProperty('extension')) {
+        patientLaunchContext = fhir.extension.find((extension) => {
+          if (extension.url === this.LAUNCH_CONTEXT_URI &&
+              Array.isArray(extension.extension)) {
+            const patientName = extension.extension.find((subExtension) => {
+              return subExtension.url === 'name' && subExtension.valueId === 'patient';
+            });
 
-          if (patientName !== undefined) {
-            return true;
+            if (patientName !== undefined) {
+              return true;
+            }
           }
-        }
 
-        return false;
-      });
+          return false;
+        });
+      }
 
       if (patientLaunchContext === undefined) {
         // Add launchContext
@@ -766,14 +769,10 @@ export class RuleEditorService {
           ]
         });
 
-        // Check to see if the uneditable variable alredy exists.  Returns true
-        // if exists, otherwise returns false.
-        const isDefinedUneditableVariable = this.uneditableVariables.find((u) => {
-          return u.name === name && u.type === type;
-        });
-
-        // Only add if it does not exists.
-        if (!isDefinedUneditableVariable) {
+        // Check to see if the uneditable variable already exists. Add to 
+        // uneditableVariables if not.
+        const exists = (u) => u.name === name && u.type === type;
+        if (!this.uneditableVariables.some(exists)) {
           this.uneditableVariables.push({
             name,
             type,
@@ -1086,5 +1085,13 @@ export class RuleEditorService {
     } else {
       return `%resource.item.where(linkId='${linkId}').answer.value`;
     }
+  }
+
+  /**
+   * Get uneditable and editable variable names
+   */
+  getVariableNames(): string[] {
+    return this.uneditableVariables.map(e => e.name).concat(
+      this.variables.map(e => e.label));
   }
 }

@@ -83,7 +83,11 @@ describe('Rule editor', () => {
         cy.get('#variable-type-0').select('FHIR Query (Observation)');
         cy.get('#autocomplete-0').type('weight');
         cy.contains('29463-7').click();
-        cy.contains('Weight - 29463-7');
+
+        // Confirm that the selection is displayed
+        cy.get('div#row-0')
+          .find('div.query-select > span.autocomp_selected > ul > li')
+          .should('have.text', '×Weight - 29463-7');
 
         // Uneditable variables section should be empty
         cy.get('#uneditable-variables-section .variable-row').should('have.length', 0);
