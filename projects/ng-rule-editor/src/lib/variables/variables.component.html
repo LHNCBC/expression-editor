@@ -37,12 +37,16 @@
           aria-label="Variable label" />
       </div>
       <div class="variable-column-type">
+<<<<<<< HEAD
         <select
           [id]="'variable-type-' + i"
           [(ngModel)]="variable.type"
           (change)="onTypeChange($event)"
           [style]="lhcStyle.select"
           aria-label="Variable type">
+=======
+        <select [id]="'variable-type-' + i" [(ngModel)]="variable.type" (change)="onTypeChange($event)" [style]="lhcStyle.select" aria-label="Variable type">
+>>>>>>> 03538be (Removed the disabled/hidden option)
           <option *ngFor="let type of variableType | keyvalue" value="{{type.key}}">{{type.value}}</option>
         </select>
       </div>
