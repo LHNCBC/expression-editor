@@ -50,7 +50,7 @@ describe('Rule editor', () => {
 
       it('should display the output when the Save(export) button is clicked', () => {
         cy.get('select#questionnaire-select').select('BMI Calculation');
-        cy.get('#variable-type-0 option').should('have.length', 6);
+        cy.get('#variable-type-0 option').should('have.length', 5);
 
         // Select FHIR Query (Observation) for Variable Type
         cy.get('#variable-type-0').select('FHIR Query (Observation)');

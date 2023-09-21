@@ -17,7 +17,6 @@
       </div>
       <div class="variable-column-type">
         <select [id]="'variable-type-' + i" [(ngModel)]="variable.type" (change)="onTypeChange($event)" [style]="lhcStyle.select" aria-label="Variable type">
-          <option value="" disabled hidden>Select...</option>
           <option *ngFor="let type of variableType | keyvalue" value="{{type.key}}">{{type.value}}</option>
         </select>
       </div>
