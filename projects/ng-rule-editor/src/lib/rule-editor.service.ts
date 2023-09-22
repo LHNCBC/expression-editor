@@ -85,6 +85,7 @@ export class RuleEditorService {
    */
   remove(i: number): void {
     this.variables.splice(i, 1);
+    this.variablesChange.next(this.variables);
   }
 
   /**

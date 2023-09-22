@@ -67,6 +67,39 @@ describe('Rule editor', () => {
         cy.get('pre#output').should('contain.text', '(%a/(%b.power(2))).round(1)');
       });
 
+      it('should get variable updates in the Output Expression section when adding/deleting variables', () => {
+        cy.get('select#questionnaire-select').select('BMI Calculation (Easy Path expression)');
+        
+        // Variables section
+        cy.get('lhc-variables > h2').should('contain', 'Item Variables');
+        cy.get('#variables-section .variable-row').should('have.length', 2);
+        
+        // Output expression 
+        cy.get('#simple-expression-final').clear().type('a + b');
+        cy.get('lhc-syntax-preview>div>div>pre').should('not.have.text', 'Not valid');
+  
+        // Add variable c
+        cy.get('#add-variable').click();
+        cy.get('#variables-section .variable-row').should('have.length', 3);
+        cy.get('#question-2').clear().type('BMI (/39156-5)');
+        cy.contains('39156-5').click();
+  
+        // Confirm that variable c is available for Output expression 
+        cy.get('#simple-expression-final').clear().type('a + b + c');
+        cy.get('lhc-syntax-preview>div>div>pre').should('not.have.text', 'Not valid');
+  
+        // Delete variable b
+        cy.get('#remove-variable-1').click();
+        cy.get('#variables-section .variable-row').should('have.length', 2);
+  
+        // Confirm that variable b is no longer available for Output expression
+        cy.get('lhc-syntax-preview>div>div>pre').should('contain.text', 'Not valid');
+  
+        // Confirm that expression without variable b is valid
+        cy.get('#simple-expression-final').clear().type('a + c');
+        cy.get('lhc-syntax-preview>div>div>pre').should('not.have.text', 'Not valid');
+  
+      });
     });
 
     describe('PHQ9 score calculation', () => {
