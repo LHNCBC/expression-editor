@@ -42,6 +42,6 @@ describe('QueryObservationComponent', () => {
     component.onChange();
 
     expect(component.expression).toEqual(
-      'Observation?code=http://loinc.org|29463-7%2Chttp://loinc.org|65972-2&date=gt{{today()-2 months}}&patient={{%patient.id}}&_sort=-date&_count=1');
+      'Observation?code=http://loinc.org|29463-7,http://loinc.org|65972-2&date=gt{{today()-2 months}}&patient={{%patient.id}}&_sort=-date&_count=1');
   });
 });

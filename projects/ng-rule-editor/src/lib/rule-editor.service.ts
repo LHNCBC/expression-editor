@@ -50,6 +50,7 @@ export class RuleEditorService {
   private LANGUAGE_FHIR_QUERY = 'application/x-fhir-query';
   private QUESTION_REGEX = /^%resource\.item\.where\(linkId='(.*)'\)\.answer\.value(?:\*(\d*\.?\d*))?$/;
   private QUERY_REGEX = /^Observation\?code=(.+)&date=gt{{today\(\)-(\d+) (.+)}}&patient={{%patient.id}}&_sort=-date&_count=1$/;
+  private QUERY_REGEX_URLENCODED = /^Observation\?code=([^&]+)&date=gt%7B%7Btoday\(\)-(\d+)%20([^&]+)%7D%7D&patient=%7B%7B%25patient.id%7D%7D&_sort=-date&_count=1$/;
   private VARIABLE_EXTENSION = 'http://hl7.org/fhir/StructureDefinition/variable';
   private CALCULATED_EXPRESSION = 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression';
   private LAUNCH_CONTEXT_URI = 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-launchContext';
@@ -381,6 +382,12 @@ export class RuleEditorService {
         expressionUri = '';
       }
 
+      this.variables.forEach((variable, index) => {
+        if (variable.type === "expression" || variable.type === "query" || variable.type === "queryObservation") {
+          variable.expression = this.getDecodeQueryURIExpression(variable.expression);
+        }
+      });
+
       this.uneditableVariablesChange.next(this.uneditableVariables);
       this.variablesChange.next(this.variables);
 
@@ -582,10 +589,18 @@ export class RuleEditorService {
    * @private
    */
   private processQueryVariable(name, expression, index?: number): Variable {
-    const matches = expression.match(this.QUERY_REGEX);
+    let matches = expression.match(this.QUERY_REGEX);
+    if (matches !== null) {
+      matches = expression.replace(/%2C/g, ',').match(this.QUERY_REGEX);
+    } else {
+      matches = expression.match(this.QUERY_REGEX_URLENCODED);
+      if (matches != null) {
+        matches = decodeURIComponent(expression).match(this.QUERY_REGEX);
+      }
+    }
 
     if (matches !== null) {
-      const codes = matches[1].split('%2C');  // URL encoded comma ','
+      const codes = matches[1].split(',');
       const timeInterval = parseInt(matches[2], 10);
       const timeIntervalUnits = matches[3];
 
@@ -684,7 +699,8 @@ export class RuleEditorService {
         valueExpression: {
           name: e.label,
           language: e.type === 'query' ? this.LANGUAGE_FHIR_QUERY : this.LANGUAGE_FHIRPATH,
-          expression: e.expression
+          expression: (e.type === 'expression' || e.type === 'query' || e.type === 'queryObservation') ? 
+            this.getEncodeQueryURIExpression(e.expression) : e.expression
         }
       };
 
@@ -732,20 +748,24 @@ export class RuleEditorService {
     });
 
     if (hasQueryObservations !== undefined) {
-      const patientLaunchContext = fhir.extension.find((extension) => {
-        if (extension.url === this.LAUNCH_CONTEXT_URI &&
-            Array.isArray(extension.extension)) {
-          const patientName = extension.extension.find((subExtension) => {
-            return subExtension.url === 'name' && subExtension.valueId === 'patient';
-          });
+      let patientLaunchContext;
 
-          if (patientName !== undefined) {
-            return true;
+      if (fhir.extension && fhir.hasOwnProperty('extension')) {
+        patientLaunchContext = fhir.extension.find((extension) => {
+          if (extension.url === this.LAUNCH_CONTEXT_URI &&
+              Array.isArray(extension.extension)) {
+            const patientName = extension.extension.find((subExtension) => {
+              return subExtension.url === 'name' && subExtension.valueId === 'patient';
+            });
+
+            if (patientName !== undefined) {
+              return true;
+            }
           }
-        }
 
-        return false;
-      });
+          return false;
+        });
+      }
 
       if (patientLaunchContext === undefined) {
         // Add launchContext
@@ -1075,6 +1095,57 @@ export class RuleEditorService {
       return `%resource.item.where(linkId='${linkId}').answer.value*${factor}`;
     } else {
       return `%resource.item.where(linkId='${linkId}').answer.value`;
+    }
+  }
+
+  /**
+   * Decode the Query URL expression.  This supports the query that was saved
+   * prior to this change (without URL encoded, just the %2C) and the new
+   * URL encoded string
+   * @param excodedExp - Encoded expression
+   * @return Decoded URL expression string
+   */
+  getDecodeQueryURIExpression(encodedExp: string): string {
+    let matches = encodedExp.match(this.QUERY_REGEX);
+    if (matches !== null) {
+      return encodedExp.replace(/%2C/g, ',');
+    } else {
+      matches = encodedExp.match(this.QUERY_REGEX_URLENCODED);
+      if (matches != null) {
+        return decodeURIComponent(encodedExp);
+      }
+    }
+    return encodedExp;
+  }
+
+  /**
+   * Encode the Query URL expression.  If the input does not match
+   * with QUERY_REGEX, then return as is.
+   * @param expression - url expression
+   * @return Encoded URL expression string
+   */
+  getEncodeQueryURIExpression(expression: string): string {
+    let matches = expression.match(this.QUERY_REGEX);
+    if (matches !== null) {
+      const encodedParams: string[] = [];
+      const resourceArr = expression.split("?");
+      let queryString = resourceArr[0];
+
+      if (resourceArr.length > 1) {
+        const queryParams = resourceArr[1].split('&');
+
+        queryParams.forEach((queryParam) => {
+          const param = queryParam.split('=');
+          const encodedKey = encodeURIComponent(param[0]);
+
+          const encodedValue = encodeURIComponent(param[1]);
+          encodedParams.push(`${encodedKey}=${encodedValue}`);
+        });
+        queryString += '?' + encodedParams.join('&');
+      }
+      return queryString;
+    } else {
+      return expression;
     }
   }
 }

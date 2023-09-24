@@ -91,41 +91,16 @@ export class QueryObservationComponent implements OnInit, AfterViewInit, OnDestr
   }
 
   /**
-   * URL Encoding the string
-   * @param url {string} - URL String
-   * @private
-   */
-  private getURLEncodedQueryString(url: string): string {
-    const encodedParams: string[] = [];
-    const resourceArr = url.split("?");
-    let queryString = resourceArr[0];
-
-    if (resourceArr.length > 1) {
-      const queryParams = resourceArr[1].split('&');
-
-      queryParams.forEach((queryParam) => {
-        const param = queryParam.split('=');
-        const encodedKey = encodeURIComponent(param[0]);
-
-        const enocdedValue = encodeURIComponent(param[1].replace(/%2C/g, ','));
-        encodedParams.push(`${encodedKey}=${enocdedValue}`);
-      });
-      queryString += '?' + encodedParams.join('&');
-    }
-    return queryString;
-  }
-
-  /**
    * On changes update the expression and preview
    */
   onChange(): void {
     // Separate with URL encoded version of the comma: ','
-    const codes = this.codes.join('%2C');
+    const codes = this.codes.join(',');
 
     this.expression =
       `Observation?code=${codes}&` +
       `date=gt{{today()-${this.timeInterval} ${this.timeIntervalUnit}}}&` +
       `patient={{%patient.id}}&_sort=-date&_count=1`;
-    this.variable.expression = this.getURLEncodedQueryString(this.expression);
+    this.variable.expression = this.expression;
   }
 }
