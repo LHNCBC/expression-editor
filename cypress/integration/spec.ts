@@ -78,13 +78,15 @@ describe('Rule editor', () => {
           .should('contain.text', '×CV B blend Ab Ser-Imp - 20996-5');
 
         // Check the x-fhir-output
-        cy.get('lhc-query-observation>div.syntax-preview>pre.d-inline').should('contain', 'Observation?code=http://loinc.org|2922-3%2Chttp://loinc.org|20996-5&date=gt{{today()-1 months}}&patient={{%patient.id}}&_sort=-date&_count=1');
+        cy.get('lhc-query-observation>div.syntax-preview>pre.d-inline')
+          .should('contain', 'Observation?code=http://loinc.org|2922-3,http://loinc.org|20996-5&date=gt{{today()-1 months}}&patient={{%patient.id}}&_sort=-date&_count=1');
 
         // Click Save
         cy.get('#export').click();
 
         // Export output should contain the URL Encoded of the x-fhir-output
-        cy.get('pre#output').should('contain', 'Observation?code=http%3A%2F%2Floinc.org%7C2922-3%2Chttp%3A%2F%2Floinc.org%7C20996-5&date=gt%7B%7Btoday()-1%20months%7D%7D&patient=%7B%7B%25patient.id%7D%7D&_sort=-date&_count=1');
+        cy.get('pre#output')
+          .should('contain', 'Observation?code=http%3A%2F%2Floinc.org%7C2922-3%2Chttp%3A%2F%2Floinc.org%7C20996-5&date=gt%7B%7Btoday()-1%20months%7D%7D&patient=%7B%7B%25patient.id%7D%7D&_sort=-date&_count=1');
       });      
     });
 
@@ -111,21 +113,41 @@ describe('Rule editor', () => {
       it('should display the query editor', () => {
         // Check the demo questionnaire load
         cy.get('select#questionnaire-select').select('Query');
-        cy.contains('FHIR Query (Observation)');
-        cy.contains('Appetite sleep chg notes DI-PAD - 65972-2');
-        cy.get('.time-input > .ng-untouched').should('have.value', '7');
-        cy.get('.time-select > .ng-untouched').should('have.value', 'days');
-        cy.contains('Observation?code=test%2Chttp://loinc.org|65972-2&date=gt{{today()-7 days}}&patient={{%patient.id}}&_sort=-date&_count=1');
+        cy.get('#variable-type-2').contains('FHIR Query (Observation)');
 
-        // Add a new code
-        cy.get('#autocomplete-2').type('weight');
-        cy.contains('29463-7').click();
-        cy.contains('Weight - 29463-7');
-        cy.contains('Observation?code=test%2Chttp://loinc.org|65972-2%2Chttp://loinc.org|29463-7&date=gt{{today()-7 days}}&patient={{%patient.id}}&_sort=-date&_count=1');
+        // Confirm that the selection is displayed
+        cy.get('div#row-2')
+          .within(() => {
+            cy.get('div.query-select > span.autocomp_selected > ul > li').should('have.length', 2);
+            cy.get('div.query-select > span.autocomp_selected > ul > li')
+              .eq(0)
+              .should('have.text', '×test');
 
-        // Remove first code
-        cy.get(':nth-child(1) > button > span').click();
-        cy.contains('Observation?code=http://loinc.org|65972-2%2Chttp://loinc.org|29463-7&date=gt{{today()-7 days}}&patient={{%patient.id}}&_sort=-date&_count=1');
+            cy.get('div.query-select > span.autocomp_selected > ul > li')
+              .eq(1)
+              .should('have.text', '×Appetite sleep chg notes DI-PAD - 65972-2');
+
+            cy.get('.time-input > .ng-untouched').should('have.value', '7');
+            cy.get('.time-select > .ng-untouched').should('have.value', 'days');
+
+            cy.get('lhc-query-observation>div.syntax-preview>pre.d-inline')
+              .should('contain', 'Observation?code=test,http://loinc.org|65972-2&date=gt{{today()-7 days}}&patient={{%patient.id}}&_sort=-date&_count=1');
+
+            // Add a new code
+            cy.get('#autocomplete-2').type('weight');
+          });
+
+        cy.get('#completionOptions').contains('29463-7').click();
+
+        cy.get('div#row-2')
+          .within(() => {
+            cy.contains('Weight - 29463-7');
+            cy.contains('Observation?code=test,http://loinc.org|65972-2,http://loinc.org|29463-7&date=gt{{today()-7 days}}&patient={{%patient.id}}&_sort=-date&_count=1');
+
+            // Remove first code
+            cy.get(':nth-child(1) > button > span').click();
+            cy.contains('Observation?code=http://loinc.org|65972-2,http://loinc.org|29463-7&date=gt{{today()-7 days}}&patient={{%patient.id}}&_sort=-date&_count=1');    
+          });
       });
     });
 
