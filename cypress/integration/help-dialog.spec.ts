@@ -158,7 +158,7 @@ describe('Rule editor', () => {
         cy.get('#exp-help-button-2').click();
         cy.get('#links > ul > li').should('have.length', 2);
         cy.get('#links > ul > li').eq(0).find('a').should('have.text', 'FHIRPath ');
-        cy.get('#links > ul > li').eq(1).find('a').should('have.text', 'FHIR specification ');
+        cy.get('#links > ul > li').eq(1).find('a').should('have.text', 'FHIR extensions to FHIRPath ');
       });
       
       it('should be able to close the modal dialog', () => {
