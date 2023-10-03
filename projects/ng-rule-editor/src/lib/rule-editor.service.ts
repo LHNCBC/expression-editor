@@ -50,7 +50,6 @@ export class RuleEditorService {
   private LANGUAGE_FHIR_QUERY = 'application/x-fhir-query';
   private QUESTION_REGEX = /^%resource\.item\.where\(linkId='(.*)'\)\.answer\.value(?:\*(\d*\.?\d*))?$/;
   private QUERY_REGEX = /^Observation\?code=(.+)&date=gt{{today\(\)-(\d+) (.+)}}&patient={{%patient.id}}&_sort=-date&_count=1$/;
-  private QUERY_REGEX_URLENCODED = /^Observation\?code=([^&]+)&date=gt%7B%7Btoday\(\)-(\d+)%20([^&]+)%7D%7D&patient=%7B%7B%25patient.id%7D%7D&_sort=-date&_count=1$/;
   private VARIABLE_EXTENSION = 'http://hl7.org/fhir/StructureDefinition/variable';
   private CALCULATED_EXPRESSION = 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression';
   private LAUNCH_CONTEXT_URI = 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-launchContext';
@@ -384,7 +383,7 @@ export class RuleEditorService {
 
       this.variables.forEach((variable, index) => {
         if (variable.type === "expression" || variable.type === "query" || variable.type === "queryObservation") {
-          variable.expression = this.getDecodeQueryURIExpression(variable.expression);
+          variable.expression = this.decodeQueryURIExpression(variable.expression);
         }
       });
 
@@ -589,15 +588,7 @@ export class RuleEditorService {
    * @private
    */
   private processQueryVariable(name, expression, index?: number): Variable {
-    let matches = expression.match(this.QUERY_REGEX);
-    if (matches !== null) {
-      matches = expression.replace(/%2C/g, ',').match(this.QUERY_REGEX);
-    } else {
-      matches = expression.match(this.QUERY_REGEX_URLENCODED);
-      if (matches != null) {
-        matches = decodeURIComponent(expression).match(this.QUERY_REGEX);
-      }
-    }
+    let matches = this.decodeQueryURIExpression(expression).match(this.QUERY_REGEX);
 
     if (matches !== null) {
       const codes = matches[1].split(',');
@@ -700,7 +691,7 @@ export class RuleEditorService {
           name: e.label,
           language: e.type === 'query' ? this.LANGUAGE_FHIR_QUERY : this.LANGUAGE_FHIRPATH,
           expression: (e.type === 'expression' || e.type === 'query' || e.type === 'queryObservation') ? 
-            this.getEncodeQueryURIExpression(e.expression) : e.expression
+            this.encodeQueryURIExpression(e.expression) : e.expression
         }
       };
 
@@ -1099,24 +1090,92 @@ export class RuleEditorService {
   }
 
   /**
+   * Performs URL decode.  Returns input str as is if URL decode failed.
+   * @param str - input url string
+   * @private
+   */
+  private getDecodeURI(str) {
+    try {
+      return decodeURIComponent(str);
+    } catch(e) {
+      return str;
+    }
+  }
+
+  /**
    * Decode the Query URL expression.  This supports the query that was saved
    * prior to this change (without URL encoded, just the %2C) and the new
    * URL encoded string
    * @param excodedExp - Encoded expression
    * @return Decoded URL expression string
    */
-  getDecodeQueryURIExpression(encodedExp: string): string {
-    let matches = encodedExp.match(this.QUERY_REGEX);
+  decodeQueryURIExpression(expression: string): string {
+    let matches = expression.match(this.QUERY_REGEX);
     if (matches !== null) {
-      return encodedExp.replace(/%2C/g, ',');
-    } else {
-      matches = encodedExp.match(this.QUERY_REGEX_URLENCODED);
-      if (matches != null) {
-        return decodeURIComponent(encodedExp);
+      const decodedParams: string[] = [];
+      const resourceArr = expression.split("?");
+      let queryString = resourceArr[0];
+
+      if (resourceArr.length > 1) {
+        const queryParams = resourceArr[1].split('&');
+
+        queryParams.forEach((queryParam) => {
+          const param = queryParam.split('=');
+          const paramKey = this.getDecodeURI(param[0]);
+          const paramVal = this.getDecodeURI(param[1]);
+
+          decodedParams.push(`${paramKey}=${paramVal}`);
+        });
+        queryString += '?' + decodedParams.join('&');
       }
+      return queryString;
+    } else {
+      return expression;
     }
-    return encodedExp;
   }
+
+  /**
+   * Perform URL encode while ignore {{}} and the content inside.
+   * @param paramValue - URL param value
+   * @private
+   */
+  private encodeParamValue(paramValue: string): string {
+    const openDblBracesCount = (paramValue.match(/{{/g) || []).length;
+    const closeDblBracesCount = (paramValue.match(/}}/g) || []).length;
+
+    if (openDblBracesCount === 0 && closeDblBracesCount === 0) {
+      return encodeURIComponent(paramValue);
+    } else if (openDblBracesCount === 1 && closeDblBracesCount === 1 &&
+               paramValue.startsWith("{{") && paramValue.endsWith("}}")) {
+      return paramValue;
+    } else {
+      let tmpStr = '';
+      let indexLoc = 0;
+      for (let i = 0; i < openDblBracesCount; i++) {
+        const openDblBracesIdx = paramValue.indexOf("{{", indexLoc);
+        const closeDblBracesIdx = paramValue.indexOf("}}", openDblBracesIdx);
+        const nextOpenDblBracesIdx = paramValue.indexOf("{{", closeDblBracesIdx);
+
+        if (openDblBracesIdx > 0) {
+          tmpStr += encodeURIComponent(paramValue.substring(indexLoc, openDblBracesIdx));
+        }
+
+        // copy the content starts with {{ and ends with }}
+        tmpStr += paramValue.substring(openDblBracesIdx, closeDblBracesIdx + 2);
+
+        if (nextOpenDblBracesIdx > -1) {
+          if ((closeDblBracesIdx + 2) < paramValue.length) {
+            tmpStr += encodeURIComponent(paramValue.substring(closeDblBracesIdx + 2, nextOpenDblBracesIdx));
+          }
+        } else {
+          tmpStr += encodeURIComponent(paramValue.substring(closeDblBracesIdx + 2));
+          indexLoc = nextOpenDblBracesIdx;
+        }
+      }
+
+      return tmpStr;
+    }
+  };
 
   /**
    * Encode the Query URL expression.  If the input does not match
@@ -1124,7 +1183,7 @@ export class RuleEditorService {
    * @param expression - url expression
    * @return Encoded URL expression string
    */
-  getEncodeQueryURIExpression(expression: string): string {
+  encodeQueryURIExpression(expression: string): string {
     let matches = expression.match(this.QUERY_REGEX);
     if (matches !== null) {
       const encodedParams: string[] = [];
@@ -1137,8 +1196,8 @@ export class RuleEditorService {
         queryParams.forEach((queryParam) => {
           const param = queryParam.split('=');
           const encodedKey = encodeURIComponent(param[0]);
+          const encodedValue = this.encodeParamValue(param[1]);
 
-          const encodedValue = encodeURIComponent(param[1]);
           encodedParams.push(`${encodedKey}=${encodedValue}`);
         });
         queryString += '?' + encodedParams.join('&');

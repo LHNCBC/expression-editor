@@ -86,7 +86,7 @@ describe('Rule editor', () => {
 
         // Export output should contain the URL Encoded of the x-fhir-output
         cy.get('pre#output')
-          .should('contain', 'Observation?code=http%3A%2F%2Floinc.org%7C2922-3%2Chttp%3A%2F%2Floinc.org%7C20996-5&date=gt%7B%7Btoday()-1%20months%7D%7D&patient=%7B%7B%25patient.id%7D%7D&_sort=-date&_count=1');
+          .should('contain', 'Observation?code=http%3A%2F%2Floinc.org%7C2922-3%2Chttp%3A%2F%2Floinc.org%7C20996-5&date=gt{{today()-1 months}}&patient={{%patient.id}}&_sort=-date&_count=1');
       });      
     });
 
