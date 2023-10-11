@@ -6,24 +6,29 @@ describe('Rule editor', () => {
   describe('Easy Path Expressions Help Modal Dialog', () => {
     describe('Easy Path Expressions Help from the Item Variables section', () => {
       it('should be able to select the Easy Path Expressions Help if the Easy Path Expression Var Type is selected', () => {
-        cy.get('select#questionnaire-select').select('BMI Calculation');
-        cy.get('#add-variable').click();
-        cy.get('#variable-type-2').select('Easy Path Expression');
-        cy.get('#exp-help-button-2')
-          .should('exist')
-          .should('have.length', 1);
-        cy.get('#exp-help-button-2').click();
+        cy.get('select#questionnaire-select').select('BMI Calculation (Easy Path expression)');
+        cy.title().should('eq', 'Rule Editor');
+
+        // Variables section
+        cy.get('lhc-variables > h2').should('contain', 'Item Variables');
+        cy.get('#variables-section .variable-row').should('have.length', 2);
+        cy.get('#variable-type-1 > option').should('have.length', 3);
+        cy.get('#variable-type-1').select('simple').should('have.value', 'simple');
+        cy.get('#exp-help-button-1').should('exist').click();
         cy.get('.modal-content').should('exist');
       });
 
       it('should be able to browse through the Usable Operators section', () => {
-        cy.get('#add-variable').click();
-        cy.get('#variable-type-2').select('Easy Path Expression');
-        cy.get('#exp-help-button-2').click();
-        cy.get('#usableOperators>strong>a').click();
-        cy.get('#usableOperators>ul>li')
-          .should('exist')
-          .should('have.length', 17);
+        cy.title().should('eq', 'Rule Editor');
+
+        // Variables section
+        cy.get('lhc-variables > h2').should('contain', 'Item Variables');
+        cy.get('#variables-section .variable-row').should('have.length', 2);
+        cy.get('#variable-type-1 > option').should('have.length', 3);
+        cy.get('#variable-type-1').select('simple').should('have.value', 'simple');
+        cy.get('#exp-help-button-1').should('exist').click();
+        cy.get('#usableOperators>strong>a').should('exist').click();
+        cy.get('#usableOperators>ul>li').should('exist').should('have.length', 17);
 
         // Accessing the first operator in the list.
         cy.get('#usableOperators>ul>li')
@@ -63,13 +68,16 @@ describe('Rule editor', () => {
       });
 
       it('should be able to browse through the Usable Functions section', () => {
-        cy.get('#add-variable').click();
-        cy.get('#variable-type-2').select('Easy Path Expression');
-        cy.get('#exp-help-button-2').click();
-        cy.get('#usableFunctions>strong>a').click();
-        cy.get('#usableFunctions>ul>li')
-          .should('exist')
-          .should('have.length', 10);
+        cy.title().should('eq', 'Rule Editor');
+
+        // Variables section
+        cy.get('lhc-variables > h2').should('contain', 'Item Variables');
+        cy.get('#variables-section .variable-row').should('have.length', 2);
+        cy.get('#variable-type-1 > option').should('have.length', 3);
+        cy.get('#variable-type-1').select('simple').should('have.value', 'simple');
+        cy.get('#exp-help-button-1').should('exist').click();
+        cy.get('#usableFunctions>strong>a').should('exist').click();
+        cy.get('#usableFunctions>ul>li').should('exist').should('have.length', 10);
 
         // Accessing the first function in the list
         cy.get('#usableFunctions>ul>li')
@@ -81,7 +89,8 @@ describe('Rule editor', () => {
             cy.get('p').eq(0).find('strong').should('contain', 'Description:');
             cy.get('p').eq(0).find('span').should('include.text', 'The CEILING function rounds up');
             cy.get('p').eq(1).find('strong').should('contain', 'Usage:');
-            cy.get('p').eq(1).find('span').should('contain', 'CEILING([expression]) where expression can be numbers, variable names, mathematical operators, and various functions');
+            cy.get('p').eq(1).find('span')
+              .should('contain', 'CEILING([expression]) where expression can be numbers, variable names, mathematical operators, and various functions');
             cy.get('p').eq(2).find('strong').should('contain', 'Output:');
             cy.get('p').eq(2).find('span').should('contain', 'integer');
             cy.get('div>pre').should('have.length', 4);
@@ -110,17 +119,26 @@ describe('Rule editor', () => {
       });
 
       it('should be able to close the modal dialog', () => {
-        cy.get('#add-variable').click();
-        cy.get('#variable-type-2').select('Easy Path Expression');
-        cy.get('#exp-help-button-2').click();
-        cy.get('.close').click();
+        cy.title().should('eq', 'Rule Editor');
+        // Variables section
+        cy.get('lhc-variables > h2').should('contain', 'Item Variables');
+        cy.get('#variables-section .variable-row').should('have.length', 2);
+        cy.get('#variable-type-1 > option').should('have.length', 3);
+        cy.get('#variable-type-1').select('simple').should('have.value', 'simple');
+        cy.get('#exp-help-button-1').should('exist').click();
+        cy.get('.close').should('exist').click();
         cy.get('.modal-content').should('not.exist');
       });
 
       it('should be able to close the modal dialog from the overlay', () => {
-        cy.get('#add-variable').click();
-        cy.get('#variable-type-2').select('Easy Path Expression');
-        cy.get('#exp-help-button-2').click();
+        cy.title().should('eq', 'Rule Editor');
+
+        // Variables section
+        cy.get('lhc-variables > h2').should('contain', 'Item Variables');
+        cy.get('#variables-section .variable-row').should('have.length', 2);
+        cy.get('#variable-type-1 > option').should('have.length', 3);
+        cy.get('#variable-type-1').select('simple').should('have.value', 'simple');
+        cy.get('#exp-help-button-1').should('exist').click();
         cy.get('#easy-path-exp-help-overlay').click(50, 50);
         cy.get('.modal-content').should('not.exist');
       });
@@ -129,10 +147,7 @@ describe('Rule editor', () => {
     describe('Easy Path Expressions Help from the Output Expression section', () => {
       it('should be able to select the Easy Path Expressions Help from the Output Expression section', () => {
         cy.get('select#questionnaire-select').select('BMI Calculation (Easy Path expression)');
-        cy.get('#exp-help-button-final')
-          .should('exist')
-          .should('have.length', 1);
-        cy.get('#exp-help-button-final').click();
+        cy.get('#exp-help-button-final').should('exist').click();
         cy.get('.modal-content').should('exist');
       });   
     });
@@ -142,20 +157,27 @@ describe('Rule editor', () => {
     describe('FHIRPath Expressions Help from the Item Variables section', () => {
       it('should be able to select the FHIRPath Expressions Help if the FHIRPath Expression Var Type is selected', () => {
         cy.get('select#questionnaire-select').select('BMI Calculation');
-        cy.get('#add-variable').click();
-        cy.get('#variable-type-2').select('FHIRPath Expression');
-        cy.get('#exp-help-button-2')
-          .should('exist')
-          .should('have.length', 1);
-        cy.get('#exp-help-button-2').click();
+        cy.title().should('eq', 'Rule Editor');
+
+        // Variables section
+        cy.get('lhc-variables > h2').should('contain', 'Item Variables');
+        cy.get('#variables-section .variable-row').should('have.length', 2);
+        cy.get('#variable-type-1 > option').should('have.length', 5);
+        cy.get('#variable-type-1').select('expression').should('have.value', 'expression');
+        cy.get('#exp-help-button-1').should('exist').click();
         cy.get('.modal-content').should('exist');
       });
 
       it('should be able to browse through the Dialog content', () => {
         cy.get('select#questionnaire-select').select('BMI Calculation');
-        cy.get('#add-variable').click();
-        cy.get('#variable-type-2').select('FHIRPath Expression');
-        cy.get('#exp-help-button-2').click();
+        cy.title().should('eq', 'Rule Editor');
+
+        // Variables section
+        cy.get('lhc-variables > h2').should('contain', 'Item Variables');
+        cy.get('#variables-section .variable-row').should('have.length', 2);
+        cy.get('#variable-type-1 > option').should('have.length', 5);
+        cy.get('#variable-type-1').select('expression').should('have.value', 'expression');
+        cy.get('#exp-help-button-1').should('exist').click();
         cy.get('#links > ul > li').should('have.length', 2);
         cy.get('#links > ul > li').eq(0).find('a').should('have.text', 'FHIRPath ');
         cy.get('#links > ul > li').eq(1).find('a').should('have.text', 'FHIR extensions to FHIRPath ');
@@ -163,18 +185,28 @@ describe('Rule editor', () => {
       
       it('should be able to close the modal dialog', () => {
         cy.get('select#questionnaire-select').select('BMI Calculation');
-        cy.get('#add-variable').click();
-        cy.get('#variable-type-2').select('FHIRPath Expression');
-        cy.get('#exp-help-button-2').click();
-        cy.get('.close').click();
+        cy.title().should('eq', 'Rule Editor');
+
+        // Variables section
+        cy.get('lhc-variables > h2').should('contain', 'Item Variables');
+        cy.get('#variables-section .variable-row').should('have.length', 2);
+        cy.get('#variable-type-1 > option').should('have.length', 5);
+        cy.get('#variable-type-1').select('expression').should('have.value', 'expression');
+        cy.get('#exp-help-button-1').should('exist').click();
+        cy.get('.close').should('exist').click();
         cy.get('.modal-content').should('not.exist');
       });
 
       it('should be able to close the modal dialog from the overlay', () => {
         cy.get('select#questionnaire-select').select('BMI Calculation');
-        cy.get('#add-variable').click();
-        cy.get('#variable-type-2').select('FHIRPath Expression');
-        cy.get('#exp-help-button-2').click();
+        cy.title().should('eq', 'Rule Editor');
+
+        // Variables section
+        cy.get('lhc-variables > h2').should('contain', 'Item Variables');
+        cy.get('#variables-section .variable-row').should('have.length', 2);
+        cy.get('#variable-type-1 > option').should('have.length', 5);
+        cy.get('#variable-type-1').select('expression').should('have.value', 'expression');
+        cy.get('#exp-help-button-1').should('exist').click();
         cy.get('#easy-path-exp-help-overlay').click(50, 50);
         cy.get('.modal-content').should('not.exist');
       });
@@ -183,10 +215,7 @@ describe('Rule editor', () => {
       it('should be able to select the FHIRPath Expressions Help from the Output Expression section', () => {
         cy.get('select#questionnaire-select').select('BMI Calculation');
         cy.get('#variable-type-final').find('option:selected').should('have.text', 'FHIRPath Expression');
-        cy.get('#exp-help-button-final')
-          .should('exist')
-          .should('have.length', 1);
-        cy.get('#exp-help-button-final').click();
+        cy.get('#exp-help-button-final').should('exist').click();
         cy.get('.modal-content').should('exist');
       });   
     });    

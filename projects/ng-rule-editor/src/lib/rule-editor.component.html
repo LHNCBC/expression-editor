@@ -56,16 +56,18 @@
           (simpleChange)="updateSimpleExpression($event)"
           [lhcStyle]="lhcStyle"></lhc-syntax-converter>
 
-        <lhc-helps *ngSwitchCase="'fhirpath'" [type]="'expression'" [index]="'final'">
+        <div *ngSwitchCase="'fhirpath'" class="flex-container">
+          <lhc-helps  [type]="'expression'" [index]="'final'" class="flex-item"></lhc-helps>
           <input
             type="text"
             aria-label="FHIRPath"
-            *ngSwitchCase="'fhirpath'"
+            
             id="final-expression"
             class="form-control"
             [(ngModel)]="finalExpression"
-            [ngStyle]="lhcStyle.input">
-        </lhc-helps>
+            [ngStyle]="lhcStyle.input"
+            class="flex-item">
+        </div>
       </div>
       <lhc-case-statements
         *ngIf="caseStatements"
