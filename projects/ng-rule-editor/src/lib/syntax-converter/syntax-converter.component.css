@@ -13,3 +13,18 @@ input, select {
   border-radius: 4px;
   padding: 0 0.5em;
 }
+
+.flex-container {
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: row;
+}
+
+.flex-item {
+  flex: 0 1 auto;
+  margin: 2px;
+}
+
+.flex-item:nth-child(2) {
+  flex: 1;
+}
