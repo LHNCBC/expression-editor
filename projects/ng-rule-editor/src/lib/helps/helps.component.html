@@ -1,6 +1,6 @@
 <div class="help">
   <button 
-    class="help" 
+    class="help"
     [id]="'exp-help-button-' + index"
     (click)="openHelp()" 
     [matTooltip]="matToolTip" >?
@@ -19,6 +19,4 @@
     [display]="showHelp"
     (onCloseModal)="closeHelp()">
   </lhc-easy-path-expression-help>
-
-  <ng-content></ng-content>
 </div>

@@ -43,7 +43,6 @@
           (change)="onTypeChange($event)"
           [style]="lhcStyle.select"
           aria-label="Variable type">
-          <option value="" disabled hidden>Select...</option>
           <option *ngFor="let type of variableType | keyvalue" value="{{type.key}}">{{type.value}}</option>
         </select>
       </div>
@@ -71,14 +70,13 @@
             (expressionChange)="updateExpression(i, $event)">
           </lhc-syntax-converter>
         </div>
-        <div class="form-inline" *ngSwitchCase="'expression'">
-          <lhc-helps [type]="'expression'" [index]="i">
-            <input
-              [id]="'variable-expression-' + i"
-              [(ngModel)]="variable.expression"
-              [style]="lhcStyle.input"
-              aria-label="FHIRPath Expression" />
-          </lhc-helps>
+        <div class="form-inline" *ngSwitchCase="'expression'" class="flex-container">
+          <lhc-helps [type]="'expression'" [index]="i" class="flex-item"></lhc-helps>
+          <input
+            [id]="'variable-expression-' + i"
+            [(ngModel)]="variable.expression"
+            [style]="lhcStyle.input"
+            aria-label="FHIRPath Expression" class="flex-item" />
         </div>
         <div class="form-inline" *ngSwitchCase="'query'">
           <input
