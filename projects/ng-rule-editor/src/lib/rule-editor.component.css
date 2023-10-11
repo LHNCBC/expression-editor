@@ -32,6 +32,22 @@ h1 {
   flex-direction: row;
 }
 
+.expression>.flex-container {
+  width: 100%;
+  flex-wrap: nowrap;
+  flex-direction: row;
+}
+
+.flex-item {
+  flex: 0 1 auto;
+  margin: 2px;
+}
+
+.flex-item:nth-child(2) {
+  flex: 1;
+
+}
+
 .flex-vertical {
   flex-direction: column;
 }
@@ -96,8 +112,4 @@ lhc-case-statements {
   .expression-type, .expression {
     flex: 100%;
   }
-}
-
-lhc-helps {
-  width: 100%;
 }
