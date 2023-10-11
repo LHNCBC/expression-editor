@@ -116,18 +116,3 @@ button {
   padding: 0 2em;
   font-size: 1rem;
 }
-
-.flex-container {
-  display: flex;
-  flex-wrap: wrap;
-  flex-direction: row;
-}
-
-.flex-item {
-  flex: 0 1 auto;
-  margin: 2px;
-}
-
-.flex-item:nth-child(2) {
-  flex: 1;
-}
