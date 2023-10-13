@@ -75,8 +75,11 @@ export class QuestionComponent implements OnInit, AfterViewInit, OnDestroy {
 
     Def.Autocompleter.Event.observeListSelections(`question-${this.index}`, (res) => {
       if (res.val_typed_in !== res.final_val && res.hasOwnProperty('item_code') && res.item_code) {
-        this.linkId = res.item_code;
-        this.onChange(true);
+        // only update if link id changes
+        if (res.item_code !== this.linkId) {
+          this.linkId = res.item_code;
+          this.onChange(true);
+        }
       }
     });
   }
@@ -136,6 +139,10 @@ export class QuestionComponent implements OnInit, AfterViewInit, OnDestroy {
 
       this.variable.expression = this.variableService.valueOrScoreExpression(
         this.linkId, this.itemHasScore, !this.isNonConvertibleUnit, this.unit, this.toUnit);
+
+      if (this.variable.linkId !== this.linkId)
+        this.variable.linkId = this.linkId;
+      this.variable.unit = this.toUnit;
     }
   }
 }

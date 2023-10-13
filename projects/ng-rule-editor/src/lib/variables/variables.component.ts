@@ -36,17 +36,23 @@ export class VariablesComponent implements OnInit, OnChanges, OnDestroy {
     if (changes.advancedInterface) {
       this.variableType = this.advancedInterface ? AllVariableType : SimpleVariableType;
       if (this.variables) {
-        const previousValues = [];
+        // Make a copy of the existing variables
+        const previousVariables = JSON.parse(JSON.stringify(this.variables));
 
         this.variables.forEach((variable, index) => {
-          previousValues[index] = variable.type;
           variable.type = '';
         });
 
         // Not sure of a better way of setting the previous values than this
         setTimeout(() => {
-          previousValues.forEach((type, index) => {
-            this.variables[index].type = type;
+          previousVariables.forEach((variable, index) => {
+            // For variable types not 'queryObservation', we only update the type.
+            // Otherwise need to obtain time duration from the expression
+            this.variables[index].type = variable.type;
+            if (variable.type === 'queryObservation') {
+              this.variables[index] = this.ruleEditorService
+                .getQueryVariablesFromExpression(variable.label, variable.expression, index);
+            }
           });
         }, 10);
       }

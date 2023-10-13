@@ -576,6 +576,10 @@ export class RuleEditorService {
     }
   }
 
+  getQueryVariablesFromExpression(name, expression, index?:number) : Variable {
+    return this.processQueryVariable(name, expression, index);
+  }
+
   /**
    * Process a x-fhir-query expression into a more user friendly format if
    * possible. Show a code autocomplete field if possible if not show the
@@ -1110,28 +1114,23 @@ export class RuleEditorService {
    * @return Decoded URL expression string
    */
   decodeQueryURIExpression(expression: string): string {
-    let matches = expression.match(this.QUERY_REGEX);
-    if (matches !== null) {
-      const decodedParams: string[] = [];
-      const resourceArr = expression.split("?");
-      let queryString = resourceArr[0];
+    const decodedParams: string[] = [];
+    const resourceArr = expression.split("?");
+    let queryString = resourceArr[0];
 
-      if (resourceArr.length > 1) {
-        const queryParams = resourceArr[1].split('&');
+    if (resourceArr.length > 1) {
+      const queryParams = resourceArr[1].split('&');
 
-        queryParams.forEach((queryParam) => {
-          const param = queryParam.split('=');
-          const paramKey = this.getDecodeURI(param[0]);
-          const paramVal = this.getDecodeURI(param[1]);
+      queryParams.forEach((queryParam) => {
+        const param = queryParam.split('=');
+        const paramKey = this.getDecodeURI(param[0]);
+        const paramVal = this.getDecodeURI(param[1]);
 
-          decodedParams.push(`${paramKey}=${paramVal}`);
-        });
-        queryString += '?' + decodedParams.join('&');
-      }
-      return queryString;
-    } else {
-      return expression;
+        decodedParams.push(`${paramKey}=${paramVal}`);
+      });
+      queryString += '?' + decodedParams.join('&');
     }
+    return queryString;
   }
 
   /**
@@ -1140,6 +1139,8 @@ export class RuleEditorService {
    * @private
    */
   private encodeParamValue(paramValue: string): string {
+    if (!paramValue)
+      return "";
     const openDblBracesCount = (paramValue.match(/{{/g) || []).length;
     const closeDblBracesCount = (paramValue.match(/}}/g) || []).length;
 
@@ -1147,6 +1148,8 @@ export class RuleEditorService {
       return encodeURIComponent(paramValue);
     } else if (openDblBracesCount === 1 && closeDblBracesCount === 1 &&
                paramValue.startsWith("{{") && paramValue.endsWith("}}")) {
+      return paramValue;
+    } else if (openDblBracesCount !== closeDblBracesCount) {
       return paramValue;
     } else {
       let tmpStr = '';
@@ -1156,20 +1159,28 @@ export class RuleEditorService {
         const closeDblBracesIdx = paramValue.indexOf("}}", openDblBracesIdx);
         const nextOpenDblBracesIdx = paramValue.indexOf("{{", closeDblBracesIdx);
 
-        if (openDblBracesIdx > 0) {
+        if (openDblBracesIdx > 0) 
           tmpStr += encodeURIComponent(paramValue.substring(indexLoc, openDblBracesIdx));
-        }
 
-        // copy the content starts with {{ and ends with }}
-        tmpStr += paramValue.substring(openDblBracesIdx, closeDblBracesIdx + 2);
+        if (closeDblBracesIdx === -1) {
+          if (nextOpenDblBracesIdx > -1)
+            tmpStr += paramValue.substring(openDblBracesIdx, nextOpenDblBracesIdx);
+          else 
+            tmpStr += paramValue.substring(openDblBracesIdx);
+        } else {
+          if (nextOpenDblBracesIdx > -1 && closeDblBracesIdx > nextOpenDblBracesIdx)
+            tmpStr += paramValue.substring(openDblBracesIdx, nextOpenDblBracesIdx);
+          else
+            tmpStr += paramValue.substring(openDblBracesIdx, closeDblBracesIdx + 2);
+        } 
 
         if (nextOpenDblBracesIdx > -1) {
           if ((closeDblBracesIdx + 2) < paramValue.length) {
             tmpStr += encodeURIComponent(paramValue.substring(closeDblBracesIdx + 2, nextOpenDblBracesIdx));
+            indexLoc = nextOpenDblBracesIdx;
           }
         } else {
           tmpStr += encodeURIComponent(paramValue.substring(closeDblBracesIdx + 2));
-          indexLoc = nextOpenDblBracesIdx;
         }
       }
 
@@ -1184,27 +1195,25 @@ export class RuleEditorService {
    * @return Encoded URL expression string
    */
   encodeQueryURIExpression(expression: string): string {
-    let matches = expression.match(this.QUERY_REGEX);
-    if (matches !== null) {
-      const encodedParams: string[] = [];
-      const resourceArr = expression.split("?");
-      let queryString = resourceArr[0];
+    const encodedParams: string[] = [];
+    const resourceArr = expression.split("?");
+    let queryString = resourceArr[0];
+    if (resourceArr.length > 1 && resourceArr[1] !== "") {
+      const queryParams = resourceArr[1].split('&');
 
-      if (resourceArr.length > 1) {
-        const queryParams = resourceArr[1].split('&');
-
-        queryParams.forEach((queryParam) => {
-          const param = queryParam.split('=');
+      queryParams.forEach((queryParam) => {
+        const param = queryParam.split('=');
+        if (param.length > 1 && param[1] !== "") {
           const encodedKey = encodeURIComponent(param[0]);
           const encodedValue = this.encodeParamValue(param[1]);
 
           encodedParams.push(`${encodedKey}=${encodedValue}`);
-        });
+        }
+      });
+      if (encodedParams.length > 0)
         queryString += '?' + encodedParams.join('&');
-      }
-      return queryString;
-    } else {
-      return expression;
+
     }
+    return queryString;
   }
 }

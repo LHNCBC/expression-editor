@@ -87,7 +87,278 @@ describe('Rule editor', () => {
         // Export output should contain the URL Encoded of the x-fhir-output
         cy.get('pre#output')
           .should('contain', 'Observation?code=http%3A%2F%2Floinc.org%7C2922-3%2Chttp%3A%2F%2Floinc.org%7C20996-5&date=gt{{today()-1 months}}&patient={{%patient.id}}&_sort=-date&_count=1');
-      });      
+      });
+
+
+      it('should be able to retain settings when check the Advance Interface checkbox', () => {
+        cy.get('#questionnaire-select').select('BMI Calculation (Easy Path expression)');
+     
+        cy.title().should('eq', 'Rule Editor');
+
+        // Variables section
+        cy.get('lhc-variables > h2').should('contain', 'Item Variables');
+        cy.get('#variables-section .variable-row').should('have.length', 2);
+
+        cy.get('div#row-0')
+          .within(() => {
+            cy.get('#variable-type-0').should('have.value', 'question');
+            cy.get('#question-0').should('have.value', "Weight (/29463-7)" );
+            cy.get('div.unit-select>select').select('lbs');
+          });
+
+        cy.get('div#row-1')
+          .within(() => {
+            cy.get('#variable-type-1').should('have.value', 'question');
+            cy.get('#question-1').should('have.value', "Body height (/8302-2)" );    
+            cy.get('div.unit-select>select').select('cm');
+          });
+
+        // Add a variable
+        cy.get('#add-variable').should('exist').should('be.visible').click();
+        cy.get('#variables-section .variable-row').should('have.length', 3);
+                
+        cy.get('div#row-2')
+          .within(() => {
+            cy.get('#variable-type-2').select('FHIR Query (Observation)');
+            cy.get('#autocomplete-2').type('Vit A Bld-mCnc');
+          });
+
+        cy.contains('2922-3').click();
+        cy.get('div#row-2')
+          .within(() => {
+            cy.get('div.time-input').should('exist');
+            cy.get('div.time-input > input').clear().type('3');
+            cy.get('div.time-input > input').should('have.value', '3');
+
+            cy.get('div.time-select > select').should('exist');
+            cy.get('div.time-select > select > option').should('have.length', 4);
+            cy.get('div.time-select > select').select('years');
+          });
+
+        // Check the Advanced Interface checkbox
+        cy.get('input#advanced-interface').check();
+
+        // Validate variables settings didn't get reset
+        cy.get('div#row-0')
+          .within(() => {
+            cy.get('#variable-type-0').should('have.value', 'question');
+            cy.get('#question-0').should('have.value', "Weight (/29463-7)" );
+            cy.get('div.unit-select>select').should('have.value', 'lbs');
+          });
+
+        cy.get('div#row-1')
+          .within(() => {
+            cy.get('#variable-type-1').should('have.value', 'question');
+            cy.get('#question-1').should('have.value', "Body height (/8302-2)" );    
+            cy.get('div.unit-select>select').should('have.value', 'cm');
+          });
+
+          cy.get('div#row-2')
+          .within(() => {
+            cy.get('select#variable-type-2').should('have.value', 'queryObservation');
+            
+            cy.get('div.time-input').should('exist');
+            cy.get('div.time-input > input').should('have.value', '3');
+
+            cy.get('div.time-select > select').should('exist');
+            cy.get('div.time-select > select').should('have.value', 'years');
+          });
+      });
+
+      it('should be able to retain setting when swapping questions and check the Advance Interface checkbox', () => {
+        cy.get('#questionnaire-select').select('BMI Calculation (Easy Path expression)');
+    
+        cy.title().should('eq', 'Rule Editor');
+
+        // Variables section
+        cy.get('lhc-variables > h2').should('contain', 'Item Variables');
+        cy.get('#variables-section .variable-row').should('have.length', 2);
+
+        cy.get('div#row-0')
+          .within(() => {
+            cy.get('#variable-type-0').should('have.value', 'question');
+            cy.get('#question-0').should('have.value', "Weight (/29463-7)" );
+            //cy.get('#question-0').clear().type("Body height");
+            cy.get('#question-0').clear().type('height');
+          });
+        cy.get('span#completionOptions > ul > li').contains('8302-2').click();
+
+        cy.get('div#row-0')
+          .within(() => {
+            cy.get('#question-0').should('have.value', "Body height (/8302-2)" );
+            cy.get('div.unit-select > select > option').should('have.length', 3);
+            cy.get('div.unit-select > select').select('cm');
+          });
+
+        cy.get('div#row-1')
+          .within(() => {
+            cy.get('#variable-type-1').should('have.value', 'question');
+            cy.get('#question-1').should('have.value', "Body height (/8302-2)" );
+            cy.get('#question-1').clear().type("Weight");
+          });
+        cy.get('span#completionOptions > ul > li').contains('29463-7').click();
+        cy.get('div#row-1')
+          .within(() => {
+            cy.get('#question-1').should('have.value', "Weight (/29463-7)" );
+            cy.get('div.unit-select > select > option').should('have.length', 2);
+            cy.get('div.unit-select>select').select('lbs');
+          });
+
+        // Check the Advanced Interface checkbox
+        cy.get('input#advanced-interface').check();
+
+        // Validate variables settings didn't get reset
+        cy.get('div#row-0')
+          .within(() => {
+            cy.get('#variable-type-0').should('have.value', 'question');
+            cy.get('#question-0').should('have.value', "Body height (/8302-2)" );
+            cy.get('div.unit-select>select').should('have.value', 'cm');
+          });
+
+        cy.get('div#row-1')
+          .within(() => {
+            cy.get('#variable-type-1').should('have.value', 'question');
+            cy.get('#question-1').should('have.value', "Weight (/29463-7)" );
+            cy.get('div.unit-select>select').should('have.value', 'lbs');
+          });
+      });
+
+      
+      it('should be able to save FHIR Query resource other than Observation', () => {
+        cy.get('#questionnaire-select').select('BMI Calculation (Easy Path expression)');
+    
+        cy.title().should('eq', 'Rule Editor');
+
+        // Variables section
+        cy.get('lhc-variables > h2').should('contain', 'Item Variables');
+        cy.get('#variables-section .variable-row').should('have.length', 2);
+
+        // Check the Advanced Interface checkbox
+        cy.get('input#advanced-interface').check();
+
+        cy.get('div#row-0')
+          .within(() => {
+            cy.get('#variable-type-0')
+              .should('have.value', 'question')
+              .select('queryObservation');
+            //cy.get('#variable-type-0').select('FHIR Query (Observation)');
+            cy.get('#autocomplete-0').type('Vit A Bld-mCnc');
+          });
+
+        cy.contains('2922-3').click();
+
+        cy.get('div#row-0')
+          .within(() => {
+            cy.get('#variable-type-0')
+              .should('have.value', 'queryObservation')
+              .select('query');
+            cy.get('#variable-expression-0')
+              .should('exist')
+              .should('contain.value', 
+                'Observation?code=http://loinc.org|2922-3&date=gt{{today()-1 months}}');
+
+            // Replace Observation resource with Patient resource
+            cy.get('#variable-expression-0')
+              .invoke('val')
+              .then((currentValue: string) => {
+                const modifiedValue = currentValue.replace('Observation', 'Patient');
+                cy.get('#variable-expression-0')
+                  .clear()
+                  .type(`${modifiedValue}`, {parseSpecialCharSequences: false});
+              });
+          });
+
+          // Export
+          cy.get('button#export').should('exist').click();
+
+          // Validate that the expression was updated correctly
+          cy.get('pre#output')
+            .should('contain', 'Patient?code=http%3A%2F%2Floinc.org%7C2922-3&date=gt{{today()-1 months}}');
+      });
+
+      it('should be able to parse and save FHIR Query', () => {
+        cy.get('#questionnaire-select').select('BMI Calculation (Easy Path expression)');
+    
+        cy.title().should('eq', 'Rule Editor');
+
+        // Variables section
+        cy.get('lhc-variables > h2').should('contain', 'Item Variables');
+        cy.get('#variables-section .variable-row').should('have.length', 2);
+
+        // Check the Advanced Interface checkbox
+        cy.get('input#advanced-interface').check();
+
+        cy.get('div#row-0')
+          .within(() => {
+            cy.get('#variable-type-0')
+              .should('have.value', 'question')
+              .select('query');
+            cy.get('#variable-expression-0')
+              .should('exist')
+              .clear()
+              .type('Observation');
+          });
+
+        // Export
+        cy.get('button#export').should('exist').click();
+        // Validate that the expression was updated correctly
+        cy.get('pre#output')
+        .should('contain.text', '"expression": "Observation"');
+
+        // Update FHIR Query with question mark but no parameters
+        cy.get('#variable-expression-0')
+        .clear()
+        .type('Observation?');
+        // Export
+        cy.get('button#export').should('exist').click();
+        // Validate that the expression was updated correctly
+        cy.get('pre#output')
+        .should('contain.text', '"expression": "Observation"');
+
+        // Update FHIR Query with missing code value
+        cy.get('#variable-expression-0')
+        .clear()
+        .type('Observation?code=');
+        // Export
+        cy.get('button#export').should('exist').click();
+        // Validate that the expression was updated correctly
+        cy.get('pre#output')
+        .should('contain.text', '"expression": "Observation"');        
+
+        // Update FHIR Query with code
+        cy.get('#variable-expression-0')
+        .clear()
+        .type('Observation?code=http://loinc.org|2922-3');
+        // Export
+        cy.get('button#export').should('exist').click();
+        // Validate that the expression was updated correctly
+        cy.get('pre#output')
+        .should('contain.text', '"expression": "Observation?code=http%3A%2F%2Floinc.org%7C2922-3"');  
+
+        // Update FHIR Query with missing }} in parameter string.
+        cy.get('#variable-expression-0')
+        .clear()
+        .type('Observation?code=http://loinc.org|2922-3&date=gt{{today()-1 months');
+        // Export
+        cy.get('button#export').should('exist').click();
+        // Validate that the expression was updated correctly
+        cy.get('pre#output')
+        .should('contain.text', 
+          '"expression": "Observation?code=http%3A%2F%2Floinc.org%7C2922-3&date=gt{{today()-1 months"');  
+
+        // Update FHIR Query with multiple {{}} in parameter string.  URL encoded on string outside of {{}}
+        cy.get('#variable-expression-0')
+        .clear()
+        .type('Observation?code=http://loinc.org|2922-3&date=gt{{today()-1 months}} and {{today()}}',
+          {parseSpecialCharSequences: false});
+        // Export
+        cy.get('button#export').should('exist').click();
+        // Validate that the expression was updated correctly
+        cy.get('pre#output')
+        .should('contain.text', 
+          '"expression": "Observation?code=http%3A%2F%2Floinc.org%7C2922-3&date=gt{{today()-1 months}}%20and%20{{today()}}"');  
+
+      });
     });
 
     describe('PHQ9 score calculation', () => {
@@ -114,6 +385,13 @@ describe('Rule editor', () => {
         // Check the demo questionnaire load
         cy.get('select#questionnaire-select').select('Query');
         cy.get('#variable-type-2').contains('FHIR Query (Observation)');
+
+        // Variables section
+        cy.get('lhc-variables > h2').should('contain', 'Item Variables');
+        cy.get('#variables-section .variable-row').should('have.length', 3);
+
+        cy.get('#variable-type-2').should('contain.text', 'FHIR Query (Observation)');
+        cy.get('lhc-query-observation').should('exist').should('be.visible');
 
         // Confirm that the selection is displayed
         cy.get('div#row-2')
@@ -148,7 +426,7 @@ describe('Rule editor', () => {
             cy.get(':nth-child(1) > button > span').click();
             cy.contains('Observation?code=http://loinc.org|65972-2,http://loinc.org|29463-7&date=gt{{today()-7 days}}&patient={{%patient.id}}&_sort=-date&_count=1');    
           });
-      });
+      }); 
     });
 
     describe('Case statements', () => {
