@@ -50,8 +50,10 @@ export class VariablesComponent implements OnInit, OnChanges, OnDestroy {
             // Otherwise need to obtain time duration from the expression
             this.variables[index].type = variable.type;
             if (variable.type === 'queryObservation') {
-              this.variables[index] = this.ruleEditorService
-                .getQueryVariablesFromExpression(variable.label, variable.expression, index);
+              const queryObservation = this.ruleEditorService
+                .getQueryObservationFromExpression(variable.label, variable.expression, index);
+              if (queryObservation)
+                this.variables[index] = queryObservation;
             }
           });
         }, 10);
@@ -110,6 +112,15 @@ export class VariablesComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   /**
+   * Clear out the simple expression when the FHIRPath expression changes.
+   * And delete out the linkId
+   */
+  onExpressionChange(event, idx): void {
+    this.variables[idx].simple = '';
+    delete this.variables[idx].linkId;
+  }
+
+  /**
    * Get the labels of available variables at the current index
    * @param index - Index of variable we're editing
    */
@@ -127,7 +138,9 @@ export class VariablesComponent implements OnInit, OnChanges, OnDestroy {
    * @param expression - new expression to use
    */
   updateExpression(i: number, expression): void {
-    this.variables[i].expression = expression;
+    if (this.variables[i].expression !== expression && expression !== 'Not valid') {
+      this.variables[i].expression = expression;
+    }
   }
 
   /**
@@ -136,6 +149,9 @@ export class VariablesComponent implements OnInit, OnChanges, OnDestroy {
    * @param easyPath - new expression to use
    */
   updateSimpleExpression(i: number, easyPath): void {
-    this.variables[i].simple = easyPath;
+    if (this.variables[i].simple !== easyPath && easyPath !== "") {
+      this.variables[i].simple = easyPath;
+      delete this.variables[i].linkId;
+    }
   }
 }

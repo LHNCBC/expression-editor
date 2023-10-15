@@ -143,14 +143,16 @@ describe('Rule editor', () => {
           .within(() => {
             cy.get('#variable-type-0').should('have.value', 'question');
             cy.get('#question-0').should('have.value', "Weight (/29463-7)" );
-            cy.get('div.unit-select>select').should('have.value', 'lbs');
+            // The unit however should get reset to default
+            cy.get('div.unit-select > select').should('have.value', '');
           });
 
         cy.get('div#row-1')
           .within(() => {
             cy.get('#variable-type-1').should('have.value', 'question');
-            cy.get('#question-1').should('have.value', "Body height (/8302-2)" );    
-            cy.get('div.unit-select>select').should('have.value', 'cm');
+            cy.get('#question-1').should('have.value', "Body height (/8302-2)" );
+            // The unit however should get reset to default
+            cy.get('div.unit-select>select').should('have.value', '');
           });
 
           cy.get('div#row-2')
@@ -178,7 +180,6 @@ describe('Rule editor', () => {
           .within(() => {
             cy.get('#variable-type-0').should('have.value', 'question');
             cy.get('#question-0').should('have.value', "Weight (/29463-7)" );
-            //cy.get('#question-0').clear().type("Body height");
             cy.get('#question-0').clear().type('height');
           });
         cy.get('span#completionOptions > ul > li').contains('8302-2').click();
@@ -212,14 +213,16 @@ describe('Rule editor', () => {
           .within(() => {
             cy.get('#variable-type-0').should('have.value', 'question');
             cy.get('#question-0').should('have.value', "Body height (/8302-2)" );
-            cy.get('div.unit-select>select').should('have.value', 'cm');
+            // The unit however should get reset to default
+            cy.get('div.unit-select>select').should('have.value', '');
           });
 
         cy.get('div#row-1')
           .within(() => {
             cy.get('#variable-type-1').should('have.value', 'question');
             cy.get('#question-1').should('have.value', "Weight (/29463-7)" );
-            cy.get('div.unit-select>select').should('have.value', 'lbs');
+            // The unit however should get reset to default
+            cy.get('div.unit-select>select').should('have.value', '');
           });
       });
 
@@ -357,7 +360,281 @@ describe('Rule editor', () => {
         cy.get('pre#output')
         .should('contain.text', 
           '"expression": "Observation?code=http%3A%2F%2Floinc.org%7C2922-3&date=gt{{today()-1 months}}%20and%20{{today()}}"');  
+      });
 
+      it('should be able reselect the Variable type correctly once the Advanced Interface checkbox is unchecked', () => {
+        cy.get('#questionnaire-select').select('BMI Calculation (Easy Path expression)');
+        cy.title().should('eq', 'Rule Editor');
+
+        // Variables section
+        cy.get('lhc-variables > h2').should('contain', 'Item Variables');
+        cy.get('#variables-section .variable-row').should('have.length', 2);
+
+        // Check the Advanced Interface checkbox
+        cy.get('input#advanced-interface').check();
+
+        cy.get('div#row-0')
+          .within(() => {
+            cy.get('#variable-type-0').should('have.value', 'question').select('query');
+            cy.get('#variable-expression-0').should('exist').should('be.visible');
+            cy.get('#variable-type-0').should('have.value', 'query').select('queryObservation');
+            cy.get('#variable-expression-0').should('not.exist');
+            cy.get('#autocomplete-0').should('exist').should('be.visible');
+          });
+
+        // Uncheck the Advanced Interface checkbox
+        cy.get('input#advanced-interface').uncheck();
+
+        cy.get('div#row-0')
+          .within(() => {
+            cy.get('#variable-type-0').should('have.value', 'queryObservation');
+            cy.get('#variable-expression-0').should('not.exist');
+            cy.get('#autocomplete-0').should('exist').should('be.visible');
+          });
+      });
+
+      it('should be able to reset Question data item selection once Simple or queryObservation is filled in ', () => {
+        cy.get('#questionnaire-select').select('BMI Calculation (Easy Path expression)');
+        cy.title().should('eq', 'Rule Editor');
+
+        // Variables section
+        cy.get('lhc-variables > h2').should('contain', 'Item Variables');
+        cy.get('#variables-section .variable-row').should('have.length', 2);
+
+        // Check the Advanced Interface checkbox
+        cy.get('input#advanced-interface').check();
+
+        cy.get('div#row-0')
+          .within(() => {
+            cy.get('#variable-type-0').should('have.value', 'question');
+            cy.get('#question-0')
+              .should('exist')
+              .should('be.visible')
+              .should('have.value', 'Weight (/29463-7)');
+
+            // Select FHIRPath Expression variable type
+            cy.get('#variable-type-0').select('expression');
+            cy.get('#variable-expression-0')
+              .should('exist')
+              .should('be.visible')
+              .should('have.value', "%resource.item.where(linkId='/29463-7').answer.value");
+
+            // Reselect Question variable type, it still should show Quesiton as Weight 
+            cy.get('#variable-type-0').select('question');
+            cy.get('#question-0')
+              .should('exist')
+              .should('be.visible')
+              .should('have.value', 'Weight (/29463-7)');
+
+            // Select FHIR Query Expression variable type
+            cy.get('#variable-type-0').select('query');
+            cy.get('#variable-expression-0')
+              .should('exist')
+              .should('be.visible')
+              .should('have.value', "%resource.item.where(linkId='/29463-7').answer.value");
+
+            // Reselect Question variable type, it still should show Quesiton as Weight 
+            cy.get('#variable-type-0').select('question');
+            cy.get('#question-0')
+              .should('exist')
+              .should('be.visible')
+              .should('have.value', 'Weight (/29463-7)');   
+              
+            // Select FHIR Query Observation variable type
+            cy.get('#variable-type-0').select('queryObservation');
+            cy.get('#autocomplete-0').type('Vit A Bld-mCnc');
+          });
+        cy.get('#completionOptions').contains('2922-3').click();
+
+        cy.get('div#row-0')
+          .within(() => {
+            // Reselect Question variable type, it should now be unselected 
+            cy.get('#variable-type-0').select('question');
+            cy.get('#question-0')
+              .should('exist')
+              .should('be.visible')
+              .should('have.value', "");
+
+            // Select question Weight again
+            cy.get('#question-0').clear().type('weight');
+          });
+
+        cy.get('#completionOptions').contains('29463-7').click();
+
+        cy.get('div#row-0')
+          .within(() => {
+            // Now select Easy Path Expression variable type
+            cy.get('#variable-type-0').select('simple');
+            cy.get('input.simple-expression')
+              .should('exist')
+              .should('be.visible')
+              .type('1 + 1');
+
+            // Reselect Question variable type, it should now be unselected 
+            cy.get('#variable-type-0').select('question');
+            cy.get('#question-0')
+              .should('exist')
+              .should('be.visible')
+              .should('have.value', "");
+          });
+      });
+
+      it('should be able to reset simple expression data is filled in other Variable types', () => {
+        cy.get('#questionnaire-select').select('BMI Calculation (Easy Path expression)');
+        cy.title().should('eq', 'Rule Editor');
+
+        // Variables section
+        cy.get('lhc-variables > h2').should('contain', 'Item Variables');
+        cy.get('#variables-section .variable-row').should('have.length', 2);
+
+        // Check the Advanced Interface checkbox
+        cy.get('input#advanced-interface').check();
+
+        cy.get('div#row-1')
+          .within(() => {
+            cy.get('#variable-type-1').should('have.value', 'question').select('simple');
+            cy.get('input.simple-expression')
+              .should('exist')
+              .should('be.visible')
+              .type('a + 1');
+            cy.get('div.fhirpath > pre').should('contain.text', '%a + 1');
+
+            // Select FHIRPath Expression variable type
+            cy.get('#variable-type-1').select('expression');
+            cy.get('#variable-expression-1')
+              .should('exist')
+              .should('be.visible')
+              .should('have.value', "%a + 1");
+
+            // No change in FHIRPath Expression, so switching back to Easy Path Expression should retain.
+            cy.get('#variable-type-1').select('simple');
+            cy.get('input.simple-expression')
+              .should('exist')
+              .should('be.visible')
+              .should('have.value', 'a + 1');
+            cy.get('div.fhirpath > pre').should('contain.text', '%a + 1');
+            
+            // Same with FHIR Query variable type
+            cy.get('#variable-type-1').select('query');
+            cy.get('#variable-expression-1')
+              .should('exist')
+              .should('be.visible')
+              .should('have.value', "%a + 1");
+
+            // No change in FHIR Query Expression, so switching back to Easy Path Expression should retain.
+            cy.get('#variable-type-1').select('simple');
+            cy.get('input.simple-expression')
+              .should('exist')
+              .should('be.visible')
+              .should('have.value', 'a + 1');
+            cy.get('div.fhirpath > pre').should('contain.text', '%a + 1');
+
+            // Switching to FHIR Query Observation variable type should show empty data since the Simple
+            // expression does not applied
+            cy.get('#variable-type-1').select('queryObservation');
+            cy.get('#autocomplete-1').should('exist').should('be.visible').should('have.value', '');
+
+            // Likewise, switching to Question variable type also should have no question selected
+            cy.get('#variable-type-1').select('question');
+            cy.get('#question-1')
+              .should('exist')
+              .should('be.visible')
+              .should('have.value', '');
+
+            // However, if data is populated, then it should clear out the simple expression
+            // Select question Weight again
+            cy.get('#question-1').clear().type('weight');
+          });
+
+        cy.get('#completionOptions').contains('29463-7').click();
+
+        cy.get('div#row-1')
+          .within(() => {
+            // Switch back to Easy Path Expression variable type.  The expression should get cleared out
+            cy.get('#variable-type-1').select('simple');
+            cy.get('input.simple-expression')
+              .should('exist')
+              .should('be.visible')
+              .should('have.value', '');
+          });
+      });
+
+      it('should be able to reset linkId that was used by Question variable type once data is filled in other Variable type', () => {
+        cy.get('#questionnaire-select').select('BMI Calculation (Easy Path expression)');
+        cy.title().should('eq', 'Rule Editor');
+
+        // Variables section
+        cy.get('lhc-variables > h2').should('contain', 'Item Variables');
+        cy.get('#variables-section .variable-row').should('have.length', 2);
+
+        // Check the Advanced Interface checkbox
+        cy.get('input#advanced-interface').check();
+
+        cy.get('div#row-1')
+          .within(() => {
+            cy.get('#variable-type-1').should('have.value', 'question');
+            cy.get('#question-1')
+              .should('exist')
+              .should('be.visible')
+              .should('have.value', 'Body height (/8302-2)');
+            cy.get('div.fhirpath > pre')
+              .should('contain.text', "%resource.item.where(linkId='/8302-2').answer.value");
+
+            // Select FHIRPath Expression variable type
+            cy.get('#variable-type-1').select('expression');
+            cy.get('#variable-expression-1')
+              .should('exist')
+              .should('be.visible')
+              .should('have.value', "%resource.item.where(linkId='/8302-2').answer.value");
+
+            // No change in FHIRPath Expression, so switching back to Question variable type should retain the value.
+            cy.get('#variable-type-1').select('question');
+            cy.get('#question-1')
+              .should('exist')
+              .should('be.visible')
+              .should('have.value', 'Body height (/8302-2)');
+            cy.get('div.fhirpath > pre')
+              .should('contain.text', "%resource.item.where(linkId='/8302-2').answer.value");
+            
+            // Same with FHIR Query variable type
+            cy.get('#variable-type-1').select('query');
+            cy.get('#variable-expression-1')
+              .should('exist')
+              .should('be.visible')
+              .should('have.value', "%resource.item.where(linkId='/8302-2').answer.value");
+
+            // No change in FHIR Query Expression, so switching back to Question Expression should retain the value.
+            cy.get('#variable-type-1').select('question');
+            cy.get('#question-1')
+              .should('exist')
+              .should('be.visible')
+              .should('have.value', 'Body height (/8302-2)');
+            cy.get('div.fhirpath > pre')
+              .should('contain.text', "%resource.item.where(linkId='/8302-2').answer.value");
+
+            // Switching to FHIR Query Observation variable type should show empty data since the Question
+            // FHIRPath expression does not applied
+            cy.get('#variable-type-1').select('queryObservation');
+            cy.get('#autocomplete-1').should('exist').should('be.visible').should('have.value', '');
+
+            // Likewise, switching to Easy Path Expression variable type also should empty data
+            cy.get('#variable-type-1').select('simple');
+            cy.get('input.simple-expression')
+              .should('exist')
+              .should('be.visible')
+              .should('have.value', '');
+
+            // However, if data is populated, then it should clear out the simple expression
+            cy.get('input.simple-expression').clear().type('a + 1');
+            cy.get('div.fhirpath > pre').should('contain.text', '%a + 1');
+
+            // Switching to Question variable type should no longer have question selected.
+            cy.get('#variable-type-1').select('question');
+            cy.get('#question-1')
+              .should('exist')
+              .should('be.visible')
+              .should('have.value', '');
+          });
       });
     });
 

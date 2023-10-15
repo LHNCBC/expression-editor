@@ -22,6 +22,7 @@ export class QuestionComponent implements OnInit, AfterViewInit, OnDestroy {
   toUnit: string;
   unit: string;
   conversionOptions: Unit[];
+  expression: string;
 
   constructor(private variableService: RuleEditorService) {}
 
@@ -31,6 +32,8 @@ export class QuestionComponent implements OnInit, AfterViewInit, OnDestroy {
   ngOnInit(): void {
     this.linkId = this.variable.linkId ? this.variable.linkId : '';
     this.toUnit = this.variable.unit ? this.variable.unit : '';
+    this.expression = this.variable.linkId ? this.variable.expression : '';
+
     if (this.variableService.questions)
       this.questions = this.variableService.questions;
 
@@ -75,11 +78,8 @@ export class QuestionComponent implements OnInit, AfterViewInit, OnDestroy {
 
     Def.Autocompleter.Event.observeListSelections(`question-${this.index}`, (res) => {
       if (res.val_typed_in !== res.final_val && res.hasOwnProperty('item_code') && res.item_code) {
-        // only update if link id changes
-        if (res.item_code !== this.linkId) {
-          this.linkId = res.item_code;
-          this.onChange(true);
-        }
+        this.linkId = res.item_code;
+        this.onChange(true);
       }
     });
   }
@@ -125,6 +125,8 @@ export class QuestionComponent implements OnInit, AfterViewInit, OnDestroy {
 
     // If we already have a question selected (as opposed to the select... prompt)
     if (this.linkId) {
+      delete this.variable.simple;
+
       const question = this.getQuestion(this.linkId);
       this.unit = question?.unit;
       this.conversionOptions = this.getConversionOptions(this.unit);
@@ -140,7 +142,9 @@ export class QuestionComponent implements OnInit, AfterViewInit, OnDestroy {
       this.variable.expression = this.variableService.valueOrScoreExpression(
         this.linkId, this.itemHasScore, !this.isNonConvertibleUnit, this.unit, this.toUnit);
 
-      if (this.variable.linkId !== this.linkId)
+      this.expression = this.variable.expression;
+
+      if (this.variable.linkId != this.linkId)
         this.variable.linkId = this.linkId;
       this.variable.unit = this.toUnit;
     }

@@ -1,5 +1,5 @@
 import { AfterViewInit, Component, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { SimpleStyle } from '../rule-editor.service';
+import { RuleEditorService, SimpleStyle } from '../rule-editor.service';
 import Def from 'autocomplete-lhc';
 import { HttpClient } from '@angular/common/http';
 
@@ -21,14 +21,28 @@ export class QueryObservationComponent implements OnInit, AfterViewInit, OnDestr
   timeIntervalUnit: string;
   expression: string;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private ruleEditorService: RuleEditorService) {}
 
   ngOnInit(): void {
     if (this.variable !== undefined) {
-      this.codes = (this.variable.codes !== undefined) ? this.variable.codes : [];
-      this.timeInterval = this.variable.timeInterval || 1;
-      this.timeIntervalUnit = this.variable.timeIntervalUnit || 'months';
-      this.expression = this.variable.expression;
+      if (this.variable.codes === undefined) {
+        const queryObservation = this.ruleEditorService
+          .getQueryObservationFromExpression(this.variable.label, this.variable.expression, this.index);
+        if (queryObservation)
+          this.variable = queryObservation;
+      }
+
+      if (this.variable.codes !== undefined) {
+        this.codes = this.variable.codes;
+        this.timeInterval = this.variable.timeInterval || 1;
+        this.timeIntervalUnit = this.variable.timeIntervalUnit || 'months';
+        this.expression = this.variable.expression;
+      } else {       
+        this.codes = [];
+        this.timeInterval = 1;
+        this.timeIntervalUnit = 'months';
+        this.expression = '';
+      }
     } else {
       this.codes = [];
     }
@@ -94,9 +108,11 @@ export class QueryObservationComponent implements OnInit, AfterViewInit, OnDestr
    * On changes update the expression and preview
    */
   onChange(): void {
+    delete this.variable.simple;
+    delete this.variable.linkId;
+
     // Separate with URL encoded version of the comma: ','
     const codes = this.codes.join(',');
-
     this.expression =
       `Observation?code=${codes}&` +
       `date=gt{{today()-${this.timeInterval} ${this.timeIntervalUnit}}}&` +

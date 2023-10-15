@@ -576,8 +576,16 @@ export class RuleEditorService {
     }
   }
 
-  getQueryVariablesFromExpression(name, expression, index?:number) : Variable {
-    return this.processQueryVariable(name, expression, index);
+  /**
+   * Retrieves Query Observation from the expression.
+   * @param name - Name to assign variable
+   * @param expression - Expression to process
+   * @param index - Original order in extension list
+   * @return Returns a Query Observation or null
+   */
+  getQueryObservationFromExpression(name, expression, index?:number) : Variable {
+    const queryObservation = this.processQueryVariable(name, expression, index);
+    return (queryObservation.type === "queryObservation")?queryObservation:null;
   }
 
   /**
@@ -1134,6 +1142,43 @@ export class RuleEditorService {
   }
 
   /**
+   * Validate the paramValue has valid double braces syntax.
+   * Returns false if double close braces is found first
+   * Returns false if there are nested {{ {{}} }}
+   * Otherwise returns true
+   * @param paramValue - URL param value
+   * @private
+   */
+  private isValidDoubleBracesSyntax(paramValue: string): boolean {
+    let not_done = true;
+    let indexLoc = 0;
+    let openDblBracesOutstanding
+    while (not_done) {
+      const openDblBracesIdx = paramValue.indexOf("{{", indexLoc);
+      const closeDblBracesIdx = paramValue.indexOf("}}", indexLoc);
+
+      if (openDblBracesIdx === -1 && closeDblBracesIdx === -1)
+        not_done = false;
+      else {
+        if (closeDblBracesIdx < openDblBracesIdx)
+          return false;
+        
+        const nextOpenDblBracesIdx = paramValue.indexOf("{{", openDblBracesIdx + 2);
+
+        if (nextOpenDblBracesIdx === -1)
+          return true;
+        else if (nextOpenDblBracesIdx < closeDblBracesIdx)
+          return false;
+
+        indexLoc = closeDblBracesIdx + 2;
+      }
+    }
+
+    return true;
+  }
+
+
+  /**
    * Perform URL encode while ignore {{}} and the content inside.
    * @param paramValue - URL param value
    * @private
@@ -1150,6 +1195,9 @@ export class RuleEditorService {
                paramValue.startsWith("{{") && paramValue.endsWith("}}")) {
       return paramValue;
     } else if (openDblBracesCount !== closeDblBracesCount) {
+      // if the number of open and close are not equal, we are just going to return as is
+      return paramValue;
+    } else if (!this.isValidDoubleBracesSyntax(paramValue)) {
       return paramValue;
     } else {
       let tmpStr = '';
@@ -1157,33 +1205,16 @@ export class RuleEditorService {
       for (let i = 0; i < openDblBracesCount; i++) {
         const openDblBracesIdx = paramValue.indexOf("{{", indexLoc);
         const closeDblBracesIdx = paramValue.indexOf("}}", openDblBracesIdx);
-        const nextOpenDblBracesIdx = paramValue.indexOf("{{", closeDblBracesIdx);
 
-        if (openDblBracesIdx > 0) 
+        if (openDblBracesIdx > indexLoc) 
           tmpStr += encodeURIComponent(paramValue.substring(indexLoc, openDblBracesIdx));
+        tmpStr += paramValue.substring(openDblBracesIdx, closeDblBracesIdx + 2);
 
-        if (closeDblBracesIdx === -1) {
-          if (nextOpenDblBracesIdx > -1)
-            tmpStr += paramValue.substring(openDblBracesIdx, nextOpenDblBracesIdx);
-          else 
-            tmpStr += paramValue.substring(openDblBracesIdx);
-        } else {
-          if (nextOpenDblBracesIdx > -1 && closeDblBracesIdx > nextOpenDblBracesIdx)
-            tmpStr += paramValue.substring(openDblBracesIdx, nextOpenDblBracesIdx);
-          else
-            tmpStr += paramValue.substring(openDblBracesIdx, closeDblBracesIdx + 2);
-        } 
-
-        if (nextOpenDblBracesIdx > -1) {
-          if ((closeDblBracesIdx + 2) < paramValue.length) {
-            tmpStr += encodeURIComponent(paramValue.substring(closeDblBracesIdx + 2, nextOpenDblBracesIdx));
-            indexLoc = nextOpenDblBracesIdx;
-          }
-        } else {
-          tmpStr += encodeURIComponent(paramValue.substring(closeDblBracesIdx + 2));
-        }
+        indexLoc = closeDblBracesIdx + 2;
       }
 
+      if (indexLoc < paramValue.length)
+        tmpStr += encodeURIComponent(paramValue.substring(indexLoc));
       return tmpStr;
     }
   };
