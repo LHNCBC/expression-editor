@@ -25,6 +25,8 @@ export interface SimpleStyle {
 export class RuleEditorService {
   static SCORE_VARIABLE_EXTENSION = 'http://lhcforms.nlm.nih.gov/fhir/ext/rule-editor-score-variable';
   static SCORE_EXPRESSION_EXTENSION = 'http://lhcforms.nlm.nih.gov/fhir/ext/rule-editor-score-expression';
+  static SCORE_EXPRESSION_EXTENSION_LINKIDS = 'http://lhcforms.nlm.nih.gov/fhir/ext/rule-editor-score-expression-linkids';
+  
   static SIMPLE_SYNTAX_EXTENSION = 'http://lhcforms.nlm.nih.gov/fhir/ext/simple-syntax';
 
   syntaxType = 'simple';
@@ -45,6 +47,8 @@ export class RuleEditorService {
   caseStatements: boolean;
   needsAdvancedInterface = false;
   doNotAskToCalculateScore = false;
+
+  itemLinkIdsForCalculation: string[];
 
   private LANGUAGE_FHIRPATH = 'text/fhirpath';
   private LANGUAGE_FHIR_QUERY = 'application/x-fhir-query';
@@ -501,7 +505,9 @@ export class RuleEditorService {
           return finalExpression;
         }
       } else if (item.item) {
-        return this.extractExpression(expressionUri, item.item, linkId);
+        const expression = this.extractExpression(expressionUri, item.item, linkId);
+        if (expression !== null)
+          return expression;
       }
     }
 
@@ -840,7 +846,8 @@ export class RuleEditorService {
         // repeating we should not consider it or any items above
         scoreItemIds = [];
       } else if (this.itemHasScore(item)) {
-        scoreItemIds.push(item.linkId);
+        if (this.itemLinkIdsForCalculation.includes(item.linkId))
+          scoreItemIds.push(item.linkId);
       }
 
       // Work with nested items
@@ -851,6 +858,64 @@ export class RuleEditorService {
     }
 
     return scoreItemIds;
+  }
+
+  /**
+   * Build up the item hierarchy linkId expression to be used in the scoring expression.
+   * One noticable difference between items not in a group and items in a group is the generated
+   * expression. In the case of items in a group, the expression starts from the top node item and
+   * works its way down the tree to the destination node.
+   * An alternative approach is to use "repeat(item).where(linkId = 'xxx')" syntax. However, it may
+   * lead to a potential performance impact when searching through a larg number of items. 
+   * @param items - FHIR item array
+   * @param linkId - Link ID context
+   */
+  private getItemExpressions(items, linkId: string): Array<string> {
+    const expressions = [];
+
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+
+      if (item.item) {
+        const childExpressions = this.getItemExpressions(item.item, linkId);
+        if (childExpressions.length > 0) {
+          childExpressions.forEach((childExpression) => {
+            expressions.push(".item.where(linkId ='" + item.linkId + "')" + childExpression);
+          });
+        }
+      }
+      // Repeating items are currently not supported
+      if (item.repeats) {
+        continue;
+      }
+
+      if (item.linkId === linkId) {
+        // Do not consider items at or below the linkId context required
+        break;
+      } else if (this.itemHasScore(item)) {
+        if (this.itemLinkIdsForCalculation.includes(item.linkId)) {
+          expressions.push(".item.where(linkId ='" + item.linkId + "')");
+        }
+      }
+    }
+
+    return expressions;
+  }
+
+  /**
+   * Build up the scoring expressions.
+   * @param items - FHIR item array
+   * @param linkId - Link ID context
+   */
+  private getScoringExpressions(items, linkId: string): Array<string> {
+    const itemExpressions = this.getItemExpressions(items, linkId);
+    const scoreExpressions = itemExpressions.map((e, i) => {
+      return `%questionnaire${e}.answerOption` +
+        `.where(valueCoding.code=%resource${e}.answer.valueCoding.code).extension` +
+        `.where(url='http://hl7.org/fhir/StructureDefinition/ordinalValue').valueDecimal`;
+    });
+
+    return scoreExpressions;
   }
 
   /**
@@ -865,25 +930,23 @@ export class RuleEditorService {
     const linkIdContext = this.linkIdContext;
 
     const variableNames = [];
-    // Get an array of linkIds for score questions
-    const scoreQuestionLinkIds = this.getScoreItemIds(fhir.item, linkIdContext);
+    const scoreExpressions = this.getScoringExpressions(fhir.item, linkIdContext);
 
     // Get as many short suggested variable names as we have score questions
-    scoreQuestionLinkIds.forEach(() => {
+    scoreExpressions.forEach(() => {
       variableNames.push(this.getNewLabelName(variableNames));
     });
 
-    const scoreQuestions = scoreQuestionLinkIds.map((e, i) => {
+    const scoreQuestions = scoreExpressions.map((e, i) => {
       return {
         url: this.VARIABLE_EXTENSION,
         valueExpression: {
           name: variableNames[i],
           language: this.LANGUAGE_FHIRPATH,
-          expression: `%questionnaire.item.where(linkId = '${e}').answerOption` +
-            `.where(valueCoding.code=%resource.item.where(linkId = '${e}').answer.valueCoding.code).extension` +
-            `.where(url='http://hl7.org/fhir/StructureDefinition/ordinalValue').valueDecimal`,
+          expression: e,
           extension: [{
-            url: RuleEditorService.SCORE_VARIABLE_EXTENSION
+            url: RuleEditorService.SCORE_VARIABLE_EXTENSION,
+            valueString: ''
           }]
         }
       };
@@ -896,13 +959,13 @@ export class RuleEditorService {
         language: this.LANGUAGE_FHIRPATH,
         expression: variableNames.map((e) => `%${e}.exists()`).join(' or '),
         extension: [{
-          url: RuleEditorService.SCORE_VARIABLE_EXTENSION
+          url: RuleEditorService.SCORE_VARIABLE_EXTENSION,
+          valueString: ''
         }]
       }
     };
 
     const sumString = variableNames.map((e) => `iif(%${e}.exists(), %${e}, 0)`).join(' + ');
-
     const totalCalculation = {
       url: this.CALCULATED_EXPRESSION,
       valueExpression: {
@@ -910,7 +973,8 @@ export class RuleEditorService {
         language: this.LANGUAGE_FHIRPATH,
         expression: `iif(%any_questions_answered, ${sumString}, {})`,
         extension: [{
-          url: RuleEditorService.SCORE_EXPRESSION_EXTENSION
+          url: RuleEditorService.SCORE_EXPRESSION_EXTENSION_LINKIDS,
+          valueString: JSON.stringify(this.itemLinkIdsForCalculation)
         }]
       }
     };
@@ -922,6 +986,62 @@ export class RuleEditorService {
     this.insertExtensions(fhir, fhir.item, linkIdContext, [], scoreQuestions);
 
     return fhir;
+  }
+
+  /**
+   * Returns extensions that contain a score expression
+   * @param extension - FHIR Extension object
+   */
+  private getScoreExpressionExtension(extension): any {
+    return extension.find((e) => 
+      (e.url === RuleEditorService.SCORE_EXPRESSION_EXTENSION ||
+      e.url === RuleEditorService.SCORE_EXPRESSION_EXTENSION_LINKIDS));
+  }
+
+  /**
+   * Returns extensions that contain a score expression
+   * @param extension - FHIR Extension object
+   */
+  private getSelectedLinkIdsForScoring(items, linkId): any {
+    let resultLinkIds = [];
+    if (linkId === undefined || linkId === null || linkId === '') {
+      return resultLinkIds;
+    } else {
+      let index = 1;
+      // loop through each items to look for matching linkId item.
+      for (const item of items) {
+        if (item.linkId === linkId) {
+          if (item.extension) {
+            for (const extension of item.extension) {
+              if (extension.valueExpression && extension.valueExpression.extension &&
+                extension.valueExpression.extension.length > 0) {
+                const tmp = this.getScoreExpressionExtension(extension.valueExpression.extension);
+                if (tmp && tmp !== undefined && tmp.hasOwnProperty('valueString')) {
+                  resultLinkIds = JSON.parse(tmp.valueString);
+                  break;
+                }
+              }
+            };
+          }
+        // if item is a group, has children
+        } else if (item.item) {
+          const ext = this.getSelectedLinkIdsForScoring(item.item, linkId);
+          if (Array.isArray(ext) && ext.length > 0) {
+            break;
+          }
+        }
+        index++;
+      };
+      return resultLinkIds;
+    }
+  }
+
+  /**
+   * Returns linkIds of selected items for scoring calculation
+   * @param items - FHIR Item array
+   */
+  getSelectedScoringLinkIds(items): any {
+    return this.getSelectedLinkIdsForScoring(items, this.linkIdContext);
   }
 
   /**
@@ -937,7 +1057,6 @@ export class RuleEditorService {
     const checkForScore = (item) => {
       if (linkId === undefined || linkId === item.linkId) {
         const isScore = this.hasRuleEditorExtension(item);
-
         if (isScore) {
           return true;
         }
@@ -945,7 +1064,6 @@ export class RuleEditorService {
 
       if (item.item) {
         const subItemHasScore = item.item.find((subItem) => checkForScore(subItem));
-
         if (subItemHasScore) {
           return true;
         }
@@ -1019,7 +1137,8 @@ export class RuleEditorService {
       extension.valueExpression.extension.length) {
       return !!extension.valueExpression.extension.find(e => e &&
         (e.url === RuleEditorService.SCORE_VARIABLE_EXTENSION ||
-          e.url === RuleEditorService.SCORE_EXPRESSION_EXTENSION));
+          e.url === RuleEditorService.SCORE_EXPRESSION_EXTENSION ||
+          e.url === RuleEditorService.SCORE_EXPRESSION_EXTENSION_LINKIDS));
     } else {
       return false;
     }
@@ -1076,5 +1195,60 @@ export class RuleEditorService {
     } else {
       return `%resource.item.where(linkId='${linkId}').answer.value`;
     }
+  }
+
+  /**
+   * Get a list of items based on the logic for `addSumOfScores()`
+   * @param items - FHIR item array
+   * @param linkId - Link ID context
+   */
+  getScoreItems(items, linkId: string): Array<string> {
+    let scoreItems = [];
+
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+      // Repeating items are currently not supported
+      if (item.repeats) {
+        continue;
+      }
+
+      if (item.linkId === linkId) {
+        // Do not consider items at or below the linkId context required
+        break;
+      } else if (this.hasRuleEditorExtension(item)) {
+        // If the current item is already a score calculation or this is
+        // repeating we should not consider it or any items above
+        scoreItems = [];
+      } else if (this.itemHasScore(item)) {
+        scoreItems.push(item);
+      }
+
+      // Work with nested items
+      if (item.item) {
+        const childScoreItems = this.getScoreItems(item.item, linkId);
+        if (childScoreItems && childScoreItems.length > 0) {
+          item.item = childScoreItems;
+          scoreItems.push(item);
+        } else {
+          item.item = [];
+        }
+      }
+    }
+    return scoreItems;
+  }
+
+  /**
+   * Get items that has score defined
+   */
+  getItemsForTotalCalculation(): string[] {
+    return this.getScoreItems(this.fhir.item, this.linkIdContext);
+  }
+
+  /**
+   * Set selected item link ids for Scoring Calculation
+   * @param linkIds - array of selected link ids
+   */
+  setItemLinkIdsForTotalCalculation(linkIds: string[]): void {
+    this.itemLinkIdsForCalculation = linkIds;
   }
 }

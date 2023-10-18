@@ -8,7 +8,7 @@ import { RuleEditorService, SimpleStyle } from '../rule-editor.service';
 })
 export class CalculateSumPromptComponent implements OnInit {
   @Input() lhcStyle: SimpleStyle = {};
-  @Output() export: EventEmitter<any> = new EventEmitter<any>();
+  @Output() selectItems: EventEmitter<any> = new EventEmitter<any>();
 
   constructor(private ruleEditorService: RuleEditorService) { }
 
@@ -27,7 +27,7 @@ export class CalculateSumPromptComponent implements OnInit {
   /**
    * Export the sum of scores as a FHIR Questionnaire
    */
-  onExportClick(): void {
-    this.export.emit();
+  onSelectItemsClick(): void {
+    this.selectItems.emit();
   }
 }

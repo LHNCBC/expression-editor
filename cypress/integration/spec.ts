@@ -30,7 +30,7 @@ describe('Rule editor', () => {
 
       it('should produce the correct FHIR Questionnaire', () => {
         cy.get('#export').click();
-        cy.get('#output').contains('"expression": "%a/%b.power(2)"');
+        cy.get('#output').should('contain.text', '"expression": "%a/%b.power(2)"');
       });
 
       it('should be user stylable', () => {
@@ -54,17 +54,312 @@ describe('Rule editor', () => {
         cy.get('#questionnaire-select').select('PHQ9 (no FHIRPath)');
       });
 
-      it('should display the editor', () => {
+      it('should display the calculate sum prompt', () => {
         // Only the prompt for score calculation should show up
-        cy.get('.rule-editor').contains('Would you like to calculate the sum of scores?');
+        cy.get('.rule-editor').should('contain.text', 'Would you like to calculate the sum of scores?');
       });
 
-      it('should produce the calculation', () => {
-        cy.get('#export-score').click();
-        cy.get('#output').contains('"expression": "iif(%any_questions_answered, iif(%a.exists(), %a, 0) + iif(%b.exists(), %b, 0) + ' +
-          'iif(%c.exists(), %c, 0) + iif(%d.exists(), %d, 0) + iif(%e.exists(), %e, 0) + iif(%f.exists(), %f, 0) + ' +
-          'iif(%g.exists(), %g, 0) + iif(%h.exists(), %h, 0) + iif(%i.exists(), %i, 0), {})"'
-        );
+      it('should hide the calculate sum prompt if click no', () => {
+        // Only the prompt for score calculation should show up
+        cy.get('.rule-editor').should('contain.text', 'Would you like to calculate the sum of scores?');
+        cy.get('#skip-score-items-selection').click();
+        cy.get('.rule-editor').should('not.contain.text', 'Would you like to calculate the sum of scores?');
+      });
+
+      it('should display the scoring items selection', () => {
+        // Only the prompt for score calculation should show up
+        cy.get('#score-items-selection').click();
+        cy.get('div.scoring-items-selection-title').should('have.text', ' Select items to include in the score calculation: ');
+        cy.get('div.scoring-items-selection-body')
+          .within(() => {
+            cy.get('#selectAll').should('exist');
+            cy.get('.item-filter').should('exist');
+            cy.get('div.items-tree').should('exist');
+            cy.get('div.items-tree tree-node').should('have.length', 9);
+
+            // Expand All checkbox should not be displayed.
+            cy.get('input#expandAll').should('not.exist');
+          });
+      });
+
+      it('should be able to select/unselect all items', () => {
+        cy.get('#score-items-selection').click();
+        cy.get('div.scoring-items-selection-body')
+          .within(() => {
+            cy.get('div.items-tree tree-node').should('have.length', 9);
+
+            // Check the Select All checkbox
+            cy.get('#selectAll').should('exist').check();
+            cy.get('tree-node-checkbox > [type="checkbox"]').each(($checkbox) => {
+              cy.wrap($checkbox).should('be.checked');
+            });
+
+            // Uncheck the Select All checkbox
+            cy.get('#selectAll').should('be.checked').uncheck();
+            cy.get('tree-node-checkbox > [type="checkbox"]').each(($checkbox) => {
+              cy.wrap($checkbox).should('not.be.checked');
+            });
+          });
+      });
+
+      it('should be able to filter/unfilter items', () => {
+        cy.get('#score-items-selection').click();
+        cy.get('div.scoring-items-selection-body')
+          .within(() => {
+            cy.get('div.items-tree tree-node').should('have.length', 9);
+            cy.get('input#filter').type('Poor appetite');
+            cy.get('div.items-tree tree-node').should('have.length', 1);
+            cy.get('div.item-filter > button').click();
+            cy.get('div.items-tree tree-node').should('have.length', 9);
+            cy.get('input#filter').type('Feeling');
+            cy.get('div.items-tree tree-node').should('have.length', 3);
+          });
+      });
+
+      it('should be able to select/unselect individual item', () => {
+        cy.get('#score-items-selection').click();
+        cy.get('div.scoring-items-selection-body')
+          .within(() => {
+            cy.get('div.items-tree tree-node').should('have.length', 9);
+            cy.get('tree-node-checkbox > [type="checkbox"]').as('checkboxes');
+            
+            // Select 3rd and 5th items
+            cy.get('@checkboxes').eq(2).check();
+            cy.get('@checkboxes').eq(4).check();
+            
+            // Validate to make sure that only those two items were selected
+            cy.get('@checkboxes').each(($checkbox, index) => {
+              if (index === 2 || index === 4)
+                cy.wrap($checkbox).should('be.checked');
+              else
+                cy.wrap($checkbox).should('not.be.checked');
+            });
+            
+            // Unselect 3rd and 5th items
+            cy.get('@checkboxes').eq(2).uncheck();
+            cy.get('@checkboxes').eq(4).uncheck();
+
+            // Validate that none were selected
+            cy.get('@checkboxes').each(($checkbox, index) => {
+              cy.wrap($checkbox).should('not.be.checked');
+            });
+          });
+      });
+
+      it('should hide the scoring items selection if click Cancel', () => {
+        cy.get('.rule-editor').should('contain.text', 'Would you like to calculate the sum of scores?');
+        cy.get('#score-items-selection').click();
+        cy.get('div.scoring-items-selection-title').should('have.text', ' Select items to include in the score calculation: ');
+        cy.get('div.scoring-items-selection-body')
+          .within(() => {
+            cy.get('#selectAll').should('exist');
+            cy.get('.item-filter').should('exist');
+            cy.get('div.items-tree').should('exist');
+            cy.get('div.items-tree tree-node').should('have.length', 9);
+          });
+
+        // Click Cancel
+        cy.get('#skip-export-score').click()
+        cy.get('.rule-editor').should('not.have.text', ' Select items to include in the score calculation: ');
+      });
+
+      it('should be able to export score with selected individual items', () => {
+        cy.get('#score-items-selection').click();
+        cy.get('div.scoring-items-selection-body')
+          .within(() => {
+            cy.get('div.items-tree tree-node').should('have.length', 9);
+            cy.get('tree-node-checkbox > [type="checkbox"]').as('checkboxes');
+            
+            // Select 3rd and 5th items
+            cy.get('@checkboxes').eq(2).check();
+            cy.get('@checkboxes').eq(4).check();
+            
+            // Validate to make sure that only those two items were selected
+            cy.get('@checkboxes').each(($checkbox, index) => {
+              if (index === 2 || index === 4)
+                cy.wrap($checkbox).should('be.checked');
+              else
+                cy.wrap($checkbox).should('not.be.checked');
+            });
+          });  
+          cy.get('#export-score').click();
+          cy.get('#output')
+          .should('contain.text', '"expression": "iif(%any_questions_answered, iif(%a.exists(), %a, 0) ' +
+            '+ iif(%b.exists(), %b, 0), {})"');
+      });
+
+      it('should be able to export score with all items', () => {
+        cy.get('#score-items-selection').click();
+        cy.get('div.scoring-items-selection-body')
+          .within(() => {
+            cy.get('div.items-tree tree-node').should('have.length', 9);
+            
+            // Check the Select All checkbox
+            cy.get('#selectAll').should('exist').check();
+            cy.get('tree-node-checkbox > [type="checkbox"]').each(($checkbox) => {
+              cy.wrap($checkbox).should('be.checked');
+            });
+          });  
+          cy.get('#export-score').click();
+          cy.get('#output')
+            .should('contain.text', '"expression": "iif(%any_questions_answered, iif(%a.exists(), %a, 0) ' +
+              '+ iif(%b.exists(), %b, 0) + iif(%c.exists(), %c, 0) + iif(%d.exists(), %d, 0) ' +
+              '+ iif(%e.exists(), %e, 0) + iif(%f.exists(), %f, 0) + iif(%g.exists(), %g, 0) ' +
+              '+ iif(%h.exists(), %h, 0) + iif(%i.exists(), %i, 0), {})"'
+          );
+      });
+    });
+
+    describe('PHQ9 Group score calculation', () => {
+      beforeEach(() => {
+        cy.get('#questionnaire-select').select('PHQ9 Group (no FHIRPath)');
+      });
+
+      it('should display the calculate sum prompt', () => {
+        // Only the prompt for score calculation should show up
+        cy.get('.rule-editor').should('contain.text', 'Would you like to calculate the sum of scores?');
+      });
+
+      it('should hide the calculate sum prompt if click no', () => {
+        // Only the prompt for score calculation should show up
+        cy.get('.rule-editor').should('contain.text', 'Would you like to calculate the sum of scores?');
+        cy.get('#skip-score-items-selection').click();
+        cy.get('.rule-editor').should('not.contain.text', 'Would you like to calculate the sum of scores?');
+      });
+
+      it('should display the scoring items selection', () => {
+        // Only the prompt for score calculation should show up
+        cy.get('#score-items-selection').click();
+        cy.get('div.scoring-items-selection-title').should('have.text', ' Select items to include in the score calculation: ');
+        cy.get('div.scoring-items-selection-body')
+          .within(() => {
+            cy.get('#selectAll').should('exist');
+            cy.get('.item-filter').should('exist');
+            cy.get('div.items-tree').should('exist');
+            cy.get('div.items-tree tree-node').should('have.length', 10);
+          });
+      });
+
+      it('should be able to collap/expand group', () => {
+        // Only the prompt for score calculation should show up
+        cy.get('#score-items-selection').click();
+        cy.get('div.scoring-items-selection-title').should('have.text', ' Select items to include in the score calculation: ');
+        cy.get('div.scoring-items-selection-body')
+          .within(() => {
+            // Expand All checkbox should be visible and checked by default
+            cy.get('input#expandAll').should('exist').should('be.visible').should('be.checked');
+            cy.get('div.items-tree tree-node').should('have.length', 10);
+
+            cy.get('input#expandAll').uncheck();
+            cy.get('div.items-tree tree-node').should('have.length', 6);
+          });
+      });
+
+      it('should be able to select/unselect group items', () => {
+        cy.get('#score-items-selection').click();
+        cy.get('div.scoring-items-selection-body')
+          .within(() => {
+            cy.get('div.items-tree tree-node').should('have.length', 10);
+            cy.get('tree-node-checkbox > [type="checkbox"]').as('checkboxes');
+            
+            // Select the group
+            cy.get('@checkboxes').eq(0).check();
+            // Validate to make sure that all items within the group are checked
+            cy.get('@checkboxes').each(($checkbox, index) => {
+              if (index < 5)
+                cy.wrap($checkbox).should('be.checked');
+              else
+                cy.wrap($checkbox).should('not.be.checked');
+            });
+
+            // Check individual item outside of the group
+            cy.get('@checkboxes').eq(5).check(); 
+
+            // Unselect the group
+            cy.get('@checkboxes').eq(0).uncheck();
+            // Validate to make sure that all items within the group are unchecked
+            // item 6 should remain checked
+            cy.get('@checkboxes').each(($checkbox, index) => {
+              if (index === 5)
+                cy.wrap($checkbox).should('be.checked');
+              else
+                cy.wrap($checkbox).should('not.be.checked');
+            });
+          });
+      });
+
+      it('should be able to export score with all items', () => {
+        cy.get('#score-items-selection').click();
+        cy.get('div.scoring-items-selection-body')
+          .within(() => {
+            cy.get('div.items-tree tree-node').should('have.length', 10);
+            
+            // Check the Select All checkbox
+            cy.get('#selectAll').should('exist').check();
+            cy.get('tree-node-checkbox > [type="checkbox"]').each(($checkbox) => {
+              cy.wrap($checkbox).should('be.checked');
+            });
+          });  
+          cy.get('#export-score').click();
+
+          // One noticable difference between items not in a group and items in a group is the generated
+          // expression. In the case of items in a group, the expression starts from the top node item and
+          // works its way down the tree to the destination node.
+
+          // Item in a group
+          cy.get('#output')
+            .should('contain.text', 
+              "%questionnaire.item.where(linkId ='/45900-0').item.where(linkId ='/45900-0/44250-9').answerOption");
+          
+          // Item not in a group
+          cy.get('#output')
+            .should('contain.text', "%questionnaire.item.where(linkId ='44251-7').answerOption");
+
+          // While 10 checkboxes exist, there should be only 9 variables created. The group itself should 
+          // not be included.
+          cy.get('#output')
+            .should('contain.text', '"expression": "iif(%any_questions_answered, iif(%a.exists(), %a, 0) ' +
+              '+ iif(%b.exists(), %b, 0) + iif(%c.exists(), %c, 0) + iif(%d.exists(), %d, 0) ' +
+              '+ iif(%e.exists(), %e, 0) + iif(%f.exists(), %f, 0) + iif(%g.exists(), %g, 0) ' +
+              '+ iif(%h.exists(), %h, 0) + iif(%i.exists(), %i, 0), {})"');          
+      });
+
+      it('should be able to export score with selected individual items', () => {
+        cy.get('#score-items-selection').click();
+        cy.get('div.scoring-items-selection-body')
+          .within(() => {
+            cy.get('div.items-tree tree-node').should('have.length', 10);
+            cy.get('tree-node-checkbox > [type="checkbox"]').as('checkboxes');
+            
+            // Select one item in a group
+            cy.get('@checkboxes').eq(2).check();
+            // Select one item not in a group
+            cy.get('@checkboxes').eq(6).check();
+            
+            // Validate to make sure that only those two items were selected
+            cy.get('@checkboxes').each(($checkbox, index) => {
+              if (index === 2 || index === 6)
+                cy.wrap($checkbox).should('be.checked');
+              else
+                cy.wrap($checkbox).should('not.be.checked');
+            });
+          });  
+          cy.get('#export-score').click();
+
+          // Item in a group
+          cy.get('#output')
+            .should('contain.text', 
+              "%questionnaire.item.where(linkId ='/45900-0').item.where(linkId ='/45900-0/44255-8').answerOption");
+
+          // Item not in a group
+          cy.get('#output')
+            .should('contain.text',
+              "%questionnaire.item.where(linkId ='44258-2').answerOption");
+
+          // The total calculation should only include the two selected items.
+          cy.get('#output')
+          .should('contain.text', '"expression": "iif(%any_questions_answered, iif(%a.exists(), %a, 0) ' +
+            '+ iif(%b.exists(), %b, 0), {})"');
       });
     });
 

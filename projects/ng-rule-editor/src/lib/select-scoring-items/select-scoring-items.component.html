@@ -1,0 +1,35 @@
+<div class="scoring-items-selection-modal">
+
+  <div class="scoring-items-selection-title">
+    Select items to include in the score calculation:
+  </div>
+
+  <div class="scoring-items-selection-body">
+    <label for="selectAll">Select All</label>
+    <input type="checkbox" id="selectAll" [(ngModel)]="selectAll" (change)="toggleSelectAll()" />
+    <span *ngIf="hasChildren">
+      <label for="expandAll">Expand All</label>
+      <input type="checkbox" id="expandAll" [(ngModel)]="expandAll" (change)="toggleExpandAll()" />
+    </span>
+
+    <div class="item-filter">
+      <input id="filter" #filter (keyup)="itemTree.treeModel.filterNodes(filter.value)" placeholder="filter nodes"/>
+      <button (click)="itemTree.treeModel.clearFilter();filter.value=''">Clear Filter</button>
+    </div>
+
+    <div class="items-tree">
+      <tree-root #itemTree
+        [focused]="true"
+        [nodes]="scoringItems"
+        [options]="options"
+        (event)="onTreeEvent($event)"
+        role="tree">
+      </tree-root>
+    </div>
+  </div>
+  <div class="scoring-items-selection-footer">
+    <button class="primary" (click)="onExportClick()" [style]="lhcStyle.buttonPrimary" id="export-score">Done</button>
+    <button (click)="onCloseClick()" id="skip-export-score">Cancel</button>
+  </div>
+
+</div>

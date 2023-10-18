@@ -33,6 +33,7 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
   caseStatements: boolean;
   disableInterfaceToggle = false;
   loadError = false;
+  selectItems: boolean;
 
   private calculateSumSubscription;
   private finalExpressionSubscription;
@@ -70,13 +71,15 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
    * Angular lifecycle hook called on input changes
    */
   ngOnChanges(): void {
-    this.reload();
+    this.calculateSum = false;
+    this.selectItems = false;
+    this.reload(true);
   }
 
   /**
    * Re-import fhir and context and show the form
    */
-  reload(): void {
+  reload(shouldAskForCalculation): void {
     if (this.fhirQuestionnaire instanceof Object) {
       this.variableService.doNotAskToCalculateScore = this.doNotAskToCalculateScore;
       this.loadError = !this.variableService.import(this.expressionUri, this.fhirQuestionnaire, this.itemLinkId);
@@ -91,6 +94,7 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
     this.simpleExpression = this.variableService.simpleExpression;
     this.linkIdContext = this.variableService.linkIdContext;
     this.expressionSyntax = this.variableService.syntaxType;
+    this.selectItems = false;
     this.calculateSum = this.variableService.mightBeScore;
     this.finalExpressionExtension = this.variableService.finalExpressionExtension;
     this.finalExpression = this.variableService.finalExpression;
@@ -111,8 +115,19 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
    * Create a new instance of a FHIR questionnaire file by summing all ordinal
    * values
    */
+  selectItemsForSumOfScores(): void {
+    this.selectItems = true;
+  }
+
+  /**
+   * Create a new instance of a FHIR questionnaire file by summing all ordinal
+   * values
+   */
   addSumOfScores(): void {
+    this.variableService.removeSumOfScores(this.fhirQuestionnaire, this.linkIdContext);
     this.save.emit(this.variableService.addSumOfScores());
+
+    this.reload(false);
   }
 
   /**

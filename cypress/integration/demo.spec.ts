@@ -15,7 +15,7 @@ describe('Rule editor demo', () => {
 
       cy.get('#file-upload').attachFile('bmi.json');
 
-      cy.get('lhc-rule-editor h1').contains('Rule Editor');
+      cy.get('lhc-rule-editor h1').should('contain.text', 'Rule Editor');
 
       cy.get('#final-expression').should('not.exist');
 
@@ -26,13 +26,13 @@ describe('Rule editor demo', () => {
       cy.get('#final-expression').should('have.value', '(%a/(%b.power(2))).round(1)');
 
       cy.get('#expression-entry > select').select('2');
-      cy.get('#expression-type').find(':selected').contains('Computed continuously');
+      cy.get('#expression-type').find(':selected').should('contain.text', 'Computed continuously');
 
       cy.get('#export').click();
-      cy.get('#output').contains('http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression');
+      cy.get('#output').should('contain.text', 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression');
       cy.get('#expression-type').select('Only computed when the form loads');
       cy.get('#export').click();
-      cy.get('#output').contains('http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression');
+      cy.get('#output').should('contain.text', 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression');
     });
   });
 });
