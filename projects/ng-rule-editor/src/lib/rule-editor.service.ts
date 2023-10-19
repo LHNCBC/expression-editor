@@ -846,8 +846,7 @@ export class RuleEditorService {
         // repeating we should not consider it or any items above
         scoreItemIds = [];
       } else if (this.itemHasScore(item)) {
-        if (this.itemLinkIdsForCalculation.includes(item.linkId))
-          scoreItemIds.push(item.linkId);
+        scoreItemIds.push(item.linkId);
       }
 
       // Work with nested items
