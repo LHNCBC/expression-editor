@@ -85,7 +85,7 @@ export class SelectScoringItemsComponent implements OnInit, AfterViewInit {
    */
   ngAfterViewInit(): void {
     // Get items that can be used for Scoring calculation
-    this.scoringItems = this.ruleEditorService.getItemsForTotalCalculation();
+    this.scoringItems = this.ruleEditorService.getItemsForTotalCalculation(this.items);
     this.hasChildren = this.hasChildItems(this.scoringItems);
     // If there are child items, if yes then we want to expand the tree by default.
     this.expandAll = this.hasChildren;

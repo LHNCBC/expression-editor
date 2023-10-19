@@ -1,4 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { FormsModule } from '@angular/forms';
+import { TreeModule } from '@bugsplat/angular-tree-component';
 
 import { SelectScoringItemsComponent } from './select-scoring-items.component';
 
@@ -8,7 +10,8 @@ describe('SelectScoringItemsComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ SelectScoringItemsComponent ]
+      declarations: [ SelectScoringItemsComponent ],
+      imports: [ FormsModule, TreeModule ]
     })
     .compileComponents();
 

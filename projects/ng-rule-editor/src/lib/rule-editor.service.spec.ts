@@ -10,8 +10,15 @@ const outputTotalScore = {
   valueExpression: {
     description: 'Total score calculation',
     language: 'text/fhirpath',
-    expression: 'iif(%any_questions_answered, iif(%a.exists(), %a, 0) + iif(%b.exists(), %b, 0) + iif(%c.exists(), %c, 0) + iif(%d.exists(), %d, 0) + iif(%e.exists(), %e, 0) + iif(%f.exists(), %f, 0) + iif(%g.exists(), %g, 0) + iif(%h.exists(), %h, 0) + iif(%i.exists(), %i, 0), {})',
-    extension: [{url: RuleEditorService.SCORE_EXPRESSION_EXTENSION}]
+    expression: 'iif(%any_questions_answered, iif(%a.exists(), %a, 0) + iif(%b.exists(), %b, 0) + ' +
+      'iif(%c.exists(), %c, 0) + iif(%d.exists(), %d, 0) + iif(%e.exists(), %e, 0) + ' +
+      'iif(%f.exists(), %f, 0) + iif(%g.exists(), %g, 0) + iif(%h.exists(), %h, 0) + ' +
+      'iif(%i.exists(), %i, 0), {})',
+    extension: [{
+      url: RuleEditorService.SCORE_EXPRESSION_EXTENSION_LINKIDS,
+      valueString: "[\"/44250-9\",\"/44255-8\",\"/44259-0\",\"/44254-1\",\"/44251-7\"," + 
+        "\"/44258-2\",\"/44252-5\",\"/44253-3\",\"/44260-8\"]"
+    }]
   }
 };
 
@@ -20,10 +27,20 @@ const outputItem = {
   valueExpression: {
     name: 'i',
     language: 'text/fhirpath',
-    expression: '%questionnaire.item.where(linkId = \'/44260-8\').answerOption.where(valueCoding.code=%resource.item.where(linkId = \'/44260-8\').answer.valueCoding.code).extension.where(url=\'http://hl7.org/fhir/StructureDefinition/ordinalValue\').valueDecimal',
-    extension: [{url: 'http://lhcforms.nlm.nih.gov/fhir/ext/rule-editor-score-variable'}]
+    expression: '%questionnaire.item.where(linkId = \'/44260-8\').answerOption' +
+      '.where(valueCoding.code=%resource.item.where(linkId = \'/44260-8\').answer.valueCoding.code)' +
+      '.extension.where(url=\'http://hl7.org/fhir/StructureDefinition/ordinalValue\').valueDecimal',
+    extension: [{
+      url: 'http://lhcforms.nlm.nih.gov/fhir/ext/rule-editor-score-variable',
+      valueString: ''
+    }]
   }
 };
+
+const phq9_scoringItemLinkIds = [
+  "/44250-9", "/44255-8", "/44259-0", "/44254-1", "/44251-7",
+  "/44258-2", "/44252-5", "/44253-3", "/44260-8"
+];
 
 describe('RuleEditorService', () => {
   const LINK_ID = '/39156-5';
@@ -87,6 +104,7 @@ describe('RuleEditorService', () => {
 
     expect(service.isScoreCalculation(original, LINK_ID)).toBeFalse();
 
+    service.setItemLinkIdsForTotalCalculation(phq9_scoringItemLinkIds);
     const withScores = service.addSumOfScores();
     const withScoresCopy = copy(withScores);
 
@@ -103,12 +121,14 @@ describe('RuleEditorService', () => {
   });
 
   it('should return scored questionnaire with total score', () => {
+    service.setItemLinkIdsForTotalCalculation(phq9_scoringItemLinkIds);
     const output = service.addTotalScoreRule(copy(phq9), LINK_ID);
     // @ts-ignore
     expect(output.item[9].extension[14]).toEqual(outputTotalScore);
   });
 
   it('should return scored questionnaire with var10', () => {
+    service.setItemLinkIdsForTotalCalculation(phq9_scoringItemLinkIds);
     const output = service.addTotalScoreRule(copy(phq9), LINK_ID);
     // @ts-ignore
     expect(output.item[9].extension[12]).toEqual(outputItem);

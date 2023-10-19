@@ -309,11 +309,11 @@ describe('Rule editor', () => {
           // Item in a group
           cy.get('#output')
             .should('contain.text', 
-              "%questionnaire.item.where(linkId ='/45900-0').item.where(linkId ='/45900-0/44250-9').answerOption");
+              "%questionnaire.item.where(linkId = '/45900-0').item.where(linkId = '/45900-0/44250-9').answerOption");
           
           // Item not in a group
           cy.get('#output')
-            .should('contain.text', "%questionnaire.item.where(linkId ='44251-7').answerOption");
+            .should('contain.text', "%questionnaire.item.where(linkId = '44251-7').answerOption");
 
           // While 10 checkboxes exist, there should be only 9 variables created. The group itself should 
           // not be included.
@@ -349,12 +349,12 @@ describe('Rule editor', () => {
           // Item in a group
           cy.get('#output')
             .should('contain.text', 
-              "%questionnaire.item.where(linkId ='/45900-0').item.where(linkId ='/45900-0/44255-8').answerOption");
+              "%questionnaire.item.where(linkId = '/45900-0').item.where(linkId = '/45900-0/44255-8').answerOption");
 
           // Item not in a group
           cy.get('#output')
             .should('contain.text',
-              "%questionnaire.item.where(linkId ='44258-2').answerOption");
+              "%questionnaire.item.where(linkId = '44258-2').answerOption");
 
           // The total calculation should only include the two selected items.
           cy.get('#output')

@@ -880,7 +880,7 @@ export class RuleEditorService {
         const childExpressions = this.getItemExpressions(item.item, linkId);
         if (childExpressions.length > 0) {
           childExpressions.forEach((childExpression) => {
-            expressions.push(".item.where(linkId ='" + item.linkId + "')" + childExpression);
+            expressions.push(".item.where(linkId = '" + item.linkId + "')" + childExpression);
           });
         }
       }
@@ -893,8 +893,9 @@ export class RuleEditorService {
         // Do not consider items at or below the linkId context required
         break;
       } else if (this.itemHasScore(item)) {
-        if (this.itemLinkIdsForCalculation.includes(item.linkId)) {
-          expressions.push(".item.where(linkId ='" + item.linkId + "')");
+        if (this.itemLinkIdsForCalculation && this.itemLinkIdsForCalculation.length > 0 &&
+            this.itemLinkIdsForCalculation.includes(item.linkId)) {
+          expressions.push(".item.where(linkId = '" + item.linkId + "')");
         }
       }
     }
@@ -1240,8 +1241,8 @@ export class RuleEditorService {
   /**
    * Get items that has score defined
    */
-  getItemsForTotalCalculation(): string[] {
-    return this.getScoreItems(this.fhir.item, this.linkIdContext);
+  getItemsForTotalCalculation(items): string[] {
+    return this.getScoreItems(items, this.linkIdContext);
   }
 
   /**
