@@ -2,7 +2,7 @@
 
 This project follows [Semantic Versioning](http://semver.org/).
 
-## [3.1.5] 2023-08-28
+## [3.1.5] 2023-10-20
 ### Added
 - Added help sections for Easy Path Expressions and FHIRPath Expressions 
 
