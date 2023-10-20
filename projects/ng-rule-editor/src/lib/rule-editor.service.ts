@@ -1155,7 +1155,9 @@ export class RuleEditorService {
       const openDblBracesIdx = paramValue.indexOf("{{", indexLoc);
       const closeDblBracesIdx = paramValue.indexOf("}}", indexLoc);
 
-      if (openDblBracesIdx === -1 || closeDblBracesIdx === -1)
+      if (openDblBracesIdx === -1 && closeDblBracesIdx === -1)
+        return true;
+      else if (openDblBracesIdx === -1 || closeDblBracesIdx === -1)
         return false;
       else {
         if (closeDblBracesIdx < openDblBracesIdx)
@@ -1170,7 +1172,7 @@ export class RuleEditorService {
         indexLoc = closeDblBracesIdx + 2;
       }
     }
-  }
+  };
 
 
   /**
