@@ -1147,24 +1147,21 @@ export class RuleEditorService {
    * Returns false if there are nested {{ {{}} }}
    * Otherwise returns true
    * @param paramValue - URL param value
-   * @private
    */
-  private isValidDoubleBracesSyntax(paramValue: string): boolean {
+  isValidDoubleBracesSyntax(paramValue: string): boolean {
     let not_done = true;
     let indexLoc = 0;
-    let openDblBracesOutstanding
     while (not_done) {
       const openDblBracesIdx = paramValue.indexOf("{{", indexLoc);
       const closeDblBracesIdx = paramValue.indexOf("}}", indexLoc);
 
-      if (openDblBracesIdx === -1 && closeDblBracesIdx === -1)
-        not_done = false;
+      if (openDblBracesIdx === -1 || closeDblBracesIdx === -1)
+        return false;
       else {
         if (closeDblBracesIdx < openDblBracesIdx)
           return false;
         
         const nextOpenDblBracesIdx = paramValue.indexOf("{{", openDblBracesIdx + 2);
-
         if (nextOpenDblBracesIdx === -1)
           return true;
         else if (nextOpenDblBracesIdx < closeDblBracesIdx)
@@ -1173,17 +1170,14 @@ export class RuleEditorService {
         indexLoc = closeDblBracesIdx + 2;
       }
     }
-
-    return true;
   }
 
 
   /**
-   * Perform URL encode while ignore {{}} and the content inside.
+   * Perform URL encode while ignoring {{}} and the content inside.
    * @param paramValue - URL param value
-   * @private
    */
-  private encodeParamValue(paramValue: string): string {
+  encodeParamValue(paramValue: string): string {
     if (!paramValue)
       return "";
     const openDblBracesCount = (paramValue.match(/{{/g) || []).length;

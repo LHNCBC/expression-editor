@@ -419,7 +419,7 @@ describe('Rule editor', () => {
               .should('be.visible')
               .should('have.value', "%resource.item.where(linkId='/29463-7').answer.value");
 
-            // Reselect Question variable type, it still should show Quesiton as Weight 
+            // Reselect Question variable type, it still should show Question as Weight 
             cy.get('#variable-type-0').select('question');
             cy.get('#question-0')
               .should('exist')
@@ -433,7 +433,7 @@ describe('Rule editor', () => {
               .should('be.visible')
               .should('have.value', "%resource.item.where(linkId='/29463-7').answer.value");
 
-            // Reselect Question variable type, it still should show Quesiton as Weight 
+            // Reselect Question variable type, it still should show Question as Weight 
             cy.get('#variable-type-0').select('question');
             cy.get('#question-0')
               .should('exist')
