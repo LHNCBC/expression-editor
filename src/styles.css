@@ -17,3 +17,18 @@ body > .container { margin: 0 2em; }
 .autocomp_selected > input {
   margin-bottom: 0 !important;
 }
+
+.flex-container {
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: row;
+}
+
+.flex-item {
+  flex: 0 1 auto;
+  margin: 2px;
+}
+
+.flex-item:nth-child(2) {
+  flex: 1;
+}

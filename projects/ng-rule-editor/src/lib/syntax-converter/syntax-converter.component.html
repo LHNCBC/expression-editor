@@ -1,3 +1,16 @@
-<input [(ngModel)]="simple" (ngModelChange)="onExpressionChange($event)" class="simple-expression"
-       aria-label="Easy Path Expression" [style]="lhcStyle.input" />
-<lhc-syntax-preview [syntax]="fhirPathExpression"></lhc-syntax-preview>
+<div class="flex-container">
+  <lhc-helps [type]="'simple'" [index]="index" class="flex-item"></lhc-helps>
+  <div class="flex-item">
+    <input
+      [(ngModel)]="simple"
+      [id]="'simple-expression-' + index"
+      (ngModelChange)="onExpressionChange($event)"
+      class="simple-expression"
+      aria-label="Easy Path Expression Text Input"
+      [style]="lhcStyle.input" />
+    <lhc-syntax-preview
+      [syntax]="fhirPathExpression"
+      [lhcStyle]="{'width': 'auto'}">
+    </lhc-syntax-preview>
+  </div>
+</div>

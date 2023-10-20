@@ -2,6 +2,10 @@
 
 This project follows [Semantic Versioning](http://semver.org/).
 
+## [3.1.5] 2023-10-20
+### Added
+- Added help sections for Easy Path Expressions and FHIRPath Expressions 
+
 ## [3.1.4] 2023-08-17
 ### Added
 - Added autocomplete to question selection 
