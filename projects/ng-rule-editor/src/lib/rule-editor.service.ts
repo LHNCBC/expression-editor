@@ -715,7 +715,8 @@ export class RuleEditorService {
     });
 
     if (this.syntaxType === 'simple') {
-      this.findOrAddExtension(finalExpression.valueExpression.extension, RuleEditorService.SIMPLE_SYNTAX_EXTENSION, 'String', this.simpleExpression);
+      if (finalExpression && finalExpression.hasOwnProperty('valueExpression') && finalExpression.valueExpression) 
+        this.findOrAddExtension(finalExpression.valueExpression.extension, RuleEditorService.SIMPLE_SYNTAX_EXTENSION, 'String', this.simpleExpression);
     }
 
     if (this.linkIdContext !== undefined && this.linkIdContext !== null && this.linkIdContext !== '') {
@@ -732,20 +733,25 @@ export class RuleEditorService {
     });
 
     if (hasQueryObservations !== undefined) {
-      const patientLaunchContext = fhir.extension.find((extension) => {
-        if (extension.url === this.LAUNCH_CONTEXT_URI &&
-            Array.isArray(extension.extension)) {
-          const patientName = extension.extension.find((subExtension) => {
-            return subExtension.url === 'name' && subExtension.valueId === 'patient';
-          });
+      let patientLaunchContext;
 
-          if (patientName !== undefined) {
-            return true;
+      if (fhir.extension && fhir.hasOwnProperty('extension')) {
+        patientLaunchContext = fhir.extension.find((extension) => {
+
+          if (extension.url === this.LAUNCH_CONTEXT_URI &&
+              Array.isArray(extension.extension)) {
+            const patientName = extension.extension.find((subExtension) => {
+              return subExtension.url === 'name' && subExtension.valueId === 'patient';
+            });
+
+            if (patientName !== undefined) {
+              return true;
+            }
           }
-        }
 
-        return false;
-      });
+          return false;
+        });
+      }
 
       if (patientLaunchContext === undefined) {
         // Add launchContext

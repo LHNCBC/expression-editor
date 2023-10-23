@@ -103,7 +103,8 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
    */
   export(): void {
     const finalExpression = this.finalExpressionExtension;
-    finalExpression.valueExpression.expression = this.finalExpression;
+    if (finalExpression && finalExpression.hasOwnProperty("valueExpression") && finalExpression.valueExpression)
+      finalExpression.valueExpression.expression = this.finalExpression;
     this.save.emit(this.variableService.export(this.expressionUri, finalExpression));
   }
 
