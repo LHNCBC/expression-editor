@@ -1143,10 +1143,12 @@ export class RuleEditorService {
 
   /**
    * Validate the paramValue has valid double braces syntax.
-   * Returns false if double close braces is found first
-   * Returns false if there are nested {{ {{}} }}
-   * Otherwise returns true
    * @param paramValue - URL param value
+   * @return True if no opening and closingdouble braces found
+   *         True if matching opening and closing double braces found
+   *         False if an opening or closing double braces is not found
+   *         False if a closing double brace occurs before an opening double brace
+   *         False if double braces are found to be nested within each other  
    */
   isValidDoubleBracesSyntax(paramValue: string): boolean {
     let not_done = true;
@@ -1176,8 +1178,15 @@ export class RuleEditorService {
 
 
   /**
-   * Perform URL encode while ignoring {{}} and the content inside.
+   * Perform URL encode while ignoring the {{}} and the content inside.
    * @param paramValue - URL param value
+   * @return URL-encoded paramValue if paramValue contains no opening and closing double braces
+   *         Non URL-encoded paramValue if the string starts with an opening double brace and
+   *           ends with a closing double brace
+   *         Non URL-encoded paramValue if the count number of opening double braces does not
+   *           match the count number of the closing double braces
+   *         Non URL-encoded paramValue if the result from the isValidDoubleBracesSyntax 
+   *           function is "false"
    */
   encodeParamValue(paramValue: string): string {
     if (!paramValue)

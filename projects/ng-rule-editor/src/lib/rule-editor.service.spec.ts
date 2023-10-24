@@ -223,6 +223,10 @@ describe('RuleEditorService', () => {
       expect(output7).toEqual(false);
       const output8 = service.isValidDoubleBracesSyntax("gt{{today()-1 months}} and {{day()");
       expect(output8).toEqual(false);
+      const output9 = service.isValidDoubleBracesSyntax("{{{{%a * 2}} - %b}}");
+      expect(output9).toEqual(false);
+      const output10 = service.isValidDoubleBracesSyntax("{{{{{{%a * 2}} - %b}} + %c}}");
+      expect(output10).toEqual(false);      
     });
   });
 
@@ -255,6 +259,10 @@ describe('RuleEditorService', () => {
       expect(output7).toEqual("ghtoday()}}");
       const output8 = service.encodeParamValue("gt{{today()-1 months}} and {{day()");
       expect(output8).toEqual("gt{{today()-1 months}} and {{day()");
+      const output9 = service.encodeParamValue("{{{{%a * 2}} - %b}}");
+      expect(output9).toEqual("{{{{%a * 2}} - %b}}");
+      const output10 = service.encodeParamValue("{{{{{{%a * 2}} - %b}} + %c}}");
+      expect(output10).toEqual("{{{{{{%a * 2}} - %b}} + %c}}");     
     });
   });
 
