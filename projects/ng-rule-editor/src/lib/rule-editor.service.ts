@@ -1181,6 +1181,9 @@ export class RuleEditorService {
    * Perform URL encode while ignoring the {{}} and the content inside.
    * @param paramValue - URL param value
    * @return URL-encoded paramValue if paramValue contains no opening and closing double braces
+   *         URL-encoded paramValue if paramValue contains the correct order and number of 
+   *           opening and closing double braces.  URL encode only the portions of the string
+   *           that are not enclosed in dobule braces  
    *         Non URL-encoded paramValue if the string starts with an opening double brace and
    *           ends with a closing double brace
    *         Non URL-encoded paramValue if the count number of opening double braces does not
