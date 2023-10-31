@@ -18,10 +18,10 @@ export class CalculateSumPromptComponent implements OnInit {
   ngOnInit(): void {}
 
   /**
-   * Close the dialog by specifying this should not be a score calculation
+   * Close the dialog by specifying this should not calculate the score
    */
   onCloseClick(): void {
-    this.ruleEditorService.toggleMightBeScore();
+    this.ruleEditorService.toggleScoreCalculation();
   }
 
   /**

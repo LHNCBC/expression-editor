@@ -5,25 +5,80 @@
   </div>
 
   <div class="scoring-items-selection-body">
-    <label for="selectAll">Select All</label>
-    <input type="checkbox" id="selectAll" [(ngModel)]="selectAll" (change)="toggleSelectAll()" />
-    <span *ngIf="hasChildren">
-      <label for="expandAll">Expand All</label>
-      <input type="checkbox" id="expandAll" [(ngModel)]="expandAll" (change)="toggleExpandAll()" />
-    </span>
-
-    <div class="item-filter">
-      <input id="filter" #filter (keyup)="itemTree.treeModel.filterNodes(filter.value)" placeholder="filter nodes"/>
-      <button (click)="itemTree.treeModel.clearFilter();filter.value=''">Clear Filter</button>
+    <div class="button-container">
+      <div class="checkbox-button-group">
+        <button
+          class="btn btn-secondary mt-2"
+          (click)="setSelectAllState(true)"
+          [ngStyle]="lhcStyle.buttonSecondary"
+          id="selectAll">Select All
+        </button>
+        <button
+          class="btn btn-secondary mt-2"
+          (click)="setSelectAllState(false)"
+          [ngStyle]="lhcStyle.buttonSecondary"
+          id="unselectAll">Unselect All
+        </button>
+      </div>
+    </div>
+    <div class="button-container">  
+      <div *ngIf="hasChildren" class="tree-button-group">
+        <button
+          class="btn btn-secondary mt-2"
+          (click)="setExpandAllState(true)"
+          [ngStyle]="lhcStyle.buttonSecondary"
+          id="expandAll">Expand All
+        </button>
+        <button
+          class="btn btn-secondary mt-2"
+          (click)="setExpandAllState(false)"
+          [ngStyle]="lhcStyle.buttonSecondary"
+          id="collapseAll">Collapse All
+        </button>
+      </div>
     </div>
 
     <div class="items-tree">
-      <tree-root #itemTree
-        [focused]="true"
+      <tree-root #itemTree id="tree2" [focused]="true" 
         [nodes]="scoringItems"
         [options]="options"
-        (event)="onTreeEvent($event)"
+        (initialized)="onTreeLoad($event)"
         role="tree">
+
+        <ng-template #treeNodeFullTemplate
+          let-node
+          let-index="index"
+          let-templates="templates">
+          <div
+            class="tree-node tree-node-level-{{ node.level }}"
+            [class]="node.getClass()"
+            [class.tree-node-expanded]="node.isExpanded && node.hasChildren"
+            [class.tree-node-collapsed]="node.isCollapsed && node.hasChildren"
+            [class.tree-node-leaf]="node.isLeaf"
+            [class.tree-node-active]="node.isActive"
+            [class.tree-node-focused]="node.isFocused">
+
+            <div class="node-wrapper" [style.padding-left]="node.getNodePadding()">
+              <input type="checkbox" style="margin-top:6px;" 
+                *ngIf="node.data.type =='choice'" class="tree-node-checkbox"
+                [checked]="node.isActive"
+                (change)="node.toggleActivated(true)" />
+              <span  style="margin: 10px;"></span>
+              <tree-node-expander [node]="node"></tree-node-expander>
+              <div
+                class="node-content-wrapper"
+                [class.node-content-wrapper-active]="node.isActive"
+                [class.node-content-wrapper-focused]="node.isFocused"
+                (click)="node.toggleActivated(true)">
+                <span [class]="node.data.className" [class.title]="true">{{ node.data.text }} ({{ node.data.linkId}})</span>
+              </div>
+            </div>
+
+            <div>
+              <tree-node-children [node]="node"  [templates]="templates"></tree-node-children>
+            </div>
+          </div>
+        </ng-template>
       </tree-root>
     </div>
   </div>
@@ -31,5 +86,4 @@
     <button class="primary" (click)="onExportClick()" [style]="lhcStyle.buttonPrimary" id="export-score">Done</button>
     <button (click)="onCloseClick()" id="skip-export-score">Cancel</button>
   </div>
-
 </div>

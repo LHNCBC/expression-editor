@@ -55,6 +55,7 @@
     <div class="flex-container">
       <div class="expression-type" *ngIf="advancedInterface">
         <select
+          id="variable-type-final"
           class="form-control"
           [(ngModel)]="expressionSyntax"
           (change)="onTypeChange($event)"

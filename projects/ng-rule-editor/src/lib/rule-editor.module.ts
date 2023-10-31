@@ -6,6 +6,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatRadioModule } from '@angular/material/radio';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { A11yModule } from '@angular/cdk/a11y';
 import { TreeModule } from '@bugsplat/angular-tree-component';
 
 import { RuleEditorComponent } from './rule-editor.component';

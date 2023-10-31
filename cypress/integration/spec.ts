@@ -73,7 +73,6 @@ describe('Rule editor', () => {
         cy.get('div.scoring-items-selection-body')
           .within(() => {
             cy.get('#selectAll').should('exist');
-            cy.get('.item-filter').should('exist');
             cy.get('div.items-tree').should('exist');
             cy.get('div.items-tree tree-node').should('have.length', 9);
 
@@ -88,31 +87,17 @@ describe('Rule editor', () => {
           .within(() => {
             cy.get('div.items-tree tree-node').should('have.length', 9);
 
-            // Check the Select All checkbox
-            cy.get('#selectAll').should('exist').check();
-            cy.get('tree-node-checkbox > [type="checkbox"]').each(($checkbox) => {
+            // Select All
+            cy.get('#selectAll').should('exist').click();
+            cy.get('.angular-tree-component [type="checkbox"]').each(($checkbox) => {
               cy.wrap($checkbox).should('be.checked');
             });
 
-            // Uncheck the Select All checkbox
-            cy.get('#selectAll').should('be.checked').uncheck();
-            cy.get('tree-node-checkbox > [type="checkbox"]').each(($checkbox) => {
+            // Unselect All
+            cy.get('#unselectAll').click();
+            cy.get('.angular-tree-component [type="checkbox"]').each(($checkbox) => {
               cy.wrap($checkbox).should('not.be.checked');
             });
-          });
-      });
-
-      it('should be able to filter/unfilter items', () => {
-        cy.get('#score-items-selection').click();
-        cy.get('div.scoring-items-selection-body')
-          .within(() => {
-            cy.get('div.items-tree tree-node').should('have.length', 9);
-            cy.get('input#filter').type('Poor appetite');
-            cy.get('div.items-tree tree-node').should('have.length', 1);
-            cy.get('div.item-filter > button').click();
-            cy.get('div.items-tree tree-node').should('have.length', 9);
-            cy.get('input#filter').type('Feeling');
-            cy.get('div.items-tree tree-node').should('have.length', 3);
           });
       });
 
@@ -121,8 +106,8 @@ describe('Rule editor', () => {
         cy.get('div.scoring-items-selection-body')
           .within(() => {
             cy.get('div.items-tree tree-node').should('have.length', 9);
-            cy.get('tree-node-checkbox > [type="checkbox"]').as('checkboxes');
-            
+            cy.get('.angular-tree-component  [type="checkbox"]').as('checkboxes');
+
             // Select 3rd and 5th items
             cy.get('@checkboxes').eq(2).check();
             cy.get('@checkboxes').eq(4).check();
@@ -153,7 +138,6 @@ describe('Rule editor', () => {
         cy.get('div.scoring-items-selection-body')
           .within(() => {
             cy.get('#selectAll').should('exist');
-            cy.get('.item-filter').should('exist');
             cy.get('div.items-tree').should('exist');
             cy.get('div.items-tree tree-node').should('have.length', 9);
           });
@@ -168,7 +152,7 @@ describe('Rule editor', () => {
         cy.get('div.scoring-items-selection-body')
           .within(() => {
             cy.get('div.items-tree tree-node').should('have.length', 9);
-            cy.get('tree-node-checkbox > [type="checkbox"]').as('checkboxes');
+            cy.get('.angular-tree-component  [type="checkbox"]').as('checkboxes');
             
             // Select 3rd and 5th items
             cy.get('@checkboxes').eq(2).check();
@@ -194,9 +178,9 @@ describe('Rule editor', () => {
           .within(() => {
             cy.get('div.items-tree tree-node').should('have.length', 9);
             
-            // Check the Select All checkbox
-            cy.get('#selectAll').should('exist').check();
-            cy.get('tree-node-checkbox > [type="checkbox"]').each(($checkbox) => {
+            // Check the Select All button
+            cy.get('#selectAll').should('exist').click();
+            cy.get('.angular-tree-component [type="checkbox"]').each(($checkbox) => {
               cy.wrap($checkbox).should('be.checked');
             });
           });  
@@ -234,9 +218,9 @@ describe('Rule editor', () => {
         cy.get('div.scoring-items-selection-body')
           .within(() => {
             cy.get('#selectAll').should('exist');
-            cy.get('.item-filter').should('exist');
+            //cy.get('.item-filter').should('exist');
             cy.get('div.items-tree').should('exist');
-            cy.get('div.items-tree tree-node').should('have.length', 10);
+            cy.get('div.items-tree tree-node').should('have.length', 17);
           });
       });
 
@@ -246,45 +230,12 @@ describe('Rule editor', () => {
         cy.get('div.scoring-items-selection-title').should('have.text', ' Select items to include in the score calculation: ');
         cy.get('div.scoring-items-selection-body')
           .within(() => {
-            // Expand All checkbox should be visible and checked by default
-            cy.get('input#expandAll').should('exist').should('be.visible').should('be.checked');
-            cy.get('div.items-tree tree-node').should('have.length', 10);
+            // Expand All button should be visible and the tree should be expanded by default  
+            cy.get('#expandAll').should('exist').should('be.visible');
+            cy.get('div.items-tree tree-node').should('have.length', 17);
 
-            cy.get('input#expandAll').uncheck();
+            cy.get('#collapseAll').click();
             cy.get('div.items-tree tree-node').should('have.length', 6);
-          });
-      });
-
-      it('should be able to select/unselect group items', () => {
-        cy.get('#score-items-selection').click();
-        cy.get('div.scoring-items-selection-body')
-          .within(() => {
-            cy.get('div.items-tree tree-node').should('have.length', 10);
-            cy.get('tree-node-checkbox > [type="checkbox"]').as('checkboxes');
-            
-            // Select the group
-            cy.get('@checkboxes').eq(0).check();
-            // Validate to make sure that all items within the group are checked
-            cy.get('@checkboxes').each(($checkbox, index) => {
-              if (index < 5)
-                cy.wrap($checkbox).should('be.checked');
-              else
-                cy.wrap($checkbox).should('not.be.checked');
-            });
-
-            // Check individual item outside of the group
-            cy.get('@checkboxes').eq(5).check(); 
-
-            // Unselect the group
-            cy.get('@checkboxes').eq(0).uncheck();
-            // Validate to make sure that all items within the group are unchecked
-            // item 6 should remain checked
-            cy.get('@checkboxes').each(($checkbox, index) => {
-              if (index === 5)
-                cy.wrap($checkbox).should('be.checked');
-              else
-                cy.wrap($checkbox).should('not.be.checked');
-            });
           });
       });
 
@@ -292,11 +243,11 @@ describe('Rule editor', () => {
         cy.get('#score-items-selection').click();
         cy.get('div.scoring-items-selection-body')
           .within(() => {
-            cy.get('div.items-tree tree-node').should('have.length', 10);
+            cy.get('div.items-tree tree-node').should('have.length', 17);
             
-            // Check the Select All checkbox
-            cy.get('#selectAll').should('exist').check();
-            cy.get('tree-node-checkbox > [type="checkbox"]').each(($checkbox) => {
+            // Check the Select All button
+            cy.get('#selectAll').should('exist').click();
+            cy.get('.angular-tree-component [type="checkbox"]').each(($checkbox) => {
               cy.wrap($checkbox).should('be.checked');
             });
           });  
@@ -313,7 +264,7 @@ describe('Rule editor', () => {
           
           // Item not in a group
           cy.get('#output')
-            .should('contain.text', "%questionnaire.item.where(linkId = '44251-7').answerOption");
+            .should('contain.text', "%questionnaire.item.where(linkId = '/44251-7').answerOption");
 
           // While 10 checkboxes exist, there should be only 9 variables created. The group itself should 
           // not be included.
@@ -321,45 +272,205 @@ describe('Rule editor', () => {
             .should('contain.text', '"expression": "iif(%any_questions_answered, iif(%a.exists(), %a, 0) ' +
               '+ iif(%b.exists(), %b, 0) + iif(%c.exists(), %c, 0) + iif(%d.exists(), %d, 0) ' +
               '+ iif(%e.exists(), %e, 0) + iif(%f.exists(), %f, 0) + iif(%g.exists(), %g, 0) ' +
-              '+ iif(%h.exists(), %h, 0) + iif(%i.exists(), %i, 0), {})"');          
+              '+ iif(%h.exists(), %h, 0) + iif(%i.exists(), %i, 0) + iif(%j.exists(), %j, 0) ' +
+              '+ iif(%k.exists(), %k, 0) + iif(%l.exists(), %l, 0) + iif(%m.exists(), %m, 0) ' +
+              '+ iif(%n.exists(), %n, 0) + iif(%o.exists(), %o, 0), {})"');          
       });
 
       it('should be able to export score with selected individual items', () => {
         cy.get('#score-items-selection').click();
         cy.get('div.scoring-items-selection-body')
           .within(() => {
-            cy.get('div.items-tree tree-node').should('have.length', 10);
-            cy.get('tree-node-checkbox > [type="checkbox"]').as('checkboxes');
+            cy.get('div.items-tree tree-node').should('have.length', 17);
+            cy.get('.angular-tree-component  [type="checkbox"]').as('checkboxes');
             
-            // Select one item in a group
-            cy.get('@checkboxes').eq(2).check();
-            // Select one item not in a group
+            // Select an item from "Group 1"
+            cy.get('@checkboxes').eq(1).check();
+
+            // Select an item that has no sub group/item
+            cy.get('@checkboxes').eq(4).check();
+
+            // Select a scoring parent item
             cy.get('@checkboxes').eq(6).check();
+
+            // Select a child item of the parent scoring item
+            cy.get('@checkboxes').eq(7).check();
+
+            // Select a parent item that has a child of type 'group'
+            cy.get('@checkboxes').eq(10).check();
             
+            // Select a child item under the child of type 'group'
+            cy.get('@checkboxes').eq(12).check();
+
             // Validate to make sure that only those two items were selected
             cy.get('@checkboxes').each(($checkbox, index) => {
-              if (index === 2 || index === 6)
+              if (index === 1 || index === 4 || index === 6 || index === 7 ||
+                  index === 10 || index === 12)
                 cy.wrap($checkbox).should('be.checked');
               else
                 cy.wrap($checkbox).should('not.be.checked');
             });
           });  
+        cy.get('#export-score').click();
+
+        // The total calculation should only include the two selected items.
+        cy.get('#output')
+          .should('contain.text', '"expression": "iif(%any_questions_answered, iif(%a.exists(), %a, 0) ' +
+            '+ iif(%b.exists(), %b, 0) + iif(%c.exists(), %c, 0) + iif(%d.exists(), %d, 0) ' +
+            '+ iif(%e.exists(), %e, 0) + iif(%f.exists(), %f, 0), {})"');
+
+        cy.get('pre#output').invoke('text').then((jsonData) => {
+          // Parse the JSON data
+          const parsedData = JSON.parse(jsonData);
+
+          expect(parsedData.item).to.exist;
+          expect(parsedData.item).to.have.lengthOf(8);
+          
+          // the 7th item should be the total calculation
+          expect(parsedData.item[6].linkId).to.exist;
+          expect(parsedData.item[6].linkId).to.eq('/39156-5');
+          expect(parsedData.item[6].text).to.eq('Patient health questionnaire 15 item total score');
+          // should contain extension
+          expect(parsedData.item[6].extension).to.exist;
+          expect(parsedData.item[6].extension).to.have.lengthOf(12);
+
+          // variable a
+          expect(parsedData.item[6].extension[4].valueExpression).to.exist;
+          expect(parsedData.item[6].extension[4].valueExpression.name).to.eq('a');
+          expect(parsedData.item[6].extension[4].valueExpression.expression)
+            .to.have.string("%questionnaire.item.where(linkId = '/45900-0').item.where(linkId = '/45900-0/44255-8').answerOption");
+
+          // variable b
+          expect(parsedData.item[6].extension[5].valueExpression).to.exist;
+          expect(parsedData.item[6].extension[5].valueExpression.name).to.eq('b');
+          expect(parsedData.item[6].extension[5].valueExpression.expression)
+            .to.have.string("%questionnaire.item.where(linkId = '/44251-7').answerOption");
+
+          // variable c
+          expect(parsedData.item[6].extension[6].valueExpression).to.exist;
+          expect(parsedData.item[6].extension[6].valueExpression.name).to.eq('c');
+          expect(parsedData.item[6].extension[6].valueExpression.expression)
+            .to.have.string("%questionnaire.item.where(linkId = '/44252-5').answerOption");
+
+          // variable d
+          expect(parsedData.item[6].extension[7].valueExpression).to.exist;
+          expect(parsedData.item[6].extension[7].valueExpression.name).to.eq('d');
+          expect(parsedData.item[6].extension[7].valueExpression.expression)
+            .to.have.string("%questionnaire.item.where(linkId = '/44252-5').item.where(linkId = '/44252-5/44250-9').answerOption");
+
+          // variable e
+          expect(parsedData.item[6].extension[8].valueExpression).to.exist;
+          expect(parsedData.item[6].extension[8].valueExpression.name).to.eq('e');
+          expect(parsedData.item[6].extension[8].valueExpression.expression)
+            .to.have.string("%questionnaire.item.where(linkId = '/44260-8').answerOption");
+
+          // variable f
+          const variable9Exp = "%questionnaire.item.where(linkId = '/44260-8')\
+.item.where(linkId = '/44260-8/45907-0').item.where(linkId = '/44260-8/45907-0/44255-8').answerOption";
+          expect(parsedData.item[6].extension[9].valueExpression).to.exist;
+          expect(parsedData.item[6].extension[9].valueExpression.name).to.eq('f');
+          expect(parsedData.item[6].extension[9].valueExpression.expression).to.have.string(variable9Exp);         
+        });
+      });
+    });
+
+    describe('PHQ9 Pre-selected score calculation', () => {
+      beforeEach(() => {
+        cy.get('#questionnaire-select').select('PHQ9 Pre-selected (no FHIRPath)');
+      });
+
+      it('should load up with pre-selected items', () => {
+        cy.get('#score-items-selection').click();
+        cy.get('div.scoring-items-selection-body')
+          .within(() => {
+            cy.get('div.items-tree tree-node').should('have.length', 17);
+            cy.get('.angular-tree-component  [type="checkbox"]').as('checkboxes');
+
+            // Validate to make sure that only those two items were selected
+            cy.get('@checkboxes').each(($checkbox, index) => {
+              if (index === 1 || index === 4 || index === 6 || index === 8 ||
+                  index === 10 || index === 13)
+                cy.wrap($checkbox).should('be.checked');
+              else
+                cy.wrap($checkbox).should('not.be.checked');
+            });
+          });
+      });
+
+      it('should be able to deselect, select items and export correctly', () => {
+        cy.get('#score-items-selection').click();
+        cy.get('div.scoring-items-selection-body')
+          .within(() => {
+            cy.get('div.items-tree tree-node').should('have.length', 17);
+            cy.get('.angular-tree-component  [type="checkbox"]').as('checkboxes');
+
+            cy.get('@checkboxes').eq(1).uncheck();
+            cy.get('@checkboxes').eq(4).uncheck();
+            cy.get('@checkboxes').eq(6).uncheck();
+            cy.get('@checkboxes').eq(8).uncheck();
+            cy.get('@checkboxes').eq(10).uncheck();
+            cy.get('@checkboxes').eq(13).uncheck();
+
+            cy.get('@checkboxes').eq(2).check();
+            cy.get('@checkboxes').eq(5).check();
+            cy.get('@checkboxes').eq(7).check();
+            cy.get('@checkboxes').eq(14).check();
+
+            // Validate to make sure that only those two items were selected
+            cy.get('@checkboxes').each(($checkbox, index) => {
+              if (index === 2 || index === 5 || index === 7 || index === 14)
+                cy.wrap($checkbox).should('be.checked');
+              else
+                cy.wrap($checkbox).should('not.be.checked');
+            });            
+          });
           cy.get('#export-score').click();
-
-          // Item in a group
-          cy.get('#output')
-            .should('contain.text', 
-              "%questionnaire.item.where(linkId = '/45900-0').item.where(linkId = '/45900-0/44255-8').answerOption");
-
-          // Item not in a group
-          cy.get('#output')
-            .should('contain.text',
-              "%questionnaire.item.where(linkId = '44258-2').answerOption");
 
           // The total calculation should only include the two selected items.
           cy.get('#output')
-          .should('contain.text', '"expression": "iif(%any_questions_answered, iif(%a.exists(), %a, 0) ' +
-            '+ iif(%b.exists(), %b, 0), {})"');
+            .should('contain.text', '"expression": "iif(%any_questions_answered, iif(%a.exists(), %a, 0) ' +
+              '+ iif(%b.exists(), %b, 0) + iif(%c.exists(), %c, 0) + iif(%d.exists(), %d, 0), {})"');
+
+          cy.get('pre#output').invoke('text').then((jsonData) => {
+            // Parse the JSON data
+            const parsedData = JSON.parse(jsonData);
+
+            expect(parsedData.item).to.exist;
+            expect(parsedData.item).to.have.lengthOf(8);
+            
+            // the 7th item should be the total calculation
+            expect(parsedData.item[6].linkId).to.exist;
+            expect(parsedData.item[6].linkId).to.eq('/39156-5');
+            expect(parsedData.item[6].text).to.eq('Patient health questionnaire 15 item total score');
+            // should contain extension
+            expect(parsedData.item[6].extension).to.exist;
+            expect(parsedData.item[6].extension).to.have.lengthOf(10);
+
+            // variable a
+            expect(parsedData.item[6].extension[4].valueExpression).to.exist;
+            expect(parsedData.item[6].extension[4].valueExpression.name).to.eq('a');
+            expect(parsedData.item[6].extension[4].valueExpression.expression)
+              .to.have.string("%questionnaire.item.where(linkId = '/45900-0').item.where(linkId = '/45900-0/44259-0').answerOption");
+
+            // variable b
+            expect(parsedData.item[6].extension[5].valueExpression).to.exist;
+            expect(parsedData.item[6].extension[5].valueExpression.name).to.eq('b');
+            expect(parsedData.item[6].extension[5].valueExpression.expression)
+              .to.have.string("%questionnaire.item.where(linkId = '/44258-2').answerOption");
+
+            // variable c
+            expect(parsedData.item[6].extension[6].valueExpression).to.exist;
+            expect(parsedData.item[6].extension[6].valueExpression.name).to.eq('c');
+            expect(parsedData.item[6].extension[6].valueExpression.expression)
+              .to.have.string("%questionnaire.item.where(linkId = '/44252-5').item.where(linkId = '/44252-5/44250-9').answerOption");
+
+            // variable d
+            const variable9Exp = "%questionnaire.item.where(linkId = '/44260-8')\
+.item.where(linkId = '/44260-8/45907-0').item.where(linkId = '/44260-8/45907-0/44254-1').answerOption";
+            expect(parsedData.item[6].extension[7].valueExpression).to.exist;
+            expect(parsedData.item[6].extension[7].valueExpression.name).to.eq('d');
+            expect(parsedData.item[6].extension[7].valueExpression.expression).to.have.string(variable9Exp);
+          });
       });
     });
 

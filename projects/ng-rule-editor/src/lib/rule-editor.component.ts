@@ -43,8 +43,8 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
   constructor(private variableService: RuleEditorService, private liveAnnouncer: LiveAnnouncer) {}
 
   ngOnInit(): void {
-    this.calculateSumSubscription = this.variableService.mightBeScoreChange.subscribe((mightBeScore) => {
-      this.calculateSum = mightBeScore;
+    this.calculateSumSubscription = this.variableService.scoreCalculationChange.subscribe((scoreCalculation) => {
+      this.calculateSum = scoreCalculation;
     });
     this.finalExpressionSubscription = this.variableService.finalExpressionChange.subscribe((finalExpression) => {
       this.finalExpression = finalExpression;
@@ -95,7 +95,7 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
     this.linkIdContext = this.variableService.linkIdContext;
     this.expressionSyntax = this.variableService.syntaxType;
     this.selectItems = false;
-    this.calculateSum = this.variableService.mightBeScore;
+    this.calculateSum = this.variableService.scoreCalculation;
     this.finalExpressionExtension = this.variableService.finalExpressionExtension;
     this.finalExpression = this.variableService.finalExpression;
     this.variables = this.variableService.uneditableVariables.map(e => e.name).concat(

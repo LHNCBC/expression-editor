@@ -1,15 +1,14 @@
-import { Component, EventEmitter, Input, OnInit, AfterViewInit, Output, ViewChild } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { RuleEditorService, SimpleStyle } from '../rule-editor.service';
 import {ITreeOptions, KEYS, TREE_ACTIONS, TreeComponent} from '@bugsplat/angular-tree-component';
 import {TreeNode} from '@bugsplat/angular-tree-component/lib/defs/api';
-import { LiveAnnouncer } from '@angular/cdk/a11y';
 
 @Component({
   selector: 'lhc-select-scoring-items',
   templateUrl: './select-scoring-items.component.html',
   styleUrls: ['./select-scoring-items.component.css']
 })
-export class SelectScoringItemsComponent implements OnInit, AfterViewInit {
+export class SelectScoringItemsComponent implements OnInit {
   @Input() lhcStyle: SimpleStyle = {};
   @Input() items = [];
   @Output() export: EventEmitter<any> = new EventEmitter<any>();
@@ -33,6 +32,7 @@ export class SelectScoringItemsComponent implements OnInit, AfterViewInit {
     isExpandedField: 'true',
     idField: 'linkId',
     useCheckbox: true,
+    useTriState: false,
     actionMapping: {
       mouse: {
         dblClick: (tree, node, $event) => {
@@ -55,7 +55,7 @@ export class SelectScoringItemsComponent implements OnInit, AfterViewInit {
     allowDrop: (node) => {
       return false;
     },
-    levelPadding: 10,
+    levelPadding: 40,
     useVirtualScroll: false,
     animateExpand: true,
     scrollOnActivate: true,
@@ -64,15 +64,25 @@ export class SelectScoringItemsComponent implements OnInit, AfterViewInit {
     scrollContainer: document.documentElement // HTML
   };
 
-  constructor(private ruleEditorService: RuleEditorService, private liveAnnouncer: LiveAnnouncer) { }
+  constructor(private ruleEditorService: RuleEditorService) { }
 
   /**
    * Angular lifecycle hook called when the component is initialized
    */
-  ngOnInit(): void {};
+  ngOnInit(): void {
+    this.selectedLinkIds = this.ruleEditorService.getSelectedScoringLinkIds(this.items);
+
+    // Get items that can be used for Scoring calculation
+    this.scoringItems = this.ruleEditorService.getScoreItems(this.items);
+    this.hasChildren = this.hasChildItems(this.scoringItems);
+    // If there are child items, if yes then we want to expand the tree by default.
+    this.expandAll = this.hasChildren;
+  };
 
   /**
    * Check to see if child items exist.
+   * @param items - Questionnaire item array
+   * @return True if any item has at least one child 
    */
   private hasChildItems(items): boolean {
     return items.some((item) => {
@@ -81,40 +91,32 @@ export class SelectScoringItemsComponent implements OnInit, AfterViewInit {
   }
 
   /**
-   * Angular lifecycle hook called when the component is initialized
+   * Set the state whether to Select All or Unselect All tree nodes.
+   * @param status - true to select all and false to unselect all
    */
-  ngAfterViewInit(): void {
-    // Get items that can be used for Scoring calculation
-    this.scoringItems = this.ruleEditorService.getItemsForTotalCalculation(this.items);
-    this.hasChildren = this.hasChildItems(this.scoringItems);
-    // If there are child items, if yes then we want to expand the tree by default.
-    this.expandAll = this.hasChildren;
+  setSelectAllState(status) {
+    const hiddenNodes = this.itemTree.treeModel.hiddenNodes;
 
-    this.selectedLinkIds = this.ruleEditorService.getSelectedScoringLinkIds(this.items);
-  };
+    const toggleItemHierarchy = (node, status) => {
 
-
-  /**
-   * Triggers when Select All checkbox is checked/unchecked. Loop through and set
-   * all nodes to check or uncheck.
-   */
-  toggleSelectAll() {
-    if (this.selectAll) {
-      this.itemTree.treeModel.doForAll((node:TreeNode) => {
-        node.setIsSelected(true);
-      });
-    } else {
-      this.itemTree.treeModel.doForAll((node:TreeNode) => {
-        node.setIsSelected(false);
-      })
-    }
+      // Only toggle if node.isActive is opposite from status 
+      if (node.data.type === 'choice' && status !== node.isActive)
+        node.toggleActivated(true);
+  
+      if (node.hasChildren) {
+        node.children.forEach((subItem) => toggleItemHierarchy(subItem, status));
+      }
+    };
+    
+    this.itemTree.treeModel.getVisibleRoots().forEach((item) => toggleItemHierarchy(item, status));
   }
 
   /**
-   * Expand or collapse the tree if it has children nodes.
+   * Set the state whether to Expand All or Collapse All the tree model.
+   * @param status - true to expand all and false to collapse all
    */
-  toggleExpandAll() {
-    if (this.expandAll) {
+  setExpandAllState(expand) {
+    if (expand) {
       this.itemTree.treeModel.expandAll();
     } else {
       this.itemTree.treeModel.collapseAll();
@@ -122,80 +124,44 @@ export class SelectScoringItemsComponent implements OnInit, AfterViewInit {
   }
 
   /**
-   * Close the dialog by specifying this should not be a score calculation
+   * Close the dialog by specifying this should not calculate the score
    */
   onCloseClick(): void {
-    this.ruleEditorService.toggleMightBeScore();
+    this.ruleEditorService.toggleScoreCalculation();
   }
 
   /**
    * Export the sum of scores as a FHIR Questionnaire
    */
   onExportClick(): void {
-    const selectedItems = [...this.selectedItemsSet];
-    this.ruleEditorService.setItemLinkIdsForTotalCalculation(selectedItems);
+    const selectedItemLinkIds = this.itemTree.treeModel.getActiveNodes()
+                                  .map((node) => node.data.linkId);
+    this.ruleEditorService.setItemLinkIdsForTotalCalculation(selectedItemLinkIds);
     this.export.emit();
   }
 
-  /* 
-   * This gets called when a checkbox is checked.  It does not get called when users
-   * click on the row (activate event).
-   */
-  onSelectItems(event) {
-    let pushdata: any = [];
-    pushdata.push(event.node.data);
-    this.selectedItemsSet.add(pushdata[0].linkId);
-  }
-
-  /* 
-   * This gets called when a checkbox is unchecked.
-   */
-  onDeselectItems(event) {
-    let pushdata: any = [];
-    pushdata.push(event.node.data);
-    this.selectedItemsSet.delete(pushdata[0].linkId);
-  }
-
   /**
-   * Wait for the angular-tree-component to finish loading.  Then 
-   * if the selectedLinkIds is not empty, then select checkboxes 
-   * that match the link ids.
+   * If the questionnaire already contains selected items for the calculation,
+   * toggle selection that match the link ids. 
    */
   private checkCheckboxScoringItems(): void {
     if (this.selectedLinkIds && this.selectedLinkIds.length > 0) {
       this.itemTree.treeModel.doForAll((node:TreeNode) => {
         if (this.selectedLinkIds.includes(node.data.linkId)) {
-          node.setIsSelected(true);
-
-          if (node.parent)
-            node.parent.expandAll();
+          node.toggleActivated(true);
         }
       });
     }    
   }
 
   /**
-   * Handle tree events
-   * @param event - The event.
-   */
-  onTreeEvent(event) {
-    switch(event.eventName) {
-      case 'initialized':
-        this.checkCheckboxScoringItems();
-        this.toggleExpandAll();
-        break;
-      case 'activate':
-        event.node.setIsActive(false);
-        break;
-      case 'select':
-        this.liveAnnouncer.announce(`"${event.node.data.text}" is selected.`);
-        this.onSelectItems(event);
-        break;
-      case 'deselect':
-        this.onDeselectItems(event);
-        break;
-      default:
-        break;
-    }
+   * This gets called when the angular-tree-model tree model is created. Check for
+   * pre-selected items and expand the tree if it contains grandchildren nodes. 
+   * @param tree - tree model
+   */  
+  onTreeLoad(tree): void {
+    this.checkCheckboxScoringItems();
+    if (this.expandAll)
+      this.setExpandAllState(true);
   }
 }

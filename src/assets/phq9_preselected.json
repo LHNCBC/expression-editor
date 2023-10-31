@@ -478,7 +478,6 @@
         }
       ]
     },
-
     {
       "type": "choice",
       "code": [
@@ -1712,6 +1711,118 @@
           "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unit",
           "valueCoding": {
             "display": "{score}"
+          }
+        },
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/variable",
+          "valueExpression": {
+            "name": "a",
+            "language": "text/fhirpath",
+            "expression": "%questionnaire.item.where(linkId = '/45900-0').item.where(linkId = '/45900-0/44255-8').answerOption.where(valueCoding.code=%resource.item.where(linkId = '/45900-0').item.where(linkId = '/45900-0/44255-8').answer.valueCoding.code).extension.where(url='http://hl7.org/fhir/StructureDefinition/ordinalValue').valueDecimal",
+            "extension": [
+              {
+                "url": "http://lhcforms.nlm.nih.gov/fhir/ext/rule-editor-score-variable",
+                "valueBoolean": true
+              }
+            ]
+          }
+        },
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/variable",
+          "valueExpression": {
+            "name": "b",
+            "language": "text/fhirpath",
+            "expression": "%questionnaire.item.where(linkId = '/44251-7').answerOption.where(valueCoding.code=%resource.item.where(linkId = '/44251-7').answer.valueCoding.code).extension.where(url='http://hl7.org/fhir/StructureDefinition/ordinalValue').valueDecimal",
+            "extension": [
+              {
+                "url": "http://lhcforms.nlm.nih.gov/fhir/ext/rule-editor-score-variable",
+                "valueBoolean": true
+              }
+            ]
+          }
+        },
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/variable",
+          "valueExpression": {
+            "name": "c",
+            "language": "text/fhirpath",
+            "expression": "%questionnaire.item.where(linkId = '/44252-5').answerOption.where(valueCoding.code=%resource.item.where(linkId = '/44252-5').answer.valueCoding.code).extension.where(url='http://hl7.org/fhir/StructureDefinition/ordinalValue').valueDecimal",
+            "extension": [
+              {
+                "url": "http://lhcforms.nlm.nih.gov/fhir/ext/rule-editor-score-variable",
+                "valueBoolean": true
+              }
+            ]
+          }
+        },
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/variable",
+          "valueExpression": {
+            "name": "d",
+            "language": "text/fhirpath",
+            "expression": "%questionnaire.item.where(linkId = '/44252-5').item.where(linkId = '/44252-5/44255-8').answerOption.where(valueCoding.code=%resource.item.where(linkId = '/44252-5').item.where(linkId = '/44252-5/44255-8').answer.valueCoding.code).extension.where(url='http://hl7.org/fhir/StructureDefinition/ordinalValue').valueDecimal",
+            "extension": [
+              {
+                "url": "http://lhcforms.nlm.nih.gov/fhir/ext/rule-editor-score-variable",
+                "valueBoolean": true
+              }
+            ]
+          }
+        },
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/variable",
+          "valueExpression": {
+            "name": "e",
+            "language": "text/fhirpath",
+            "expression": "%questionnaire.item.where(linkId = '/44260-8').answerOption.where(valueCoding.code=%resource.item.where(linkId = '/44260-8').answer.valueCoding.code).extension.where(url='http://hl7.org/fhir/StructureDefinition/ordinalValue').valueDecimal",
+            "extension": [
+              {
+                "url": "http://lhcforms.nlm.nih.gov/fhir/ext/rule-editor-score-variable",
+                "valueBoolean": true
+              }
+            ]
+          }
+        },
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/variable",
+          "valueExpression": {
+            "name": "f",
+            "language": "text/fhirpath",
+            "expression": "%questionnaire.item.where(linkId = '/44260-8').item.where(linkId = '/44260-8/45907-0').item.where(linkId = '/44260-8/45907-0/44259-0').answerOption.where(valueCoding.code=%resource.item.where(linkId = '/44260-8').item.where(linkId = '/44260-8/45907-0').item.where(linkId = '/44260-8/45907-0/44259-0').answer.valueCoding.code).extension.where(url='http://hl7.org/fhir/StructureDefinition/ordinalValue').valueDecimal",
+            "extension": [
+              {
+                "url": "http://lhcforms.nlm.nih.gov/fhir/ext/rule-editor-score-variable",
+                "valueBoolean": true
+              }
+            ]
+          }
+        },
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/variable",
+          "valueExpression": {
+            "name": "any_questions_answered",
+            "language": "text/fhirpath",
+            "expression": "%a.exists() or %b.exists() or %c.exists() or %d.exists() or %e.exists() or %f.exists()",
+            "extension": [
+              {
+                "url": "http://lhcforms.nlm.nih.gov/fhir/ext/rule-editor-score-variable",
+                "valueBoolean": true
+              }
+            ]
+          }
+        },
+        {
+          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression",
+          "valueExpression": {
+            "description": "Total score calculation",
+            "language": "text/fhirpath",
+            "expression": "iif(%any_questions_answered, iif(%a.exists(), %a, 0) + iif(%b.exists(), %b, 0) + iif(%c.exists(), %c, 0) + iif(%d.exists(), %d, 0) + iif(%e.exists(), %e, 0) + iif(%f.exists(), %f, 0), {})",
+            "extension": [
+              {
+                "url": "http://lhcforms.nlm.nih.gov/fhir/ext/rule-editor-score-expression-linkids",
+                "valueString": "[\"/45900-0/44255-8\",\"/44251-7\",\"/44252-5\",\"/44252-5/44255-8\",\"/44260-8\",\"/44260-8/45907-0/44259-0\"]"
+              }
+            ]
           }
         }
       ],

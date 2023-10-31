@@ -5,9 +5,7 @@ describe('Rule Editor Web Component', () => {
 
   describe('score calculation', () => {
     it('should ask the user if they want to calculate the sum of scores.', () => {
-      //cy.should('contain.text', 'Would you like to calculate the sum of scores?');
       cy.get('.score-modal').should('contain.text', 'Would you like to calculate the sum of scores?');
-
     });
 
     it('should show the Rule Editor interface if the user clicks no.', () => {
@@ -19,7 +17,7 @@ describe('Rule Editor Web Component', () => {
 
     it('should produce the calculation', () => {
       cy.get('#score-items-selection').click();
-      cy.get('#selectAll').should('exist').check();
+      cy.get('#selectAll').should('exist').click();
       cy.get('#export-score').click();
       cy.get('#output').should('contain.text', 
         '"expression": "iif(%any_questions_answered, iif(%a.exists(), %a, 0) + iif(%b.exists(), %b, 0) + ' +

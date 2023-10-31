@@ -4,6 +4,11 @@ import copy from 'fast-copy';
 import { RuleEditorService } from './rule-editor.service';
 import bmi from '../../../../src/assets/bmi.json';
 import phq9 from '../../../../src/assets/phq9.json';
+import phq9_group from '../../../../src/assets/phq9_group.json';
+import phq9_preselected from '../../../../src/assets/phq9_preselected.json';
+
+// This file is not used in the demo, only here to test the getSelectedLinkIdsForScoring() function
+import phq9_preselected_child_total from '../../../../src/assets/phq9_preselected_child_total.json';
 
 const outputTotalScore = {
   url: 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression',
@@ -32,14 +37,41 @@ const outputItem = {
       '.extension.where(url=\'http://hl7.org/fhir/StructureDefinition/ordinalValue\').valueDecimal',
     extension: [{
       url: 'http://lhcforms.nlm.nih.gov/fhir/ext/rule-editor-score-variable',
-      valueString: ''
+      valueBoolean: true
     }]
   }
 };
 
+const outputItemWhereExpression = ".item.where(linkId = '/44254-1')";
+
+const outputItemExpression = "%questionnaire.item.where(linkId = \'/44254-1\').answerOption" +
+  ".where(valueCoding.code=%resource.item.where(linkId = \'/44254-1\').answer.valueCoding.code)" +
+  ".extension.where(url=\'http://hl7.org/fhir/StructureDefinition/ordinalValue\').valueDecimal"
+
+
 const phq9_scoringItemLinkIds = [
   "/44250-9", "/44255-8", "/44259-0", "/44254-1", "/44251-7",
   "/44258-2", "/44252-5", "/44253-3", "/44260-8"
+];
+
+const phq9_partialScoringItemLinkIds = [
+  "/44250-9", "/44254-1", "/44260-8"
+];
+
+const outputGroupItemWhereExpression = ".item.where(linkId = '/45900-0').item.where(linkId = '/45900-0/44254-1')";
+
+const outputGroupItemExpression = "%questionnaire.item.where(linkId = '/45900-0').item" +
+  ".where(linkId = \'/45900-0/44254-1\').answerOption.where(valueCoding.code=%resource.item" + 
+  ".where(linkId = '/45900-0').item.where(linkId = \'/45900-0/44254-1\').answer.valueCoding.code)" +
+  ".extension.where(url=\'http://hl7.org/fhir/StructureDefinition/ordinalValue\').valueDecimal"
+
+const phq9_group_scoringItemLinkIds = [
+  "/45900-0/44250-9", "/45900-0/44255-8", "/45900-0/44259-0", "/45900-0/44254-1", "/44251-7",
+  "/44258-2", "/44252-5", "/44253-3", "/44260-8"
+];
+
+const phq9_group_partialScoringItemLinkIds = [
+  "/45900-0/44250-9", "/45900-0/44254-1", "/44260-8"
 ];
 
 describe('RuleEditorService', () => {
@@ -132,6 +164,120 @@ describe('RuleEditorService', () => {
     const output = service.addTotalScoreRule(copy(phq9), LINK_ID);
     // @ts-ignore
     expect(output.item[9].extension[12]).toEqual(outputItem);
+  });
+
+  it('should return item scoring expression with var "i"', () => {
+    service.setItemLinkIdsForTotalCalculation(phq9_scoringItemLinkIds);
+    const output = service.composeItemExpressionsForScoreCalculation(copy(phq9.item), LINK_ID);
+    // @ts-ignore
+
+    // there should be 9 item selections
+    expect(output.length).toEqual(9);
+
+    expect(output[3]).toEqual(outputItemWhereExpression);
+  });
+
+  it('should return partial selection item scoring expression with var "c"', () => {
+    service.setItemLinkIdsForTotalCalculation(phq9_partialScoringItemLinkIds);
+    const output = service.composeItemExpressionsForScoreCalculation(copy(phq9.item), LINK_ID);
+    // @ts-ignore
+
+    // there should be only 3 item selections
+    expect(output.length).toEqual(3);
+
+    expect(output[1]).toEqual(outputItemWhereExpression);
+  });
+
+  it('should return scoring expression with var "d"', () => {
+    service.setItemLinkIdsForTotalCalculation(phq9_scoringItemLinkIds);
+    const output = service.getScoringExpressions(copy(phq9.item), LINK_ID);
+    // @ts-ignore
+
+    // there should be 9 item selections
+    expect(output.length).toEqual(9);
+
+    expect(output[3]).toEqual(outputItemExpression);
+  });
+
+  it('should return partial selection scoring expression with var "c"', () => {
+    service.setItemLinkIdsForTotalCalculation(phq9_partialScoringItemLinkIds);
+    const output = service.getScoringExpressions(copy(phq9.item), LINK_ID);
+    // @ts-ignore
+
+    // there should be only 3 item selections
+    expect(output.length).toEqual(3);
+
+    expect(output[1]).toEqual(outputItemExpression);
+  });
+
+
+  // PHQ9_GROUP
+  it('should return item scoring expression with var "d"', () => {
+    service.setItemLinkIdsForTotalCalculation(phq9_group_scoringItemLinkIds);
+    const output = service.composeItemExpressionsForScoreCalculation(copy(phq9_group.item), LINK_ID);
+    // @ts-ignore
+    // there should be 9 item selections
+    expect(output.length).toEqual(9);
+
+    expect(output[3]).toEqual(outputGroupItemWhereExpression);
+  });
+
+  it('should return partial selection item scoring expression with var "c"', () => {
+    service.setItemLinkIdsForTotalCalculation(phq9_group_partialScoringItemLinkIds);
+    const output = service.composeItemExpressionsForScoreCalculation(copy(phq9_group.item), LINK_ID);
+    // @ts-ignore
+    // there should be only 3 item selections
+    expect(output.length).toEqual(3);
+
+    expect(output[1]).toEqual(outputGroupItemWhereExpression);
+  });
+
+  it('should return scoring expression with var "d"', () => {
+    service.setItemLinkIdsForTotalCalculation(phq9_group_scoringItemLinkIds);
+    const output = service.getScoringExpressions(copy(phq9_group.item), LINK_ID);
+    // @ts-ignore
+
+    // there should be 9 item selections
+    expect(output.length).toEqual(9);
+
+    expect(output[3]).toEqual(outputGroupItemExpression);
+  });
+
+  it('should return partial selection scoring expression with var "c"', () => {
+    service.setItemLinkIdsForTotalCalculation(phq9_group_partialScoringItemLinkIds);
+    const output = service.getScoringExpressions(copy(phq9_group.item), LINK_ID);
+    // @ts-ignore
+
+    // there should be only 3 item selections
+    expect(output.length).toEqual(3);
+
+    expect(output[1]).toEqual(outputGroupItemExpression);
+  });
+
+  it('should return pre-selected link ids if available', () => {
+    const preselectedLinkIds = service.getSelectedScoringLinkIds(copy(phq9_preselected.item), LINK_ID);
+    // @ts-ignore
+
+    // there should be 6 items selected
+    expect(preselectedLinkIds.length).toEqual(6);
+
+    expect(preselectedLinkIds[0]).toEqual("/45900-0/44255-8");
+    expect(preselectedLinkIds[1]).toEqual("/44251-7");
+    expect(preselectedLinkIds[2]).toEqual("/44252-5");
+    expect(preselectedLinkIds[3]).toEqual("/44252-5/44255-8");
+    expect(preselectedLinkIds[4]).toEqual("/44260-8");
+    expect(preselectedLinkIds[5]).toEqual("/44260-8/45907-0/44259-0");
+  });
+
+  it('should return pre-selected link ids from the child item', () => {
+    const preselectedLinkIds = service.getSelectedScoringLinkIds(copy(phq9_preselected_child_total.item), LINK_ID);
+    // @ts-ignore
+
+    // there should be 6 items selected
+    expect(preselectedLinkIds.length).toEqual(2);
+
+    expect(preselectedLinkIds[0]).toEqual("/44251-7");
+    expect(preselectedLinkIds[1]).toEqual("/44258-2");
   });
 
   describe('score calculation getScoreItemIds', () => {
