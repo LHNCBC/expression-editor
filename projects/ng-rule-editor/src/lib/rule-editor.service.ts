@@ -733,7 +733,7 @@ export class RuleEditorService {
 
     if (hasQueryObservations !== undefined) {
       let patientLaunchContext;
-      
+
       if (fhir.extension && fhir.hasOwnProperty('extension')) {
         patientLaunchContext = fhir.extension.find((extension) => {
           if (extension.url === this.LAUNCH_CONTEXT_URI &&
