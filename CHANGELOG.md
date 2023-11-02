@@ -2,6 +2,13 @@
 
 This project follows [Semantic Versioning](http://semver.org/).
 
+## [3.1.6] 2023-11-01
+### Added
+- Added subscription event when variable is deleted
+- Fixed export not working issue with FHIR query variable
+- Fixed issue where duplicate uneditable variable gets added on every save
+- Fixed issue where uneditable variable is not available in the Output Expression section
+
 ## [3.1.5] 2023-10-20
 ### Added
 - Added help sections for Easy Path Expressions and FHIRPath Expressions 
