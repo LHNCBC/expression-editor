@@ -770,12 +770,18 @@ export class RuleEditorService {
           ]
         });
 
-        this.uneditableVariables.push({
-          name,
-          type,
-          description
-        });
-        this.uneditableVariablesChange.next(this.uneditableVariables);
+        // Check to see if the uneditable variable already exists. Add to 
+        // uneditableVariables if not.
+        const exists = (u) => u.name === name && u.type === type;
+        if (!this.uneditableVariables.some(exists)) {
+          this.uneditableVariables.push({
+            name,
+            type,
+            description
+          });
+
+          this.uneditableVariablesChange.next(this.uneditableVariables);
+        }
       }
     }
 
@@ -1080,5 +1086,13 @@ export class RuleEditorService {
     } else {
       return `%resource.item.where(linkId='${linkId}').answer.value`;
     }
+  }
+
+  /**
+   * Get uneditable and editable variable names
+   */
+  getVariableNames(): string[] {
+    return this.uneditableVariables.map(e => e.name).concat(
+      this.variables.map(e => e.label));
   }
 }
