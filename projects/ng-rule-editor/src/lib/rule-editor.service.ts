@@ -26,6 +26,7 @@ export class RuleEditorService {
   static SCORE_VARIABLE_EXTENSION = 'http://lhcforms.nlm.nih.gov/fhir/ext/rule-editor-score-variable';
   static SCORE_EXPRESSION_EXTENSION = 'http://lhcforms.nlm.nih.gov/fhir/ext/rule-editor-score-expression';
   static SIMPLE_SYNTAX_EXTENSION = 'http://lhcforms.nlm.nih.gov/fhir/ext/simple-syntax';
+  static VARIABLE_TYPE = 'http://lhcforms.nlm.nih.gov/fhir/ext/rule-editor-variable-type';
 
   syntaxType = 'simple';
   linkIdContext: string;
@@ -242,6 +243,40 @@ export class RuleEditorService {
   }
 
   /**
+   * Returns custom extension variable type for the given item extension
+   * @param extension - FHIR extension
+   * @return variable type defined in valueString or null
+   * @private
+   */
+  private getVariableTypeFromExtension(extension): string {
+    if (extension) {
+      if (extension.hasOwnProperty('valueExpression') && extension.valueExpression.hasOwnProperty('extension')) {
+        const variableType = extension.valueExpression.extension.find(e => e.url === RuleEditorService.VARIABLE_TYPE);
+
+        if (variableType && variableType !== undefined && variableType.hasOwnProperty('valueString'))
+          return variableType.valueString;
+      }
+    }
+
+    return null;
+  };
+
+  /**
+   * Returns expression language based on the variableType if available; 
+   * otherwise, returns from the extension valueExpression language
+   * @param extension - FHIR extension
+   * @param variableType - Custom extension variable type
+   * @return expression language ('text/fhirpath' or 'application/x-fhir-query')
+   * @private
+   */
+  private getExtensionLanguage(extension, variableType) {
+    if (variableType !== null) {
+      return (variableType.indexOf('query') > -1)?this.LANGUAGE_FHIR_QUERY:this.LANGUAGE_FHIRPATH;
+    }
+    return extension.valueExpression.language;
+  }
+
+  /**
    * Get and remove the variables from an item or FHIR questionnaire
    * @param item - FHIR Questionnaire or item
    * @return Array of variables
@@ -257,13 +292,18 @@ export class RuleEditorService {
 
     item.extension.forEach((extension) => {
       if (extension.url === this.VARIABLE_EXTENSION && extension.valueExpression) {
-        switch (extension.valueExpression.language) {
+
+        const extensionVariableType = this.getVariableTypeFromExtension(extension);
+        const extensionLanguage = this.getExtensionLanguage(extension, extensionVariableType);
+
+        switch(extensionLanguage) {
           case this.LANGUAGE_FHIRPATH:
             const fhirPathVarToAdd = this.processVariable(
               extension.valueExpression.name,
               extension.valueExpression.expression,
               extension.__$index,
-              extension.valueExpression.extension);
+              extension.valueExpression.extension,
+              extensionVariableType);
             if (fhirPathVarToAdd.type === 'expression') {
               this.needsAdvancedInterface = true;
             }
@@ -273,7 +313,8 @@ export class RuleEditorService {
             const queryVarToAdd = this.processQueryVariable(
               extension.valueExpression.name,
               extension.valueExpression.expression,
-              extension.__$index);
+              extension.__$index,
+              extensionVariableType);
             if (queryVarToAdd.type === 'query') {
               this.needsAdvancedInterface = true;
             }
@@ -521,12 +562,12 @@ export class RuleEditorService {
    * question, expression etc
    * @private
    */
-  private processVariable(name, expression, index?: number, extensions?): Variable {
+  private processVariable(name, expression, index?: number, extensions?, variableType?: string): Variable {
     const matches = expression.match(this.QUESTION_REGEX);
 
     const simpleExtension = extensions && extensions.find(e => e.url === RuleEditorService.SIMPLE_SYNTAX_EXTENSION);
 
-    if (matches !== null) {
+    if ((variableType && variableType === 'question') || (!variableType && matches !== null)) {
       const linkId = matches[1];
       const factor = matches[2];
 
@@ -548,10 +589,18 @@ export class RuleEditorService {
             return e.factor.toString() === factor;
           });
 
-          variable.unit = conversion.unit;
+          if (conversion && conversion.unit)
+            variable.unit = conversion.unit;
+          else {
+            return {
+              __$index: index,
+              label: name,
+              type: 'expression',
+              expression
+            };
+          }
         }
       }
-
       return variable;
     } else if (simpleExtension !== undefined) {
       return {
@@ -582,10 +631,10 @@ export class RuleEditorService {
    * question, expression etc
    * @private
    */
-  private processQueryVariable(name, expression, index?: number): Variable {
+  private processQueryVariable(name, expression, index?: number, variableType?: string): Variable {
     const matches = expression.match(this.QUERY_REGEX);
 
-    if (matches !== null) {
+    if ((variableType && variableType === "queryObservation") || (!variableType && matches !== null)) {
       const codes = matches[1].split('%2C');  // URL encoded comma ','
       const timeInterval = parseInt(matches[2], 10);
       const timeIntervalUnits = matches[3];
@@ -685,16 +734,22 @@ export class RuleEditorService {
         valueExpression: {
           name: e.label,
           language: e.type === 'query' ? this.LANGUAGE_FHIR_QUERY : this.LANGUAGE_FHIRPATH,
-          expression: e.expression
+          expression: e.expression,
+          extension: [{
+            "url": "http://lhcforms.nlm.nih.gov/fhir/ext/rule-editor-variable-type",
+            "valueString": e.type
+          }] 
         }
       };
 
       if (e.type === 'simple') {
         // @ts-ignore
-        variable.valueExpression.extension = [{
-          url: RuleEditorService.SIMPLE_SYNTAX_EXTENSION,
-          valueString: e.simple
-        }];
+        variable.valueExpression.extension.push(
+          {
+            url: RuleEditorService.SIMPLE_SYNTAX_EXTENSION,
+            valueString: e.simple
+          }
+        );
       }
 
       return variable;

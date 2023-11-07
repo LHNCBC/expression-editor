@@ -2,6 +2,15 @@
 
 This project follows [Semantic Versioning](http://semver.org/).
 
+## [3.1.8] 2023-11-07
+### Added
+- Added a custom extension to store the variable type for each variable in the Questionnaire
+
+## [3.1.7] 2023-11-07
+### Changed
+- Updated label for Case Statement
+- Fixed the css issue
+
 ## [3.1.6] 2023-11-01
 ### Added
 - Added subscription event when variable is deleted
