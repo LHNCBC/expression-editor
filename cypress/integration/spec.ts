@@ -48,7 +48,6 @@ describe('Rule editor', () => {
         cy.get('#question-1').parent().next('.unit-select').children('select').should('exist'); 
       });
 
-
       it('should URL encoded the output for the x-fhir-output', () => {
         cy.get('#questionnaire-select').select('BMI Calculation (Easy Path expression)');
         
@@ -636,6 +635,59 @@ describe('Rule editor', () => {
               .should('have.value', '');
           });
       });
+      
+      it('should display the output when the Save(export) button is clicked', () => {
+        cy.get('select#questionnaire-select').select('BMI Calculation');
+        cy.get('#variable-type-0 option').should('have.length', 5);
+
+        // Select FHIR Query (Observation) for Variable Type
+        cy.get('#variable-type-0').select('FHIR Query (Observation)');
+        cy.get('#autocomplete-0').type('weight');
+        cy.contains('29463-7').click();
+
+        // Confirm that the selection is displayed
+        cy.get('div#row-0')
+          .find('div.query-select > span.autocomp_selected > ul > li')
+          .should('have.text', '×Weight - 29463-7');
+
+        // Save (Export) should output the questionnaire for the given Variable Type
+        cy.get('#export').click();
+        cy.get('pre#output').should('contain.text', '(%a/(%b.power(2))).round(1)');
+      });
+
+      it('should get variable updates in the Output Expression section when adding/deleting variables', () => {
+        cy.get('select#questionnaire-select').select('BMI Calculation (Easy Path expression)');
+        
+        // Variables section
+        cy.get('lhc-variables > h2').should('contain', 'Item Variables');
+        cy.get('#variables-section .variable-row').should('have.length', 2);
+        
+        // Output expression 
+        cy.get('#simple-expression-final').clear().type('a + b');
+        cy.get('lhc-syntax-preview>div>div>pre').should('not.have.text', 'Not valid');
+  
+        // Add variable c
+        cy.get('#add-variable').click();
+        cy.get('#variables-section .variable-row').should('have.length', 3);
+        cy.get('#question-2').clear().type('BMI (/39156-5)');
+        cy.contains('39156-5').click();
+  
+        // Confirm that variable c is available for Output expression 
+        cy.get('#simple-expression-final').clear().type('a + b + c');
+        cy.get('lhc-syntax-preview>div>div>pre').should('not.have.text', 'Not valid');
+  
+        // Delete variable b
+        cy.get('#remove-variable-1').click();
+        cy.get('#variables-section .variable-row').should('have.length', 2);
+  
+        // Confirm that variable b is no longer available for Output expression
+        cy.get('lhc-syntax-preview>div>div>pre').should('contain.text', 'Not valid');
+  
+        // Confirm that expression without variable b is valid
+        cy.get('#simple-expression-final').clear().type('a + c');
+        cy.get('lhc-syntax-preview>div>div>pre').should('not.have.text', 'Not valid');
+  
+      });
     });
 
     describe('PHQ9 score calculation', () => {
@@ -655,6 +707,50 @@ describe('Rule editor', () => {
           'iif(%g.exists(), %g, 0) + iif(%h.exists(), %h, 0) + iif(%i.exists(), %i, 0), {})"'
         );
       });
+
+      it('should be able to access uneditable variable and no duplicate', () => {
+        cy.get('#questionnaire-select').select('PHQ9 (no FHIRPath)');
+        cy.get('.rule-editor').contains('Would you like to calculate the sum of scores?');
+        // Click no
+        cy.get('#skip-export-score').click();
+
+        // Variables section should be empty.
+        cy.get('lhc-variables > h2').should('contain', 'Item Variables');
+        cy.get('#variables-section .variable-row').should('have.length', 0);
+
+        // Add a variable and select FHIR Query (Observation) variable type
+        cy.get('#add-variable').click();
+        cy.get('#variables-section .variable-row').should('have.length', 1);
+        cy.get('#variable-type-0').select('FHIR Query (Observation)');
+        cy.get('#autocomplete-0').type('weight');
+        cy.contains('29463-7').click();
+
+        // Confirm that the selection is displayed
+        cy.get('div#row-0')
+          .find('div.query-select > span.autocomp_selected > ul > li')
+          .should('have.text', '×Weight - 29463-7');
+
+        // Uneditable variables section should be empty
+        cy.get('#uneditable-variables-section .variable-row').should('have.length', 0);
+
+        // Click Save
+        cy.get('#export').click();
+
+        // Uneditable variables section should now have one item
+        cy.get('#uneditable-variables-section .variable-row').should('have.length', 1);
+
+        // Click Save again
+        cy.get('#export').click();
+
+        // Uneditable variables section should still only have one item
+        cy.get('#uneditable-variables-section .variable-row').should('have.length', 1);
+
+        // Enter the uneditable variable 'patient' to the Output Expression,
+        // it should be valid.
+        cy.get('input.simple-expression').clear().type('patient');
+        cy.get('lhc-syntax-preview>div>div>pre').contains('%patient');
+      });
+
     });
 
     describe('Query support', () => {
@@ -751,7 +847,7 @@ describe('Rule editor', () => {
         cy.get('#add-variable').click();
         cy.get('#variable-label-2').type('{backspace}bmi');
         cy.get('#variable-type-2').select('Easy Path Expression');
-        cy.get('#variable-expression-2>input').type('a/b^2');
+        cy.get('#simple-expression-2').type('a/b^2');
 
         cy.get('#case-statements').should('not.be.checked');
         cy.get('#case-statements').check();

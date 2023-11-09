@@ -30,6 +30,7 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
   linkIdContext: string;
   calculateSum: boolean;
   variables: string[];
+  uneditableVariables: string[];
   caseStatements: boolean;
   disableInterfaceToggle = false;
   loadError = false;
@@ -37,6 +38,7 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
   private calculateSumSubscription;
   private finalExpressionSubscription;
   private variablesSubscription;
+  private uneditableVariablesSubscription;
   private disableAdvancedSubscription;
 
   constructor(private variableService: RuleEditorService, private liveAnnouncer: LiveAnnouncer) {}
@@ -49,7 +51,10 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
       this.finalExpression = finalExpression;
     });
     this.variablesSubscription = this.variableService.variablesChange.subscribe((variables) => {
-      this.variables = variables.map(e => e.label);
+      this.variables = this.variableService.getVariableNames();
+    });
+    this.uneditableVariablesSubscription = this.variableService.uneditableVariablesChange.subscribe((variables) => {
+      this.variables = this.variableService.getVariableNames();
     });
     this.disableAdvancedSubscription = this.variableService.disableAdvancedChange.subscribe((disable) => {
       this.disableInterfaceToggle = disable;
@@ -63,6 +68,7 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
     this.calculateSumSubscription.unsubscribe();
     this.finalExpressionSubscription.unsubscribe();
     this.variablesSubscription.unsubscribe();
+    this.uneditableVariablesSubscription.unsubscribe();
     this.disableAdvancedSubscription.unsubscribe();
   }
 
@@ -94,8 +100,7 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
     this.calculateSum = this.variableService.mightBeScore;
     this.finalExpressionExtension = this.variableService.finalExpressionExtension;
     this.finalExpression = this.variableService.finalExpression;
-    this.variables = this.variableService.uneditableVariables.map(e => e.name).concat(
-      this.variableService.variables.map(e => e.label));
+    this.variables = this.variableService.getVariableNames();
   }
 
   /**

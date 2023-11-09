@@ -26,9 +26,9 @@ h1 {
   margin-top: 0;
 }
 
-.flex-container {
-  display: flex;
-  flex-wrap: wrap;
+.expression>.flex-container {
+  width: 100%;
+  flex-wrap: nowrap;
   flex-direction: row;
 }
 

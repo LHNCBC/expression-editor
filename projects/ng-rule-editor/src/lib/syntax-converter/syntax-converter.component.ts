@@ -10,14 +10,15 @@ import { SimpleStyle } from '../rule-editor.service';
 export class SyntaxConverterComponent implements OnChanges {
   @Input() simple: string;
   @Input() variables;
+  @Input() index;
   @Input() lhcStyle: SimpleStyle = {};
   @Output() simpleChange = new EventEmitter<string>();
   @Output() expressionChange = new EventEmitter<string>();
-
+ 
   fhirPathExpression: string;
   jsToFhirPathPipe = new EasyPathExpressionsPipe();
 
-  constructor() { }
+  constructor() {}
 
   ngOnChanges(): void {
     this.onExpressionChange(this.simple);

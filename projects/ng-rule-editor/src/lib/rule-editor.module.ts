@@ -6,6 +6,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatRadioModule } from '@angular/material/radio';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { A11yModule } from '@angular/cdk/a11y';
 
 import { RuleEditorComponent } from './rule-editor.component';
 import { VariablesComponent } from './variables/variables.component';
@@ -17,6 +18,9 @@ import { SyntaxConverterComponent } from './syntax-converter/syntax-converter.co
 import { SyntaxPreviewComponent } from './syntax-preview/syntax-preview.component';
 import { QueryObservationComponent } from './query-observation/query-observation.component';
 import { CaseStatementsComponent } from './case-statements/case-statements.component';
+import { EasyPathExpressionHelpComponent } from './helps/easy-path-expression-help/easy-path-expression-help.component';
+import { FhirpathExpressionHelpComponent } from './helps/fhirpath-expression-help/fhirpath-expression-help.component';
+import { HelpsComponent } from './helps/helps.component';
 
 @NgModule({
   declarations: [
@@ -29,7 +33,10 @@ import { CaseStatementsComponent } from './case-statements/case-statements.compo
     SyntaxConverterComponent,
     SyntaxPreviewComponent,
     QueryObservationComponent,
-    CaseStatementsComponent
+    CaseStatementsComponent,
+    EasyPathExpressionHelpComponent,
+    FhirpathExpressionHelpComponent,
+    HelpsComponent
   ],
   imports: [
     FormsModule,
@@ -38,7 +45,8 @@ import { CaseStatementsComponent } from './case-statements/case-statements.compo
     MatRadioModule,
     ClipboardModule,
     MatTooltipModule,
-    MatSnackBarModule
+    MatSnackBarModule,
+    A11yModule
   ],
   exports: [
     RuleEditorComponent

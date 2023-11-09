@@ -1,0 +1,22 @@
+<div class="help">
+  <button 
+    class="help"
+    [id]="'exp-help-button-' + index"
+    (click)="openHelp()" 
+    [matTooltip]="matToolTip" >?
+  </button>
+
+  <lhc-fhirpath-expression-help
+    *ngIf="type==='expression'"
+    [id]="'exp-help-dialog-' + index"
+    [display]="showHelp"
+    (onCloseModal)="closeHelp()">
+  </lhc-fhirpath-expression-help>
+
+  <lhc-easy-path-expression-help
+    *ngIf="type==='simple'"
+    [id]="'exp-help-dialog-' + index"
+    [display]="showHelp"
+    (onCloseModal)="closeHelp()">
+  </lhc-easy-path-expression-help>
+</div>
