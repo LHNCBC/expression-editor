@@ -76,6 +76,7 @@
           <input
             [id]="'variable-expression-' + i"
             [(ngModel)]="variable.expression"
+            (change)="onExpressionChange($event, i)" 
             [style]="lhcStyle.input"
             aria-label="FHIRPath Expression" class="flex-item" />
         </div>
@@ -83,6 +84,7 @@
           <input
             [id]="'variable-expression-' + i"
             [(ngModel)]="variable.expression"
+            (change)="onExpressionChange($event, i)" 
             [style]="lhcStyle.input"
             aria-label="FHIR Query"
             placeholder="x-fhir-query" />
