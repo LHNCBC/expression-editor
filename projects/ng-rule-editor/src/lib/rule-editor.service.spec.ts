@@ -199,4 +199,71 @@ describe('RuleEditorService', () => {
     expect(output[0].linkId).toEqual('root');
     expect(output[1].linkId).toEqual('nested');
   });
+
+  describe('isValidDoubleBracesSyntax', () => {
+    it('should validate if string has valid double braces', () => {
+      // Contain no {{}}, return true
+      const output = service.isValidDoubleBracesSyntax("-date");
+      expect(output).toEqual(true);
+      const output2 = service.isValidDoubleBracesSyntax("{%patient.id}");
+      expect(output2).toEqual(true);
+
+      // Contain equal number of {{}}, in correct order, return true
+      const output3 = service.isValidDoubleBracesSyntax("{{%patient.id}}");
+      expect(output3).toEqual(true);
+      const output4 = service.isValidDoubleBracesSyntax("gt{{today()-1 months}} and {{day()}}");
+      expect(output4).toEqual(true);
+
+      // Either contain incorrect order or unequal number of {{ and }}, return false
+      const output5 = service.isValidDoubleBracesSyntax("}}%patient.id{{");
+      expect(output5).toEqual(false);
+      const output6 = service.isValidDoubleBracesSyntax("gh{{today()");
+      expect(output6).toEqual(false);
+      const output7 = service.isValidDoubleBracesSyntax("ghtoday()}}");
+      expect(output7).toEqual(false);
+      const output8 = service.isValidDoubleBracesSyntax("gt{{today()-1 months}} and {{day()");
+      expect(output8).toEqual(false);
+      const output9 = service.isValidDoubleBracesSyntax("{{{{%a * 2}} - %b}}");
+      expect(output9).toEqual(false);
+      const output10 = service.isValidDoubleBracesSyntax("{{{{{{%a * 2}} - %b}} + %c}}");
+      expect(output10).toEqual(false);      
+    });
+  });
+
+  describe('encodeParamValue', () => {
+    it('should URI encode string not include in double braces or content inside it', () => {
+      // URI encoded
+      const output = service.encodeParamValue("-date");
+      expect(output).toEqual("-date");
+      const output2 = service.encodeParamValue("{%patient.id}");
+      expect(output2).toEqual("%7B%25patient.id%7D");
+
+      // Contains valid double braces, no URI encoded on the braces or content inside
+      const output3 = service.encodeParamValue("{{%patient.id}}");
+      expect(output3).toEqual("{{%patient.id}}");
+
+      // URI encoded text before and between the two {{}}
+      const output4 = service.encodeParamValue("gt{{today()-1 months}} and {{day()}}");
+      expect(output4).toEqual("gt{{today()-1 months}}%20and%20{{day()}}");
+
+      // This has {{}} but in incorrect order, so the URI encode in this case.
+      // In the future, these will be shown as error.
+      const output5 = service.encodeParamValue("}}%patient.id{{");
+      expect(output5).toEqual("}}%patient.id{{");
+
+      // The following has unequal number of {{ and }}, so no URI encode in these cases.
+      // In the future, these will be shown as error.
+      const output6 = service.encodeParamValue("gh{{today()");
+      expect(output6).toEqual("gh{{today()");
+      const output7 = service.encodeParamValue("ghtoday()}}");
+      expect(output7).toEqual("ghtoday()}}");
+      const output8 = service.encodeParamValue("gt{{today()-1 months}} and {{day()");
+      expect(output8).toEqual("gt{{today()-1 months}} and {{day()");
+      const output9 = service.encodeParamValue("{{{{%a * 2}} - %b}}");
+      expect(output9).toEqual("{{{{%a * 2}} - %b}}");
+      const output10 = service.encodeParamValue("{{{{{{%a * 2}} - %b}} + %c}}");
+      expect(output10).toEqual("{{{{{{%a * 2}} - %b}} + %c}}");     
+    });
+  });
+
 });
