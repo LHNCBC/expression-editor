@@ -169,6 +169,8 @@ describe('Rule editor', () => {
             expect(parsedData.extension[0].valueExpression.name).to.exist;
             expect(parsedData.extension[0].valueExpression.name).to.have.string('root_variable0');
         });
+      });
+      
       it('should display the output when the Save(export) button is clicked', () => {
         cy.get('select#questionnaire-select').select('BMI Calculation');
         cy.get('#variable-type-0 option').should('have.length', 5);
