@@ -64,6 +64,7 @@
             [id]="'variable-expression-' + i"
             [index]="i"
             [simple]="variable.simple"
+            [index]="i"
             [variables]="getAvailableVariables(i)"
             [lhcStyle]="lhcStyle"
             (simpleChange)="updateSimpleExpression(i, $event)"
@@ -89,6 +90,7 @@
       </div>
       <div class="variable-column-actions">
         <button
+          [id]="'remove-variable-' + i"
           class="btn btn-danger remove-variable"
           aria-label="Remove variable"
           title="Remove variable"
