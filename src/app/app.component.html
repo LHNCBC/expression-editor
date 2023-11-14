@@ -51,25 +51,24 @@
   {{error}}
 </div>
 <div *ngIf="fhir">
-  <div class="rule-editor">
-    <lhc-rule-editor
-      [fhirQuestionnaire]="fhir"
-      [itemLinkId]="linkId"
+  <lhc-rule-editor
+    [fhirQuestionnaire]="fhir"
+    [itemLinkId]="linkId"
 
-      [submitButtonName]="'Save'"
-      [expressionLabel]="'Output Expression'"
-      [expressionUri]="linkId ? expressionUri : ''"
-      [userExpressionChoices]=userExpressionChoices
-      [lhcStyle]="{
-        buttonPrimary: { backgroundColor: 'navy', color: 'white' },
-        buttonSecondary: { backgroundColor: 'darkgreen', color: 'white' },
-        input: { backgroundColor: '#ffe' },
-        select: { backgroundColor: '#ffe' }
-      }"
-      [doNotAskToCalculateScore]="doNotAskToCalculateScore"
-      (save)="onSave($event)">
-    </lhc-rule-editor>
-  </div>
+    [submitButtonName]="'Save'"
+    [expressionLabel]="'Output Expression'"
+    [expressionUri]="linkId ? expressionUri : ''"
+    [userExpressionChoices]=userExpressionChoices
+    [lhcStyle]="{
+      buttonPrimary: { backgroundColor: 'navy', color: 'white' },
+      buttonSecondary: { backgroundColor: 'darkgreen', color: 'white' },
+      input: { backgroundColor: '#ffe' },
+      select: { backgroundColor: '#ffe' }
+    }"
+    [doNotAskToCalculateScore]="doNotAskToCalculateScore"
+    (save)="onSave($event)">
+  </lhc-rule-editor>
+
 
   <button *ngIf="fhirPreview" (click)="downloadJson(fhirPreview)" class="download">
     Download Questionnaire

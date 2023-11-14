@@ -860,17 +860,17 @@ export class RuleEditorService {
   }
 
   /**
-   * Build up the item hierarchy linkId expression to be used in the scoring expression.
-   * One noticable difference between items not in a group and items in a group is the generated
-   * expression. In the case of items in a group, the expression starts from the top node item and
+   * Build up the item where condition expressions to be used in the scoring expression. One noticable 
+   * difference between items not in a group and items in a group is the generated expression.
+   * In the case of items in a group, the where condition starts from the top node item and
    * works its way down the tree to the destination node.
    * An alternative approach is to use "repeat(item).where(linkId = 'xxx')" syntax. However, it may
    * lead to a potential performance impact when searching through a large number of items. 
    * @param items - Questionnaire items
-   * @param linkId - Link ID context
-   * @return Array of query expression
+   * @param linkId - link id of the total score item
+   * @return Array of link ids where conditions
    */
-  composeItemExpressionsForScoreCalculation(items, linkId: string): Array<string> {
+  composeItemsWhereConditionExpressions(items, linkId: string): Array<string> {
     const expressions = [];
     for (let i = 0; i < items.length; i++) {
       const item = items[i];
@@ -886,7 +886,7 @@ export class RuleEditorService {
       }
 
       if (item.item) {
-        const childExpressions = this.composeItemExpressionsForScoreCalculation(item.item, linkId);
+        const childExpressions = this.composeItemsWhereConditionExpressions(item.item, linkId);
         if (childExpressions.length > 0) {
           childExpressions.forEach((childExpression) => {
             expressions.push(".item.where(linkId = '" + item.linkId + "')" + childExpression);
@@ -902,13 +902,15 @@ export class RuleEditorService {
   }
 
   /**
-   * Build up the scoring expressions.
+   * Construct scoring expressions for variables to be used in the scoring calculation. The
+   * scoring expression is used to retrieve the "score" (valueDecimal) for the given item. 
    * @param items - Questionnaire items
    * @param linkId - link id of the total score item
    * @return Array of scoring expressions 
    */
-  getScoringExpressions(items, linkId: string): Array<string> {
-    const itemExpressions = this.composeItemExpressionsForScoreCalculation(items, linkId);
+  composeScoringItemsExpressions(items, linkId: string): Array<string> {
+    // Retrieve itmes where expressions
+    const itemExpressions = this.composeItemsWhereConditionExpressions(items, linkId);
     const scoreExpressions = itemExpressions.map((e, i) => {
       return `%questionnaire${e}.answerOption` +
         `.where(valueCoding.code=%resource${e}.answer.valueCoding.code).extension` +
@@ -930,7 +932,7 @@ export class RuleEditorService {
     const linkIdContext = this.linkIdContext;
 
     const variableNames = [];
-    const scoreExpressions = this.getScoringExpressions(fhir.item, linkIdContext);
+    const scoreExpressions = this.composeScoringItemsExpressions(fhir.item, linkIdContext);
 
     // Get as many short suggested variable names as we have score questions
     scoreExpressions.forEach(() => {
@@ -1135,7 +1137,7 @@ export class RuleEditorService {
   /**
    * Validate if the extension has an extension for calculating score
    * @param extension - FHIR Extension object
-   * @return Returns true if the extension has an extension for calculating score false otherwise
+   * @return True if the extension has an extension for calculating score false otherwise
    * @private
    */
   private isRuleEditorExtension(extension): boolean {
@@ -1212,10 +1214,11 @@ export class RuleEditorService {
    * @return Array of scoring items
    */
   getScoreItems(items, linkId: string = this.linkIdContext ): Array<string> {
+    const sItems = copy(items);
     let scoreItems = [];
 
-    for (let i = 0; i < items.length; i++) {
-      const item = items[i];
+    for (let i = 0; i < sItems.length; i++) {
+      const item = sItems[i];
       // Repeating items are currently not supported
       if (item.repeats) {
         continue;
@@ -1235,11 +1238,16 @@ export class RuleEditorService {
         const childScoreItems = this.getScoreItems(item.item, linkId);
         if (childScoreItems && childScoreItems.length > 0) {
           item.item = childScoreItems;
+          const hasScore = this.itemHasScore(item);
+          if (item.type === 'choice' ) {
+            item['hasScore'] = hasScore;
+          } 
           scoreItems.push(item);
         } else {
           item.item = [];
         }
       } else if (this.itemHasScore(item)) {
+        item['hasScore'] = true;
         scoreItems.push(item);
       }
     }

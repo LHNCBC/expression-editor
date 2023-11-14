@@ -7,8 +7,10 @@ import phq9 from '../../../../src/assets/phq9.json';
 import phq9_group from '../../../../src/assets/phq9_group.json';
 import phq9_preselected from '../../../../src/assets/phq9_preselected.json';
 
-// This file is not used in the demo, only here to test the getSelectedLinkIdsForScoring() function
-import phq9_preselected_child_total from '../../../../src/assets/phq9_preselected_child_total.json';
+// This file is not used in the demo. It is solely utilized for testing the 
+// getSelectedLinkIdsForScoring() function, specifically to validate the scenario where the 
+// Total Scoring calculation item is located at the child item level.
+import phq9_preselected_child_total from '../../../../src/test/data/phq9_preselected_child_total.json';
 
 const outputTotalScore = {
   url: 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression',
@@ -168,8 +170,7 @@ describe('RuleEditorService', () => {
 
   it('should return item scoring expression with var "i"', () => {
     service.setItemLinkIdsForTotalCalculation(phq9_scoringItemLinkIds);
-    const output = service.composeItemExpressionsForScoreCalculation(copy(phq9.item), LINK_ID);
-    // @ts-ignore
+    const output = service.composeItemsWhereConditionExpressions(copy(phq9.item), LINK_ID);
 
     // there should be 9 item selections
     expect(output.length).toEqual(9);
@@ -179,8 +180,7 @@ describe('RuleEditorService', () => {
 
   it('should return partial selection item scoring expression with var "c"', () => {
     service.setItemLinkIdsForTotalCalculation(phq9_partialScoringItemLinkIds);
-    const output = service.composeItemExpressionsForScoreCalculation(copy(phq9.item), LINK_ID);
-    // @ts-ignore
+    const output = service.composeItemsWhereConditionExpressions(copy(phq9.item), LINK_ID);
 
     // there should be only 3 item selections
     expect(output.length).toEqual(3);
@@ -190,8 +190,7 @@ describe('RuleEditorService', () => {
 
   it('should return scoring expression with var "d"', () => {
     service.setItemLinkIdsForTotalCalculation(phq9_scoringItemLinkIds);
-    const output = service.getScoringExpressions(copy(phq9.item), LINK_ID);
-    // @ts-ignore
+    const output = service.composeScoringItemsExpressions(copy(phq9.item), LINK_ID);
 
     // there should be 9 item selections
     expect(output.length).toEqual(9);
@@ -201,8 +200,7 @@ describe('RuleEditorService', () => {
 
   it('should return partial selection scoring expression with var "c"', () => {
     service.setItemLinkIdsForTotalCalculation(phq9_partialScoringItemLinkIds);
-    const output = service.getScoringExpressions(copy(phq9.item), LINK_ID);
-    // @ts-ignore
+    const output = service.composeScoringItemsExpressions(copy(phq9.item), LINK_ID);
 
     // there should be only 3 item selections
     expect(output.length).toEqual(3);
@@ -214,8 +212,8 @@ describe('RuleEditorService', () => {
   // PHQ9_GROUP
   it('should return item scoring expression with var "d"', () => {
     service.setItemLinkIdsForTotalCalculation(phq9_group_scoringItemLinkIds);
-    const output = service.composeItemExpressionsForScoreCalculation(copy(phq9_group.item), LINK_ID);
-    // @ts-ignore
+    const output = service.composeItemsWhereConditionExpressions(copy(phq9_group.item), LINK_ID);
+
     // there should be 9 item selections
     expect(output.length).toEqual(9);
 
@@ -224,8 +222,8 @@ describe('RuleEditorService', () => {
 
   it('should return partial selection item scoring expression with var "c"', () => {
     service.setItemLinkIdsForTotalCalculation(phq9_group_partialScoringItemLinkIds);
-    const output = service.composeItemExpressionsForScoreCalculation(copy(phq9_group.item), LINK_ID);
-    // @ts-ignore
+    const output = service.composeItemsWhereConditionExpressions(copy(phq9_group.item), LINK_ID);
+
     // there should be only 3 item selections
     expect(output.length).toEqual(3);
 
@@ -234,8 +232,8 @@ describe('RuleEditorService', () => {
 
   it('should return scoring expression with var "d"', () => {
     service.setItemLinkIdsForTotalCalculation(phq9_group_scoringItemLinkIds);
-    const output = service.getScoringExpressions(copy(phq9_group.item), LINK_ID);
-    // @ts-ignore
+    const output = service.composeScoringItemsExpressions(copy(phq9_group.item), LINK_ID);
+
 
     // there should be 9 item selections
     expect(output.length).toEqual(9);
@@ -245,8 +243,7 @@ describe('RuleEditorService', () => {
 
   it('should return partial selection scoring expression with var "c"', () => {
     service.setItemLinkIdsForTotalCalculation(phq9_group_partialScoringItemLinkIds);
-    const output = service.getScoringExpressions(copy(phq9_group.item), LINK_ID);
-    // @ts-ignore
+    const output = service.composeScoringItemsExpressions(copy(phq9_group.item), LINK_ID);
 
     // there should be only 3 item selections
     expect(output.length).toEqual(3);
@@ -256,7 +253,6 @@ describe('RuleEditorService', () => {
 
   it('should return pre-selected link ids if available', () => {
     const preselectedLinkIds = service.getSelectedScoringLinkIds(copy(phq9_preselected.item), LINK_ID);
-    // @ts-ignore
 
     // there should be 6 items selected
     expect(preselectedLinkIds.length).toEqual(6);
@@ -271,9 +267,8 @@ describe('RuleEditorService', () => {
 
   it('should return pre-selected link ids from the child item', () => {
     const preselectedLinkIds = service.getSelectedScoringLinkIds(copy(phq9_preselected_child_total.item), LINK_ID);
-    // @ts-ignore
 
-    // there should be 6 items selected
+    // there should be 2 items selected
     expect(preselectedLinkIds.length).toEqual(2);
 
     expect(preselectedLinkIds[0]).toEqual("/44251-7");

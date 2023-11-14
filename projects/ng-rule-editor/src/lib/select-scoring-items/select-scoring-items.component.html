@@ -60,7 +60,7 @@
 
             <div class="node-wrapper" [style.padding-left]="node.getNodePadding()">
               <input type="checkbox" style="margin-top:6px;" 
-                *ngIf="node.data.type =='choice'" class="tree-node-checkbox"
+                *ngIf="node.data.type =='choice' && node.data.hasScore" class="tree-node-checkbox"
                 [checked]="node.isActive"
                 (change)="node.toggleActivated(true)" />
               <span  style="margin: 10px;"></span>

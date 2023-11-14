@@ -100,7 +100,7 @@ export class SelectScoringItemsComponent implements OnInit {
     const toggleItemHierarchy = (node, status) => {
 
       // Only toggle if node.isActive is opposite from status 
-      if (node.data.type === 'choice' && status !== node.isActive)
+      if (node.data.type === 'choice' && status !== node.isActive && node.data.hasScore)
         node.toggleActivated(true);
   
       if (node.hasChildren) {

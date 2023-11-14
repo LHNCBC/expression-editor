@@ -34,6 +34,7 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
   disableInterfaceToggle = false;
   loadError = false;
   selectItems: boolean;
+  hideRuleEditor = false;
 
   private calculateSumSubscription;
   private finalExpressionSubscription;
@@ -73,6 +74,7 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
   ngOnChanges(): void {
     this.calculateSum = false;
     this.selectItems = false;
+    this.hideRuleEditor = false;
     this.reload(true);
   }
 
@@ -124,6 +126,10 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
    * values
    */
   addSumOfScores(): void {
+    this.calculateSum = false;
+    this.selectItems = false;
+    this.hideRuleEditor = true;
+
     this.variableService.removeSumOfScores(this.fhirQuestionnaire, this.linkIdContext);
     this.save.emit(this.variableService.addSumOfScores());
 
