@@ -16,12 +16,16 @@ object.
 * `fhirQuestionnaire` - The FHIR Questionnaire the user will edit using the
   widget.
 * `itemLinkId` - The linkID on which the FHIRPath expression will be stored.
+  If the FHIRPath expression is to be stored at the Questionnaire root level
+  rather than at the item levels, then an empty 'itemLinkId' should be passed in.
 * `save` - Callback called after the user clicks `save` inside the widget.
   The callback passes in the new version of the FHIR Questionnaire the user
   entered as a parameter.
 * `expressionUri` - By default the widget modifies the calculatedExpression.
   You can specify a different expression URL here. Only valueExpression
-  extensions are currently supported.
+  extensions are currently supported. If the FHIRPath expression is to be 
+  stored at the Questionnaire root level, the Output Expression section is
+  omitted; and as a result, the 'expressionUri' is not needed. 
 * `expressionLabel` - Heading name to use to show user when entering the
   expression.
 * `titleName` - Main widget heading shown to the user.
@@ -57,8 +61,13 @@ object.
 #### Angular Component Example
 
 Note that the attribute names need to be surrounded by square brackets.
-The only required attributes are `[fhirQuestionnaire]` and `[itemLinkId]`. To
-retrieve data use the `(save)` attribute.
+The only required attributes are `[fhirQuestionnaire]` and `[itemLinkId]`.
+
+If the FHIRPath expression is to be stored at the Questionnaire root level,
+only the `[fhirQuestionnaire]` is the requied attribute. An empty `[itemLinkId]`
+can be passed in or omitted altogether in that case. 
+
+To retrieve data use the `(save)` attribute.
 
     <lhc-rule-editor
       [fhirQuestionnaire]="fhir[questionnaire]"
