@@ -371,7 +371,7 @@ export class RuleEditorService {
       this.caseStatements = false;
       this.processItem(this.fhir.item);
 
-      if (linkIdContext !== undefined && linkIdContext !== '') {
+      if (linkIdContext) {
         this.uneditableVariables = this.getUneditableVariables(this.fhir, linkIdContext);
         this.variables = this.extractVariablesFromItems(this.fhir.item, linkIdContext);
       } else {

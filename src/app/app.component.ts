@@ -48,7 +48,7 @@ export class AppComponent implements OnInit, OnDestroy {
   linkId = '';
   linkIds;
   rootLevel = false;
-  defaultItemText = 'BMI (/39156-5)';
+  defaultItemText;
   expressionUri = this.calculatedExpression;
   userExpressionChoices = null;
   customExpressionUri = false;
@@ -90,6 +90,11 @@ export class AppComponent implements OnInit, OnDestroy {
 
           if (this.fhir && this.fhir.item instanceof Array) {
             this.linkIds = this.getQuestionnaireLinkIds(this.fhir.item);
+
+            this.defaultItemText = this.linkIds.find((item) => {
+              return item.linkId === this.linkId;
+            }).text.trim();
+
             this.composeAutocomplete();
 
             this.autoComplete.setFieldToListValue(this.defaultItemText);
