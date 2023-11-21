@@ -3,6 +3,7 @@ import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
 import { Variable, AllVariableType, SimpleVariableType } from '../variable';
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { RuleEditorService, SimpleStyle } from '../rule-editor.service';
+import copy from 'fast-copy';
 
 @Component({
   selector: 'lhc-variables',
@@ -16,6 +17,10 @@ export class VariablesComponent implements OnInit, OnChanges, OnDestroy {
   variableType: any = SimpleVariableType;
   variableSubscription;
   variables: Variable[];
+
+  currentVariable;
+  currentVariableIdx: number;
+  showConfirmDialog = false;
 
   constructor(private ruleEditorService: RuleEditorService) {}
 
@@ -99,9 +104,47 @@ export class VariablesComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   /**
+   * Proceed with changing from FHIRPath Expression to Easy Path Expression
+   */
+  convertFHIRPathToEasyPath(): void {
+    this.showConfirmDialog = false;
+    this.variables[this.currentVariableIdx].type = 'simple';
+    this.ruleEditorService.checkAdvancedInterface();
+  }
+
+  /**
+   * Cancel changing from FHIRPath Expression to Easy Path Expression
+   */
+  closeConvertDialog(): void {
+    this.showConfirmDialog = false;
+    this.variables[this.currentVariableIdx].type = 'expression';
+
+    this.variables[this.currentVariableIdx].type = this.currentVariable.type;
+  }
+
+
+  /**
    * Toggle the advanced interface based on the type
    */
-  onTypeChange(event): void {
+  onTypeChange(event, idx): void {
+    const previousValue = this.variables[idx].type;
+    if (previousValue === 'expression' && event.target.value === 'simple') {
+      this.currentVariableIdx = idx;
+      
+      if (this.variables[idx].expression !== '' &&
+          this.variables[idx].expression !== this.currentVariable.expression) {
+        this.variables[idx].type = '';
+        this.showConfirmDialog = true;
+
+      } else {
+        this.variables[idx].type = event.target.value;
+      }
+      return;
+    } else {
+      this.variables[idx].type = event.target.value;
+    }
+    this.currentVariable = copy(this.variables[idx]);
+
     if (event.target.value === 'query' || event.target.value === 'expression') {
       this.ruleEditorService.checkAdvancedInterface(true);
     } else {

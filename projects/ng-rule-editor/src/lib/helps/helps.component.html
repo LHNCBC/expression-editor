@@ -7,7 +7,7 @@
   </button>
 
   <lhc-fhirpath-expression-help
-    *ngIf="type==='expression'"
+    *ngIf="type==='expression' || type==='fhirpath'"
     [id]="'exp-help-dialog-' + index"
     [display]="showHelp"
     (onCloseModal)="closeHelp()">

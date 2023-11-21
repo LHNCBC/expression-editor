@@ -1,0 +1,31 @@
+<div 
+  cdkTrapFocus
+
+  role="dialog"
+  cdkFocusInitial
+  aria-modal="true"
+  id="fhirpath-easypath-overlay"
+  class="modal">
+
+  <div class="modal-content" #modal aria-modal="true">
+    <div class="modal-header">
+      <h2>Converting FHIRPath Expression to Easy Path Expression</h2>
+    </div>
+    <div class="modal-body">
+      <label>
+        The Rule Editor does not support conversion from FHIRPath Expression
+        to Easy Path Expression. Switching to the Easy Path Expression may 
+        result in fields not getting populated.
+      </label>
+      <p></p>
+      <label>
+        Proceed?
+      </label>
+
+    </div>
+    <div class="modal-footer">
+      <button id="proceed-convert" class="primary" [style]="lhcStyle.buttonPrimary" (click)="onConvertClick()" >Yes</button>
+      <button id="cancel-convert" (click)="onCloseClick()">No</button>
+    </div>
+  </div>
+</div>

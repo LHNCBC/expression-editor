@@ -21,6 +21,7 @@ import { CaseStatementsComponent } from './case-statements/case-statements.compo
 import { EasyPathExpressionHelpComponent } from './helps/easy-path-expression-help/easy-path-expression-help.component';
 import { FhirpathExpressionHelpComponent } from './helps/fhirpath-expression-help/fhirpath-expression-help.component';
 import { HelpsComponent } from './helps/helps.component';
+import { FhirpathToEasypathPromptComponent } from './fhirpath-to-easypath-prompt/fhirpath-to-easypath-prompt.component';
 
 @NgModule({
   declarations: [
@@ -36,7 +37,8 @@ import { HelpsComponent } from './helps/helps.component';
     CaseStatementsComponent,
     EasyPathExpressionHelpComponent,
     FhirpathExpressionHelpComponent,
-    HelpsComponent
+    HelpsComponent,
+    FhirpathToEasypathPromptComponent
   ],
   imports: [
     FormsModule,

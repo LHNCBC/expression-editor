@@ -97,3 +97,7 @@ lhc-case-statements {
     flex: 100%;
   }
 }
+
+.help {
+  padding-left: 10px;
+}

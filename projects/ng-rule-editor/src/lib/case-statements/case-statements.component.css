@@ -148,3 +148,7 @@ button {
 ::ng-deep .mat-tooltip {
   overflow-wrap: break-word;
 }
+
+.error {
+  border: 2px solid red !important;
+}

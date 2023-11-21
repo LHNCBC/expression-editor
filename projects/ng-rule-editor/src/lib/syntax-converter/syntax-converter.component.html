@@ -7,10 +7,12 @@
       (ngModelChange)="onExpressionChange($event)"
       class="simple-expression"
       aria-label="Easy Path Expression Text Input"
-      [style]="lhcStyle.input" />
+      [style]="lhcStyle.input"
+      [ngClass]="{'error': hasError}" />
     <lhc-syntax-preview
       [syntax]="fhirPathExpression"
-      [lhcStyle]="{'width': 'auto'}">
+      [lhcStyle]="{'width': 'auto'}"
+      [hasError]="hasError">
     </lhc-syntax-preview>
   </div>
 </div>

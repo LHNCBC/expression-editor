@@ -18,6 +18,8 @@ export class SyntaxConverterComponent implements OnChanges {
   fhirPathExpression: string;
   jsToFhirPathPipe = new EasyPathExpressionsPipe();
 
+  hasError = false;
+
   constructor() {}
 
   ngOnChanges(): void {
@@ -27,6 +29,10 @@ export class SyntaxConverterComponent implements OnChanges {
   onExpressionChange(simple): void {
     const fhirPath: string = this.jsToFhirPathPipe.transform(simple, this.variables);
     this.fhirPathExpression = fhirPath;
+
+    this.hasError = false;
+    if (fhirPath === 'Not valid' && !this.hasError)
+      this.hasError = true;
 
     this.simpleChange.emit(simple);
     this.expressionChange.emit(fhirPath);

@@ -14,13 +14,13 @@
         <svg cdkDragHandle xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="handle" viewBox="0 0 16 16">
           <path d="M7 2a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zM7 5a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zM7 8a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>
         </svg>
-        <input *ngIf="syntax !== 'simple'" type="text" [id]="'case-condition-' + i" [(ngModel)]="caseStatement.condition" (ngModelChange)="onChange()" [style]="lhcStyle.input" class="condition" aria-label="Case condition" />
-        <input *ngIf="syntax === 'simple'" type="text" [id]="'case-condition-' + i" [(ngModel)]="caseStatement.simpleCondition" (ngModelChange)="onChange()" [style]="lhcStyle.input" class="condition" aria-label="Case condition" />
+        <input *ngIf="syntax !== 'simple'" type="text" [id]="'case-condition-' + i" [(ngModel)]="caseStatement.condition" (ngModelChange)="onChange()" [style]="lhcStyle.input" class="condition" aria-label="Case condition" [ngClass]="{'error': caseStatement.error.condition}" />
+        <input *ngIf="syntax === 'simple'" type="text" [id]="'case-condition-' + i" [(ngModel)]="caseStatement.simpleCondition" (ngModelChange)="onChange()" [style]="lhcStyle.input" class="condition" aria-label="Case condition" [ngClass]="{'error': caseStatement.error.condition}" />
         <span class="arrow">→</span>
       </div>
       <div class="case-output-column">
-        <input *ngIf="syntax !== 'simple'" type="text" [id]="'case-output-' + i" [(ngModel)]="caseStatement.output" (ngModelChange)="onChange()" [style]="lhcStyle.input" class="output" aria-label="Case output" />
-        <input *ngIf="syntax === 'simple'" type="text" [id]="'case-output-' + i" [(ngModel)]="caseStatement.simpleOutput" (ngModelChange)="onChange()" [style]="lhcStyle.input" class="output" aria-label="Case output" />
+        <input *ngIf="syntax !== 'simple'" type="text" [id]="'case-output-' + i" [(ngModel)]="caseStatement.output" (ngModelChange)="onChange()" [style]="lhcStyle.input" class="output" aria-label="Case output" [ngClass]="{'error': caseStatement.error.output}"/>
+        <input *ngIf="syntax === 'simple'" type="text" [id]="'case-output-' + i" [(ngModel)]="caseStatement.simpleOutput" (ngModelChange)="onChange()" [style]="lhcStyle.input" class="output" aria-label="Case output" [ngClass]="{'error': caseStatement.error.output}"/>
       </div>
       <div class="case-column-actions" *ngIf="cases.length > 1">
         <button class="btn btn-danger remove-case" aria-label="Remove case" title="Remove case" [style]="lhcStyle.buttonDanger" (click)="onRemove(i)">x</button>
@@ -35,10 +35,9 @@
   <div class="case-condition-column"></div>
   <div class="case-output-column">
     <label>
-      Default output value:
-      <input *ngIf="syntax !== 'simple'" type="text" [(ngModel)]="defaultCase" (ngModelChange)="onChange()" [style]="lhcStyle.input" class="default" />
-      <input *ngIf="syntax === 'simple'" type="text" [(ngModel)]="simpleDefaultCase" (ngModelChange)="onChange()" [style]="lhcStyle.input" class="default" />
+      <input *ngIf="syntax !== 'simple'" type="text" [(ngModel)]="defaultCase" (ngModelChange)="onChange()" [style]="lhcStyle.input" class="default" [ngClass]="{'error': defaultCaseError}"/>
+      <input *ngIf="syntax === 'simple'" type="text" [(ngModel)]="simpleDefaultCase" (ngModelChange)="onChange()" [style]="lhcStyle.input" class="default" [ngClass]="{'error': defaultCaseError}"/>
     </label>
   </div>
 </div>
-<lhc-syntax-preview [lhcStyle]="lhcStyle" [syntax]="output" *ngIf="!hidePreview"></lhc-syntax-preview>
+<lhc-syntax-preview [lhcStyle]="lhcStyle" [syntax]="output" [hasError]="hasError" *ngIf="!hidePreview"></lhc-syntax-preview>

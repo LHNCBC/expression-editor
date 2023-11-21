@@ -11,7 +11,8 @@ export class SyntaxPreviewComponent implements OnInit {
   @Input() syntax;
   @Input() lhcStyle: SimpleStyle;
   @Input() showWhenEmpty = false;
-
+  @Input() hasError = false;
+  
   constructor(private snackBar: MatSnackBar) { }
 
   ngOnInit(): void {

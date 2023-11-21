@@ -35,6 +35,10 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
   disableInterfaceToggle = false;
   loadError = false;
 
+  previousExpressionSyntax;
+  previousFinalExpression;
+  showConfirmDialog = false;
+
   private calculateSumSubscription;
   private finalExpressionSubscription;
   private variablesSubscription;
@@ -138,6 +142,21 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
    * Toggle the advanced interface based on the type
    */
   onTypeChange(event): void {
+     if (this.expressionSyntax === 'fhirpath' && event.target.value === 'simple') {
+      if (this.finalExpression !== '' && this.finalExpression !== this.previousFinalExpression) {
+        this.previousExpressionSyntax = this.expressionSyntax;
+        this.expressionSyntax = '';
+        this.showConfirmDialog = true;
+      } else {
+        this.previousExpressionSyntax = event.target.value;
+        this.expressionSyntax = event.target.value;
+      }
+      return;
+    } else {
+      this.expressionSyntax = event.target.value;
+    }
+    this.previousFinalExpression = this.finalExpression;
+
     if (event.target.value === 'fhirpath') {
       this.variableService.checkAdvancedInterface(true);
     } else {
@@ -152,5 +171,36 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
     } else {
       this.disableInterfaceToggle = false;
     }
+  }
+
+  /**
+   * Proceed with changing from FHIRPath Expression to Easy Path Expression
+   */
+  convertFHIRPathToEasyPath(): void {
+    if (this.previousFinalExpression &&
+        this.previousFinalExpression !== this.finalExpression && 
+        this.simpleExpression && 
+        this.simpleExpression !== '') {
+      this.simpleExpression = '';
+    }
+    this.showConfirmDialog = false;
+    this.expressionSyntax = 'simple';
+
+    this.variableService.checkAdvancedInterface();
+
+    if (this.variableService.needsAdvancedInterface) {
+      this.advancedInterface = true;
+      this.disableInterfaceToggle = true;
+    } else {
+      this.disableInterfaceToggle = false;
+    }
+  }
+
+  /**
+   * Cancel changing from FHIRPath Expression to Easy Path Expression
+   */
+  closeConvertDialog(): void {
+    this.expressionSyntax = 'fhirpath';
+    this.showConfirmDialog = false;
   }
 }

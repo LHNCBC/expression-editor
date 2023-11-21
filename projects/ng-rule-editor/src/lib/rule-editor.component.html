@@ -20,6 +20,14 @@
   <section id="final-expression-section" class="mb-3" *ngIf="expressionUri">
     <h2 [style]="lhcStyle.h2">{{expressionLabel}}</h2>
 
+    <lhc-fhirpath-to-easypath-prompt 
+      *ngIf="showConfirmDialog"
+      [currentVariable]="currentVariable"
+      (convert)="convertFHIRPathToEasyPath()"
+      (onCloseModal)="closeConvertDialog()" 
+      [lhcStyle]="lhcStyle">
+    </lhc-fhirpath-to-easypath-prompt>
+
     <div class="expression-type flex-vertical" *ngIf="userExpressionChoices">
       <label for="expression-type">Expression Type</label>
       <select id="expression-type" class="form-control" aria-label="Expression type" [ngStyle]="lhcStyle.select" [(ngModel)]="finalExpressionExtension.url">
@@ -37,13 +45,14 @@
         <select
           id="variable-type-final"
           class="form-control"
-          [(ngModel)]="expressionSyntax"
+          [ngModel]="expressionSyntax"
           (change)="onTypeChange($event)"
           aria-label="Expression syntax type"
           [ngStyle]="lhcStyle.select">
           <option value="simple">Easy Path Expression</option>
           <option value="fhirpath">FHIRPath Expression</option>
         </select>
+        <lhc-helps *ngIf="caseStatements" [type]="expressionSyntax" [index]="'case'" class="flex-item help" ></lhc-helps>
       </div>
       <div *ngIf="!caseStatements" class="expression" [ngSwitch]="expressionSyntax">
         <lhc-syntax-converter
