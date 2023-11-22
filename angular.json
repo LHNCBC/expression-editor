@@ -30,6 +30,11 @@
                 "glob": "rule-editor.js",
                 "input": "dist/rule-editor/",
                 "output": ""
+              },
+              {
+                "glob": "rule-editor.js.map",
+                "input": "dist/rule-editor/",
+                "output": ""
               }
             ],
             "styles": [
