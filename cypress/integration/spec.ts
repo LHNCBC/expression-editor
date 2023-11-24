@@ -873,6 +873,82 @@ describe('Rule editor', () => {
         cy.get('lhc-case-statements > lhc-syntax-preview').contains(
           `iif(%bmi<18.5,'underweight',iif(%bmi<25,'normal',iif(%bmi<30,'overweight','obese')))`);
       });
+
+      it('should reset case statements when switching between 2 case statements questionnaire', () => {
+        cy.intercept('/bmicase.json').as('bmicase');
+        cy.get('select#questionnaire-select').select('BMI Calculation (with cases)');
+        cy.wait('@bmicase');
+
+        cy.get('#advanced-interface').should('be.checked');
+
+        // There should be 3 case statements
+        cy.get('#cdk-drop-list-1 > div').should('have.length', 3);
+        cy.get('#case-condition-0').should('have.value', '%bmi<18.5');
+        cy.get('#case-output-0').should('have.value', "'underweight'");
+        cy.get('#case-condition-1').should('have.value', '%bmi<25');
+        cy.get('#case-output-1').should('have.value', "'normal'");
+        cy.get('#case-condition-2').should('have.value', '%bmi<30');
+        cy.get('#case-output-2').should('have.value', "'overweight'");
+                
+        // Change variable type to Easy Path Expression
+        cy.get('#variable-type-final').should('exist').select('simple');
+
+        // There should still be 3 case statements. But the cases/expressions might be blank.
+        cy.get('#cdk-drop-list-1 > div').should('have.length', 3);
+        cy.get('#case-condition-0').should('be.empty');
+        cy.get('#case-output-0').should('be.empty');
+        cy.get('#case-condition-1').should('be.empty');
+        cy.get('#case-output-1').should('be.empty');
+        cy.get('#case-condition-2').should('be.empty');
+        cy.get('#case-output-2').should('be.empty');
+        
+        // Switch questionnaire to 'BMI Calculation (Easy Path expression with cases)'
+        cy.get('select#questionnaire-select').select('BMI Calculation (Easy Path expression with cases)');
+
+        // Case statement expressions and outputs should be populated
+        cy.get('#cdk-drop-list-1 > div').should('have.length', 3);
+        cy.get('#case-condition-0').should('have.value', 'bmi<18.5');
+        cy.get('#case-output-0').should('have.value', "underweight");
+        cy.get('#case-condition-1').should('have.value', 'bmi<25');
+        cy.get('#case-output-1').should('have.value', "normal");
+        cy.get('#case-condition-2').should('have.value', 'bmi<30');
+        cy.get('#case-output-2').should('have.value', "overweight");
+      });
+
+      it('should reset case statements when switching between 2 case statements questionnaire 2', () => {
+        cy.intercept('/bmicasesimple.json').as('bmicasesimple');
+        cy.get('select#questionnaire-select').select('BMI Calculation (Easy Path expression with cases)');
+        cy.wait('@bmicasesimple');
+
+        // Check the 'Advanced interface' checkbox
+        cy.get('#advanced-interface').should('not.be.checked');
+        cy.get('#advanced-interface').click();
+
+        // Case statement expressions and outputs should be populated
+        cy.get('#cdk-drop-list-1 > div').should('have.length', 3);
+        cy.get('#case-condition-0').should('have.value', 'bmi<18.5');
+        cy.get('#case-output-0').should('have.value', "underweight");
+        cy.get('#case-condition-1').should('have.value', 'bmi<25');
+        cy.get('#case-output-1').should('have.value', "normal");
+        cy.get('#case-condition-2').should('have.value', 'bmi<30');
+        cy.get('#case-output-2').should('have.value', "overweight");
+
+        // Clear the case output and type 'underweight1234'
+        cy.get('#case-output-0').clear().type('underweight1234');
+
+        // Switch questionnaire to 'BMI Calculation (with cases)'
+        cy.get('select#questionnaire-select').select('BMI Calculation (with cases)');
+
+        // There should be 3 case statements
+        cy.get('#cdk-drop-list-1 > div').should('have.length', 3);
+        cy.get('#case-condition-0').should('have.value', '%bmi<18.5');
+        cy.get('#case-output-0').should('have.value', "'underweight'");
+        cy.get('#case-condition-1').should('have.value', '%bmi<25');
+        cy.get('#case-output-1').should('have.value', "'normal'");
+        cy.get('#case-condition-2').should('have.value', '%bmi<30');
+        cy.get('#case-output-2').should('have.value', "'overweight'");
+      });
+
     });
   });
 });
