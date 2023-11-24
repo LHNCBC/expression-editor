@@ -83,7 +83,6 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
     this.expressionSyntax = null;
     this.simpleExpression = null;
     this.finalExpression = null;
-    //this.finalExpressionExtension = null;
     this.linkIdContext = null;
     this.calculateSum = false;
     this.variables = [];
