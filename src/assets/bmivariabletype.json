@@ -169,7 +169,7 @@
         {
           "url": "http://hl7.org/fhir/StructureDefinition/variable",
           "valueExpression": {
-            "name": "a",
+            "name": "question_weight_kg",
             "language": "text/fhirpath",
             "expression": "%resource.item.where(linkId='/29463-7').answer.value",
             "extension": [
@@ -183,9 +183,9 @@
         {
           "url": "http://hl7.org/fhir/StructureDefinition/variable",
           "valueExpression": {
-            "name": "b",
+            "name": "question_weight_lbs",
             "language": "text/fhirpath",
-            "expression": "%resource.item.where(linkId='/8302-2').answer.value",
+            "expression": "%resource.item.where(linkId='/29463-7').answer.value*2.20462",
             "extension": [
               {
                 "url": "http://lhcforms.nlm.nih.gov/fhir/ext/rule-editor-variable-type",
@@ -204,7 +204,63 @@
         {
           "url": "http://hl7.org/fhir/StructureDefinition/variable",
           "valueExpression": {
-            "name": "c_fhirpath_exp",
+            "name": "question_height_in",
+            "language": "text/fhirpath",
+            "expression": "%resource.item.where(linkId='/8302-2').answer.value",
+            "extension": [
+              {
+                "url": "http://lhcforms.nlm.nih.gov/fhir/ext/rule-editor-variable-type",
+                "valueString": "question"
+              }
+            ]
+          }
+        },
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/variable",
+          "valueExpression": {
+            "name": "question_height_cm",
+            "language": "text/fhirpath",
+            "expression": "%resource.item.where(linkId='/8302-2').answer.value*2.54",
+            "extension": [
+              {
+                "url": "http://lhcforms.nlm.nih.gov/fhir/ext/rule-editor-variable-type",
+                "valueString": "question"
+              }
+            ]
+          }
+        },
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/variable",
+          "valueExpression": {
+            "name": "question_height_m",
+            "language": "text/fhirpath",
+            "expression": "%resource.item.where(linkId='/8302-2').answer.value*0.0254",
+            "extension": [
+              {
+                "url": "http://lhcforms.nlm.nih.gov/fhir/ext/rule-editor-variable-type",
+                "valueString": "question"
+              }
+            ]
+          }
+        },
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/variable",
+          "valueExpression": {
+            "name": "question_invalid_factor",
+            "language": "text/fhirpath",
+            "expression": "%resource.item.where(linkId='/8302-2').answer.value*9999",
+            "extension": [
+              {
+                "url": "http://lhcforms.nlm.nih.gov/fhir/ext/rule-editor-variable-type",
+                "valueString": "question"
+              }
+            ]
+          }
+        },
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/variable",
+          "valueExpression": {
+            "name": "fhirpath_exp",
             "language": "text/fhirpath",
             "expression": "%resource.item.where(linkId='/8302-2').answer.value",
             "extension": [
@@ -218,7 +274,21 @@
         {
           "url": "http://hl7.org/fhir/StructureDefinition/variable",
           "valueExpression": {
-            "name": "d_fhir_query",
+            "name": "fhirpath_exp2",
+            "language": "text/fhirpath",
+            "expression": "Observation?code=http://loinc.org|2922-3&date=gt{{today()-1 months}}&patient={{%patient.id}}&_sort=-date&_count=1",
+            "extension": [
+              {
+                "url": "http://lhcforms.nlm.nih.gov/fhir/ext/rule-editor-variable-type",
+                "valueString": "expression"
+              }
+            ]
+          }
+        },
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/variable",
+          "valueExpression": {
+            "name": "fhir_query",
             "language": "application/x-fhir-query",
             "expression": "%resource.item.where(linkId='/8352-7').answer.value",
             "extension": [
@@ -232,9 +302,23 @@
         {
           "url": "http://hl7.org/fhir/StructureDefinition/variable",
           "valueExpression": {
-            "name": "e_fhir_obs",
+            "name": "fhir_query2",
+            "language": "application/x-fhir-query",
+            "expression": "Observation?code=http://loinc.org|2922-3&date=gt{{today()-1 months}}&patient={{%patient.id}}&_sort=-date&_count=1",
+            "extension": [
+              {
+                "url": "http://lhcforms.nlm.nih.gov/fhir/ext/rule-editor-variable-type",
+                "valueString": "query"
+              }
+            ]
+          }
+        },
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/variable",
+          "valueExpression": {
+            "name": "fhir_query_obs_1_day",
             "language": "text/fhirpath",
-            "expression": "Observation?code=weight&date=gt{{today()-1 months}}&patient={{%patient.id}}&_sort=-date&_count=1",
+            "expression": "Observation?code=http://loinc.org|2922-3&date=gt{{today()-1 days}}&patient={{%patient.id}}&_sort=-date&_count=1",
             "extension": [
               {
                 "url": "http://lhcforms.nlm.nih.gov/fhir/ext/rule-editor-variable-type",
@@ -246,13 +330,13 @@
         {
           "url": "http://hl7.org/fhir/StructureDefinition/variable",
           "valueExpression": {
-            "name": "f_question",
+            "name": "fhir_query_obs_2_weeks",
             "language": "text/fhirpath",
-            "expression": "%resource.item.where(linkId='/29463-7').answer.value",
+            "expression": "Observation?code=http://loinc.org|2922-3&date=gt{{today()-2 weeks}}&patient={{%patient.id}}&_sort=-date&_count=1",
             "extension": [
               {
                 "url": "http://lhcforms.nlm.nih.gov/fhir/ext/rule-editor-variable-type",
-                "valueString": "question"
+                "valueString": "queryObservation"
               }
             ]
           }
@@ -260,7 +344,35 @@
         {
           "url": "http://hl7.org/fhir/StructureDefinition/variable",
           "valueExpression": {
-            "name": "g_simple",
+            "name": "fhir_query_obs_3_months",
+            "language": "text/fhirpath",
+            "expression": "Observation?code=http://loinc.org|2922-3&date=gt{{today()-3 months}}&patient={{%patient.id}}&_sort=-date&_count=1",
+            "extension": [
+              {
+                "url": "http://lhcforms.nlm.nih.gov/fhir/ext/rule-editor-variable-type",
+                "valueString": "queryObservation"
+              }
+            ]
+          }
+        },
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/variable",
+          "valueExpression": {
+            "name": "fhir_query_obs_4_years",
+            "language": "text/fhirpath",
+            "expression": "Observation?code=http://loinc.org|2922-3&date=gt{{today()-4 years}}&patient={{%patient.id}}&_sort=-date&_count=1",
+            "extension": [
+              {
+                "url": "http://lhcforms.nlm.nih.gov/fhir/ext/rule-editor-variable-type",
+                "valueString": "queryObservation"
+              }
+            ]
+          }
+        },
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/variable",
+          "valueExpression": {
+            "name": "easy_path_exp",
             "language": "text/fhirpath",
             "expression": "1 + 1",
             "extension": [
@@ -276,26 +388,11 @@
           }
         },
 
-        {
-          "url": "http://hl7.org/fhir/StructureDefinition/variable",
-          "valueExpression": {
-            "name": "h_question_invalid_factor",
-            "language": "text/fhirpath",
-            "expression": "%resource.item.where(linkId='/8302-2').answer.value*5.54",
-            "extension": [
-              {
-                "url": "http://lhcforms.nlm.nih.gov/fhir/ext/rule-editor-variable-type",
-                "valueString": "question"
-              }
-            ]
-          }
-        },
-
 
         {
           "url": "http://hl7.org/fhir/StructureDefinition/variable",
           "valueExpression": {
-            "name": "c_no_vartype_fhirpath_exp",
+            "name": "fhirpath_exp_var_type_not_defined",
             "language": "text/fhirpath",
             "expression": "%resource.item.where(linkId='/8302-2').answer.value"
           }
@@ -303,7 +400,15 @@
         {
           "url": "http://hl7.org/fhir/StructureDefinition/variable",
           "valueExpression": {
-            "name": "d_no_vartype_fhir_query",
+            "name": "fhirpath_exp_var_type_not_defined2",
+            "language": "text/fhirpath",
+            "expression": "Observation?code=http://loinc.org|2922-3&date=gt{{today()-1 months}}&patient={{%patient.id}}&_sort=-date&_count=1"
+          }
+        },
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/variable",
+          "valueExpression": {
+            "name": "fhir_query_var_type_not_defined",
             "language": "application/x-fhir-query",
             "expression": "%resource.item.where(linkId='/8352-7').answer.value"
           }
@@ -311,23 +416,31 @@
         {
           "url": "http://hl7.org/fhir/StructureDefinition/variable",
           "valueExpression": {
-            "name": "e_no_vartype_fhir_obs",
-            "language": "text/fhirpath",
-            "expression": "Observation?code=weight&date=gt{{today()-1 months}}&patient={{%patient.id}}&_sort=-date&_count=1"
+            "name": "fhir_query_var_type_not_defined2",
+            "language": "application/x-fhir-query",
+            "expression": "Observation?code=http://loinc.org|2922-3&date=gt{{today()-1 months}}&patient={{%patient.id}}&_sort=-date&_count=1"
           }
         },
         {
           "url": "http://hl7.org/fhir/StructureDefinition/variable",
           "valueExpression": {
-            "name": "f_no_vartype_question",
+            "name": "fhir_query_obs_var_type_not_defined",
             "language": "text/fhirpath",
-            "expression": "%resource.item.where(linkId='/29463-7').answer.value"
+            "expression": "Observation?code=http://loinc.org|2922-3&date=gt{{today()-1 months}}&patient={{%patient.id}}&_sort=-date&_count=1"
           }
         },
         {
           "url": "http://hl7.org/fhir/StructureDefinition/variable",
           "valueExpression": {
-            "name": "g_no_vartype_simple",
+            "name": "question_var_type_not_defined",
+            "language": "text/fhirpath",
+            "expression": "%resource.item.where(linkId='/8352-7').answer.value"
+          }
+        },
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/variable",
+          "valueExpression": {
+            "name": "easy_path_exp_var_type_not_defined",
             "language": "text/fhirpath",
             "expression": "1 + 1",
             "extension": [
@@ -338,18 +451,18 @@
             ]
           }
         },
-
-
-
-
-
-
         {
           "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression",
           "valueExpression": {
             "description": "BMI calculation",
             "language": "text/fhirpath",
-            "expression": "(%a/(%b.power(2))).round(1)"
+            "expression": "Not valid",
+            "extension": [
+              {
+                "url": "http://lhcforms.nlm.nih.gov/fhir/ext/simple-syntax",
+                "valueString": "a/b^2"
+              }
+            ]
           }
         }
       ],

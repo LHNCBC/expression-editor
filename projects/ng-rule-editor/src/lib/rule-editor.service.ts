@@ -249,13 +249,11 @@ export class RuleEditorService {
    * @private
    */
   private getVariableTypeFromExtension(extension): string {
-    if (extension) {
-      if (extension.hasOwnProperty('valueExpression') && extension.valueExpression.hasOwnProperty('extension')) {
-        const variableType = extension.valueExpression.extension.find(e => e.url === RuleEditorService.VARIABLE_TYPE);
+    if (extension?.valueExpression?.extension) {
+      const variableType = extension.valueExpression.extension.find(e => e.url === RuleEditorService.VARIABLE_TYPE);
 
-        if (variableType && variableType !== undefined && variableType.hasOwnProperty('valueString'))
-          return variableType.valueString;
-      }
+      if (variableType?.valueString)
+        return variableType.valueString;
     }
 
     return null;
@@ -271,7 +269,7 @@ export class RuleEditorService {
    */
   private getExtensionLanguage(extension, variableType) {
     if (variableType !== null) {
-      return (variableType.indexOf('query') > -1)?this.LANGUAGE_FHIR_QUERY:this.LANGUAGE_FHIRPATH;
+      return (variableType.indexOf('query') > -1) ? this.LANGUAGE_FHIR_QUERY : this.LANGUAGE_FHIRPATH;
     }
     return extension.valueExpression.language;
   }
@@ -567,7 +565,7 @@ export class RuleEditorService {
 
     const simpleExtension = extensions && extensions.find(e => e.url === RuleEditorService.SIMPLE_SYNTAX_EXTENSION);
 
-    if ((variableType && variableType === 'question') || (!variableType && matches !== null)) {
+    if ((variableType === 'question') || (!variableType && matches !== null)) {
       const linkId = matches[1];
       const factor = matches[2];
 
@@ -634,7 +632,7 @@ export class RuleEditorService {
   private processQueryVariable(name, expression, index?: number, variableType?: string): Variable {
     const matches = expression.match(this.QUERY_REGEX);
 
-    if ((variableType && variableType === "queryObservation") || (!variableType && matches !== null)) {
+    if ((variableType === "queryObservation") || (!variableType && matches !== null)) {
       const codes = matches[1].split('%2C');  // URL encoded comma ','
       const timeInterval = parseInt(matches[2], 10);
       const timeIntervalUnits = matches[3];
@@ -790,7 +788,7 @@ export class RuleEditorService {
     if (hasQueryObservations !== undefined) {
       let patientLaunchContext;
 
-      if (fhir.extension && fhir.hasOwnProperty('extension')) {
+      if (fhir?.extension) {
         patientLaunchContext = fhir.extension.find((extension) => {
           if (extension.url === this.LAUNCH_CONTEXT_URI &&
               Array.isArray(extension.extension)) {
@@ -1137,9 +1135,9 @@ export class RuleEditorService {
         `.where(valueCoding.code=%resource.item.where(linkId = '${linkId}').answer.valueCoding.code).extension` +
         `.where(url='http://hl7.org/fhir/StructureDefinition/ordinalValue').valueDecimal`;
     } else if (convertible && unit && toUnit) {
-      const factor = UNIT_CONVERSION[unit].find((e) => e.unit === toUnit).factor;
+      const factor = UNIT_CONVERSION[unit].find((e) => e.unit === toUnit).factor;   
       return `%resource.item.where(linkId='${linkId}').answer.value*${factor}`;
-    } else {
+    } else {    
       return `%resource.item.where(linkId='${linkId}').answer.value`;
     }
   }
