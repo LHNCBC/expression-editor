@@ -421,6 +421,12 @@ export class RuleEditorService {
         expressionUri = '';
       }
 
+      this.variables.forEach((variable, index) => {
+        if (variable.type === "expression" || variable.type === "query" || variable.type === "queryObservation") {
+          variable.expression = this.decodeQueryURIExpression(variable.expression);
+        }
+      });
+
       this.uneditableVariablesChange.next(this.uneditableVariables);
       this.variablesChange.next(this.variables);
 
@@ -619,6 +625,18 @@ export class RuleEditorService {
   }
 
   /**
+   * Retrieves Query Observation from the expression.
+   * @param name - Name to assign variable
+   * @param expression - Expression to process
+   * @param index - Original order in extension list
+   * @return Returns a Query Observation or null
+   */
+  getQueryObservationFromExpression(name, expression, index?:number) : Variable {
+    const queryObservation = this.processQueryVariable(name, expression, index);
+    return (queryObservation.type === "queryObservation")?queryObservation:null;
+  }
+
+  /**
    * Process a x-fhir-query expression into a more user friendly format if
    * possible. Show a code autocomplete field if possible if not show the
    * expression editing field.
@@ -630,10 +648,9 @@ export class RuleEditorService {
    * @private
    */
   private processQueryVariable(name, expression, index?: number, variableType?: string): Variable {
-    const matches = expression.match(this.QUERY_REGEX);
-
+    let matches = this.decodeQueryURIExpression(expression).match(this.QUERY_REGEX);
     if ((variableType === "queryObservation") || (!variableType && matches !== null)) {
-      const codes = matches[1].split('%2C');  // URL encoded comma ','
+      const codes = matches[1].split(',');
       const timeInterval = parseInt(matches[2], 10);
       const timeIntervalUnits = matches[3];
 
@@ -732,7 +749,8 @@ export class RuleEditorService {
         valueExpression: {
           name: e.label,
           language: e.type === 'query' ? this.LANGUAGE_FHIR_QUERY : this.LANGUAGE_FHIRPATH,
-          expression: e.expression,
+          expression: (e.type === 'expression' || e.type === 'query' || e.type === 'queryObservation') ? 
+            this.encodeQueryURIExpression(e.expression) : e.expression,
           extension: [{
             "url": "http://lhcforms.nlm.nih.gov/fhir/ext/rule-editor-variable-type",
             "valueString": e.type
@@ -742,12 +760,10 @@ export class RuleEditorService {
 
       if (e.type === 'simple') {
         // @ts-ignore
-        variable.valueExpression.extension.push(
-          {
+        variable.valueExpression.extension.push({
             url: RuleEditorService.SIMPLE_SYNTAX_EXTENSION,
             valueString: e.simple
-          }
-        );
+        });
       }
 
       return variable;
@@ -1142,6 +1158,161 @@ export class RuleEditorService {
     }
   }
 
+  /**
+   * Performs URL decode.  Returns input str as is if URL decode failed.
+   * @param str - input url string
+   * @private
+   */
+  private getDecodeURI(str) {
+    try {
+      return decodeURIComponent(str);
+    } catch(e) {
+      return str;
+    }
+  }
+
+  /**
+   * Decode the Query URL expression.  This supports the query that was saved
+   * prior to this change (without URL encoded, just the %2C) and the new
+   * URL encoded string
+   * @param excodedExp - Encoded expression
+   * @return Decoded URL expression string
+   */
+  decodeQueryURIExpression(expression: string): string {
+    const decodedParams: string[] = [];
+    const resourceArr = expression.split("?");
+    let queryString = resourceArr[0];
+
+    if (resourceArr.length > 1) {
+      const queryParams = resourceArr[1].split('&');
+
+      queryParams.forEach((queryParam) => {
+        const param = queryParam.split('=');
+        const paramKey = this.getDecodeURI(param[0]);
+        const paramVal = this.getDecodeURI(param[1]);
+
+        decodedParams.push(`${paramKey}=${paramVal}`);
+      });
+      queryString += '?' + decodedParams.join('&');
+    }
+    return queryString;
+  }
+
+  /**
+   * Validate the paramValue has valid double braces syntax.
+   * @param paramValue - URL param value
+   * @return True if no opening and closingdouble braces found
+   *         True if matching opening and closing double braces found
+   *         False if an opening or closing double braces is not found
+   *         False if a closing double brace occurs before an opening double brace
+   *         False if double braces are found to be nested within each other  
+   */
+  isValidDoubleBracesSyntax(paramValue: string): boolean {
+    let not_done = true;
+    let indexLoc = 0;
+    while (not_done) {
+      const openDblBracesIdx = paramValue.indexOf("{{", indexLoc);
+      const closeDblBracesIdx = paramValue.indexOf("}}", indexLoc);
+
+      if (openDblBracesIdx === -1 && closeDblBracesIdx === -1)
+        return true;
+      else if (openDblBracesIdx === -1 || closeDblBracesIdx === -1)
+        return false;
+      else {
+        if (closeDblBracesIdx < openDblBracesIdx)
+          return false;
+        
+        const nextOpenDblBracesIdx = paramValue.indexOf("{{", openDblBracesIdx + 2);
+        if (nextOpenDblBracesIdx === -1)
+          return true;
+        else if (nextOpenDblBracesIdx < closeDblBracesIdx)
+          return false;
+
+        indexLoc = closeDblBracesIdx + 2;
+      }
+    }
+  };
+
+
+  /**
+   * Perform URL encode while ignoring the {{}} and the content inside.
+   * @param paramValue - URL param value
+   * @return URL-encoded paramValue if paramValue contains no opening and closing double braces
+   *         URL-encoded paramValue if paramValue contains the correct order and number of 
+   *           opening and closing double braces.  URL encode only the portions of the string
+   *           that are not enclosed in dobule braces  
+   *         Non URL-encoded paramValue if the string starts with an opening double brace and
+   *           ends with a closing double brace
+   *         Non URL-encoded paramValue if the count number of opening double braces does not
+   *           match the count number of the closing double braces
+   *         Non URL-encoded paramValue if the result from the isValidDoubleBracesSyntax 
+   *           function is "false"
+   */
+  encodeParamValue(paramValue: string): string {
+    if (!paramValue)
+      return "";
+    const openDblBracesCount = (paramValue.match(/{{/g) || []).length;
+    const closeDblBracesCount = (paramValue.match(/}}/g) || []).length;
+
+    if (openDblBracesCount === 0 && closeDblBracesCount === 0) {
+      return encodeURIComponent(paramValue);
+    } else if (openDblBracesCount === 1 && closeDblBracesCount === 1 &&
+               paramValue.startsWith("{{") && paramValue.endsWith("}}")) {
+      return paramValue;
+    } else if (openDblBracesCount !== closeDblBracesCount) {
+      // if the number of open and close are not equal, we are just going to return as is
+      return paramValue;
+    } else if (!this.isValidDoubleBracesSyntax(paramValue)) {
+      return paramValue;
+    } else {
+      let tmpStr = '';
+      let indexLoc = 0;
+      for (let i = 0; i < openDblBracesCount; i++) {
+        const openDblBracesIdx = paramValue.indexOf("{{", indexLoc);
+        const closeDblBracesIdx = paramValue.indexOf("}}", openDblBracesIdx);
+
+        if (openDblBracesIdx > indexLoc) 
+          tmpStr += encodeURIComponent(paramValue.substring(indexLoc, openDblBracesIdx));
+        tmpStr += paramValue.substring(openDblBracesIdx, closeDblBracesIdx + 2);
+
+        indexLoc = closeDblBracesIdx + 2;
+      }
+
+      if (indexLoc < paramValue.length)
+        tmpStr += encodeURIComponent(paramValue.substring(indexLoc));
+      return tmpStr;
+    }
+  };
+
+  /**
+   * Encode the Query URL expression.  If the input does not match
+   * with QUERY_REGEX, then return as is.
+   * @param expression - url expression
+   * @return Encoded URL expression string
+   */
+  encodeQueryURIExpression(expression: string): string {
+    const encodedParams: string[] = [];
+    const resourceArr = expression.split("?");
+    let queryString = resourceArr[0];
+    if (resourceArr.length > 1 && resourceArr[1] !== "") {
+      const queryParams = resourceArr[1].split('&');
+
+      queryParams.forEach((queryParam) => {
+        const param = queryParam.split('=');
+        if (param.length > 1 && param[1] !== "") {
+          const encodedKey = encodeURIComponent(param[0]);
+          const encodedValue = this.encodeParamValue(param[1]);
+
+          encodedParams.push(`${encodedKey}=${encodedValue}`);
+        }
+      });
+      if (encodedParams.length > 0)
+        queryString += '?' + encodedParams.join('&');
+
+    }
+    return queryString;
+  }
+  
   /**
    * Get uneditable and editable variable names
    */
