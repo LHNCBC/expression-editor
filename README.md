@@ -25,7 +25,7 @@ object.
   You can specify a different expression URL here. Only valueExpression
   extensions are currently supported. If the FHIRPath expression is to be 
   stored at the Questionnaire root level, the Output Expression section is
-  omitted; and as a result, the 'expressionUri' is not needed. 
+  omitted because the Rule Editor only supports adding variables at the root level.
 * `expressionLabel` - Heading name to use to show user when entering the
   expression.
 * `titleName` - Main widget heading shown to the user.
