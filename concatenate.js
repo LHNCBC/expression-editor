@@ -1,4 +1,5 @@
 // Concatenates several source files to produce lhc-forms.js and its source map.
+const process = require('process');
 const ConcatWithSourceMaps = require('concat-with-sourcemaps');
 const concat = new ConcatWithSourceMaps(true, 'all.js', '\n');
 const fs = require('fs');
@@ -9,8 +10,7 @@ const path = require('path');
   // es2018 files from angular 15 build
   const jsFileDir = './dist/rule-editor';
   //const jsFiles = ['scripts.js', 'runtime.js', 'polyfills.js', 'main.js'
-  const jsFiles = ['runtime.js', 'polyfills.js', 'main.js'
-    ].map(f=>path.join(jsFileDir, f));
+  const jsFiles = ['runtime.js', 'polyfills.js', 'main.js'].map(f=>path.join(jsFileDir, f));
 
   jsFiles.forEach(f=>{
     let content = fs.readFileSync(f, {encoding: 'utf8'});
@@ -23,7 +23,13 @@ const path = require('path');
 
   // Add sourcemapping statement to the combined content
   let outputContent = concat.content + "\n//# sourceMappingURL=rule-editor.js.map\n";
-  fs.writeFileSync(path.join(jsFileDir, 'rule-editor.js'), outputContent);
-  fs.writeFileSync(path.join(jsFileDir, 'rule-editor.js.map'), concat.sourceMap);
+
+  // If an output path is provided, use that; otherwise, use the default jsFileDir
+  const args = process.argv.slice(2);
+  const outputFileDir = (args && args.length > 1 && args[0] === '--output-path')?args[1]:jsFileDir;
+
+  // Write outputs
+  fs.writeFileSync(path.join(outputFileDir, 'rule-editor.js'), outputContent);
+  fs.writeFileSync(path.join(outputFileDir, 'rule-editor.js.map'), concat.sourceMap);
 
 })()
