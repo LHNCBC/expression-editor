@@ -62,14 +62,14 @@
               <input type="checkbox" style="margin-top:6px;" 
                 *ngIf="node.data.type =='choice' && node.data.hasScore" class="tree-node-checkbox"
                 [checked]="node.isActive"
-                (change)="node.toggleActivated(true)" />
+                (change)="onScoringItemCheckboxClick(node);" />
               <span  style="margin: 10px;"></span>
               <tree-node-expander [node]="node"></tree-node-expander>
               <div
                 class="node-content-wrapper"
                 [class.node-content-wrapper-active]="node.isActive"
                 [class.node-content-wrapper-focused]="node.isFocused"
-                (click)="node.toggleActivated(true)">
+                (click)="onScoringItemCheckboxClick(node);">
                 <span [class]="node.data.className" [class.title]="true">{{ node.data.text }} ({{ node.data.linkId}})</span>
               </div>
             </div>
@@ -83,7 +83,7 @@
     </div>
   </div>
   <div class="scoring-items-selection-footer">
-    <button class="primary" (click)="onExportClick()" [style]="lhcStyle.buttonPrimary" id="export-score">Done</button>
+    <button class="primary" [disabled]="!hasScoreSelected" (click)="onExportClick()" [style]="lhcStyle.buttonPrimary" id="export-score">Done</button>
     <button (click)="onCloseClick()" id="skip-export-score">Cancel</button>
   </div>
 </div>

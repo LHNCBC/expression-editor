@@ -18,10 +18,10 @@ export class SelectScoringItemsComponent implements OnInit {
 
   selectedLinkIds: string[] = [];
   scoringItems = [];
-  selectedItems: string[] = [];
   selectAll = false;
   expandAll = false;
   hasChildren = false;
+  hasScoreSelected = false;
 
   itemList = [];
   selectedItemsSet = new Set<string>();
@@ -98,7 +98,6 @@ export class SelectScoringItemsComponent implements OnInit {
     const hiddenNodes = this.itemTree.treeModel.hiddenNodes;
 
     const toggleItemHierarchy = (node, status) => {
-
       // Only toggle if node.isActive is opposite from status 
       if (node.data.type === 'choice' && status !== node.isActive && node.data.hasScore)
         node.toggleActivated(true);
@@ -109,6 +108,7 @@ export class SelectScoringItemsComponent implements OnInit {
     };
     
     this.itemTree.treeModel.getVisibleRoots().forEach((item) => toggleItemHierarchy(item, status));
+    this.hasScoreSelected = status;
   }
 
   /**
@@ -160,8 +160,24 @@ export class SelectScoringItemsComponent implements OnInit {
    * @param tree - tree model
    */  
   onTreeLoad(tree): void {
+    // On initial tree load, node isActive status is undefined. This initializes
+    // all nodes isActive status to false.
+    this.itemTree.treeModel.doForAll((node:TreeNode) => node.setIsActive(false, true));
+
     this.checkCheckboxScoringItems();
     if (this.expandAll)
       this.setExpandAllState(true);
   }
+
+  /**
+   * This function is invoked when a scoring item checkbox is clicked, whether for
+   * selection or deselection. It checks the number of active nodes and enables the 
+   * 'Done' button if at least one item is selected.
+   */
+  onScoringItemCheckboxClick(node): void {
+    node.toggleActivated(true);
+    const count = this.itemTree.treeModel.getActiveNodes().length;
+    this.hasScoreSelected = (count > 0);
+  }
+
 }

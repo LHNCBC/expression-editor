@@ -112,6 +112,22 @@ describe('Rule editor', () => {
           });
       });
 
+      it('should not select items if the "Unselect All" button is clicked with zero selected items', () => {
+        cy.get('#score-items-selection').click();
+        cy.get('div.scoring-items-selection-body')
+          .within(() => {
+            cy.get('div.items-tree tree-node').should('have.length', 9);
+
+            // Unselect All
+            cy.get('#unselectAll').click();
+
+            // None of the checkboxes should be checked.
+            cy.get('.angular-tree-component [type="checkbox"]').each(($checkbox) => {
+              cy.wrap($checkbox).should('not.be.checked');
+            });
+          });
+      });
+
       it('should be able to select/unselect individual item', () => {
         cy.get('#score-items-selection').click();
         cy.get('div.scoring-items-selection-body')
@@ -168,6 +184,36 @@ describe('Rule editor', () => {
           cy.get('#export').should('exist').should('be.visible');
         });
 
+      });
+
+      it('should not be able to export score if no scoring items selected', () => {
+        cy.get('#score-items-selection').click();
+
+        // Validate to make sure that no items were selected
+        cy.get('div.scoring-items-selection-body')
+          .within(() => {
+            cy.get('div.items-tree tree-node').should('have.length', 9);
+            cy.get('.angular-tree-component  [type="checkbox"]').as('checkboxes');
+            
+            cy.get('@checkboxes').each(($checkbox, index) => {
+                cy.wrap($checkbox).should('not.be.checked');
+            });
+          });
+
+        // Done button should be disabled.
+        cy.get('#export-score').should('be.disabled');
+
+        // Select 3rd item
+        cy.get('@checkboxes').eq(2).check();
+
+        // Done button should now be enabled.
+        cy.get('#export-score').should('be.enabled');
+
+        // Unselect 3rd item
+        cy.get('@checkboxes').eq(2).uncheck();
+
+        // Done button should now be enabled.
+        cy.get('#export-score').should('be.disabled');
       });
 
       it('should be able to export score with selected individual items', () => {
@@ -270,6 +316,45 @@ describe('Rule editor', () => {
           });
       });
 
+      it('should be able to select/unselect all items', () => {
+        cy.get('#score-items-selection').click();
+        cy.get('div.scoring-items-selection-body')
+          .within(() => {
+            cy.get('div.items-tree tree-node').should('have.length', 20);
+
+            // Select All
+            cy.get('#selectAll').should('exist').click();
+            cy.get('.angular-tree-component [type="checkbox"]').each(($checkbox) => {
+              cy.wrap($checkbox).should('be.checked');
+            });
+
+            // Unselect All
+            cy.get('#unselectAll').click();
+            cy.get('.angular-tree-component [type="checkbox"]').each(($checkbox) => {
+              cy.wrap($checkbox).should('not.be.checked');
+            });
+          });
+      });
+
+      it('should not select items if the "Unselect All" button is clicked with zero selected items', () => {
+        cy.get('#score-items-selection').click();
+        cy.get('div.scoring-items-selection-body')
+          .within(() => {
+            cy.get('div.items-tree tree-node').should('have.length', 20);
+
+            // Unselect All
+            cy.get('#unselectAll').click();
+
+            // None of the checkboxes should be checked.
+            cy.get('.angular-tree-component [type="checkbox"]').each(($checkbox) => {
+              cy.wrap($checkbox).should('not.be.checked');
+            });
+          });
+      });
+
+
+
+
       it('should be able to export score with all items', () => {
         cy.get('#score-items-selection').click();
         cy.get('div.scoring-items-selection-body')
@@ -305,6 +390,58 @@ describe('Rule editor', () => {
               '+ iif(%k.exists(), %k, 0) + iif(%l.exists(), %l, 0) + iif(%m.exists(), %m, 0) ' +
               '+ iif(%n.exists(), %n, 0) + iif(%o.exists(), %o, 0) + iif(%p.exists(), %p, 0) ' +
               '+ iif(%q.exists(), %q, 0), {})"');          
+      });
+
+      it('should not be able to export score if no scoring items selected', () => {
+        cy.get('#score-items-selection').click();
+
+        // Validate to make sure that no items were selected
+        cy.get('div.scoring-items-selection-body')
+          .within(() => {
+            cy.get('div.items-tree tree-node').should('have.length', 20);
+            cy.get('.angular-tree-component  [type="checkbox"]').as('checkboxes');
+            
+            cy.get('@checkboxes').each(($checkbox, index) => {
+                cy.wrap($checkbox).should('not.be.checked');
+            });
+          });
+
+        // Done button should be disabled.
+        cy.get('#export-score').should('be.disabled');
+
+        // Select all
+        cy.get('#selectAll').click();
+
+        // Validate to make sure that all items are selected
+        cy.get('div.scoring-items-selection-body')
+          .within(() => {
+            cy.get('div.items-tree tree-node').should('have.length', 20);
+            cy.get('.angular-tree-component  [type="checkbox"]').as('checkboxes');
+            
+            cy.get('@checkboxes').each(($checkbox, index) => {
+                cy.wrap($checkbox).should('be.checked');
+            });
+          });
+
+        // Done button should now be enabled.
+        cy.get('#export-score').should('be.enabled');
+
+        // Unselect all
+        cy.get('#unselectAll').click();
+
+        // Validate to make sure that no items are selected
+        cy.get('div.scoring-items-selection-body')
+          .within(() => {
+            cy.get('div.items-tree tree-node').should('have.length', 20);
+            cy.get('.angular-tree-component  [type="checkbox"]').as('checkboxes');
+            
+            cy.get('@checkboxes').each(($checkbox, index) => {
+                cy.wrap($checkbox).should('not.be.checked');
+            });
+          });
+
+        // Button should now be enabled.
+        cy.get('#export-score').should('be.disabled');
       });
 
       it('should be able to export score with selected individual items', () => {

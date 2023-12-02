@@ -76,3 +76,9 @@ tree-node-expander {
   z-index: 10;
   background-color: white;
 }
+
+button:disabled {
+  background-color: gray !important;
+  opacity: 0.6;
+  cursor: not-allowed;
+}
