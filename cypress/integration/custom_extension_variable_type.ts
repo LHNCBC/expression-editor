@@ -125,6 +125,51 @@ describe('Rule editor', () => {
           expect(parsedData.item[3].extension[7].valueExpression.extension[0].valueString).to.equal('simple');
         });
       });
+
+      it('should be able to save FHIR Query Observation as language x-fhir-query', () => {
+        cy.intercept('/bmi.json').as('bmi');
+        cy.get('select#questionnaire-select').select('BMI Calculation');
+        cy.wait('@bmi');
+
+        // Variables section
+        cy.get('lhc-variables > h2').should('contain', 'Item Variables');
+        cy.get('#variables-section .variable-row').should('have.length', 2);
+
+        // Add variable of variable type "FHIR Query (Observation)""
+        cy.get('#add-variable').should('exist').click();
+        cy.get('#variables-section .variable-row').should('have.length', 3);
+        cy.get('div#row-2')
+          .within(() => {
+            cy.get('#variable-type-2').select('FHIR Query (Observation)');
+            cy.get('#autocomplete-2').type('weight');
+          });
+        cy.get('span#completionOptions').contains('29463-7').click();
+
+        // Click Save
+        cy.get('#export').click();
+
+        // Checking the output, it should have the new variables
+        cy.get('pre#output').invoke('text').then((jsonData) => {
+          // Parse the JSON data
+          const parsedData = JSON.parse(jsonData);
+
+          expect(parsedData.item).to.exist;
+          expect(parsedData.item).to.have.lengthOf(5);
+          expect(parsedData.item[3].linkId).to.exist;
+          expect(parsedData.item[3].linkId).to.have.string('/39156-5');
+          expect(parsedData.item[3].extension).to.exist;
+          expect(parsedData.item[3].extension).to.have.lengthOf(5);
+
+          // validate FHIRPath Expression variable C
+          // It should have language = application/x-fhir-query
+          expect(parsedData.item[3].extension[3].valueExpression.name).to.equal('c');
+          expect(parsedData.item[3].extension[3].valueExpression.language).to.equal('application/x-fhir-query');
+          expect(parsedData.item[3].extension[3].valueExpression.extension).to.exist;
+          expect(parsedData.item[3].extension[3].valueExpression.extension).to.have.lengthOf(1);
+          expect(parsedData.item[3].extension[3].valueExpression.extension[0].valueString).to.exist;
+          expect(parsedData.item[3].extension[3].valueExpression.extension[0].valueString).to.equal('queryObservation');          
+        });
+      });
     });
 
     describe('BMI Variable Type', () => {
@@ -145,7 +190,7 @@ describe('Rule editor', () => {
 
         // Variables section
         cy.get('lhc-variables > h2').should('contain', 'Item Variables');
-        cy.get('#variables-section .variable-row').should('have.length', 22);
+        cy.get('#variables-section .variable-row').should('have.length', 23);
 
         // Variable type "FHIRPath Expression" is displayed incorrectly as "Question"
         cy.get('div#row-15')
@@ -210,7 +255,7 @@ describe('Rule editor', () => {
 
         // Variables section
         cy.get('lhc-variables > h2').should('contain', 'Item Variables');
-        cy.get('#variables-section .variable-row').should('have.length', 22);
+        cy.get('#variables-section .variable-row').should('have.length', 23);
 
         // Should display correct variable type - variable type "FHIRPath Expression"
         cy.get('div#row-6')
@@ -300,7 +345,7 @@ describe('Rule editor', () => {
 
         // Variables section
         cy.get('lhc-variables > h2').should('contain', 'Item Variables');
-        cy.get('#variables-section .variable-row').should('have.length', 22);
+        cy.get('#variables-section .variable-row').should('have.length', 23);
 
         // Question - weight default to kg
         cy.get('div#row-0')
@@ -377,7 +422,7 @@ describe('Rule editor', () => {
 
         // Variables section
         cy.get('lhc-variables > h2').should('contain', 'Item Variables');
-        cy.get('#variables-section .variable-row').should('have.length', 22);
+        cy.get('#variables-section .variable-row').should('have.length', 23);
 
         // The configuration said this should be type 'Question'.  However, the factor 
         // 9999 does not matched with any pre-defined factors and therefore, is not a valid
@@ -403,7 +448,7 @@ describe('Rule editor', () => {
 
         // Variables section
         cy.get('lhc-variables > h2').should('contain', 'Item Variables');
-        cy.get('#variables-section .variable-row').should('have.length', 22);
+        cy.get('#variables-section .variable-row').should('have.length', 23);
 
         // Updated "FHIRPath Expression" variable type to "FHIR Query"
         cy.get('div#row-6')
@@ -454,54 +499,85 @@ describe('Rule editor', () => {
           const parsedData = JSON.parse(jsonData);
 
           expect(parsedData.item).to.exist;
-          expect(parsedData.item).to.have.lengthOf(5);
-          expect(parsedData.item[3].linkId).to.exist;
-          expect(parsedData.item[3].linkId).to.have.string('/39156-5');
-          expect(parsedData.item[3].extension).to.exist;
-          expect(parsedData.item[3].extension).to.have.lengthOf(24);
+          expect(parsedData.item).to.have.lengthOf(6);
+          expect(parsedData.item[4].linkId).to.exist;
+          expect(parsedData.item[4].linkId).to.have.string('/39156-5');
+          expect(parsedData.item[4].extension).to.exist;
+          expect(parsedData.item[4].extension).to.have.lengthOf(25);
 
           // validate that the valueString is updated to 'query'
-          expect(parsedData.item[3].extension[7].valueExpression.name).to.equal('fhirpath_exp');
-          expect(parsedData.item[3].extension[7].valueExpression.language).to.equal('application/x-fhir-query');
-          expect(parsedData.item[3].extension[7].valueExpression.extension).to.exist;
-          expect(parsedData.item[3].extension[7].valueExpression.extension).to.have.lengthOf(1);
-          expect(parsedData.item[3].extension[7].valueExpression.extension[0].valueString).to.exist;
-          expect(parsedData.item[3].extension[7].valueExpression.extension[0].valueString).to.equal('query');
+          expect(parsedData.item[4].extension[7].valueExpression.name).to.equal('fhirpath_exp');
+          expect(parsedData.item[4].extension[7].valueExpression.language).to.equal('application/x-fhir-query');
+          expect(parsedData.item[4].extension[7].valueExpression.extension).to.exist;
+          expect(parsedData.item[4].extension[7].valueExpression.extension).to.have.lengthOf(1);
+          expect(parsedData.item[4].extension[7].valueExpression.extension[0].valueString).to.exist;
+          expect(parsedData.item[4].extension[7].valueExpression.extension[0].valueString).to.equal('query');
 
           // validate that the valueString is updated to 'queryObservation'
-          expect(parsedData.item[3].extension[9].valueExpression.name).to.equal('fhir_query');
-          expect(parsedData.item[3].extension[9].valueExpression.language).to.equal('application/x-fhir-query');
-          expect(parsedData.item[3].extension[9].valueExpression.extension).to.exist;
-          expect(parsedData.item[3].extension[9].valueExpression.extension).to.have.lengthOf(1);
-          expect(parsedData.item[3].extension[9].valueExpression.extension[0].valueString).to.exist;
-          expect(parsedData.item[3].extension[9].valueExpression.extension[0].valueString).to.equal('queryObservation');
+          expect(parsedData.item[4].extension[9].valueExpression.name).to.equal('fhir_query');
+          expect(parsedData.item[4].extension[9].valueExpression.language).to.equal('application/x-fhir-query');
+          expect(parsedData.item[4].extension[9].valueExpression.extension).to.exist;
+          expect(parsedData.item[4].extension[9].valueExpression.extension).to.have.lengthOf(1);
+          expect(parsedData.item[4].extension[9].valueExpression.extension[0].valueString).to.exist;
+          expect(parsedData.item[4].extension[9].valueExpression.extension[0].valueString).to.equal('queryObservation');
 
           // validate that the valueString is updated to 'question'
-          expect(parsedData.item[3].extension[11].valueExpression.name).to.equal('fhir_query_obs_1_day');
-          expect(parsedData.item[3].extension[11].valueExpression.language).to.equal('text/fhirpath');
-          expect(parsedData.item[3].extension[11].valueExpression.extension).to.exist;
-          expect(parsedData.item[3].extension[11].valueExpression.extension).to.have.lengthOf(1);
-          expect(parsedData.item[3].extension[11].valueExpression.extension[0].valueString).to.exist;
-          expect(parsedData.item[3].extension[11].valueExpression.extension[0].valueString).to.equal('question');
+          expect(parsedData.item[4].extension[11].valueExpression.name).to.equal('fhir_query_obs_1_day');
+          expect(parsedData.item[4].extension[11].valueExpression.language).to.equal('text/fhirpath');
+          expect(parsedData.item[4].extension[11].valueExpression.extension).to.exist;
+          expect(parsedData.item[4].extension[11].valueExpression.extension).to.have.lengthOf(1);
+          expect(parsedData.item[4].extension[11].valueExpression.extension[0].valueString).to.exist;
+          expect(parsedData.item[4].extension[11].valueExpression.extension[0].valueString).to.equal('question');
 
           // validate that the valueString is updated to 'simple'
-          expect(parsedData.item[3].extension[0].valueExpression.name).to.equal('question_weight_kg');
-          expect(parsedData.item[3].extension[0].valueExpression.language).to.equal('text/fhirpath');
-          expect(parsedData.item[3].extension[0].valueExpression.extension).to.exist;
-          expect(parsedData.item[3].extension[0].valueExpression.extension).to.have.lengthOf(2);
-          expect(parsedData.item[3].extension[0].valueExpression.extension[0].valueString).to.exist;
-          expect(parsedData.item[3].extension[0].valueExpression.extension[0].valueString).to.equal('simple');
+          expect(parsedData.item[4].extension[0].valueExpression.name).to.equal('question_weight_kg');
+          expect(parsedData.item[4].extension[0].valueExpression.language).to.equal('text/fhirpath');
+          expect(parsedData.item[4].extension[0].valueExpression.extension).to.exist;
+          expect(parsedData.item[4].extension[0].valueExpression.extension).to.have.lengthOf(2);
+          expect(parsedData.item[4].extension[0].valueExpression.extension[0].valueString).to.exist;
+          expect(parsedData.item[4].extension[0].valueExpression.extension[0].valueString).to.equal('simple');
 
           // validate that the valueString is updated to 'expression'
-          expect(parsedData.item[3].extension[15].valueExpression.name).to.equal('easy_path_exp');
-          expect(parsedData.item[3].extension[15].valueExpression.language).to.equal('text/fhirpath');
-          expect(parsedData.item[3].extension[15].valueExpression.extension).to.exist;
-          expect(parsedData.item[3].extension[15].valueExpression.extension).to.have.lengthOf(1);
-          expect(parsedData.item[3].extension[15].valueExpression.extension[0].valueString).to.exist;
-          expect(parsedData.item[3].extension[15].valueExpression.extension[0].valueString).to.equal('expression');
+          expect(parsedData.item[4].extension[15].valueExpression.name).to.equal('easy_path_exp');
+          expect(parsedData.item[4].extension[15].valueExpression.language).to.equal('text/fhirpath');
+          expect(parsedData.item[4].extension[15].valueExpression.extension).to.exist;
+          expect(parsedData.item[4].extension[15].valueExpression.extension).to.have.lengthOf(1);
+          expect(parsedData.item[4].extension[15].valueExpression.extension[0].valueString).to.exist;
+          expect(parsedData.item[4].extension[15].valueExpression.extension[0].valueString).to.equal('expression');
         });
       });
-    });
 
+      it('should display non-convertible unit with Unit label', () => {
+        cy.intercept('/bmivariabletype.json').as('bmivariable');
+        cy.get('select#questionnaire-select').select('BMI Variable Type');
+        cy.wait('@bmivariable');
+
+        cy.title().should('eq', 'Rule Editor');
+
+        // Advanced Interface checkbox
+        cy.get('#advanced-interface').should('be.checked');
+
+        // Variables section
+        cy.get('lhc-variables > h2').should('contain', 'Item Variables');
+        cy.get('#variables-section .variable-row').should('have.length', 23);
+
+        cy.get('div#row-22')
+          .within(() => {
+            cy.get('#variable-label-22').should('have.value', 'question_invalid_unit_var_type_not_defined');
+            cy.get('#variable-type-22').should('have.value', 'question');
+
+            // Question should be "Custom Unit (/8306-6)"
+            cy.get('#question-22').should('have.value', "Custom Unit (/8306-6)" );
+
+            // Unit should display as "Unit: sss"
+            cy.get('div.unit-select').should('have.text', 'Unit: sss');
+
+            // FHIRPath Expression should include factor if the unit is non-convertible.
+            cy.get('lhc-syntax-preview pre').should('contain.text',
+              "%resource.item.where(linkId='/8306-6').answer.value*0.0254"
+            );
+          });
+      });
+    });
   });
 });

@@ -161,6 +161,42 @@
       "code": [
         {
           "system": "http://loinc.org",
+          "code": "8306-6",
+          "display": "Custom Unit"
+        }
+      ],
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationLinkPeriod",
+          "valueDuration": {
+            "value": 1,
+            "unit": "year",
+            "system": "http://unitsofmeasure.org",
+            "code": "a"
+          }
+        },
+        {
+          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+          "valueBoolean": true
+        },
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unit",
+          "valueCoding": {
+            "code": "sss",
+            "system": "http://unitsofmeasure.org"
+          }
+        }
+      ],
+      "required": false,
+      "linkId": "/8306-6",
+      "text": "Custom Unit"
+    },
+
+    {
+      "type": "decimal",
+      "code": [
+        {
+          "system": "http://loinc.org",
           "code": "39156-5",
           "display": "BMI"
         }
@@ -388,7 +424,6 @@
           }
         },
 
-
         {
           "url": "http://hl7.org/fhir/StructureDefinition/variable",
           "valueExpression": {
@@ -449,6 +484,14 @@
                 "valueString": "1 + 1"
               }
             ]
+          }
+        },
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/variable",
+          "valueExpression": {
+            "name": "question_invalid_unit_var_type_not_defined",
+            "language": "text/fhirpath",
+            "expression": "%resource.item.where(linkId='/8306-6').answer.value*0.0254"
           }
         },
         {
