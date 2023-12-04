@@ -102,7 +102,7 @@ describe('Rule editor', () => {
 
           // validate FHIR Query Observation variable
           expect(parsedData.item[3].extension[5].valueExpression.name).to.equal('e_fhir_obs');
-          expect(parsedData.item[3].extension[5].valueExpression.language).to.equal('text/fhirpath');
+          expect(parsedData.item[3].extension[5].valueExpression.language).to.equal('application/x-fhir-query');
           expect(parsedData.item[3].extension[5].valueExpression.extension).to.exist;
           expect(parsedData.item[3].extension[5].valueExpression.extension).to.have.lengthOf(1);
           expect(parsedData.item[3].extension[5].valueExpression.extension[0].valueString).to.exist;
@@ -470,7 +470,7 @@ describe('Rule editor', () => {
 
           // validate that the valueString is updated to 'queryObservation'
           expect(parsedData.item[3].extension[9].valueExpression.name).to.equal('fhir_query');
-          expect(parsedData.item[3].extension[9].valueExpression.language).to.equal('text/fhirpath');
+          expect(parsedData.item[3].extension[9].valueExpression.language).to.equal('application/x-fhir-query');
           expect(parsedData.item[3].extension[9].valueExpression.extension).to.exist;
           expect(parsedData.item[3].extension[9].valueExpression.extension).to.have.lengthOf(1);
           expect(parsedData.item[3].extension[9].valueExpression.extension[0].valueString).to.exist;

@@ -135,7 +135,7 @@ export class QuestionComponent implements OnInit, AfterViewInit, OnDestroy {
       }
 
       this.variable.expression = this.variableService.valueOrScoreExpression(
-        this.linkId, this.itemHasScore, !this.isNonConvertibleUnit, this.unit, this.toUnit);
+        this.linkId, this.itemHasScore, !this.isNonConvertibleUnit, this.unit, this.toUnit, this.expression);
 
       this.expression = this.variable.expression;
 

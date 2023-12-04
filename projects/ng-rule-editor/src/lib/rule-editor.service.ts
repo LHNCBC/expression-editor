@@ -23,10 +23,10 @@ export interface SimpleStyle {
   providedIn: 'root'
 })
 export class RuleEditorService {
-  static SCORE_VARIABLE_EXTENSION = 'http://lhcforms.nlm.nih.gov/fhir/ext/rule-editor-score-variable';
-  static SCORE_EXPRESSION_EXTENSION = 'http://lhcforms.nlm.nih.gov/fhir/ext/rule-editor-score-expression';
-  static SIMPLE_SYNTAX_EXTENSION = 'http://lhcforms.nlm.nih.gov/fhir/ext/simple-syntax';
-  static VARIABLE_TYPE = 'http://lhcforms.nlm.nih.gov/fhir/ext/rule-editor-variable-type';
+  static SCORE_VARIABLE_EXTENSION = 'http://lhcforms.nlm.nih.gov/fhirExt/rule-editor-score-variable';
+  static SCORE_EXPRESSION_EXTENSION = 'http://lhcforms.nlm.nih.gov/fhirExt/rule-editor-score-expression';
+  static SIMPLE_SYNTAX_EXTENSION = 'http://lhcforms.nlm.nih.gov/fhirExt/simple-syntax';
+  static VARIABLE_TYPE = 'http://lhcforms.nlm.nih.gov/fhirExt/rule-editor-variable-type';
 
   syntaxType = 'simple';
   linkIdContext: string;
@@ -748,11 +748,11 @@ export class RuleEditorService {
         url: this.VARIABLE_EXTENSION,
         valueExpression: {
           name: e.label,
-          language: e.type === 'query' ? this.LANGUAGE_FHIR_QUERY : this.LANGUAGE_FHIRPATH,
+          language: (e.type.indexOf('query') > -1 )? this.LANGUAGE_FHIR_QUERY : this.LANGUAGE_FHIRPATH,
           expression: (e.type === 'expression' || e.type === 'query' || e.type === 'queryObservation') ? 
             this.encodeQueryURIExpression(e.expression) : e.expression,
           extension: [{
-            "url": "http://lhcforms.nlm.nih.gov/fhir/ext/rule-editor-variable-type",
+            "url": "http://lhcforms.nlm.nih.gov/fhirExt/rule-editor-variable-type",
             "valueString": e.type
           }] 
         }
@@ -1145,7 +1145,7 @@ export class RuleEditorService {
    * @param unit - Base units
    * @param toUnit - Destination units
    */
-  valueOrScoreExpression(linkId: string, itemHasScore: boolean, convertible: boolean, unit: string, toUnit: string): string {
+  valueOrScoreExpression(linkId: string, itemHasScore: boolean, convertible: boolean, unit: string, toUnit: string, expression: string): string {
     if (itemHasScore) {
       return `%questionnaire.item.where(linkId = '${linkId}').answerOption` +
         `.where(valueCoding.code=%resource.item.where(linkId = '${linkId}').answer.valueCoding.code).extension` +
@@ -1153,8 +1153,12 @@ export class RuleEditorService {
     } else if (convertible && unit && toUnit) {
       const factor = UNIT_CONVERSION[unit].find((e) => e.unit === toUnit).factor;   
       return `%resource.item.where(linkId='${linkId}').answer.value*${factor}`;
-    } else {    
-      return `%resource.item.where(linkId='${linkId}').answer.value`;
+    } else {
+      const matches = expression.match(this.QUESTION_REGEX);
+      if(matches && matches[2])
+        return `%resource.item.where(linkId='${linkId}').answer.value*${matches[2]}`;
+      else
+        return `%resource.item.where(linkId='${linkId}').answer.value`;
     }
   }
 
