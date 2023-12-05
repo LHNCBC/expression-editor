@@ -1144,6 +1144,7 @@ export class RuleEditorService {
    * @param convertible - Units can be converted
    * @param unit - Base units
    * @param toUnit - Destination units
+   * @param expression - question expression
    */
   valueOrScoreExpression(linkId: string, itemHasScore: boolean, convertible: boolean, unit: string, toUnit: string, expression: string): string {
     if (itemHasScore) {
