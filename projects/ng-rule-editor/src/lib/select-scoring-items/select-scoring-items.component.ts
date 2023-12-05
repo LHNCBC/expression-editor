@@ -149,6 +149,11 @@ export class SelectScoringItemsComponent implements OnInit {
       this.itemTree.treeModel.doForAll((node:TreeNode) => {
         if (this.selectedLinkIds.includes(node.data.linkId)) {
           node.toggleActivated(true);
+
+          // If there are pre-selected items in the questionnaire, then we want
+          // to make sure that the "Save" button is enabled.
+          if (!this.hasScoreSelected)
+            this.hasScoreSelected = true;
         }
       });
     }    

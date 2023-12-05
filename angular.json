@@ -350,5 +350,8 @@
         }
       }
     }
+  },
+  "cli": {
+    "analytics": false
   }
 }
