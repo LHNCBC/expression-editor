@@ -1,4 +1,13 @@
-// Concatenates several source files to produce lhc-forms.js and its source map.
+// Description:
+//   Concatenates several source files to produce lhc-forms.js and its source map.
+// Optional argument:
+//   --output-path - The output directory defaults to ./dist/rule-editor.  This
+//                   can be overridden using this optional command-line argument.
+//                   The path provided must be relative to the current workspace.
+// Examples:
+//   node concatenate.js
+//   node concatenate.js --output-path docs
+
 const process = require('process');
 const ConcatWithSourceMaps = require('concat-with-sourcemaps');
 const concat = new ConcatWithSourceMaps(true, 'all.js', '\n');
@@ -26,7 +35,7 @@ const path = require('path');
 
   // If an output path is provided, use that; otherwise, use the default jsFileDir
   const args = process.argv.slice(2);
-  const outputFileDir = (args && args.length > 1 && args[0] === '--output-path')?args[1]:jsFileDir;
+  const outputFileDir = (args && args.length > 1 && args[0] === '--output-path') ? args[1] : jsFileDir;
 
   // Write outputs
   fs.writeFileSync(path.join(outputFileDir, 'rule-editor.js'), outputContent);
