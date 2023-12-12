@@ -6,7 +6,7 @@ import {TreeNode} from '@bugsplat/angular-tree-component/lib/defs/api';
 @Component({
   selector: 'lhc-select-scoring-items',
   templateUrl: './select-scoring-items.component.html',
-  styleUrls: ['./select-scoring-items.component.css']
+  styleUrls: ['../rule-editor.component.css', './select-scoring-items.component.css']
 })
 export class SelectScoringItemsComponent implements OnInit {
   @Input() lhcStyle: SimpleStyle = {};
@@ -95,8 +95,6 @@ export class SelectScoringItemsComponent implements OnInit {
    * @param status - true to select all and false to unselect all
    */
   setSelectAllState(status) {
-    const hiddenNodes = this.itemTree.treeModel.hiddenNodes;
-
     const toggleItemHierarchy = (node, status) => {
       // Only toggle if node.isActive is opposite from status 
       if (node.data.type === 'choice' && status !== node.isActive && node.data.hasScore)
@@ -107,8 +105,10 @@ export class SelectScoringItemsComponent implements OnInit {
       }
     };
     
-    this.itemTree.treeModel.getVisibleRoots().forEach((item) => toggleItemHierarchy(item, status));
-    this.hasScoreSelected = status;
+    if (this.scoringItems.length > 0) {
+      this.itemTree.treeModel.getVisibleRoots().forEach((item) => toggleItemHierarchy(item, status));
+      this.hasScoreSelected = status;
+    }
   }
 
   /**
@@ -151,9 +151,8 @@ export class SelectScoringItemsComponent implements OnInit {
           node.toggleActivated(true);
 
           // If there are pre-selected items in the questionnaire, then we want
-          // to make sure that the "Save" button is enabled.
-          if (!this.hasScoreSelected)
-            this.hasScoreSelected = true;
+          // to make sure that the "Done" button is enabled.
+          this.hasScoreSelected = true;
         }
       });
     }    

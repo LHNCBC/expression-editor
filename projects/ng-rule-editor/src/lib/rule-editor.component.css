@@ -104,3 +104,7 @@ lhc-case-statements {
     flex: 100%;
   }
 }
+
+button-div {
+  text-align: center;
+}

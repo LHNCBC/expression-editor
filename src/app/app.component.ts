@@ -47,6 +47,8 @@ export class AppComponent implements OnInit, OnDestroy {
   fhirPreview: string;
   linkId = '';
   linkIds;
+  rootLevel = false;
+  defaultItemText;
   expressionUri = this.calculatedExpression;
   userExpressionChoices = null;
   customExpressionUri = false;
@@ -70,12 +72,14 @@ export class AppComponent implements OnInit, OnDestroy {
     this.fhirPreview = '';
     this.error = '';
     this.doNotAskToCalculateScore = false;
+    this.rootLevel = false;
 
     if (this.formType === '' || this.formType === 'upload') {
       this.liveAnnouncer.announce('Additional settings must be entered below to load the rule editor.');
       this.fhir = null;
       this.file = '';
       this.linkId = '';
+      this.rootLevel = true;
     } else {
       this.liveAnnouncer.announce(this.formAppearedAnnouncement);
       this.linkId = this.originalLinkId;
@@ -86,6 +90,23 @@ export class AppComponent implements OnInit, OnDestroy {
           this.fhir = data;
         });
     }
+  }
+
+  /**
+   * Toggle between Root/Item section
+   */
+  toggleRootLevel(): void {
+    if (this.rootLevel) {
+      this.linkId = '';
+      this.autoComplete.setFieldToListValue('');
+    } else {
+      if (this.formType !== '' && this.formType !== 'upload') {
+        this.linkId = this.originalLinkId;
+        this.autoComplete.setFieldToListValue(this.defaultItemText);
+      }
+    }
+
+    this.changeDetectorRef.detectChanges();
   }
 
   /**
@@ -116,6 +137,11 @@ export class AppComponent implements OnInit, OnDestroy {
               this.composeAutocomplete();
             }
             this.liveAnnouncer.announce(this.formAppearedAnnouncement);
+
+            if (this.formType === '' || this.formType === 'upload') {
+              this.autoComplete.setFieldToListValue('');
+              this.rootLevel = true;
+            }
           } catch (e) {
             this.fhir = '';
             this.error = `Could not parse file: ${e}`;

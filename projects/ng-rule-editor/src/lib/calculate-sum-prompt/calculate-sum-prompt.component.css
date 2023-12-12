@@ -17,3 +17,7 @@ button {
   padding: 0 2em;
   font-size: 1rem;
 }
+
+.prompt-footer {
+  text-align: center;
+}

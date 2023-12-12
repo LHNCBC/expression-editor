@@ -4,7 +4,7 @@ import { RuleEditorService, SimpleStyle } from '../rule-editor.service';
 @Component({
   selector: 'lhc-calculate-sum-prompt',
   templateUrl: './calculate-sum-prompt.component.html',
-  styleUrls: ['./calculate-sum-prompt.component.css']
+  styleUrls: ['../rule-editor.component.css', './calculate-sum-prompt.component.css']
 })
 export class CalculateSumPromptComponent implements OnInit {
   @Input() lhcStyle: SimpleStyle = {};

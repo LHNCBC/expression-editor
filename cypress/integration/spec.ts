@@ -599,7 +599,7 @@ describe('Rule editor', () => {
           });
       });
 
-      it('done button should be enabled on load as there are pre-selected items', () => {
+      it('should enable done button on load since there are pre-selected items', () => {
         cy.get('#score-items-selection').click();
         cy.get('div.scoring-items-selection-body')
           .within(() => {

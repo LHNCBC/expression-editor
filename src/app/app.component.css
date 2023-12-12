@@ -30,3 +30,7 @@ button.download {
   font-size: small;
   color: darkorange;
 }
+
+label {
+  margin-right: 20px;
+}

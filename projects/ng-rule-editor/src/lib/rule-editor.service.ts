@@ -361,12 +361,14 @@ export class RuleEditorService {
     const loadSuccess = this.fhir.resourceType === 'Questionnaire';
 
     if (loadSuccess && this.fhir.item && this.fhir.item.length) {
-      if (!this.doNotAskToCalculateScore) {
+      if (!this.doNotAskToCalculateScore && this.linkIdContext) {
         // If there is at least one score question we will ask the user if they
         // want to calculate the score
         const SCORE_MIN_QUESTIONS = 1;
         this.scoreCalculation = this.getScoreQuestionCount(this.fhir, linkIdContext) > SCORE_MIN_QUESTIONS;
         this.scoreCalculationChange.next(this.scoreCalculation);
+      } else {
+        this.scoreCalculation = false;
       }
 
       this.linkIdToQuestion = {};

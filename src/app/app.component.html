@@ -28,10 +28,15 @@
   </label>
   <span *ngIf="fhir">
     <label>
+      <input type="checkbox" id="root-level" [(ngModel)]="rootLevel" (change)="toggleRootLevel()">
+      Root level
+    </label>
+
+    <label [hidden]="rootLevel">
       Question:
       <input placeholder="Please select" class="query-autocomplete" #autoComplete id="question" />
-
     </label>
+
     <label [hidden]="!linkId">
       Output Expression:
       <div id="expression-entry">
