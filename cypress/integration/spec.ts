@@ -436,7 +436,7 @@ describe('Rule editor', () => {
             // Select a child item under the child of type 'group'
             cy.get('@checkboxes').eq(14).check();
 
-            // Validate to make sure that only those two items were selected
+            // Validate to make sure that only those six items were selected
             cy.get('@checkboxes').each(($checkbox, index) => {
               if (index === 1 || index === 4 || index === 8 || index === 9 ||
                   index === 12 || index === 14)
@@ -588,7 +588,7 @@ describe('Rule editor', () => {
             cy.get('div.items-tree tree-node').should('have.length', 17);
             cy.get('.angular-tree-component  [type="checkbox"]').as('checkboxes');
 
-            // Validate to make sure that only those two items were selected
+            // Validate to make sure that only those six items were selected
             cy.get('@checkboxes').each(($checkbox, index) => {
               if (index === 1 || index === 4 || index === 6 || index === 8 ||
                   index === 10 || index === 13)
@@ -606,7 +606,7 @@ describe('Rule editor', () => {
             cy.get('div.items-tree tree-node').should('have.length', 17);
             cy.get('.angular-tree-component  [type="checkbox"]').as('checkboxes');
 
-            // Validate to make sure that only those two items were selected
+            // Validate to make sure that only those six items were selected
             cy.get('@checkboxes').each(($checkbox, index) => {
               if (index === 1 || index === 4 || index === 6 || index === 8 ||
                   index === 10 || index === 13)
@@ -639,7 +639,7 @@ describe('Rule editor', () => {
             cy.get('@checkboxes').eq(7).check();
             cy.get('@checkboxes').eq(14).check();
 
-            // Validate to make sure that only those two items were selected
+            // Validate to make sure that only those four items were selected
             cy.get('@checkboxes').each(($checkbox, index) => {
               if (index === 2 || index === 5 || index === 7 || index === 14)
                 cy.wrap($checkbox).should('be.checked');

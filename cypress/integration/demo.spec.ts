@@ -49,17 +49,17 @@ describe('Rule editor demo', () => {
       cy.get('lhc-variables > h2').should('contain', 'Item Variables');
       cy.get('#variables-section .variable-row').should('have.length', 0);
 
-      // Output Expression drop-down should not exists
-      cy.get('#expression-entry').should('exist');
-
-      // Uncheck the "Root Level" checkbox
-      cy.get('#root-level').should('exist').should('be.checked').uncheck();
+      // The "Root Level" checkbox should be checked by default
+      cy.get('#root-level').should('exist').should('be.checked');
 
       // Select a question
       cy.get('#question').clear().type('BMI');
       cy.get('span#completionOptions > ul > li').contains('39156-5').click();
 
-      // Output Expression drop-down should exists
+      //The "Root Level" checkbox should be unchecked
+      cy.get('#root-level').should('exist').should('not.be.checked');
+
+      // By default, the Output Expression is set to 'Calculated Expression'
       cy.get('#expression-entry > select').should('exist').should('have.value', '1');
 
       // The questionnaire does not contain the scoring items, so it should not
@@ -78,51 +78,29 @@ describe('Rule editor demo', () => {
       cy.get('lhc-variables > h2').should('contain', 'Item Variables');
       cy.get('#variables-section .variable-row').should('have.length', 0);
 
-      // Output Expression drop-down should not exists
-      cy.get('#expression-entry').should('exist');
-
       // The prompt to calculate the total scoring item should not 
       // exists yet until a question is selected
       cy.get('lhc-calculate-sum-prompt').should('not.exist');
 
-      // Uncheck the "Root Level" checkbox
-      cy.get('#root-level').should('exist').should('be.checked').uncheck();
+      // The "Root Level" checkbox should be checked by default
+      cy.get('#root-level').should('exist').should('be.checked');
 
       // Select a question
       cy.get('#question').clear().type('item total score');
       cy.get('span#completionOptions > ul > li').contains('39156-5').click();
 
-      // The prompt to calculate the total scoring item should displayed.
-      cy.get('lhc-calculate-sum-prompt > div > div.score-modal').should('exist');
-    });
+      //The "Root Level" checkbox should be unchecked
+      cy.get('#root-level').should('exist').should('not.be.checked');
 
-    it('should hide the calculate sum prompt', () => {
-      cy.get('select#questionnaire-select').select('Upload your own questionnaire');
-
-      cy.get('#file-upload').attachFile('phq9.json');
-
-      cy.get('lhc-rule-editor h1').should('contain.text', 'Rule Editor');
-
-      // Variables section should have 0 item.
-      cy.get('lhc-variables > h2').should('contain', 'Item Variables');
-      cy.get('#variables-section .variable-row').should('have.length', 0);
-
-      // Output Expression drop-down should not exists
-      cy.get('#expression-entry').should('exist');
-
-      // The prompt to calculate the total scoring item should not 
-      // exists yet until a question is selected
-      cy.get('lhc-calculate-sum-prompt').should('not.exist');
-
-      // Uncheck the "Root Level" checkbox
-      cy.get('#root-level').should('exist').should('be.checked').uncheck();
-
-      // Select a question
-      cy.get('#question').clear().type('item total score');
-      cy.get('span#completionOptions > ul > li').contains('39156-5').click();
+      // By default, the Output Expression is set to 'Calculated Expression'
+      cy.get('div#expression-entry > select').should('have.value', '1');
 
       // The prompt to calculate the total scoring item should displayed.
       cy.get('lhc-calculate-sum-prompt > div > div.score-modal').should('exist');
+
+      // The prompt should come with a Yes and No buttons
+      cy.get('#score-items-selection').should('exist');
+      cy.get('#skip-score-items-selection').should('exist');
 
       // Select No
       cy.get('#skip-score-items-selection').click();
@@ -134,31 +112,87 @@ describe('Rule editor demo', () => {
       cy.get('lhc-select-scoring-items').should('not.exist');
     });
 
+    it('should not get calculate sum prompt when the output expression is not Calculate Expression', () => {
+      cy.get('select#questionnaire-select').select('Upload your own questionnaire');
+
+      cy.get('#file-upload').attachFile('phq9.json');
+
+      // Select a question
+      cy.get('#question').clear().type('item total score');
+      cy.get('span#completionOptions > ul > li').contains('39156-5').click();
+
+      // By default, the Output Expression is set to 'Calculated Expression'
+      cy.get('div#expression-entry > select').should('have.value', '1');
+
+      // The prompt to calculate the total scoring item should displayed.
+      cy.get('lhc-calculate-sum-prompt > div > div.score-modal').should('exist');
+
+      // Select No
+      cy.get('#skip-score-items-selection').click();
+
+      // The prompt should disappeared
+      cy.get('lhc-calculate-sum-prompt').should('not.exist');
+
+      // Select 'Answer Expression' for the 'Output Expression'
+      cy.get('div#expression-entry > select').select('Answer Expression').should('have.value', '0');
+      // The prompt should not be displayed
+      cy.get('lhc-calculate-sum-prompt').should('not.exist');
+
+      // Select 'Enable When Expression' for the 'Output Expression'
+      cy.get('div#expression-entry > select').select('Enable When Expression').should('have.value', '3');
+      // The prompt should not be displayed
+      cy.get('lhc-calculate-sum-prompt').should('not.exist');
+
+      // Select 'Initial Expression' for the 'Output Expression'
+      cy.get('div#expression-entry > select').select('Initial Expression').should('have.value', '4');
+      // The prompt should not be displayed
+      cy.get('lhc-calculate-sum-prompt').should('not.exist');
+
+      // Select 'Calculated/Initial Expression (user editable)' for the 'Output Expression'
+      cy.get('div#expression-entry > select').select('Calculated/Initial Expression (user editable)')
+        .should('have.value', '2');
+      // The prompt should be displayed
+      cy.get('lhc-calculate-sum-prompt').should('exist');
+      // Select No
+      cy.get('#skip-score-items-selection').click();
+
+      // Select 'Calculated/Initial Expression (user editable)' for the 'Output Expression'
+      cy.get('div#expression-entry > select').select('Other...').should('have.value', 'custom');
+      // The prompt should not be displayed
+      cy.get('lhc-calculate-sum-prompt').should('not.exist');
+      // Enter the expression uri that is not the Calculated Expression
+      cy.get('input#expression-uri').clear()
+        .type('http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-enableWhenExpression');
+      // The prompt should not be displayed
+      cy.get('lhc-calculate-sum-prompt').should('not.exist');
+      // Enter the expression uri that is not the Calculated Expression
+      cy.get('input#expression-uri').clear()
+        .type('http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression');
+      // The prompt should be displayed
+      cy.get('lhc-calculate-sum-prompt').should('exist');
+    });
+
     it('should display the scoring items selection', () => {
       cy.get('select#questionnaire-select').select('Upload your own questionnaire');
 
       cy.get('#file-upload').attachFile('phq9.json');
 
-      cy.get('lhc-rule-editor h1').should('contain.text', 'Rule Editor');
-
-      // Variables section should have 0 item.
-      cy.get('lhc-variables > h2').should('contain', 'Item Variables');
-      cy.get('#variables-section .variable-row').should('have.length', 0);
-
-      // Output Expression drop-down should not exists
-      cy.get('#expression-entry').should('exist');
-
       cy.get('lhc-select-scoring-items').should('not.exist');
-
-      // Uncheck the "Root Level" checkbox
-      cy.get('#root-level').should('exist').should('be.checked').uncheck();
 
       // Enter the question to select
       cy.get('#question').clear().type('item total score');
       cy.get('span#completionOptions > ul > li').contains('39156-5').click();
 
+      // By default, the Output Expression is set to 'Calculated Expression'
+      cy.get('div#expression-entry > select').should('have.value', '1');
+
       // A prompt to calculate the total scoring
       cy.get('lhc-calculate-sum-prompt > div > div.score-modal').should('exist');
+
+      // The prompt should come with a Yes and No buttons
+      cy.get('#score-items-selection').should('exist');
+      cy.get('#skip-score-items-selection').should('exist');
+
       // Select Yes
       cy.get('#score-items-selection').click();
 
@@ -169,27 +203,16 @@ describe('Rule editor demo', () => {
       cy.get('lhc-select-scoring-items').should('exist');
     });
 
-    it('should be able to display pre-selected items', () => {
+    it('should be able to display pre-selected scoring items questionnaire and update it', () => {
       cy.get('select#questionnaire-select').select('Upload your own questionnaire');
       cy.get('#file-upload').attachFile('phq9_preselected.json');
-
-      cy.get('lhc-rule-editor h1').should('contain.text', 'Rule Editor');
-
-      // Variables section should have 0 item.
-      cy.get('lhc-variables > h2').should('contain', 'Item Variables');
-      cy.get('#variables-section .variable-row').should('have.length', 0);
-
-      cy.get('#expression-entry').should('exist');
-
-      // Output Expression drop-down should not exists until a question is selected
-      cy.get('lhc-select-scoring-items').should('not.exist');
-
-      // Uncheck the "Root Level" checkbox
-      cy.get('#root-level').should('exist').should('be.checked').uncheck();
 
       // Select total score question
       cy.get('#question').clear().type('item total score');
       cy.get('span#completionOptions > ul > li').contains('39156-5').click();
+
+      // By default, the Output Expression is set to 'Calculated Expression'
+      cy.get('div#expression-entry > select').should('have.value', '1');
 
       // Calculating sum of score dialog should display, select Yes 
       cy.get('lhc-calculate-sum-prompt > div > div.score-modal').should('exist');
@@ -202,7 +225,7 @@ describe('Rule editor demo', () => {
         cy.get('div.items-tree tree-node').should('have.length', 17);
         cy.get('.angular-tree-component  [type="checkbox"]').as('checkboxes');
 
-        // Validate to make sure that only those two items were selected
+        // Validate to make sure that only those six items were selected
         cy.get('@checkboxes').each(($checkbox, index) => {
           if (index === 1 || index === 4 || index === 6 || index === 8 ||
               index === 10 || index === 13)
@@ -210,6 +233,42 @@ describe('Rule editor demo', () => {
           else
             cy.wrap($checkbox).should('not.be.checked');
         });
+
+        // Select 4 more items
+        cy.get('@checkboxes').eq(0).check();
+        cy.get('@checkboxes').eq(2).check();
+        cy.get('@checkboxes').eq(3).check();
+        cy.get('@checkboxes').eq(5).check();
+      });
+
+      // export 
+      cy.get('#export-score').click();
+
+      cy.get('pre#output').invoke('text').then((jsonData) => {
+        // Parse the JSON data
+        const parsedData = JSON.parse(jsonData);
+
+        expect(parsedData.item).to.exist;
+        expect(parsedData.item).to.have.lengthOf(8);
+        
+        // the 7th item should be the total calculation
+        expect(parsedData.item[6].linkId).to.exist;
+        expect(parsedData.item[6].linkId).to.eq('/39156-5');
+        expect(parsedData.item[6].text).to.eq('Patient health questionnaire 15 item total score');
+        // should contain extension
+        expect(parsedData.item[6].extension).to.exist;
+        expect(parsedData.item[6].extension).to.have.lengthOf(16);
+
+        // Validate to make sure that the calculatedExpression only occurs once.
+        // As in, the update should not result in duplicate expression.
+        let counter = 0;
+        parsedData.item[6].extension.forEach((extension) => {
+          if (extension.url &&
+              extension.url === "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression") {
+            counter++;
+          }
+        });
+        expect(counter).to.eq(1);
       });
     });
 

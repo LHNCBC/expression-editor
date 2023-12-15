@@ -1263,4 +1263,14 @@ export class RuleEditorService {
   setItemLinkIdsForTotalCalculation(linkIds: string[]): void {
     this.itemLinkIdsForCalculation = linkIds;
   }
+
+  /**
+   * Determine whether the expression uri is a calculated expression
+   * @param expressionUri - URI of expression extension on linkIdContext question
+   *  to extract and modify
+   * @return true if the expression is a calculated expression
+   */
+  isCalculatedExpression(expressionUri: string): boolean {
+    return (expressionUri === this.CALCULATED_EXPRESSION);
+  }
 }

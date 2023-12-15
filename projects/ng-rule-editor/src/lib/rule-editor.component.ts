@@ -75,6 +75,11 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
     this.calculateSum = false;
     this.selectItems = false;
     this.hideRuleEditor = false;
+
+    // Determine whether to ask to calculate score based on the expressionUri.
+    // Scoring calculation is done only if the expressionUri is equal to calculatedExpression.
+    this.doNotAskToCalculateScore = !this.variableService.isCalculatedExpression(this.expressionUri);
+
     this.reload(true);
   }
 
