@@ -79,7 +79,7 @@ describe('Rule editor demo', () => {
       cy.get('#variables-section .variable-row').should('have.length', 0);
 
       // The prompt to calculate the total scoring item should not 
-      // exists yet until a question is selected
+      // exists until a question is selected
       cy.get('lhc-calculate-sum-prompt').should('not.exist');
 
       // The "Root Level" checkbox should be checked by default
@@ -110,6 +110,32 @@ describe('Rule editor demo', () => {
 
       // The list of scoring items should not be displayed
       cy.get('lhc-select-scoring-items').should('not.exist');
+    });
+
+    it('should not display the calculate sum prompt when select the first question', () => {
+      cy.get('select#questionnaire-select').select('Upload your own questionnaire');
+
+      cy.get('#file-upload').attachFile('phq9.json');
+
+      cy.get('lhc-rule-editor h1').should('contain.text', 'Rule Editor');
+
+      // The prompt to calculate the total scoring item should not 
+      // exists until a question is selected
+      cy.get('lhc-calculate-sum-prompt').should('not.exist');
+
+      // Select the first question. The scoring items have to come from prior questions.
+      // So if this is the first question, then there won't be any scoring items. 
+      cy.get('#question').clear().type('Little interest or pleasure');
+      cy.get('span#completionOptions > ul > li').contains('44250-9').click();
+      // The prompt should not be displayed.
+      cy.get('lhc-calculate-sum-prompt').should('not.exist');
+
+      // Select the second question and the prompt should be displayed.
+      cy.get('#question').clear().type('Feeling down, depressed');
+      cy.get('span#completionOptions > ul > li').contains('44255-8').click();
+      // The prompt should be displayed.
+      cy.get('lhc-calculate-sum-prompt').should('exist');
+
     });
 
     it('should not get calculate sum prompt when the output expression is not Calculate Expression', () => {
@@ -170,6 +196,34 @@ describe('Rule editor demo', () => {
         .type('http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression');
       // The prompt should be displayed
       cy.get('lhc-calculate-sum-prompt').should('exist');
+    });
+
+    it('should not display the calculate sum prompt if contain pre-selected scoring without new scoring extension', () => {
+      cy.get('select#questionnaire-select').select('Upload your own questionnaire');
+
+      cy.get('#file-upload').attachFile('../test/data/phq9_preselected_without_scoring_ext.json');
+
+      cy.get('lhc-rule-editor h1').should('contain.text', 'Rule Editor');
+
+      // The prompt to calculate the total scoring item should not 
+      // exists until a question is selected
+      cy.get('lhc-calculate-sum-prompt').should('not.exist');
+
+      // The item total score question already had predefined scoring items
+      // but without the new scoring extensions.  So in this case, the Rule
+      // Editor should not prompt for scoring calculation.
+      cy.get('#question').clear().type('item total score');
+      cy.get('span#completionOptions > ul > li').contains('44261-6').click();
+      // The prompt should not be displayed.
+      cy.get('lhc-calculate-sum-prompt').should('not.exist');
+
+      // Selecting a different question that does not have predefined scoring
+      // items should still get prompt
+      cy.get('#question').clear().type('Feeling bad about yourself');
+      cy.get('span#completionOptions > ul > li').contains('44258-2').click();
+      // The prompt should be displayed.
+      cy.get('lhc-calculate-sum-prompt').should('exist');
+
     });
 
     it('should display the scoring items selection', () => {

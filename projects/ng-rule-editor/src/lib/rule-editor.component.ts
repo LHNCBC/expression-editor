@@ -76,17 +76,14 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
     this.selectItems = false;
     this.hideRuleEditor = false;
 
-    // Determine whether to ask to calculate score based on the expressionUri.
-    // Scoring calculation is done only if the expressionUri is equal to calculatedExpression.
-    this.doNotAskToCalculateScore = !this.variableService.isCalculatedExpression(this.expressionUri);
+    this.reload();
 
-    this.reload(true);
   }
 
   /**
    * Re-import fhir and context and show the form
    */
-  reload(shouldAskForCalculation): void {
+  reload(): void {
     if (this.fhirQuestionnaire instanceof Object) {
       this.variableService.doNotAskToCalculateScore = this.doNotAskToCalculateScore;
       this.loadError = !this.variableService.import(this.expressionUri, this.fhirQuestionnaire, this.itemLinkId);
@@ -107,6 +104,10 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
     this.finalExpression = this.variableService.finalExpression;
     this.variables = this.variableService.uneditableVariables.map(e => e.name).concat(
       this.variableService.variables.map(e => e.label));
+
+    if (this.linkIdContext) {
+      this.doNotAskToCalculateScore = this.variableService.shouldCalculateScoreForItem(this.fhirQuestionnaire, this.linkIdContext, this.expressionUri);
+    }
   }
 
   /**
@@ -138,7 +139,7 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
     this.variableService.removeSumOfScores(this.fhirQuestionnaire, this.linkIdContext);
     this.save.emit(this.variableService.addSumOfScores());
 
-    this.reload(false);
+    this.reload();
   }
 
   /**
