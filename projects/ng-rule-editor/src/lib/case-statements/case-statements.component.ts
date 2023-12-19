@@ -8,7 +8,7 @@ import { LiveAnnouncer } from '@angular/cdk/a11y';
 @Component({
   selector: 'lhc-case-statements',
   templateUrl: './case-statements.component.html',
-  styleUrls: ['./case-statements.component.css']
+  styleUrls: ['../rule-editor.component.css', './case-statements.component.css']
 })
 export class CaseStatementsComponent implements OnInit, OnChanges {
   @Input() lhcStyle: SimpleStyle = {};
