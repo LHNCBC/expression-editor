@@ -18,7 +18,7 @@ p {
   font-family: Lato;
 }
 
-.modal {
+.yes-no-modal {
   display: block; /* Hidden by default */
   position: fixed; /* Stay in place */
   z-index: 1; /* Sit on top */
@@ -33,7 +33,7 @@ p {
 }
 
 /* Modal Content */
-.modal-content {
+.yes-no-modal-content {
   padding: 20px;
   background-color: #fefefe;
   margin: auto;
@@ -43,6 +43,14 @@ p {
   overflow-y: auto;
 }
 
-.modal-footer {
+.yes-no-modal-footer {
   margin-top: 20px;
+}
+
+.yes-no-content {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  -webkit-transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%);
 }

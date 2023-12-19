@@ -1,6 +1,5 @@
-<div class="flex-container">
-  <lhc-helps [type]="'simple'" [index]="index" class="flex-item"></lhc-helps>
-  <div class="flex-item">
+<div>
+  <div>    
     <input
       [(ngModel)]="simple"
       [id]="'simple-expression-' + index"
@@ -8,7 +7,7 @@
       class="simple-expression"
       aria-label="Easy Path Expression Text Input"
       [style]="lhcStyle.input"
-      [ngClass]="{'error': hasError}" />
+      [ngClass]="{'field-error': hasError}" />
     <lhc-syntax-preview
       [syntax]="fhirPathExpression"
       [lhcStyle]="{'width': 'auto'}"

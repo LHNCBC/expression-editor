@@ -218,12 +218,12 @@ export class CaseStatementsComponent implements OnInit, OnChanges {
       this.simpleDefaultCase : this.defaultCase, true);
 
     this.hasError = false;
-    if ((output === 'Not valid' || condition === 'Not valid'  || defaultCase === 'Not valid') && !this.hasError)
+    if (output === 'Not valid' || condition === 'Not valid'  || defaultCase === 'Not valid')
       this.hasError = true;
     this.cases[level].error = {};
-    this.cases[level].error['output'] = (output === 'Not valid')?true:false;
-    this.cases[level].error['condition'] = (condition === 'Not valid')?true:false;
-    this.defaultCaseError = (defaultCase === 'Not valid')?true:false;
+    this.cases[level].error['output'] = (output === 'Not valid') ? true : false;
+    this.cases[level].error['condition'] = (condition === 'Not valid') ? true : false;
+    this.defaultCaseError = (defaultCase === 'Not valid') ? true : false;
 
     if (level === 0) {
       const previousValue = this.hidePreview;

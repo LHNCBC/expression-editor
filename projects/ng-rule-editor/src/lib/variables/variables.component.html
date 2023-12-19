@@ -1,13 +1,15 @@
 <h2 [style]="lhcStyle.h2">Item Variables</h2>
 
-<lhc-fhirpath-to-easypath-prompt 
+<lhc-yes-no-dialog 
   *ngIf="showConfirmDialog"
-  [currentVariable]="currentVariable"
-  (convert)="convertFHIRPathToEasyPath()"
-  (onCloseModal)="closeConvertDialog()" 
+  [title]="dialogTitle"
+  [prompt1]="dialogPrompt1"
+  [prompt2]="dialogPrompt2"
+  (yes)="convertFHIRPathToEasyPath($event)"
+  (no)="closeConvertDialog()"
+  [align]="'center'"
   [lhcStyle]="lhcStyle">
-
-</lhc-fhirpath-to-easypath-prompt>
+</lhc-yes-no-dialog>
 
 <div class="container">
   <div class="variable-header" [style]="lhcStyle.variableHeader" aria-hidden="true">
@@ -54,6 +56,7 @@
           aria-label="Variable type">
           <option *ngFor="let type of variableType | keyvalue" value="{{type.key}}">{{type.value}}</option>
         </select>
+        <lhc-helps  [type]="variable.type" [index]="i" class="flex-item"></lhc-helps>
       </div>
       <div class="variable-column-details" [ngSwitch]="variable.type">
         <lhc-question
@@ -81,7 +84,6 @@
           </lhc-syntax-converter>
         </div>
         <div class="form-inline" *ngSwitchCase="'expression'" class="flex-container">
-          <lhc-helps [type]="'expression'" [index]="i" class="flex-item"></lhc-helps>
           <input
             [id]="'variable-expression-' + i"
             [(ngModel)]="variable.expression"

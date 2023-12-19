@@ -21,18 +21,18 @@ describe('Rule editor', () => {
         cy.get('#add-variable').should('exist').should('be.visible').click();
         cy.get('#variables-section .variable-row').should('have.length', 3);
 
-        // Set to FHIRPath Expression variable type
+        // Set to 'FHIRPath Expression' variable type
         cy.get('#variable-type-2').select('expression');
         cy.get('#variable-expression-2')
           .should('exist')
           .should('be.visible')
           .type('%a');
 
-        // Change to Easy Path Expression variable type
+        // Change to 'Easy Path Expression' variable type
         cy.get('#variable-type-2').select('simple');
 
         // Dialog should get displayed
-        cy.get('lhc-fhirpath-to-easypath-prompt').should('exist').should('be.visible');
+        cy.get('lhc-yes-no-dialog').should('exist').should('be.visible');
       });
 
       it('should not display dialog when switching from FHIRPath Expression to other variable type', () => {
@@ -50,7 +50,7 @@ describe('Rule editor', () => {
         cy.get('#add-variable').should('exist').should('be.visible').click();
         cy.get('#variables-section .variable-row').should('have.length', 3);
 
-        // Set to FHIRPath Expression variable type
+        // Set to 'FHIRPath Expression' variable type
         cy.get('#variable-type-2').select('expression');
         cy.get('#variable-expression-2')
           .should('exist')
@@ -61,43 +61,43 @@ describe('Rule editor', () => {
         cy.get('#variable-type-2').select('query');
 
         // Dialog should not be displayed
-        cy.get('lhc-fhirpath-to-easypath-prompt').should('not.exist');
+        cy.get('lhc-yes-no-dialog').should('not.exist');
 
-        // Switch back to FHIRPath Expression
+        // Switch back to 'FHIRPath Expression'
         cy.get('#variable-type-2').select('expression');
 
         // Dialog should not be displayed
-        cy.get('lhc-fhirpath-to-easypath-prompt').should('not.exist');
-        
-        // Change to FHIR Query (Observation) variable type
-        cy.get('#variable-type-2').select('queryObservation');
-
-        // Dialog should not be displayed
-        cy.get('lhc-fhirpath-to-easypath-prompt').should('not.exist');
-
-        // Switch back to FHIRPath Expression
-        cy.get('#variable-type-2').select('expression');
-
-        // Dialog should not be displayed
-        cy.get('lhc-fhirpath-to-easypath-prompt').should('not.exist');
+        cy.get('lhc-yes-no-dialog').should('not.exist');
 
         // Change to FHIR Query (Observation) variable type
         cy.get('#variable-type-2').select('queryObservation');
 
         // Dialog should not be displayed
-        cy.get('lhc-fhirpath-to-easypath-prompt').should('not.exist');
+        cy.get('lhc-yes-no-dialog').should('not.exist');
 
-        // Switch back to FHIRPath Expression
+        // Switch back to 'FHIRPath Expression'
         cy.get('#variable-type-2').select('expression');
 
         // Dialog should not be displayed
-        cy.get('lhc-fhirpath-to-easypath-prompt').should('not.exist');
+        cy.get('lhc-yes-no-dialog').should('not.exist');
+
+        // Change to FHIR Query (Observation) variable type
+        cy.get('#variable-type-2').select('queryObservation');
+
+        // Dialog should not be displayed
+        cy.get('lhc-yes-no-dialog').should('not.exist');
+
+        // Switch back to 'FHIRPath Expression'
+        cy.get('#variable-type-2').select('expression');
+
+        // Dialog should not be displayed
+        cy.get('lhc-yes-no-dialog').should('not.exist');
 
         // Change to Question variable type
         cy.get('#variable-type-2').select('question');
 
         // Dialog should not be displayed
-        cy.get('lhc-fhirpath-to-easypath-prompt').should('not.exist');
+        cy.get('lhc-yes-no-dialog').should('not.exist');
       });
 
       it('should be able to cancel switching from FHIRPath Expression to Easy Path Expression', () => {
@@ -115,26 +115,26 @@ describe('Rule editor', () => {
         cy.get('#add-variable').should('exist').should('be.visible').click();
         cy.get('#variables-section .variable-row').should('have.length', 3);
 
-        // Set to FHIRPath Expression variable type
+        // Set to 'FHIRPath Expression' variable type
         cy.get('#variable-type-2').select('expression');
         cy.get('#variable-expression-2')
           .should('exist')
           .should('be.visible')
           .type('%a');
 
-        // Change to Easy Path Expression variable type
+        // Change to 'Easy Path Expression' variable type
         cy.get('#variable-type-2').select('simple');
 
         // Dialog should get displayed
-        cy.get('lhc-fhirpath-to-easypath-prompt').should('exist')
+        cy.get('lhc-yes-no-dialog').should('exist')
           .should('be.visible')
           .within( ()=> {
-            // Select 'No' to not convert from FHIRPath Expression to Easy Path Expression
-            cy.get('#cancel-convert').should('exist').click();
+            // Select 'No' to not convert from 'FHIRPath Expression' to 'Easy Path Expression'
+            cy.get('#no').should('exist').click();
           });
   
         // The dialog should now disappeared
-        cy.get('lhc-fhirpath-to-easypath-prompt').should('not.exist');
+        cy.get('lhc-yes-no-dialog').should('not.exist');
 
         // B/c the change in variable type is cancelled.  The variable type should
         // revert back to 'expression'.  And the expression should be %a
@@ -157,26 +157,26 @@ describe('Rule editor', () => {
         cy.get('#add-variable').should('exist').should('be.visible').click();
         cy.get('#variables-section .variable-row').should('have.length', 3);
 
-        // Set to FHIRPath Expression variable type
+        // Set to 'FHIRPath Expression' variable type
         cy.get('#variable-type-2').select('expression');
         cy.get('#variable-expression-2')
           .should('exist')
           .should('be.visible')
           .type('%a');
 
-        // Change to Easy Path Expression variable type
+        // Change to 'Easy Path Expression' variable type
         cy.get('#variable-type-2').select('simple');
 
         // Dialog should get displayed
-        cy.get('lhc-fhirpath-to-easypath-prompt').should('exist')
+        cy.get('lhc-yes-no-dialog').should('exist')
           .should('be.visible')
           .within( ()=> {
-            // Select 'Yes' to convert from FHIRPath Expression to Easy Path Expression
-            cy.get('#proceed-convert').should('exist').click();
+            // Select 'Yes' to convert from 'FHIRPath Expression' to 'Easy Path Expression'
+            cy.get('#yes').should('exist').click();
           });
   
         // The dialog should now disappeared
-        cy.get('lhc-fhirpath-to-easypath-prompt').should('not.exist');
+        cy.get('lhc-yes-no-dialog').should('not.exist');
 
         // B/c the change in variable type is commited.  The variable type should
         // change to 'simple'.  And the expression should be blank
@@ -184,7 +184,7 @@ describe('Rule editor', () => {
         cy.get('#simple-expression-2').should('exist').should('be.empty');
       });
 
-      it('should not see the dialog since there is no change to the expression', () => {
+      it('should not see the dialog when there is no change to the expression', () => {
         cy.intercept('/bmi.json').as('bmi');
         cy.get('select#questionnaire-select').select('BMI Calculation');
         cy.wait('@bmi');
@@ -199,7 +199,7 @@ describe('Rule editor', () => {
         cy.get('#add-variable').should('exist').should('be.visible').click();
         cy.get('#variables-section .variable-row').should('have.length', 3);
 
-        // Set to FHIRPath Expression variable type
+        // Set to 'Easy Path Expression' variable type
         cy.get('#variable-type-2').select('simple');
         cy.get('#simple-expression-2')
           .should('exist')
@@ -209,20 +209,20 @@ describe('Rule editor', () => {
         // Change to Easy Path Expression variable type
         cy.get('#variable-type-2').select('expression');
   
-        // The dialog should now disappeared
-        cy.get('lhc-fhirpath-to-easypath-prompt').should('not.exist');
-
+        // The dialog should not show
+        cy.get('lhc-yes-no-dialog').should('not.exist');
+        
         // B/c the change in variable type is commited.  The variable type should
         // change to 'expression'.  And the expression should get converted to
         // FHIRPath Expression
         cy.get('#variable-type-2').should('have.value', 'expression');
         cy.get('#variable-expression-2').should('exist').should('have.value', '%a');
  
-        // Change it back to Easy Path Expression variable type
+        // Change it back to 'Easy Path Expression' variable type
         cy.get('#variable-type-2').select('simple');
 
         // The dialog should not show
-        cy.get('lhc-fhirpath-to-easypath-prompt').should('not.exist');
+        cy.get('lhc-yes-no-dialog').should('not.exist');
 
         // In this scenario, the Easy Path expression was available, and there was no
         // change, so the expression is showing 'a'
@@ -245,7 +245,7 @@ describe('Rule editor', () => {
         cy.get('#add-variable').should('exist').should('be.visible').click();
         cy.get('#variables-section .variable-row').should('have.length', 3);
 
-        // Set to FHIRPath Expression variable type
+        // Set to 'Easy Path Expression' variable type
         cy.get('#variable-type-2').select('simple');
         cy.get('#simple-expression-2')
           .should('exist')
@@ -255,8 +255,8 @@ describe('Rule editor', () => {
         // Change to Easy Path Expression variable type
         cy.get('#variable-type-2').select('expression');
   
-        // The dialog should now disappeared
-        cy.get('lhc-fhirpath-to-easypath-prompt').should('not.exist');
+        // The dialog should not show
+        cy.get('lhc-yes-no-dialog').should('not.exist');
 
         // B/c the change in variable type is commited.  The variable type should
         // change to 'expression'.  And the expression should get converted to
@@ -267,15 +267,15 @@ describe('Rule editor', () => {
         // Change expression to %b
         cy.get('#variable-expression-2').clear().type('%b');
 
-        // Change it back to Easy Path Expression variable type
+        // Change it back to 'Easy Path Expression' variable type
         cy.get('#variable-type-2').select('simple');
 
         // Dialog should get displayed
-        cy.get('lhc-fhirpath-to-easypath-prompt').should('exist')
+        cy.get('lhc-yes-no-dialog').should('exist')
           .should('be.visible')
           .within( ()=> {
-            // Select 'Yes' to convert from FHIRPath Expression to Easy Path Expression
-            cy.get('#proceed-convert').should('exist').click();
+            // Select 'Yes' to convert from 'FHIRPath Expression' to 'Easy Path Expression'
+            cy.get('#yes').should('exist').click();
           });
 
         cy.get('#variable-type-2').should('have.value', 'simple');
@@ -297,20 +297,20 @@ describe('Rule editor', () => {
         cy.get('#add-variable').should('exist').should('be.visible').click();
         cy.get('#variables-section .variable-row').should('have.length', 3);
 
-        // Set to FHIRPath Expression variable type
+        // Set to 'Easy Path Expression' variable type
         cy.get('#variable-type-2').select('simple');
 
         // The expression textbox should be highlighed in red
         cy.get('#simple-expression-2')
         .should('exist')
         .should('be.visible')
-        .should('have.class', 'error');
+        .should('have.class', 'field-error');
 
         // Type 'a' into the expression, the error should disappear
-        cy.get('#simple-expression-2').type('a').should('not.have.class', 'error');
+        cy.get('#simple-expression-2').type('a').should('not.have.class', 'field-error');
 
         // Update the expression with '+ bbbbb' which doesn't exist, the error should reappear
-        cy.get('#simple-expression-2').clear().type('a + bbbbb').should('have.class', 'error');
+        cy.get('#simple-expression-2').clear().type('a + bbbbb').should('have.class', 'field-error');
       });
     });
 
@@ -329,7 +329,7 @@ describe('Rule editor', () => {
           // The case statement checkbox should be checked
           cy.get('#case-statements').should('exist').should('be.checked');
 
-          // The variable type should default to FHIRPath Expression
+          // The variable type should default to 'FHIRPath Expression'
           cy.get('#variable-type-final').should('exist').should('have.value', 'fhirpath');
 
           // There should be 3 case statements
@@ -348,7 +348,7 @@ describe('Rule editor', () => {
           cy.get('#variable-type-final').select('simple');
         
           // Dialog should get displayed
-          cy.get('lhc-fhirpath-to-easypath-prompt').should('exist').should('be.visible');      
+          cy.get('lhc-yes-no-dialog').should('exist').should('be.visible');   
         });
       });
 
@@ -361,39 +361,19 @@ describe('Rule editor', () => {
 
         // Output Expression section
         cy.get('#final-expression-section').within(() => {
-          cy.get('h2').should('contain', 'Output Expression');
-
-          // The case statement checkbox should be checked
-          cy.get('#case-statements').should('exist').should('be.checked');
-
-          // The variable type should default to FHIRPath Expression
-          cy.get('#variable-type-final').should('exist').should('have.value', 'fhirpath');
-
-          // There should be 3 case statements
-          cy.get('#cdk-drop-list-1 > div').should('have.length', 3);
-          cy.get('#case-condition-0').should('have.value', '%bmi<18.5');
-          cy.get('#case-output-0').should('have.value', "'underweight'");
-          cy.get('#case-condition-1').should('have.value', '%bmi<25');
-          cy.get('#case-output-1').should('have.value', "'normal'");
-          cy.get('#case-condition-2').should('have.value', '%bmi<30');
-          cy.get('#case-output-2').should('have.value', "'overweight'");
-
-          // The output value textbox should be 'obese'.
-          cy.get('div.case-output-column > label > input').should('have.value', "'obese'");
-
           // Select 'Easy Path Expression' option
           cy.get('#variable-type-final').select('simple');
         
           // Dialog should get displayed
-          cy.get('lhc-fhirpath-to-easypath-prompt').should('exist')
+          cy.get('lhc-yes-no-dialog').should('exist')
             .should('be.visible')
             .within( ()=> {
-              // Select 'No' to not convert from FHIRPath Expression to Easy Path Expression
-              cy.get('#cancel-convert').should('exist').click();
+              // Select 'No' to not convert from 'FHIRPath Expression' to 'Easy Path Expression'
+              cy.get('#no').should('exist').click();
             });
   
           // The dialog should now disappeared
-          cy.get('lhc-fhirpath-to-easypath-prompt').should('not.exist');
+          cy.get('lhc-yes-no-dialog').should('not.exist');
 
           // B/c the change in variable type is cancelled.  The variable type should
           // revert back to 'expression'.  And the expression should be %a
@@ -422,36 +402,19 @@ describe('Rule editor', () => {
 
         // Output Expression section
         cy.get('#final-expression-section').within(() => {
-          cy.get('h2').should('contain', 'Output Expression');
-
-          // The case statement checkbox should be checked
-          cy.get('#case-statements').should('exist').should('be.checked');
-
-          // The variable type should default to FHIRPath Expression
-          cy.get('#variable-type-final').should('exist').should('have.value', 'fhirpath');
-
-          // There should be 3 case statements
-          cy.get('#cdk-drop-list-1 > div').should('have.length', 3);
-          cy.get('#case-condition-0').should('have.value', '%bmi<18.5');
-          cy.get('#case-output-0').should('have.value', "'underweight'");
-          cy.get('#case-condition-1').should('have.value', '%bmi<25');
-          cy.get('#case-output-1').should('have.value', "'normal'");
-          cy.get('#case-condition-2').should('have.value', '%bmi<30');
-          cy.get('#case-output-2').should('have.value', "'overweight'");
-          
           // Select 'Easy Path Expression' option
           cy.get('#variable-type-final').select('simple');
 
           // Dialog should get displayed
-          cy.get('lhc-fhirpath-to-easypath-prompt').should('exist')
+          cy.get('lhc-yes-no-dialog').should('exist')
             .should('be.visible')
             .within( ()=> {
-              // Select 'Yes' to convert from FHIRPath Expression to Easy Path Expression
-              cy.get('#proceed-convert').should('exist').click();
+              // Select 'Yes' to convert from 'FHIRPath Expression' to 'Easy Path Expression'
+              cy.get('#yes').should('exist').click();
             });
   
           // The dialog should now disappeared
-          cy.get('lhc-fhirpath-to-easypath-prompt').should('not.exist');
+          cy.get('lhc-yes-no-dialog').should('not.exist');
 
           // B/c the change in variable type is commited.  The variable type should
           // change to 'simple'.  And the expression should be blank
@@ -485,21 +448,18 @@ describe('Rule editor', () => {
           // The case statement checkbox should be checked
           cy.get('#case-statements').should('exist').should('be.checked');
 
-          // The variable type should default to FHIRPath Expression
+          // The variable type should default to 'FHIRPath Expression'
           cy.get('#variable-type-final').should('exist').should('have.value', 'fhirpath');
-
-          // FHIRPath Expression help should exist
-          cy.get('lhc-helps lhc-fhirpath-expression-help').should('exist');
 
           // Select Easy Path Expression variable type
           cy.get('#variable-type-final').select('simple');
 
           // Dialog should get displayed
-          cy.get('lhc-fhirpath-to-easypath-prompt').should('exist')
+          cy.get('lhc-yes-no-dialog').should('exist')
             .should('be.visible')
             .within( ()=> {
-              // Select 'Yes' to convert from FHIRPath Expression to Easy Path Expression
-              cy.get('#proceed-convert').should('exist').click();
+              // Select 'Yes' to convert from 'FHIRPath Expression' to 'Easy Path Expression'
+              cy.get('#yes').should('exist').click();
             });
 
           // Easy Path Expression help should exist
@@ -545,7 +505,6 @@ describe('Rule editor', () => {
           cy.get('#variable-type-final').select('fhirpath', {'force': true});
           cy.get('#variable-type-final').should('have.value', 'fhirpath');
 
-          //cy.get('#cdk-drop-list-1 > div').should('have.length', 3);
           cy.get('#case-condition-0').should('have.value', '%bmi<18.5');
           cy.get('#case-output-0').should('have.value', "'underweight'");
           cy.get('#case-condition-1').should('have.value', '%bmi<25');
@@ -610,7 +569,6 @@ describe('Rule editor', () => {
           cy.get('#variable-type-final').select('fhirpath', {'force': true});
           cy.get('#variable-type-final').should('have.value', 'fhirpath');
           
-          //cy.get('#cdk-drop-list-1 > div').should('have.length', 3);
           cy.get('#case-condition-0').should('have.value', '%bmi<18.5');
           cy.get('#case-output-0').should('have.value', "'underweight'");
           cy.get('#case-condition-1').should('have.value', '%bmi<25');
@@ -628,17 +586,17 @@ describe('Rule editor', () => {
           cy.get('#variable-type-final').select('simple', {'force': true});
 
           // Dialog should get displayed
-          cy.get('lhc-fhirpath-to-easypath-prompt').should('exist')
+          cy.get('lhc-yes-no-dialog').should('exist')
             .should('be.visible')
             .within( ()=> {
-              // Select 'No' to not convert from FHIRPath Expression to Easy Path Expression
-              cy.get('#cancel-convert').should('exist').click();
+              // Select 'No' to not convert from 'FHIRPath Expression' to 'Easy Path Expression'
+              cy.get('#no').should('exist').click();
             });
   
           // The dialog should now disappeared
-          cy.get('lhc-fhirpath-to-easypath-prompt').should('not.exist');
+          cy.get('lhc-yes-no-dialog').should('not.exist');
 
-          // The variable type should stayed as FHIRPath Expression
+          // The variable type should stayed as 'FHIRPath Expression'
           cy.get('#variable-type-final').should('have.value', 'fhirpath', {'force': true});
 
           // There should be 3 case statements
@@ -708,15 +666,15 @@ describe('Rule editor', () => {
           cy.get('#variable-type-final').select('simple', {'force': true});
 
           // Dialog should get displayed
-          cy.get('lhc-fhirpath-to-easypath-prompt').should('exist')
+          cy.get('lhc-yes-no-dialog').should('exist')
             .should('be.visible')
             .within( ()=> {
-              // Select 'Yes' to convert from FHIRPath Expression to Easy Path Expression
-              cy.get('#proceed-convert').should('exist').click();
+              // Select 'Yes' to convert from 'FHIRPath Expression' to 'Easy Path Expression'
+              cy.get('#yes').should('exist').click();
             });
   
           // The dialog should now disappeared
-          cy.get('lhc-fhirpath-to-easypath-prompt').should('not.exist');
+          cy.get('lhc-yes-no-dialog').should('not.exist');
 
           // The variable type should stayed as Easy Path Expression
           cy.get('#variable-type-final').should('have.value', 'simple');
@@ -761,34 +719,34 @@ describe('Rule editor', () => {
           // The output value textbox should be obese.
           cy.get('div.case-output-column > label > input').should('have.value', "obese");
 
-          // The FHIRPath Expression output
+          // The 'FHIRPath Expression' output
           cy.get('div.syntax-preview > div > pre').should('contain.text', 
             "iif(%bmi<18.5,'underweight',iif(%bmi<25,'normal',iif(%bmi<30,'overweight','obese')))");
 
           // Case Output 0, 1 and 2 should not have css class error
-          cy.get('#case-output-0').should('not.have.class', 'error');
-          cy.get('#case-output-1').should('not.have.class', 'error');
-          cy.get('#case-output-2').should('not.have.class', 'error');
+          cy.get('#case-output-0').should('not.have.class', 'field-error');
+          cy.get('#case-output-1').should('not.have.class', 'field-error');
+          cy.get('#case-output-2').should('not.have.class', 'field-error');
           
           // The output value textbox should not have css class error
-          cy.get('div.case-output-column > label > input').should('not.have.class', 'error');
+          cy.get('div.case-output-column > label > input').should('not.have.class', 'field-error');
 
           // The FHIRPath output should not have css class error
-          cy.get('div.syntax-preview > div > pre').should('not.have.class', 'error');
+          cy.get('div.syntax-preview > div > pre').should('not.have.class', 'fhirpath-error');
 
           // Check the 'Use expressions' checkbox
           cy.get('#output-expressions').check();
 
           // Case Output 0, 1 and 2 should have css class error
-          cy.get('#case-output-0').should('have.class', 'error');
-          cy.get('#case-output-1').should('have.class', 'error');
-          cy.get('#case-output-2').should('have.class', 'error');
+          cy.get('#case-output-0').should('have.class', 'field-error');
+          cy.get('#case-output-1').should('have.class', 'field-error');
+          cy.get('#case-output-2').should('have.class', 'field-error');
           
           // The output value textbox should have css class error
-          cy.get('div.case-output-column > label > input').should('have.class', 'error');
+          cy.get('div.case-output-column > label > input').should('have.class', 'field-error');
 
           // The FHIRPath output should have css class error
-          cy.get('div.syntax-preview > div > pre').should('have.class', 'error'); 
+          cy.get('div.syntax-preview > div > pre').should('have.class', 'fhirpath-error'); 
         });
       });
 
@@ -818,35 +776,35 @@ describe('Rule editor', () => {
           // The output value textbox should be obese.
           cy.get('div.case-output-column > label > input').should('have.value', "obese");
 
-          // The FHIRPath Expression output should be 
+          // The 'FHIRPath Expression' output should be 
           // iif(%bmi<18.5,'underweight',iif(%bmi<25,'normal',iif(%bmi<30,'overweight','obese')))
           cy.get('div.syntax-preview > div > pre').should('contain.text', 
             "iif(%bmi<18.5,'underweight',iif(%bmi<25,'normal',iif(%bmi<30,'overweight','obese')))");
 
           // Case Output 0, 1 and 2 should not have css class error
-          cy.get('#case-output-0').should('not.have.class', 'error');
-          cy.get('#case-output-1').should('not.have.class', 'error');
-          cy.get('#case-output-2').should('not.have.class', 'error');
+          cy.get('#case-output-0').should('not.have.class', 'field-error');
+          cy.get('#case-output-1').should('not.have.class', 'field-error');
+          cy.get('#case-output-2').should('not.have.class', 'field-error');
           
           // The output value textbox should not have css class error
-          cy.get('div.case-output-column > label > input').should('not.have.class', 'error');
+          cy.get('div.case-output-column > label > input').should('not.have.class', 'field-error');
 
           // The FHIRPath output should not have css class error
-          cy.get('div.syntax-preview > div > pre').should('not.have.class', 'error');
+          cy.get('div.syntax-preview > div > pre').should('not.have.class', 'fhirpath-error');
 
           // Check the 'Use expressions' checkbox
           cy.get('#output-expressions').check();
 
           // Case Output 0, 1 and 2 should have css class error
-          cy.get('#case-output-0').should('have.class', 'error');
-          cy.get('#case-output-1').should('have.class', 'error');
-          cy.get('#case-output-2').should('have.class', 'error');
+          cy.get('#case-output-0').should('have.class', 'field-error');
+          cy.get('#case-output-1').should('have.class', 'field-error');
+          cy.get('#case-output-2').should('have.class', 'field-error');
           
           // The output value textbox should have css class error
-          cy.get('div.case-output-column > label > input').should('have.class', 'error');
+          cy.get('div.case-output-column > label > input').should('have.class', 'field-error');
 
           // The FHIRPath output should have css class error
-          cy.get('div.syntax-preview > div > pre').should('have.class', 'error');
+          cy.get('div.syntax-preview > div > pre').should('have.class', 'fhirpath-error');
           
           // Fix the issue by wrapping the Case Outputs and the Output variable with single quotes.
           cy.get('#case-output-0').clear().type("'underweight'");
@@ -857,15 +815,15 @@ describe('Rule editor', () => {
           cy.get('div.case-output-column > label > input').clear().type("'obese'");
 
           // Case Output 0, 1 and 2 should now not have css class error
-          cy.get('#case-output-0').should('not.have.class', 'error');
-          cy.get('#case-output-1').should('not.have.class', 'error');
-          cy.get('#case-output-2').should('not.have.class', 'error');
+          cy.get('#case-output-0').should('not.have.class', 'field-error');
+          cy.get('#case-output-1').should('not.have.class', 'field-error');
+          cy.get('#case-output-2').should('not.have.class', 'field-error');
           
           // The output value textbox should now not have css class error
-          cy.get('div.case-output-column > label > input').should('not.have.class', 'error');
+          cy.get('div.case-output-column > label > input').should('not.have.class', 'field-error');
 
           // The FHIRPath output should now not have css class error
-          cy.get('div.syntax-preview > div > pre').should('not.have.class', 'error');
+          cy.get('div.syntax-preview > div > pre').should('not.have.class', 'fhirpath-error');
         });
       });
 
@@ -895,35 +853,35 @@ describe('Rule editor', () => {
           // The output value textbox should be obese.
           cy.get('div.case-output-column > label > input').should('have.value', "obese");
 
-          // The FHIRPath Expression output should be 
+          // The 'FHIRPath Expression' output should be 
           // iif(%bmi<18.5,'underweight',iif(%bmi<25,'normal',iif(%bmi<30,'overweight','obese')))
           cy.get('div.syntax-preview > div > pre').should('contain.text', 
             "iif(%bmi<18.5,'underweight',iif(%bmi<25,'normal',iif(%bmi<30,'overweight','obese')))");
 
           // Case Output 0, 1 and 2 should not have css class error
-          cy.get('#case-output-0').should('not.have.class', 'error');
-          cy.get('#case-output-1').should('not.have.class', 'error');
-          cy.get('#case-output-2').should('not.have.class', 'error');
+          cy.get('#case-output-0').should('not.have.class', 'field-error');
+          cy.get('#case-output-1').should('not.have.class', 'field-error');
+          cy.get('#case-output-2').should('not.have.class', 'field-error');
           
           // The output value textbox should not have css class error
-          cy.get('div.case-output-column > label > input').should('not.have.class', 'error');
+          cy.get('div.case-output-column > label > input').should('not.have.class', 'field-error');
 
           // The FHIRPath output should not have css class error
-          cy.get('div.syntax-preview > div > pre').should('not.have.class', 'error');
+          cy.get('div.syntax-preview > div > pre').should('not.have.class', 'fhirpath-error');
 
           // Check the 'Use expressions' checkbox
           cy.get('#output-expressions').check();
 
           // Case Output 0, 1 and 2 should have css class error
-          cy.get('#case-output-0').should('have.class', 'error');
-          cy.get('#case-output-1').should('have.class', 'error');
-          cy.get('#case-output-2').should('have.class', 'error');
+          cy.get('#case-output-0').should('have.class', 'field-error');
+          cy.get('#case-output-1').should('have.class', 'field-error');
+          cy.get('#case-output-2').should('have.class', 'field-error');
           
           // The output value textbox should have css class error
-          cy.get('div.case-output-column > label > input').should('have.class', 'error');
+          cy.get('div.case-output-column > label > input').should('have.class', 'field-error');
 
           // The FHIRPath output should have css class error
-          cy.get('div.syntax-preview > div > pre').should('have.class', 'error');
+          cy.get('div.syntax-preview > div > pre').should('have.class', 'fhirpath-error');
         });
 
         // Fix the issue by adding 4 variables to hold the text, this is not neccessary a 
@@ -932,7 +890,7 @@ describe('Rule editor', () => {
         cy.get('#add-variable').should('exist').should('be.visible').click();
         cy.get('#variables-section .variable-row').should('have.length', 4);
 
-        // Set to FHIRPath Expression variable type
+        // Set to 'Easy Path Expression' variable type
         cy.get('#variable-type-3').select('simple');
         cy.get('#simple-expression-3')
           .should('exist')
@@ -943,7 +901,7 @@ describe('Rule editor', () => {
         cy.get('#add-variable').should('exist').should('be.visible').click();
         cy.get('#variables-section .variable-row').should('have.length', 5);
 
-        // Set to FHIRPath Expression variable type
+        // Set to 'Easy Path Expression' variable type
         cy.get('#variable-type-4').select('simple');
         cy.get('#simple-expression-4')
           .should('exist')
@@ -954,7 +912,7 @@ describe('Rule editor', () => {
           cy.get('#add-variable').should('exist').should('be.visible').click();
           cy.get('#variables-section .variable-row').should('have.length', 6);
 
-          // Set to FHIRPath Expression variable type
+          // Set to 'Easy Path Expression' variable type
           cy.get('#variable-type-5').select('simple');
           cy.get('#simple-expression-5')
             .should('exist')
@@ -965,7 +923,7 @@ describe('Rule editor', () => {
         cy.get('#add-variable').should('exist').should('be.visible').click();
         cy.get('#variables-section .variable-row').should('have.length', 7);
 
-        // Set to FHIRPath Expression variable type
+        // Set to 'Easy Path Expression' variable type
         cy.get('#variable-type-6').select('simple');
         cy.get('#simple-expression-6')
           .should('exist')
@@ -983,15 +941,15 @@ describe('Rule editor', () => {
           cy.get('div.case-output-column > label > input').clear().type("d");
 
           // Case Output 0, 1 and 2 should now not have css class error
-          cy.get('#case-output-0').should('not.have.class', 'error');
-          cy.get('#case-output-1').should('not.have.class', 'error');
-          cy.get('#case-output-2').should('not.have.class', 'error');
+          cy.get('#case-output-0').should('not.have.class', 'field-error');
+          cy.get('#case-output-1').should('not.have.class', 'field-error');
+          cy.get('#case-output-2').should('not.have.class', 'field-error');
           
           // The output value textbox should now not have css class error
-          cy.get('div.case-output-column > label > input').should('not.have.class', 'error');
+          cy.get('div.case-output-column > label > input').should('not.have.class', 'field-error');
 
           // The FHIRPath output should now not have css class error
-          cy.get('div.syntax-preview > div > pre').should('not.have.class', 'error');
+          cy.get('div.syntax-preview > div > pre').should('not.have.class', 'fhirpath-error');
         });
       });
 
@@ -1012,7 +970,7 @@ describe('Rule editor', () => {
           // The case statement checkbox should be checked
           cy.get('#case-statements').should('exist').should('be.checked');
 
-          // The variable type should default to FHIRPath Expression
+          // The variable type should default to 'Easy Path Expression'
           cy.get('#variable-type-final').should('exist').should('have.value', 'simple');
 
           // Easy Path Expression help should exist

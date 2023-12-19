@@ -3,6 +3,7 @@
     class="help"
     [id]="'exp-help-button-' + index"
     (click)="openHelp()" 
+    *ngIf="type==='expression' || type==='fhirpath' || type==='simple'"
     [matTooltip]="matToolTip" >?
   </button>
 

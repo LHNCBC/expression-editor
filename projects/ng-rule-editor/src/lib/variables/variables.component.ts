@@ -18,9 +18,16 @@ export class VariablesComponent implements OnInit, OnChanges, OnDestroy {
   variableSubscription;
   variables: Variable[];
 
+  previousVariable;
   currentVariable;
   currentVariableIdx: number;
   showConfirmDialog = false;
+
+  dialogTitle = "Converting FHIRPath Expression to Easy Path Expression";
+  dialogPrompt1 = "The Rule Editor does not support conversion from FHIRPath Expression " + 
+                  "to Easy Path Expression. Switching to the Easy Path Expression may " +
+                  "result in field not getting populated.";
+  dialogPrompt2 = "Proceed?";
 
   constructor(private ruleEditorService: RuleEditorService) {}
 
@@ -117,60 +124,67 @@ export class VariablesComponent implements OnInit, OnChanges, OnDestroy {
    */
   closeConvertDialog(): void {
     this.showConfirmDialog = false;
-    this.variables[this.currentVariableIdx].type = 'expression';
-
-    this.variables[this.currentVariableIdx].type = this.currentVariable.type;
+    this.variables[this.currentVariableIdx] = this.currentVariable;
   }
 
 
   /**
    * Toggle the advanced interface based on the type
+   * @param event - Variable Type change event
+   * @param i - Index of the currently edited variable type
    */
-  onTypeChange(event, idx): void {
-    const previousValue = this.variables[idx].type;
+  onTypeChange(event, i: number): void {
+    const previousValue = this.variables[i].type;
     if (previousValue === 'expression' && event.target.value === 'simple') {
-      this.currentVariableIdx = idx;
-      
-      if (this.variables[idx].expression !== '' &&
-          this.variables[idx].expression !== this.currentVariable.expression) {
-        this.variables[idx].type = '';
+      this.currentVariableIdx = i;
+          
+      this.currentVariable = copy(this.variables[i]);
+
+      if (this.currentVariable.simple === "") {
+        this.dialogPrompt1 = "The Rule Editor does not support conversion from FHIRPath Expression " + 
+        "to Easy Path Expression. Variable '" + this.currentVariable.label + "' does not contain the " + 
+        "simple expression. Switching to the Easy Path Expression would result in the expression  " +
+        "becoming blank.";
         this.showConfirmDialog = true;
-
       } else {
-        this.variables[idx].type = event.target.value;
+        this.variables[this.currentVariableIdx].type = 'simple';
+        this.ruleEditorService.checkAdvancedInterface();
       }
-      return;
-    } else {
-      this.variables[idx].type = event.target.value;
-    }
-    this.currentVariable = copy(this.variables[idx]);
 
-    if (event.target.value === 'query' || event.target.value === 'expression') {
-      this.ruleEditorService.checkAdvancedInterface(true);
     } else {
-      // Need to check all other variables and the final expression before we
-      // allow the advanced interface to be removed
-      this.ruleEditorService.checkAdvancedInterface();
+      this.variables[i].type = event.target.value;
+    
+      this.currentVariable = copy(this.variables[i]);
+
+      if (event.target.value === 'query' || event.target.value === 'expression') {
+        this.ruleEditorService.checkAdvancedInterface(true);
+      } else {
+        // Need to check all other variables and the final expression before we
+        // allow the advanced interface to be removed
+        this.ruleEditorService.checkAdvancedInterface();
+      }
     }
   }
 
   /**
    * Clear out the simple expression when the FHIRPath expression changes.
    * And delete out the linkId
+   * @param event - Expression change event
+   * @param i - Index of the currently edited expression
    */
-  onExpressionChange(event, idx): void {
-    this.variables[idx].simple = '';
-    delete this.variables[idx].linkId;
+  onExpressionChange(event, i: number): void {
+    this.variables[i].simple = '';
+    delete this.variables[i].linkId;
   }
 
   /**
    * Get the labels of available variables at the current index
-   * @param index - Index of variable we're editing
+   * @param i - Index of the currently edited variable
    */
-  getAvailableVariables(index: number): Array<string> {
+  getAvailableVariables(i: number): Array<string> {
     const uneditableVariables = this.ruleEditorService.uneditableVariables.map((e) => e.name);
     // Only return variables up to but not including index
-    const editableVariables = this.variables.map((e) => e.label).slice(0, index);
+    const editableVariables = this.variables.map((e) => e.label).slice(0, i);
 
     return uneditableVariables.concat(editableVariables);
   }

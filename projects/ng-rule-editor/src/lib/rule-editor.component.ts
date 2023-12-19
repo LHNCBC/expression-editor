@@ -39,6 +39,12 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
   previousFinalExpression;
   showConfirmDialog = false;
 
+  dialogTitle = "Converting FHIRPath Expression to Easy Path Expression";
+  dialogPrompt1 = "The Rule Editor does not support conversion from FHIRPath Expression " + 
+                  "to Easy Path Expression. Switching to the Easy Path Expression may " +
+                  "result in field not getting populated.";
+  dialogPrompt2 = "Proceed?";
+
   private calculateSumSubscription;
   private finalExpressionSubscription;
   private variablesSubscription;
@@ -187,13 +193,6 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
     this.expressionSyntax = 'simple';
 
     this.variableService.checkAdvancedInterface();
-
-    if (this.variableService.needsAdvancedInterface) {
-      this.advancedInterface = true;
-      this.disableInterfaceToggle = true;
-    } else {
-      this.disableInterfaceToggle = false;
-    }
   }
 
   /**

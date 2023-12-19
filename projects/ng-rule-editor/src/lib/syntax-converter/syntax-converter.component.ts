@@ -5,7 +5,7 @@ import { SimpleStyle } from '../rule-editor.service';
 @Component({
   selector: 'lhc-syntax-converter',
   templateUrl: './syntax-converter.component.html',
-  styleUrls: ['./syntax-converter.component.css']
+  styleUrls: ['../rule-editor.component.css', './syntax-converter.component.css']
 })
 export class SyntaxConverterComponent implements OnChanges {
   @Input() simple: string;

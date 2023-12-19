@@ -36,7 +36,3 @@
 ::ng-deep .mat-tooltip {
   overflow-wrap: break-word;
 }
-
-.error {
-  color: red;
-}

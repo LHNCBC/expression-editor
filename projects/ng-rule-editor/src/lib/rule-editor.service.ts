@@ -429,6 +429,7 @@ export class RuleEditorService {
           if (simpleSyntax === null && this.finalExpression !== '') {
             this.syntaxType = 'fhirpath';
             this.needsAdvancedInterface = true;
+            this.simpleExpression = '';
           } else {
             this.syntaxType = 'simple';
             this.simpleExpression = simpleSyntax;
@@ -586,7 +587,7 @@ export class RuleEditorService {
    */
   getQueryObservationFromExpression(name, expression, index?:number) : Variable {
     const queryObservation = this.processQueryVariable(name, expression, index);
-    return (queryObservation.type === "queryObservation")?queryObservation:null;
+    return (queryObservation.type === "queryObservation") ? queryObservation : null;
   }
 
   /**

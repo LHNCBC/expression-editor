@@ -1,0 +1,25 @@
+<div 
+  cdkTrapFocus
+  role="dialog"
+  cdkFocusInitial
+  aria-modal="true"
+  id="yes-no-dialog"
+  [style.text-align]="textAlign"
+  class="yes-no-modal">
+
+  <div class="yes-no-modal-content yes-no-content" #modal aria-modal="true">
+    <div class="yes-no-modal-header">
+      <h2>{{title}}</h2>
+    </div>
+    <div class="yes-no-modal-body">
+      <label>{{prompt1}}</label>
+      <p></p>
+      <label>{{prompt2}}</label>
+
+    </div>
+    <div class="yes-no-modal-footer">
+      <button id="yes" class="primary" [style]="lhcStyle.buttonPrimary" (click)="onYes()" >Yes</button>
+      <button id="no" (click)="onNo()">No</button>
+    </div>
+  </div>
+</div>
