@@ -688,6 +688,64 @@ describe('Rule editor', () => {
         cy.get('lhc-syntax-preview>div>div>pre').should('not.have.text', 'Not valid');
   
       });
+
+      it('should get confirmation dialog when click Cancel', () => {
+        cy.get('select#questionnaire-select').select('BMI Calculation (Easy Path expression)');
+        
+        // Variables section
+        cy.get('lhc-variables > h2').should('contain', 'Item Variables');
+        cy.get('#variables-section .variable-row').should('have.length', 2);
+        
+        // The confirmation dialog should not exist
+        cy.get('div.rule-editor lhc-yes-no-dialog').should('not.exist');
+
+        // Cancel button
+        cy.get('#cancel-expression').should('exist').click();
+
+        // The dialog to confirm cancel should be displayed
+        cy.get('div.rule-editor lhc-yes-no-dialog').should('exist');
+
+        // The dialog should contains two buttons: Yes and No.
+        cy.get('#yes-button').should('exist');
+        cy.get('#no-button').should('exist');
+
+        // Click 'No' should cancel the Cancel request and hide the dialog
+        cy.get('#no-button').click();
+
+        // The confirmation dialog should not exist
+        cy.get('div.rule-editor lhc-yes-no-dialog').should('not.exist');
+      });
+
+      it('should be able to cancel changes to the Rule Editor', () => {
+        cy.get('select#questionnaire-select').select('BMI Calculation (Easy Path expression)');
+        
+        // Variables section
+        cy.get('lhc-variables > h2').should('contain', 'Item Variables');
+        cy.get('#variables-section .variable-row').should('have.length', 2);
+        
+        // Add variable c
+        cy.get('#add-variable').click();
+        cy.get('#variables-section .variable-row').should('have.length', 3);
+        cy.get('#question-2').clear().type('BMI (/39156-5)');
+        cy.contains('39156-5').click();
+        
+        // Cancel button
+        cy.get('#cancel-expression').should('exist').click();
+
+        // The dialog to confirm cancel should be displayed
+        cy.get('div.rule-editor lhc-yes-no-dialog').should('exist');
+
+        // Click 'Yes' to confirm cancelling
+        cy.get('#yes-button').click();
+
+        // This should reset back to the 'BMI Calculation (Easy Path Expression)' questionnaire
+        // The confirmation dialog should be hidden
+        cy.get('div.rule-editor lhc-yes-no-dialog').should('not.exist');
+
+        // Variables section should revert back to 2 variables.
+        cy.get('lhc-variables > h2').should('contain', 'Item Variables');
+        cy.get('#variables-section .variable-row').should('have.length', 2);
+      });
     });
 
     describe('PHQ9 score calculation', () => {

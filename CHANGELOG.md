@@ -1,6 +1,9 @@
 # Change log
 
 This project follows [Semantic Versioning](http://semver.org/).
+## [3.1.11] 2023-12-20
+### Added
+- Added a cancel button to discard changes for the Rule Editor
 
 ## [3.1.7] 2023-11-09
 ### Added

@@ -21,6 +21,7 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
   @Input() expressionUri = '';
   @Input() lhcStyle: SimpleStyle = {};
   @Output() save = new EventEmitter<object>();
+  @Output() cancel = new EventEmitter();
 
   errorLoading = 'Could not detect a FHIR Questionnaire; please try a different file.';
   expressionSyntax: string;
@@ -34,6 +35,7 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
   caseStatements: boolean;
   disableInterfaceToggle = false;
   loadError = false;
+  cancelChanges = false;
 
   private calculateSumSubscription;
   private finalExpressionSubscription;
@@ -110,6 +112,29 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
     const finalExpression = this.finalExpressionExtension;
     finalExpression.valueExpression.expression = this.finalExpression;
     this.save.emit(this.variableService.export(this.expressionUri, finalExpression));
+  }
+
+  /**
+   * Cancelling changes to the Rule Editor
+   * 
+   */
+  cancelExpression(): void {
+    this.cancelChanges = true;
+  }
+
+  /**
+   * Confirm to cancel change
+   */
+  confirmCancel(): void {
+    this.cancel.emit();
+    this.cancelChanges = false;
+  }
+
+  /**
+   * Discard the cancel request
+   */
+  discardCancel(): void {
+    this.cancelChanges = false;
   }
 
   /**

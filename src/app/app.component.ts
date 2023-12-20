@@ -96,6 +96,16 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   /**
+   * Cancel changes made to the Rule Editor.
+   */
+  onCancel(): void {
+    // Reset it back to the 'bmisimple' questionnaire
+    this.formType = 'bmisimple';
+    this.onChange();
+  }
+
+
+  /**
    * Import a questionnaire from a file using the linkId and expression URI
    * @param fileInput - input file change event
    */

@@ -65,7 +65,8 @@
         select: { backgroundColor: '#ffe' }
       }"
       [doNotAskToCalculateScore]="doNotAskToCalculateScore"
-      (save)="onSave($event)">
+      (save)="onSave($event)"
+      (cancel)="onCancel()">
     </lhc-rule-editor>
   </div>
 

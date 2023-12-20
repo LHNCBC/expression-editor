@@ -81,5 +81,19 @@
     </div>
   </section>
 
+  <lhc-yes-no-dialog 
+    *ngIf="cancelChanges"
+    [title]="'Cancel Changes'"
+    [prompt1]="'Are you sure you want to cancel?'"
+    [prompt2]="'Any unsaved changes will be lost.'"
+    (yes)="confirmCancel()"
+    (no)="discardCancel()"
+    [textAlign]="'center'"
+    [dialogWidth]="'400px'" 
+    [lhcStyle]="lhcStyle">
+  </lhc-yes-no-dialog>
+
   <button class="primary" (click)="export()" [ngStyle]="lhcStyle.buttonPrimary" id="export">{{submitButtonName}}</button>
+  <button (click)="cancelExpression()" id="cancel-expression">Cancel</button>
+
 </div>
