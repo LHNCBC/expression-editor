@@ -164,11 +164,11 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
     this.previousFinalExpression = this.finalExpression;
 
     if (event.target.value === 'fhirpath') {
-      this.variableService.checkAdvancedInterface(true);
+      this.variableService.seeIfAdvancedInterfaceIsNeeded(true);
     } else {
       // Need to check all other variables and the final expression before we
       // allow the advanced interface to be removed
-      this.variableService.checkAdvancedInterface();
+      this.variableService.seeIfAdvancedInterfaceIsNeeded();
     }
 
     if (this.variableService.needsAdvancedInterface) {
@@ -192,7 +192,7 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
     this.showConfirmDialog = false;
     this.expressionSyntax = 'simple';
 
-    this.variableService.checkAdvancedInterface();
+    this.variableService.seeIfAdvancedInterfaceIsNeeded();
   }
 
   /**

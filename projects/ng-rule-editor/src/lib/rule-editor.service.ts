@@ -100,7 +100,7 @@ export class RuleEditorService {
    * queries are present
    * @param toggleOn - Set the advanced interface on (without having to run checks)
    */
-  checkAdvancedInterface(toggleOn?: boolean): void {
+  seeIfAdvancedInterfaceIsNeeded(toggleOn?: boolean): void {
     if (toggleOn) {
       this.needsAdvancedInterface = true;
     } else {

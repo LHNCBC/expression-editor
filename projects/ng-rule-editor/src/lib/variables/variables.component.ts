@@ -116,7 +116,7 @@ export class VariablesComponent implements OnInit, OnChanges, OnDestroy {
   convertFHIRPathToEasyPath(): void {
     this.showConfirmDialog = false;
     this.variables[this.currentVariableIdx].type = 'simple';
-    this.ruleEditorService.checkAdvancedInterface();
+    this.ruleEditorService.seeIfAdvancedInterfaceIsNeeded();
   }
 
   /**
@@ -140,7 +140,7 @@ export class VariablesComponent implements OnInit, OnChanges, OnDestroy {
           
       this.currentVariable = copy(this.variables[i]);
 
-      if (this.currentVariable.simple === "") {
+      if (!this.currentVariable?.simple || this.currentVariable.simple === "") {
         this.dialogPrompt1 = "The Rule Editor does not support conversion from FHIRPath Expression " + 
         "to Easy Path Expression. Variable '" + this.currentVariable.label + "' does not contain the " + 
         "simple expression. Switching to the Easy Path Expression would result in the expression  " +
@@ -148,7 +148,7 @@ export class VariablesComponent implements OnInit, OnChanges, OnDestroy {
         this.showConfirmDialog = true;
       } else {
         this.variables[this.currentVariableIdx].type = 'simple';
-        this.ruleEditorService.checkAdvancedInterface();
+        this.ruleEditorService.seeIfAdvancedInterfaceIsNeeded();
       }
 
     } else {
@@ -157,11 +157,11 @@ export class VariablesComponent implements OnInit, OnChanges, OnDestroy {
       this.currentVariable = copy(this.variables[i]);
 
       if (event.target.value === 'query' || event.target.value === 'expression') {
-        this.ruleEditorService.checkAdvancedInterface(true);
+        this.ruleEditorService.seeIfAdvancedInterfaceIsNeeded(true);
       } else {
         // Need to check all other variables and the final expression before we
         // allow the advanced interface to be removed
-        this.ruleEditorService.checkAdvancedInterface();
+        this.ruleEditorService.seeIfAdvancedInterfaceIsNeeded();
       }
     }
   }
