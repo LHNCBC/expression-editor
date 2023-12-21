@@ -45,7 +45,7 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
 
   ngOnInit(): void {
     this.calculateSumSubscription = this.variableService.scoreCalculationChange.subscribe((scoreCalculation) => {
-      this.calculateSum = scoreCalculation;
+      this.calculateSum = (scoreCalculation && !this.doNotAskToCalculateScore);
     });
     this.finalExpressionSubscription = this.variableService.finalExpressionChange.subscribe((finalExpression) => {
       this.finalExpression = finalExpression;
@@ -75,7 +75,7 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
     this.calculateSum = false;
     this.selectItems = false;
     this.hideRuleEditor = false;
-
+    this.doNotAskToCalculateScore = false;
     this.reload();
 
   }
@@ -99,15 +99,18 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
     this.linkIdContext = this.variableService.linkIdContext;
     this.expressionSyntax = this.variableService.syntaxType;
     this.selectItems = false;
-    this.calculateSum = this.variableService.scoreCalculation;
+
+    if (this.linkIdContext) {
+      this.doNotAskToCalculateScore = !this.variableService.shouldCalculateScoreForItem(this.fhirQuestionnaire, this.linkIdContext, this.expressionUri);
+    } else {
+      this.doNotAskToCalculateScore = true;
+    }
+
+    this.calculateSum = (this.variableService.scoreCalculation && !this.doNotAskToCalculateScore);
     this.finalExpressionExtension = this.variableService.finalExpressionExtension;
     this.finalExpression = this.variableService.finalExpression;
     this.variables = this.variableService.uneditableVariables.map(e => e.name).concat(
       this.variableService.variables.map(e => e.label));
-
-    if (this.linkIdContext) {
-      this.doNotAskToCalculateScore = !this.variableService.shouldCalculateScoreForItem(this.fhirQuestionnaire, this.linkIdContext, this.expressionUri);
-    }
   }
 
   /**
