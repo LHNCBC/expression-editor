@@ -365,8 +365,8 @@ export class RuleEditorService {
       if (!this.doNotAskToCalculateScore && this.linkIdContext) {
         // If there is at least one score question we will ask the user if they
         // want to calculate the score
-        const SCORE_MIN_QUESTIONS = 1;
-        this.scoreCalculation = this.getScoreQuestionCount(this.fhir, linkIdContext) >= SCORE_MIN_QUESTIONS;
+        const scoreMinQuestions = 1;
+        this.scoreCalculation = this.getScoreQuestionCount(this.fhir, linkIdContext) >= scoreMinQuestions;
         this.scoreCalculationChange.next(this.scoreCalculation);
       } else {
         this.scoreCalculation = false;
@@ -1274,56 +1274,25 @@ export class RuleEditorService {
     return (expressionUri === this.CALCULATED_EXPRESSION);
   }
 
-
-/* 
-  shouldCalculateScoreForItem(item, linkIdContext:string, expressionUri: string): boolean {
-    // Should only calculate if the Output Expression is calculatedExpression
-    this.doNotAskToCalculateScore = !this.isCalculatedExpression(expressionUri);
-
-    let result = false;
-    // should not calculate if there is already a calculateExpression (old style) - not working
-    const hasOldScoreExtension = (item) => {
-      if (linkIdContext === item.linkId) {
-        const scoreExtension = item.extension.filter((extension) => extension.url === this.CALCULATED_EXPRESSION);
-
-        //return scoreExtension;
-        if (scoreExtension && scoreExtension.length > 0) {
-          result = !(scoreExtension[0].valueExpression.extension &&
-                     scoreExtension[0].valueExpression.extension.some((ext) => 
-                       ext.url === RuleEditorService.SCORE_EXPRESSION_EXTENSION_LINKIDS
-                     )
-                   );
-        }
-      }
-
-      if (item.item) {
-        item.item.forEach((subItem) => hasOldScoreExtension(subItem));
-      }
-      
-    };
-
-    item.item.forEach(hasOldScoreExtension);
-
-    // Should not calculate on the first item
-    if (!this.doNotAskToCalculateScore) {
-      const scoreItems = this.getScoreItems(this.fhir.item);
-  
-      this.doNotAskToCalculateScore = (scoreItems.length === 0);
-  
-      // If there is at least one score question we will ask the user if they
-      // want to calculate the score
-      const SCORE_MIN_QUESTIONS = 1;
-      this.scoreCalculation = scoreItems.length >= SCORE_MIN_QUESTIONS;
-      this.scoreCalculationChange.next(this.scoreCalculation);
-    } else {
-      this.scoreCalculation = false;
-      this.scoreCalculationChange.next(this.scoreCalculation);
+  /**
+   * Determine if the given item has the old total scoring configuration
+   * @param item - FHIR Item
+   * @return true if the calculated expression is found and does not contain the new 
+   * scoring extension
+   */ 
+  hasOldCalculatedExpressionForItem = (item) => {
+    const scoreExtension = item.extension.find((extension) => extension.url === this.CALCULATED_EXPRESSION);
+    if (scoreExtension && scoreExtension.valueExpression) {
+      const newScoringExpression = (scoreExtension.valueExpression.extension &&
+                  scoreExtension.valueExpression.extension.some((ext) => 
+                    ext.url === RuleEditorService.SCORE_EXPRESSION_EXTENSION_LINKIDS
+                  )
+                );
+      return !newScoringExpression;
     }
-    
-    return this.doNotAskToCalculateScore;
-  }
 
- */
+    return false;
+  };
 
   /**
    * Determine if the selected question has predefined scoring items but without
@@ -1332,42 +1301,32 @@ export class RuleEditorService {
    * rather than update.
    * @param questionnaire - FHIR Questionnaire
    * @param linkIdContext - link id of the selected item
-   * @return true if the calculate expression does not contain the new scoring extension
-   * @private
+   * @return true if the calculated expression does not contain the new scoring extension
    */
-  private hasOldCalculateExpression(questionnaire, linkIdContext: string): boolean {
-    let result = false;
-    // should not calculate if there is already a calculateExpression (old style) - not working
-    const hasOldScoreExtension = (item) => {
-      if (linkIdContext === item.linkId) {
-        const scoreExtension = item.extension.filter((extension) => extension.url === this.CALCULATED_EXPRESSION);
-
-        if (scoreExtension && scoreExtension.length > 0) {
-          result = !(scoreExtension[0].valueExpression.extension &&
-                     scoreExtension[0].valueExpression.extension.some((ext) => 
-                       ext.url === RuleEditorService.SCORE_EXPRESSION_EXTENSION_LINKIDS
-                     )
-                   );
-        }
+  hasOldCalculatedExpression(questionnaire, linkIdContext: string): boolean {
+    const retrieveItem = (item) => {
+      if (linkIdContext === undefined || linkIdContext === item.linkId) {
+        return item;
       }
-
       if (item.item) {
-        item.item.forEach((subItem) => hasOldScoreExtension(subItem));
+        const subItem = item.item.find((subItem) => retrieveItem(subItem));
+        if (subItem)
+          return subItem;
       }
     }
+    const item = questionnaire.item.find((item) => retrieveItem(item));
 
-    questionnaire.item.forEach(hasOldScoreExtension);
-    return result;
+    return (item) ? this.hasOldCalculatedExpressionForItem(item) : false;  
   }
 
   /**
    * Determine if the selected item contains scoring items
+   * @param items - Questionnaire item array
+   * @param linkIdContext - link id of the selected item
    * @return true if has scoring items
-   * @private
    */
-  private hasCalculateScoringItems(): boolean {
-    const scoreItems = this.getScoreItems(this.fhir.item);
-
+  hasCalculateScoringItems(items, linkIdContext: string): boolean {
+    const scoreItems = this.getScoreItems(items, linkIdContext);
     return (scoreItems.length > 0);
   }
 
@@ -1375,9 +1334,9 @@ export class RuleEditorService {
    * Determine whether the scoring calculation should be prompted/calculated for the selected item.
    * - The selected item expressionUri must be of type calculatedExpression.
    * - The selected item must have scoring items for the calculation. The scoring items are determined
-   *   from items prior to the selected item.  So the first question is selected, then it will not get
-   *   a prompt for score calculation.
-   * - The selected item must not contain the old implementation of the pre-seleect scoring items
+   *   from items prior to the selected item.  So if the first question is selected, then it will not
+   *   get a prompt for score calculation.
+   * - The selected item must not contain the old implementation of the pre-selected scoring items
    *   (missing the new scoring extension). 
    * @param questionnaire - FHIR Questionnaire
    * @param linkIdContext - link id of the selected item
@@ -1385,23 +1344,20 @@ export class RuleEditorService {
    * @return true if the scoring calculation prompt should not be displayed
    */
   shouldCalculateScoreForItem(questionnaire, linkIdContext:string, expressionUri: string): boolean {
-    // Should only calculate if the Output Expression is calculatedExpression
+    // Should only calculated if the Output Expression is calculatedExpression
     const hasCalculatedOutputExpression = this.isCalculatedExpression(expressionUri);
 
-    let doNotAskToCalculateScore = true;
+    let shouldCalculateScore = false;
 
-    if (hasCalculatedOutputExpression) {
-      if(this.hasCalculateScoringItems()) {
-        if (!this.hasOldCalculateExpression(questionnaire, linkIdContext)) {
-          doNotAskToCalculateScore = false;
-        }
-      }
-    }
+    if (hasCalculatedOutputExpression)
+      if(this.hasCalculateScoringItems(questionnaire.item, linkIdContext))
+        if (!this.hasOldCalculatedExpression(questionnaire, linkIdContext))
+          shouldCalculateScore = true;
 
-    this.doNotAskToCalculateScore = doNotAskToCalculateScore;
+    this.doNotAskToCalculateScore = !shouldCalculateScore;
     this.scoreCalculation = !this.doNotAskToCalculateScore;
     this.scoreCalculationChange.next(this.scoreCalculation);
 
-    return this.doNotAskToCalculateScore;
+    return shouldCalculateScore;
   }
 }

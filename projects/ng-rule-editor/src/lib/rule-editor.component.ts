@@ -106,7 +106,7 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
       this.variableService.variables.map(e => e.label));
 
     if (this.linkIdContext) {
-      this.doNotAskToCalculateScore = this.variableService.shouldCalculateScoreForItem(this.fhirQuestionnaire, this.linkIdContext, this.expressionUri);
+      this.doNotAskToCalculateScore = !this.variableService.shouldCalculateScoreForItem(this.fhirQuestionnaire, this.linkIdContext, this.expressionUri);
     }
   }
 

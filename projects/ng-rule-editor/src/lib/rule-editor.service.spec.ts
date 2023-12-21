@@ -12,6 +12,8 @@ import phq9_preselected from '../../../../src/assets/phq9_preselected.json';
 // Total Scoring calculation item is located at the child item level.
 import phq9_preselected_child_total from '../../../../src/test/data/phq9_preselected_child_total.json';
 
+import phq9_preselected_without_scoring_ext from '../../../../src/test/data/phq9_preselected_without_scoring_ext.json';
+
 const outputTotalScore = {
   url: 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression',
   valueExpression: {
@@ -265,10 +267,142 @@ describe('RuleEditorService', () => {
     expect(preselectedLinkIds[5]).toEqual("/44260-8/45907-0/44259-0");
   });
 
+  it('should return number of scoring items based on the selected item', () => {
+    const firstItem = service.getScoreItems(copy(phq9.item), "/44250-9");
+    expect(firstItem.length).toEqual(0);
+
+    const secondItem = service.getScoreItems(copy(phq9.item), "/44255-8");
+    expect(secondItem.length).toEqual(1);
+    
+    const totalItem = service.getScoreItems(copy(phq9.item), "/39156-5");
+    expect(totalItem.length).toEqual(9);
+  });
+
+  it('should return whether the selected item has scoring items', () => {
+    const firstItem = service.hasCalculateScoringItems(copy(phq9.item), "/44250-9");
+    expect(firstItem).toBeFalse();
+
+    const secondItem = service.hasCalculateScoringItems(copy(phq9.item), "/44255-8");
+    expect(secondItem).toBeTrue();
+    
+    const totalItem = service.hasCalculateScoringItems(copy(phq9.item), "/39156-5");
+    expect(totalItem).toBeTrue();
+  });
+
+  it('should determine if item contains old calculated expression', () => {
+    const scoringItem = copy(phq9_preselected_without_scoring_ext.item[0]);
+    const totalScoringOldCalculatedExpressionItem = copy(phq9_preselected_without_scoring_ext.item[9]);
+    const totalScoringNewCalculatedExpressionItem = copy(phq9_preselected.item[6]);
+
+    const result = service.hasOldCalculatedExpressionForItem(scoringItem);
+    expect(result).toBeFalse();
+
+    const result2 =
+      service.hasOldCalculatedExpressionForItem(totalScoringOldCalculatedExpressionItem);
+    expect(result2).toBeTrue();
+
+    const result3 =
+      service.hasOldCalculatedExpressionForItem(totalScoringNewCalculatedExpressionItem);
+    expect(result3).toBeFalse();
+  });
+
+
+  it('should determine if item contains old calculated expression based on linkId', () => {
+    // Empty linkId
+    const emptyLinkId =
+      service.hasOldCalculatedExpression(copy(phq9_preselected_without_scoring_ext), "");
+    expect(emptyLinkId).toBeFalse();
+
+    // Null linkId
+    const nullLinkId =
+      service.hasOldCalculatedExpression(copy(phq9_preselected_without_scoring_ext), null);
+    expect(nullLinkId).toBeFalse();
+
+    // Undefined linkId
+    const undefinedLinkId =
+      service.hasOldCalculatedExpression(copy(phq9_preselected_without_scoring_ext), undefined);
+    expect(undefinedLinkId).toBeFalse();
+
+    // Scoring item - does not contain calculated expression
+    const scoringItem =
+      service.hasOldCalculatedExpression(copy(phq9_preselected_without_scoring_ext), "/44251-7");
+    expect(scoringItem).toBeFalse();
+
+    // Predefined total scoring calculation with old calculated expression
+    const totalScoringOldCalculatedExpression =
+      service.hasOldCalculatedExpression(copy(phq9_preselected_without_scoring_ext), "/44261-6");
+    expect(totalScoringOldCalculatedExpression).toBeTrue();
+
+    // Item that can be used as for total scoring calculation - does not contain calculated expression
+    const canBeTotalScoring = service.hasOldCalculatedExpression(copy(phq9), "/39156-5");
+    expect(canBeTotalScoring).toBeFalse();
+
+    // Predefined total scoring calculation with new calculated expression
+    const totalScoringNewCalculatedExpression =
+      service.hasOldCalculatedExpression(copy(phq9_preselected), "/39156-5");
+    expect(totalScoringNewCalculatedExpression).toBeFalse();
+  });
+
+  it('should determine if the scoring calculation prompt will be displayed', () => {
+    const answerExpressionUri = "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-answerExpression";
+    const calculatedExpressionUri = "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression";
+    const enableWhenExpressionUri = "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-enableWhenExpression";
+    const initialExpressionUri = "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression";
+
+    // Output Expression - None
+    const emptyOutputExpressionPrompt = service.shouldCalculateScoreForItem(copy(phq9), "/39156-5", "");
+    expect(emptyOutputExpressionPrompt).toBeFalse();
+
+    // Output Expression = Answer Expression
+    const answerExpressionPrompt =
+      service.shouldCalculateScoreForItem(copy(phq9), "/39156-5", answerExpressionUri);
+    expect(answerExpressionPrompt).toBeFalse();
+
+    // Output Expression = Calculated Expression
+    const calculatedExpressionPrompt =
+      service.shouldCalculateScoreForItem(copy(phq9_preselected), "/39156-5", calculatedExpressionUri);
+    expect(calculatedExpressionPrompt).toBeTrue();
+
+    // Output Expression = Calculated/Initial Expression (user editable)
+    const calculatedInitExpressionPrompt =
+      service.shouldCalculateScoreForItem(copy(phq9_preselected), "/39156-5", calculatedExpressionUri);
+    expect(calculatedInitExpressionPrompt).toBeTrue();
+
+    // Output Expression = Enable When Expression
+    const enableWhenExpressionPrompt =
+      service.shouldCalculateScoreForItem(copy(phq9), "/39156-5", enableWhenExpressionUri);
+    expect(enableWhenExpressionPrompt).toBeFalse();
+
+    // Output Expression = Initial Expression
+    const initialExpressionPrompt =
+      service.shouldCalculateScoreForItem(copy(phq9), "/39156-5", initialExpressionUri);
+    expect(initialExpressionPrompt).toBeFalse();
+
+    // First item in the list - no scoring items to be calculated
+    const firstItemPrompt =
+      service.shouldCalculateScoreForItem(copy(phq9), "/44250-9", calculatedExpressionUri);
+    expect(firstItemPrompt).toBeFalse();
+
+    // Second item in the list - should have one scoring item to be calculated
+    const secondItemPrompt =
+      service.shouldCalculateScoreForItem(copy(phq9), "/44255-8", calculatedExpressionUri);
+    expect(secondItemPrompt).toBeTrue();
+
+    // Predefined total scoring calculation with old calculated expression
+    const scoringOldCalculatedExpressionPrompt =
+      service.shouldCalculateScoreForItem(copy(phq9_preselected_without_scoring_ext), "/44261-6", calculatedExpressionUri);
+    expect(scoringOldCalculatedExpressionPrompt).toBeFalse();
+
+    // Predefined total scoring calculation with new calculated expression
+    const scoringNewCalculatedExpressionPrompt =
+    service.shouldCalculateScoreForItem(copy(phq9_preselected), "/39156-5", calculatedExpressionUri);
+    expect(scoringNewCalculatedExpressionPrompt).toBeTrue();
+  });
+
   it('should return pre-selected link ids from the child item', () => {
     const preselectedLinkIds = service.getSelectedScoringLinkIds(copy(phq9_preselected_child_total.item), LINK_ID);
 
-    // there should be 2 items selected
+    // There should be 2 items selected
     expect(preselectedLinkIds.length).toEqual(2);
 
     expect(preselectedLinkIds[0]).toEqual("/44251-7");
