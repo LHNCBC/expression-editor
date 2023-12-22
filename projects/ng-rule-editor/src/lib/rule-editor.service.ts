@@ -571,9 +571,16 @@ export class RuleEditorService {
 
     const simpleExtension = extensions && extensions.find(e => e.url === RuleEditorService.SIMPLE_SYNTAX_EXTENSION);
 
-    if ((variableType === 'question') || (!variableType && matches !== null)) {
-      const linkId = matches[1];
-      const factor = matches[2];
+    if ((variableType === 'question' && (matches !== null || expression === '')) ||
+       (!variableType && matches !== null)) {
+
+      let linkId: string;
+      let factor: string;
+      
+      if (matches) {
+        linkId = matches[1];
+        factor = matches[2];
+      }
 
       const variable: Variable = {
         __$index: index,
@@ -1152,7 +1159,7 @@ export class RuleEditorService {
         `.where(valueCoding.code=%resource.item.where(linkId = '${linkId}').answer.valueCoding.code).extension` +
         `.where(url='http://hl7.org/fhir/StructureDefinition/ordinalValue').valueDecimal`;
     } else if (convertible && unit && toUnit) {
-      const factor = UNIT_CONVERSION[unit].find((e) => e.unit === toUnit).factor;   
+      const factor = UNIT_CONVERSION[unit].find((e) => e.unit === toUnit).factor;
       return `%resource.item.where(linkId='${linkId}').answer.value*${factor}`;
     } else {
       const matches = expression.match(this.QUESTION_REGEX);

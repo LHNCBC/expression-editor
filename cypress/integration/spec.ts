@@ -225,7 +225,7 @@ describe('Rule editor', () => {
           });
       });
 
-      it('should be able switch from Question variable type to FHIRPath Expression and back', () => {
+      it('should be able to switch from Question variable type to FHIRPath Expression and back', () => {
         cy.get('select#questionnaire-select').select('BMI Calculation (Easy Path expression)');
 
         cy.title().should('eq', 'Rule Editor');
@@ -273,7 +273,7 @@ describe('Rule editor', () => {
 
       });
       
-      it('should be retain Question setting when click the Advanced Interface checkbox', () => {
+      it('should retain Question setting when the Advanced Interface checkbox is clicked', () => {
         cy.get('select#questionnaire-select').select('BMI Calculation (Easy Path expression)');
 
         cy.title().should('eq', 'Rule Editor');

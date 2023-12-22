@@ -87,41 +87,26 @@ describe('Rule editor', () => {
           // validate FHIRPath Expression variable
           expect(parsedData.item[3].extension[3].valueExpression.name).to.equal('c_fhirpath_exp');
           expect(parsedData.item[3].extension[3].valueExpression.language).to.equal('text/fhirpath');
-          expect(parsedData.item[3].extension[3].valueExpression.extension).to.exist;
-          expect(parsedData.item[3].extension[3].valueExpression.extension).to.have.lengthOf(1);
-          expect(parsedData.item[3].extension[3].valueExpression.extension[0].valueString).to.exist;
           expect(parsedData.item[3].extension[3].valueExpression.extension[0].valueString).to.equal('expression');
 
           // validate FHIR Query variable
           expect(parsedData.item[3].extension[4].valueExpression.name).to.equal('d_fhir_query');
           expect(parsedData.item[3].extension[4].valueExpression.language).to.equal('application/x-fhir-query');
-          expect(parsedData.item[3].extension[4].valueExpression.extension).to.exist;
-          expect(parsedData.item[3].extension[4].valueExpression.extension).to.have.lengthOf(1);
-          expect(parsedData.item[3].extension[4].valueExpression.extension[0].valueString).to.exist;
           expect(parsedData.item[3].extension[4].valueExpression.extension[0].valueString).to.equal('query');
 
           // validate FHIR Query Observation variable
           expect(parsedData.item[3].extension[5].valueExpression.name).to.equal('e_fhir_obs');
           expect(parsedData.item[3].extension[5].valueExpression.language).to.equal('application/x-fhir-query');
-          expect(parsedData.item[3].extension[5].valueExpression.extension).to.exist;
-          expect(parsedData.item[3].extension[5].valueExpression.extension).to.have.lengthOf(1);
-          expect(parsedData.item[3].extension[5].valueExpression.extension[0].valueString).to.exist;
           expect(parsedData.item[3].extension[5].valueExpression.extension[0].valueString).to.equal('queryObservation');
 
           // validate FHIR Query variable
           expect(parsedData.item[3].extension[6].valueExpression.name).to.equal('f_question');
           expect(parsedData.item[3].extension[6].valueExpression.language).to.equal('text/fhirpath');
-          expect(parsedData.item[3].extension[6].valueExpression.extension).to.exist;
-          expect(parsedData.item[3].extension[6].valueExpression.extension).to.have.lengthOf(1);
-          expect(parsedData.item[3].extension[6].valueExpression.extension[0].valueString).to.exist;
           expect(parsedData.item[3].extension[6].valueExpression.extension[0].valueString).to.equal('question');
 
           // validate Easy Path Expression variable
           expect(parsedData.item[3].extension[7].valueExpression.name).to.equal('g_simple');
           expect(parsedData.item[3].extension[7].valueExpression.language).to.equal('text/fhirpath');
-          expect(parsedData.item[3].extension[7].valueExpression.extension).to.exist;
-          expect(parsedData.item[3].extension[7].valueExpression.extension).to.have.lengthOf(2);
-          expect(parsedData.item[3].extension[7].valueExpression.extension[0].valueString).to.exist;
           expect(parsedData.item[3].extension[7].valueExpression.extension[0].valueString).to.equal('simple');
         });
       });
@@ -164,9 +149,6 @@ describe('Rule editor', () => {
           // It should have language = application/x-fhir-query
           expect(parsedData.item[3].extension[3].valueExpression.name).to.equal('c');
           expect(parsedData.item[3].extension[3].valueExpression.language).to.equal('application/x-fhir-query');
-          expect(parsedData.item[3].extension[3].valueExpression.extension).to.exist;
-          expect(parsedData.item[3].extension[3].valueExpression.extension).to.have.lengthOf(1);
-          expect(parsedData.item[3].extension[3].valueExpression.extension[0].valueString).to.exist;
           expect(parsedData.item[3].extension[3].valueExpression.extension[0].valueString).to.equal('queryObservation');          
         });
       });
@@ -190,7 +172,7 @@ describe('Rule editor', () => {
 
         // Variables section
         cy.get('lhc-variables > h2').should('contain', 'Item Variables');
-        cy.get('#variables-section .variable-row').should('have.length', 23);
+        cy.get('#variables-section .variable-row').should('have.length', 27);
 
         // Variable type "FHIRPath Expression" is displayed incorrectly as "Question"
         cy.get('div#row-15')
@@ -249,13 +231,6 @@ describe('Rule editor', () => {
         cy.wait('@bmivariable');
 
         cy.title().should('eq', 'Rule Editor');
-
-        // Advanced Interface checkbox
-        cy.get('#advanced-interface').should('be.checked');
-
-        // Variables section
-        cy.get('lhc-variables > h2').should('contain', 'Item Variables');
-        cy.get('#variables-section .variable-row').should('have.length', 23);
 
         // Should display correct variable type - variable type "FHIRPath Expression"
         cy.get('div#row-6')
@@ -340,13 +315,6 @@ describe('Rule editor', () => {
 
         cy.title().should('eq', 'Rule Editor');
 
-        // Advanced Interface checkbox
-        cy.get('#advanced-interface').should('be.checked');
-
-        // Variables section
-        cy.get('lhc-variables > h2').should('contain', 'Item Variables');
-        cy.get('#variables-section .variable-row').should('have.length', 23);
-
         // Question - weight default to kg
         cy.get('div#row-0')
           .within(() => {
@@ -410,19 +378,27 @@ describe('Rule editor', () => {
           });
       });
 
-      it('should display invalid factor "Question" variable as "FHIRPath Expression" instead', () => {
+      it('should display the correct "Question" variable type when the expression is empty', () => {
         cy.intercept('/bmivariabletype.json').as('bmivariable');
         cy.get('select#questionnaire-select').select('BMI Variable Type');
         cy.wait('@bmivariable');
 
         cy.title().should('eq', 'Rule Editor');
 
-        // Advanced Interface checkbox
-        cy.get('#advanced-interface').should('be.checked');
+        cy.get('div#row-23')
+          .within(() => {
+            cy.get('#variable-label-23').should('have.value', 'question_empty_expression');
+            cy.get('#variable-type-23').should('have.value', 'question');
+            cy.get('#question-23').should('be.empty');
+          });
+      });
 
-        // Variables section
-        cy.get('lhc-variables > h2').should('contain', 'Item Variables');
-        cy.get('#variables-section .variable-row').should('have.length', 23);
+      it('should display invalid "Question" variable as "FHIRPath Expression" instead', () => {
+        cy.intercept('/bmivariabletype.json').as('bmivariable');
+        cy.get('select#questionnaire-select').select('BMI Variable Type');
+        cy.wait('@bmivariable');
+
+        cy.title().should('eq', 'Rule Editor');
 
         // The configuration said this should be type 'Question'.  However, the factor 
         // 9999 does not matched with any pre-defined factors and therefore, is not a valid
@@ -434,6 +410,29 @@ describe('Rule editor', () => {
             cy.get('#variable-expression-5').should('have.value', 
               "%resource.item.where(linkId='/8302-2').answer.value*9999");
           });
+
+          cy.get('div#row-24')
+          .within(() => {
+            cy.get('#variable-label-24').should('have.value', 'question_invalid_expression');
+            cy.get('#variable-type-24').should('have.value', 'expression');
+            cy.get('#variable-expression-24').should('have.value', 
+              "Observation?code=http://loinc.org|2922-3&date=gt{{today()-1 months}}&patient={{%patient.id}}&_sort=-date&_count=1");
+          });
+
+          cy.get('div#row-25')
+          .within(() => {
+            cy.get('#variable-label-25').should('have.value', 'question_empty_expression_and_no_extension');
+            cy.get('#variable-type-25').should('have.value', 'expression');
+            cy.get('#variable-expression-25').should('be.empty');
+          });
+
+          cy.get('div#row-26')
+          .within(() => {
+            cy.get('#variable-label-26').should('have.value', 'question_invalid_expression_and_no_extension');
+            cy.get('#variable-type-26').should('have.value', 'expression');
+            cy.get('#variable-expression-26').should('have.value', 
+              "Observation?code=http://loinc.org|2922-3&date=gt{{today()-1 months}}&patient={{%patient.id}}&_sort=-date&_count=1");
+          });
       });
 
       it('should be able to update custom extension and export correctly', () => {
@@ -442,13 +441,6 @@ describe('Rule editor', () => {
         cy.wait('@bmivariable');
 
         cy.title().should('eq', 'Rule Editor');
-
-        // Advanced Interface checkbox
-        cy.get('#advanced-interface').should('be.checked');
-
-        // Variables section
-        cy.get('lhc-variables > h2').should('contain', 'Item Variables');
-        cy.get('#variables-section .variable-row').should('have.length', 23);
 
         // Updated "FHIRPath Expression" variable type to "FHIR Query"
         cy.get('div#row-6')
@@ -503,46 +495,31 @@ describe('Rule editor', () => {
           expect(parsedData.item[4].linkId).to.exist;
           expect(parsedData.item[4].linkId).to.have.string('/39156-5');
           expect(parsedData.item[4].extension).to.exist;
-          expect(parsedData.item[4].extension).to.have.lengthOf(25);
+          expect(parsedData.item[4].extension).to.have.lengthOf(29);
 
           // validate that the valueString is updated to 'query'
           expect(parsedData.item[4].extension[7].valueExpression.name).to.equal('fhirpath_exp');
           expect(parsedData.item[4].extension[7].valueExpression.language).to.equal('application/x-fhir-query');
-          expect(parsedData.item[4].extension[7].valueExpression.extension).to.exist;
-          expect(parsedData.item[4].extension[7].valueExpression.extension).to.have.lengthOf(1);
-          expect(parsedData.item[4].extension[7].valueExpression.extension[0].valueString).to.exist;
           expect(parsedData.item[4].extension[7].valueExpression.extension[0].valueString).to.equal('query');
 
           // validate that the valueString is updated to 'queryObservation'
           expect(parsedData.item[4].extension[9].valueExpression.name).to.equal('fhir_query');
           expect(parsedData.item[4].extension[9].valueExpression.language).to.equal('application/x-fhir-query');
-          expect(parsedData.item[4].extension[9].valueExpression.extension).to.exist;
-          expect(parsedData.item[4].extension[9].valueExpression.extension).to.have.lengthOf(1);
-          expect(parsedData.item[4].extension[9].valueExpression.extension[0].valueString).to.exist;
           expect(parsedData.item[4].extension[9].valueExpression.extension[0].valueString).to.equal('queryObservation');
 
           // validate that the valueString is updated to 'question'
           expect(parsedData.item[4].extension[11].valueExpression.name).to.equal('fhir_query_obs_1_day');
           expect(parsedData.item[4].extension[11].valueExpression.language).to.equal('text/fhirpath');
-          expect(parsedData.item[4].extension[11].valueExpression.extension).to.exist;
-          expect(parsedData.item[4].extension[11].valueExpression.extension).to.have.lengthOf(1);
-          expect(parsedData.item[4].extension[11].valueExpression.extension[0].valueString).to.exist;
           expect(parsedData.item[4].extension[11].valueExpression.extension[0].valueString).to.equal('question');
 
           // validate that the valueString is updated to 'simple'
           expect(parsedData.item[4].extension[0].valueExpression.name).to.equal('question_weight_kg');
           expect(parsedData.item[4].extension[0].valueExpression.language).to.equal('text/fhirpath');
-          expect(parsedData.item[4].extension[0].valueExpression.extension).to.exist;
-          expect(parsedData.item[4].extension[0].valueExpression.extension).to.have.lengthOf(2);
-          expect(parsedData.item[4].extension[0].valueExpression.extension[0].valueString).to.exist;
           expect(parsedData.item[4].extension[0].valueExpression.extension[0].valueString).to.equal('simple');
 
           // validate that the valueString is updated to 'expression'
           expect(parsedData.item[4].extension[15].valueExpression.name).to.equal('easy_path_exp');
           expect(parsedData.item[4].extension[15].valueExpression.language).to.equal('text/fhirpath');
-          expect(parsedData.item[4].extension[15].valueExpression.extension).to.exist;
-          expect(parsedData.item[4].extension[15].valueExpression.extension).to.have.lengthOf(1);
-          expect(parsedData.item[4].extension[15].valueExpression.extension[0].valueString).to.exist;
           expect(parsedData.item[4].extension[15].valueExpression.extension[0].valueString).to.equal('expression');
         });
       });
@@ -553,13 +530,6 @@ describe('Rule editor', () => {
         cy.wait('@bmivariable');
 
         cy.title().should('eq', 'Rule Editor');
-
-        // Advanced Interface checkbox
-        cy.get('#advanced-interface').should('be.checked');
-
-        // Variables section
-        cy.get('lhc-variables > h2').should('contain', 'Item Variables');
-        cy.get('#variables-section .variable-row').should('have.length', 23);
 
         cy.get('div#row-22')
           .within(() => {

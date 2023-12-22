@@ -118,6 +118,11 @@ export class QuestionComponent implements OnInit, AfterViewInit, OnDestroy {
    * @param isQuestion - The change was for a question
    */
   onChange(isQuestion): void {
+    if (isQuestion) {
+      // Reset the conversion options when the question changes
+      this.toUnit = (this.variable.unit) ? this.variable.unit : '';
+    }
+
     // If we already have a question selected (as opposed to the select... prompt)
     if (this.linkId) {
       delete this.variable.simple;

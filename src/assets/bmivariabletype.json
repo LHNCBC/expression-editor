@@ -507,6 +507,50 @@
               }
             ]
           }
+        },
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/variable",
+          "valueExpression": {
+            "name": "question_empty_expression",
+            "language": "text/fhirpath",
+            "expression": "",
+            "extension": [
+              {
+                "url": "http://lhcforms.nlm.nih.gov/fhirExt/rule-editor-variable-type",
+                "valueString": "question"
+              }
+            ]
+          }
+        },
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/variable",
+          "valueExpression": {
+            "name": "question_invalid_expression",
+            "language": "text/fhirpath",
+            "expression": "Observation?code=http://loinc.org|2922-3&date=gt{{today()-1 months}}&patient={{%patient.id}}&_sort=-date&_count=1",
+            "extension": [
+              {
+                "url": "http://lhcforms.nlm.nih.gov/fhirExt/rule-editor-variable-type",
+                "valueString": "question"
+              }
+            ]
+          }
+        },
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/variable",
+          "valueExpression": {
+            "name": "question_empty_expression_and_no_extension",
+            "language": "text/fhirpath",
+            "expression": ""
+          }
+        },
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/variable",
+          "valueExpression": {
+            "name": "question_invalid_expression_and_no_extension",
+            "language": "text/fhirpath",
+            "expression": "Observation?code=http://loinc.org|2922-3&date=gt{{today()-1 months}}&patient={{%patient.id}}&_sort=-date&_count=1"
+          }
         }
       ],
       "required": false,
