@@ -393,7 +393,7 @@ describe('Rule editor', () => {
           });
       });
 
-      it('should display invalid "Question" variable as "FHIRPath Expression" instead', () => {
+      it('should display invalid "Question" variable type as "FHIRPath Expression"', () => {
         cy.intercept('/bmivariabletype.json').as('bmivariable');
         cy.get('select#questionnaire-select').select('BMI Variable Type');
         cy.wait('@bmivariable');
