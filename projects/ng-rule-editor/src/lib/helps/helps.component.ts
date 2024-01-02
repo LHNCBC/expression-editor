@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, OnChanges } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { LiveAnnouncer } from '@angular/cdk/a11y';
 
 @Component({
@@ -26,10 +26,12 @@ export class HelpsComponent implements OnInit {
    * Angular lifecycle hook called on input changes
    */
   ngOnChanges(changes): void {
-    if (changes.type.currentValue === 'expression' || changes.type.currentValue === 'fhirpath')
-      this.matToolTip = "FHIRPath Expression Help";
-    else
-      this.matToolTip = "Easy Path Expression Help";
+    if (changes.type) {
+      if (changes.type.currentValue === 'expression' || changes.type.currentValue === 'fhirpath')
+        this.matToolTip = "FHIRPath Expression Help";
+      else
+        this.matToolTip = "Easy Path Expression Help";
+    }
   }
 
   /**

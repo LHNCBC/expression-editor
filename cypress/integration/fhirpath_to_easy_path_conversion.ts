@@ -6,7 +6,7 @@ describe('Rule editor', () => {
   describe('Angular Library', () => {
     describe('BMI calculation', () => {
 
-      it('should display dialog when switching from FHIRPath Expression to Easy Path Expression', () => {
+      it('should display the dialog when switching from FHIRPath Expression to Easy Path Expression', () => {
         cy.intercept('/bmi.json').as('bmi');
         cy.get('select#questionnaire-select').select('BMI Calculation');
         cy.wait('@bmi');
@@ -35,7 +35,35 @@ describe('Rule editor', () => {
         cy.get('lhc-yes-no-dialog').should('exist').should('be.visible');
       });
 
-      it('should not display dialog when switching from FHIRPath Expression to other variable type', () => {
+      it('should not display the dialog when switching from FHIRPath Expression to Easy Path Expression and expression is blank', () => {
+        cy.intercept('/bmi.json').as('bmi');
+        cy.get('select#questionnaire-select').select('BMI Calculation');
+        cy.wait('@bmi');
+     
+        cy.title().should('eq', 'Rule Editor');
+
+        // Variables section
+        cy.get('lhc-variables > h2').should('contain', 'Item Variables');
+        cy.get('#variables-section .variable-row').should('have.length', 2);
+
+        // Add a variable
+        cy.get('#add-variable').should('exist').should('be.visible').click();
+        cy.get('#variables-section .variable-row').should('have.length', 3);
+
+        // Set to 'FHIRPath Expression' variable type
+        cy.get('#variable-type-2').select('expression');
+        cy.get('#variable-expression-2')
+          .should('exist')
+          .should('be.visible');
+
+        // Change to 'Easy Path Expression' variable type
+        cy.get('#variable-type-2').select('simple');
+
+        // Dialog should get displayed
+        cy.get('lhc-yes-no-dialog').should('not.exist');
+      });
+
+      it('should not display the dialog when switching from FHIRPath Expression to other variable type', () => {
         cy.intercept('/bmi.json').as('bmi');
         cy.get('select#questionnaire-select').select('BMI Calculation');
         cy.wait('@bmi');
@@ -184,7 +212,7 @@ describe('Rule editor', () => {
         cy.get('#simple-expression-2').should('exist').should('be.empty');
       });
 
-      it('should not see the dialog when there is no change to the expression', () => {
+      it('should not display the dialog where the Easy Path Expression is available and there is no change', () => {
         cy.intercept('/bmi.json').as('bmi');
         cy.get('select#questionnaire-select').select('BMI Calculation');
         cy.wait('@bmi');
@@ -230,7 +258,7 @@ describe('Rule editor', () => {
         cy.get('#simple-expression-2').should('exist').should('have.value', 'a');        
       });
       
-      it('should see the dialog if there is change to the expression', () => {
+      it('should display the dialog where the Easy Path Expression is available and there is change', () => {
         cy.intercept('/bmi.json').as('bmi');
         cy.get('select#questionnaire-select').select('BMI Calculation');
         cy.wait('@bmi');
@@ -304,13 +332,19 @@ describe('Rule editor', () => {
         cy.get('#simple-expression-2')
         .should('exist')
         .should('be.visible')
-        .should('have.class', 'field-error');
+        .should('not.have.class', 'field-error');
 
-        // Type 'a' into the expression, the error should disappear
-        cy.get('#simple-expression-2').type('a').should('not.have.class', 'field-error');
+        // Type 'a' into the expression
+        cy.get('#simple-expression-2').type('a');
+
+        // The 'Save' button should be enabled.
+        cy.get('#export').should('not.have.class', 'disabled');
 
         // Update the expression with '+ bbbbb' which doesn't exist, the error should reappear
         cy.get('#simple-expression-2').clear().type('a + bbbbb').should('have.class', 'field-error');
+
+        // The 'Save' button should be disabled.
+        cy.get('#export').should('have.class', 'disabled');
       });
     });
 
@@ -342,7 +376,7 @@ describe('Rule editor', () => {
           cy.get('#case-output-2').should('have.value', "'overweight'");
 
           // The output value textbox should be 'obese'.
-          cy.get('div.case-output-column > label > input').should('have.value', "'obese'");
+          cy.get('div.case-row > div.case-output-column > label > input').should('have.value', "'obese'");
 
           // Select 'Easy Path Expression' option
           cy.get('#variable-type-final').select('simple');
@@ -389,7 +423,7 @@ describe('Rule editor', () => {
           cy.get('#case-output-2').should('have.value', "'overweight'");
 
           // The output value textbox should be 'obese'.
-          cy.get('div.case-output-column > label > input').should('have.value', "'obese'");
+          cy.get('div.case-row > div.case-output-column > label > input').should('have.value', "'obese'");
         });
       });
 
@@ -430,7 +464,7 @@ describe('Rule editor', () => {
           cy.get('#case-output-2').should('be.empty');
 
           // The output value textbox should be blank.
-          cy.get('div.case-output-column > label > input').should('be.empty');
+          cy.get('div.case-row > div.case-output-column > label > input').should('be.empty');
         });
       });
 
@@ -499,7 +533,7 @@ describe('Rule editor', () => {
           cy.get('#case-output-2').should('have.value', "overweight");
 
           // The output value textbox should be obese.
-          cy.get('div.case-output-column > label > input').should('have.value', "obese");
+          cy.get('div.case-row > div.case-output-column > label > input').should('have.value', "obese");
 
           // Select 'FHIRPath Expression' option
           cy.get('#variable-type-final').select('fhirpath', {'force': true});
@@ -513,7 +547,7 @@ describe('Rule editor', () => {
           cy.get('#case-output-2').should('have.value', "'overweight'");
 
           // The output value textbox should be 'obese'.
-          cy.get('div.case-output-column > label > input').should('have.value', "'obese'");
+          cy.get('div.case-row > div.case-output-column > label > input').should('have.value', "'obese'");
 
           // Select 'Easy Path Expression' option
           cy.get('#variable-type-final').select('simple', {'force': true});
@@ -529,7 +563,7 @@ describe('Rule editor', () => {
           cy.get('#case-output-2').should('have.value', "overweight");
 
           // The output value textbox should be obese.
-          cy.get('div.case-output-column > label > input').should('have.value', "obese");
+          cy.get('div.case-row > div.case-output-column > label > input').should('have.value', "obese");
         });
       });
 
@@ -563,7 +597,7 @@ describe('Rule editor', () => {
           cy.get('#case-output-2').should('have.value', "overweight");
 
           // The output value textbox should be obese.
-          cy.get('div.case-output-column > label > input').should('have.value', "obese");
+          cy.get('div.case-row > div.case-output-column > label > input').should('have.value', "obese");
 
           // Select 'FHIRPath Expression' option
           cy.get('#variable-type-final').select('fhirpath', {'force': true});
@@ -577,7 +611,7 @@ describe('Rule editor', () => {
           cy.get('#case-output-2').should('have.value', "'overweight'");
 
           // The output value textbox should be 'obese'.
-          cy.get('div.case-output-column > label > input').should('have.value', "'obese'");
+          cy.get('div.case-row > div.case-output-column > label > input').should('have.value', "'obese'");
 
           // Change the expression
           cy.get('#case-output-0').clear().type("'underweight22'");
@@ -608,7 +642,7 @@ describe('Rule editor', () => {
           cy.get('#case-output-2').should('have.value', "'overweight'");
 
           // The output value textbox should be 'obese'.
-          cy.get('div.case-output-column > label > input').should('have.value', "'obese'");
+          cy.get('div.case-row > div.case-output-column > label > input').should('have.value', "'obese'");
         });
       });
 
@@ -642,7 +676,7 @@ describe('Rule editor', () => {
           cy.get('#case-output-2').should('have.value', "overweight");
 
           // The output value textbox should be obese.
-          cy.get('div.case-output-column > label > input').should('have.value', "obese");
+          cy.get('div.case-row > div.case-output-column > label > input').should('have.value', "obese");
 
           // Select 'FHIRPath Expression' option
           cy.get('#variable-type-final').select('fhirpath', {'force': true});
@@ -657,7 +691,7 @@ describe('Rule editor', () => {
           cy.get('#case-output-2').should('have.value', "'overweight'");
 
           // The output value textbox should be 'obese'.
-          cy.get('div.case-output-column > label > input').should('have.value', "'obese'");
+          cy.get('div.case-row > div.case-output-column > label > input').should('have.value', "'obese'");
 
           // Change the expression
           cy.get('#case-output-0').clear().type("'underweight22'");
@@ -689,7 +723,7 @@ describe('Rule editor', () => {
           cy.get('#case-output-2').should('be.empty');
 
           // The output value textbox should be blank.
-          cy.get('div.case-output-column > label > input').should('be.empty');
+          cy.get('div.case-row > div.case-output-column > label > input').should('be.empty');
         }); 
       });
 
@@ -717,7 +751,7 @@ describe('Rule editor', () => {
           cy.get('#case-output-2').should('have.value', "overweight");
 
           // The output value textbox should be obese.
-          cy.get('div.case-output-column > label > input').should('have.value', "obese");
+          cy.get('div.case-row > div.case-output-column > label > input').should('have.value', "obese");
 
           // The 'FHIRPath Expression' output
           cy.get('div.syntax-preview > div > pre').should('contain.text', 
@@ -729,10 +763,17 @@ describe('Rule editor', () => {
           cy.get('#case-output-2').should('not.have.class', 'field-error');
           
           // The output value textbox should not have css class error
-          cy.get('div.case-output-column > label > input').should('not.have.class', 'field-error');
+          cy.get('div.case-row > div.case-output-column > label > input').should('not.have.class', 'field-error');
 
           // The FHIRPath output should not have css class error
           cy.get('div.syntax-preview > div > pre').should('not.have.class', 'fhirpath-error');
+        });
+
+        // The 'Save' button should be enabled.
+        cy.get('#export').should('not.have.class', 'disabled');
+
+        // Output Expression section
+        cy.get('#final-expression-section').within(() => {
 
           // Check the 'Use expressions' checkbox
           cy.get('#output-expressions').check();
@@ -743,11 +784,14 @@ describe('Rule editor', () => {
           cy.get('#case-output-2').should('have.class', 'field-error');
           
           // The output value textbox should have css class error
-          cy.get('div.case-output-column > label > input').should('have.class', 'field-error');
+          cy.get('div.case-row > div.case-output-column > label > input').should('have.class', 'field-error');
 
           // The FHIRPath output should have css class error
-          cy.get('div.syntax-preview > div > pre').should('have.class', 'fhirpath-error'); 
+          cy.get('div.syntax-preview > div > pre').should('have.class', 'fhirpath-error');
         });
+
+        // The 'Save' button should be disabled.
+        cy.get('#export').should('have.class', 'disabled');
       });
 
       it('should be able to fix the "Not valid" issue by fixing highlight texts', () => {
@@ -774,7 +818,7 @@ describe('Rule editor', () => {
           cy.get('#case-output-2').should('have.value', "overweight");
 
           // The output value textbox should be obese.
-          cy.get('div.case-output-column > label > input').should('have.value', "obese");
+          cy.get('div.case-row > div.case-output-column > label > input').should('have.value', "obese");
 
           // The 'FHIRPath Expression' output should be 
           // iif(%bmi<18.5,'underweight',iif(%bmi<25,'normal',iif(%bmi<30,'overweight','obese')))
@@ -787,7 +831,7 @@ describe('Rule editor', () => {
           cy.get('#case-output-2').should('not.have.class', 'field-error');
           
           // The output value textbox should not have css class error
-          cy.get('div.case-output-column > label > input').should('not.have.class', 'field-error');
+          cy.get('div.case-row > div.case-output-column > label > input').should('not.have.class', 'field-error');
 
           // The FHIRPath output should not have css class error
           cy.get('div.syntax-preview > div > pre').should('not.have.class', 'fhirpath-error');
@@ -801,7 +845,7 @@ describe('Rule editor', () => {
           cy.get('#case-output-2').should('have.class', 'field-error');
           
           // The output value textbox should have css class error
-          cy.get('div.case-output-column > label > input').should('have.class', 'field-error');
+          cy.get('div.case-row > div.case-output-column > label > input').should('have.class', 'field-error');
 
           // The FHIRPath output should have css class error
           cy.get('div.syntax-preview > div > pre').should('have.class', 'fhirpath-error');
@@ -812,7 +856,7 @@ describe('Rule editor', () => {
           cy.get('#case-output-2').clear().type("'overweight'");
           
           // The output value textbox should have css class error
-          cy.get('div.case-output-column > label > input').clear().type("'obese'");
+          cy.get('div.case-row > div.case-output-column > label > input').clear().type("'obese'");
 
           // Case Output 0, 1 and 2 should now not have css class error
           cy.get('#case-output-0').should('not.have.class', 'field-error');
@@ -820,7 +864,7 @@ describe('Rule editor', () => {
           cy.get('#case-output-2').should('not.have.class', 'field-error');
           
           // The output value textbox should now not have css class error
-          cy.get('div.case-output-column > label > input').should('not.have.class', 'field-error');
+          cy.get('div.case-row > div.case-output-column > label > input').should('not.have.class', 'field-error');
 
           // The FHIRPath output should now not have css class error
           cy.get('div.syntax-preview > div > pre').should('not.have.class', 'fhirpath-error');
@@ -851,7 +895,7 @@ describe('Rule editor', () => {
           cy.get('#case-output-2').should('have.value', "overweight");
 
           // The output value textbox should be obese.
-          cy.get('div.case-output-column > label > input').should('have.value', "obese");
+          cy.get('div.case-row > div.case-output-column > label > input').should('have.value', "obese");
 
           // The 'FHIRPath Expression' output should be 
           // iif(%bmi<18.5,'underweight',iif(%bmi<25,'normal',iif(%bmi<30,'overweight','obese')))
@@ -864,7 +908,7 @@ describe('Rule editor', () => {
           cy.get('#case-output-2').should('not.have.class', 'field-error');
           
           // The output value textbox should not have css class error
-          cy.get('div.case-output-column > label > input').should('not.have.class', 'field-error');
+          cy.get('div.case-row > div.case-output-column > label > input').should('not.have.class', 'field-error');
 
           // The FHIRPath output should not have css class error
           cy.get('div.syntax-preview > div > pre').should('not.have.class', 'fhirpath-error');
@@ -878,7 +922,7 @@ describe('Rule editor', () => {
           cy.get('#case-output-2').should('have.class', 'field-error');
           
           // The output value textbox should have css class error
-          cy.get('div.case-output-column > label > input').should('have.class', 'field-error');
+          cy.get('div.case-row > div.case-output-column > label > input').should('have.class', 'field-error');
 
           // The FHIRPath output should have css class error
           cy.get('div.syntax-preview > div > pre').should('have.class', 'fhirpath-error');
@@ -938,7 +982,7 @@ describe('Rule editor', () => {
           cy.get('#case-output-2').clear().type("c");
           
           // Now update the output value by replacing the expressions with newly created variable
-          cy.get('div.case-output-column > label > input').clear().type("d");
+          cy.get('div.case-row > div.case-output-column > label > input').clear().type("d");
 
           // Case Output 0, 1 and 2 should now not have css class error
           cy.get('#case-output-0').should('not.have.class', 'field-error');
@@ -946,7 +990,7 @@ describe('Rule editor', () => {
           cy.get('#case-output-2').should('not.have.class', 'field-error');
           
           // The output value textbox should now not have css class error
-          cy.get('div.case-output-column > label > input').should('not.have.class', 'field-error');
+          cy.get('div.case-row > div.case-output-column > label > input').should('not.have.class', 'field-error');
 
           // The FHIRPath output should now not have css class error
           cy.get('div.syntax-preview > div > pre').should('not.have.class', 'fhirpath-error');

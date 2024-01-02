@@ -34,6 +34,8 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
   caseStatements: boolean;
   disableInterfaceToggle = false;
   loadError = false;
+  validationError = false;
+  validationErrorMessage;
 
   previousExpressionSyntax;
   previousFinalExpression;
@@ -50,6 +52,7 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
   private variablesSubscription;
   private uneditableVariablesSubscription;
   private disableAdvancedSubscription;
+  private validationSubscription;
 
   constructor(private variableService: RuleEditorService, private liveAnnouncer: LiveAnnouncer) {}
 
@@ -69,6 +72,16 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
     this.disableAdvancedSubscription = this.variableService.disableAdvancedChange.subscribe((disable) => {
       this.disableInterfaceToggle = disable;
     });
+    this.validationSubscription = this.variableService.validationChange.subscribe((validation) => {
+      if (validation) {
+        this.validationError = true;
+        this.validationErrorMessage = "Save button. The save button is disabled due to validation" +
+                                      " error in the " + validation['section'] + " section.";
+      } else {
+        this.validationError = false;
+        this.validationErrorMessage = "";
+      }
+    });
   }
 
   /**
@@ -80,6 +93,8 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
     this.variablesSubscription.unsubscribe();
     this.uneditableVariablesSubscription.unsubscribe();
     this.disableAdvancedSubscription.unsubscribe();
+
+    this.validationSubscription.unsubscribe();
   }
 
   /**

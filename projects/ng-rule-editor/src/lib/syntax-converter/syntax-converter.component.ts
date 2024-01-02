@@ -1,6 +1,6 @@
 import { Component, Input, Output, EventEmitter, OnChanges } from '@angular/core';
 import { EasyPathExpressionsPipe } from '../easy-path-expressions.pipe';
-import { SimpleStyle } from '../rule-editor.service';
+import { RuleEditorService, SimpleStyle } from '../rule-editor.service';
 
 @Component({
   selector: 'lhc-syntax-converter',
@@ -20,14 +20,21 @@ export class SyntaxConverterComponent implements OnChanges {
 
   hasError = false;
 
-  constructor() {}
+  constructor(private ruleEditorService: RuleEditorService) {}
 
-  ngOnChanges(): void {
-    this.onExpressionChange(this.simple);
+  ngOnChanges(changes): void {
+    // This function is getting called repeatedly even if there is no changes. Adding the if block
+    // to discard some of the events.
+    // The changes.simple fires when there is a change to the Easy Path Expression expression.
+    // The changes.variables fires when a variable is deleted. 
+    if (changes.simple || (changes.variables &&
+        JSON.stringify(changes.variables.previousValue) !== JSON.stringify(changes.variables.currentValue))) {
+      this.onExpressionChange(this.simple);
+    }
   }
 
   onExpressionChange(simple): void {
-    const fhirPath: string = this.jsToFhirPathPipe.transform(simple, this.variables);
+    const fhirPath: string = (simple) ? this.jsToFhirPathPipe.transform(simple, this.variables) : "";
     this.fhirPathExpression = fhirPath;
 
     this.hasError = false;
@@ -36,5 +43,7 @@ export class SyntaxConverterComponent implements OnChanges {
 
     this.simpleChange.emit(simple);
     this.expressionChange.emit(fhirPath);
+
+    this.ruleEditorService.notifyValidationResult((this.hasError) ? 'expression' : null );
   }
 }

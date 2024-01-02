@@ -140,11 +140,10 @@ export class VariablesComponent implements OnInit, OnChanges, OnDestroy {
           
       this.currentVariable = copy(this.variables[i]);
 
-      if (!this.currentVariable?.simple || this.currentVariable.simple === "") {
-        this.dialogPrompt1 = "The Rule Editor does not support conversion from FHIRPath Expression " + 
-        "to Easy Path Expression. Variable '" + this.currentVariable.label + "' does not contain the " + 
-        "simple expression. Switching to the Easy Path Expression would result in the expression  " +
-        "becoming blank.";
+      if (this.currentVariable?.expression && !this.currentVariable?.simple) {
+        this.dialogPrompt1 = "The Rule Editor does not support conversion from FHIRPath Expression " +
+        "to Easy Path Expression. Switching to Easy Path Expression for variable '" + this.currentVariable.label +
+        "' would result in the expression becoming blank.";
         this.showConfirmDialog = true;
       } else {
         this.variables[this.currentVariableIdx].type = 'simple';

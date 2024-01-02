@@ -217,13 +217,19 @@ export class CaseStatementsComponent implements OnInit, OnChanges {
     const defaultCase = this.transformIfSimple(isSimple ?
       this.simpleDefaultCase : this.defaultCase, true);
 
-    this.hasError = false;
-    if (output === 'Not valid' || condition === 'Not valid'  || defaultCase === 'Not valid')
-      this.hasError = true;
     this.cases[level].error = {};
     this.cases[level].error['output'] = (output === 'Not valid') ? true : false;
     this.cases[level].error['condition'] = (condition === 'Not valid') ? true : false;
     this.defaultCaseError = (defaultCase === 'Not valid') ? true : false;
+
+    this.hasError = false;
+    if (this.defaultCaseError)
+      this.hasError = true;
+    else {
+      this.hasError = (this.cases || []).some((c) => (c?.error && (c.error['condition'] || c.error['output'])));
+    }
+
+    this.ruleEditorService.notifyValidationResult((this.hasError) ? 'case' : null );
 
     if (level === 0) {
       const previousValue = this.hidePreview;

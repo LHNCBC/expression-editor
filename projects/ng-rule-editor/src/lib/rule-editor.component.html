@@ -93,5 +93,5 @@
     </div>
   </section>
 
-  <button class="primary" (click)="export()" [ngStyle]="lhcStyle.buttonPrimary" id="export">{{submitButtonName}}</button>
+  <button class="primary" [ngClass]="{'disabled': validationError}" [attr.aria-label]="validationErrorMessage"  (click)="export()" [ngStyle]="lhcStyle.buttonPrimary" id="export">{{submitButtonName}}</button>
 </div>

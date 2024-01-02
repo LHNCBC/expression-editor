@@ -36,6 +36,7 @@ export class RuleEditorService {
   mightBeScoreChange: Subject<boolean> = new Subject<boolean>();
   finalExpressionChange: Subject<string> = new Subject<string>();
   disableAdvancedChange: Subject<boolean> = new Subject<boolean>();
+  validationChange: Subject<object> = new Subject<object>();
   uneditableVariables: UneditableVariable[];
   variables: Variable[];
   questions: Question[];
@@ -1262,7 +1263,7 @@ export class RuleEditorService {
 
     }
     return queryString;
-  }
+  };
   
   /**
    * Get uneditable and editable variable names
@@ -1270,5 +1271,26 @@ export class RuleEditorService {
   getVariableNames(): string[] {
     return this.uneditableVariables.map(e => e.name).concat(
       this.variables.map(e => e.label));
-  }
+  };
+
+  /**
+   * Generate a validation event to notify subscribers. If the result is null, the 'Save' button
+   * is enabled; othewise, the 'Save' button is disabled.
+   * @param errorType - validation error type 
+   */
+  notifyValidationResult(errorType: string): void {
+    let result = null;
+
+    if (errorType) {
+      if (errorType === "case") {
+        result = {'caseConversionError': true, 'name': 'case-conversion-error', 'section': 'Output Expression'};
+      } else if (errorType === "expression") {
+        result = { 'expressionError': true, 'name': 'expression-error', 'section': 'Item Variables'};
+      }
+    }
+
+    setTimeout(() => {
+      this.validationChange.next(result);
+    }, 100);
+  };
 }
