@@ -1215,7 +1215,7 @@ export class RuleEditorService {
    * @param linkId - link id of the total score item
    * @return Array of scoring items
    */
-  getScoreItems(items, linkId: string = this.linkIdContext ): Array<string> {
+  getScoreItems(items, linkId: string = this.linkIdContext, level: number = 0 ): Array<any> {
     const sItems = copy(items);
     let scoreItems = [];
 
@@ -1228,6 +1228,8 @@ export class RuleEditorService {
 
       if (item.linkId === linkId) {
         // Do not consider items at or below the linkId context required
+        if (level > 0)
+          scoreItems.push(item);
         break;
       } else if (this.hasRuleEditorExtension(item)) {
         // If the current item is already a score calculation or this is
@@ -1237,22 +1239,46 @@ export class RuleEditorService {
 
       // Work with nested items
       if (item.item) {
-        const childScoreItems = this.getScoreItems(item.item, linkId);
+        let foundLinkId = false;
+        let childScoreItems = this.getScoreItems(item.item, linkId, level+1);
+
         if (childScoreItems && childScoreItems.length > 0) {
+          if (childScoreItems[childScoreItems.length - 1].linkId === linkId) {
+            // We found a match, there is no need to search further.
+            // Remove the item matching the link id.
+            childScoreItems.pop();
+            foundLinkId = true;
+          }
+
+          let childHasScore = childScoreItems.length > 0;
           item.item = childScoreItems;
-          const hasScore = this.itemHasScore(item);
-          if (item.type === 'choice' ) {
-            item['hasScore'] = hasScore;
-          } 
-          scoreItems.push(item);
+
+          let parentHasScore = false;
+
+          if (item.type === 'choice' && this.itemHasScore(item)) {
+            parentHasScore = true;
+            item['hasScore'] = true;
+          }
+
+          if (parentHasScore || childHasScore)
+            scoreItems.push(item);
+
+          if (foundLinkId)
+            break;
+
         } else {
           item.item = [];
+          if (this.itemHasScore(item)) {
+            item['hasScore'] = true;
+            scoreItems.push(item);
+          }
         }
       } else if (this.itemHasScore(item)) {
         item['hasScore'] = true;
         scoreItems.push(item);
       }
     }
+
     return scoreItems;
   }
 
@@ -1275,23 +1301,49 @@ export class RuleEditorService {
   }
 
   /**
-   * Determine if the given item has the old total scoring configuration
+   * Determine if the given item has the standard total scoring configuration
    * @param item - FHIR Item
    * @return true if the calculated expression is found and does not contain the new 
    * scoring extension
    */ 
-  hasOldCalculatedExpressionForItem = (item) => {
+  hasStandardCalculatedExpressionForItem = (item) => {
     const scoreExtension = item.extension.find((extension) => extension.url === this.CALCULATED_EXPRESSION);
     if (scoreExtension && scoreExtension.valueExpression) {
-      const newScoringExpression = (scoreExtension.valueExpression.extension &&
+      const newScoringExtension = (scoreExtension.valueExpression.extension &&
                   scoreExtension.valueExpression.extension.some((ext) => 
                     ext.url === RuleEditorService.SCORE_EXPRESSION_EXTENSION_LINKIDS
                   )
                 );
-      return !newScoringExpression;
+      return !newScoringExtension;
     }
 
     return false;
+  };
+
+  /**
+   * Find an item from the Questionnaire items array by the linkId
+   * @param items - Questionnaire item array
+   * @param linkIdContext - link id of the selected item
+   * @return the item if found; otherwise, undefined
+   */
+  findItemById(items, linkIdContext: string): any {
+    let result = undefined;
+
+    for (const item of items) {
+      if (linkIdContext === undefined || linkIdContext === item.linkId) {
+        result = item;
+        break;
+      }
+      if (item.item) {
+        const subItem = this.findItemById(item.item, linkIdContext);
+        if (subItem) {
+          result = subItem;
+          break;
+        }
+      }
+
+    }
+    return result;
   };
 
   /**
@@ -1303,20 +1355,10 @@ export class RuleEditorService {
    * @param linkIdContext - link id of the selected item
    * @return true if the calculated expression does not contain the new scoring extension
    */
-  hasOldCalculatedExpression(questionnaire, linkIdContext: string): boolean {
-    const retrieveItem = (item) => {
-      if (linkIdContext === undefined || linkIdContext === item.linkId) {
-        return item;
-      }
-      if (item.item) {
-        const subItem = item.item.find((subItem) => retrieveItem(subItem));
-        if (subItem)
-          return subItem;
-      }
-    }
-    const item = questionnaire.item.find((item) => retrieveItem(item));
-
-    return (item) ? this.hasOldCalculatedExpressionForItem(item) : false;  
+  hasStandardCalculatedExpression(questionnaire, linkIdContext: string): boolean {
+    const item = this.findItemById(questionnaire.item, linkIdContext);
+    const res = (item) ? this.hasStandardCalculatedExpressionForItem(item) : false;
+    return res;
   }
 
   /**
@@ -1325,7 +1367,7 @@ export class RuleEditorService {
    * @param linkIdContext - link id of the selected item
    * @return true if has scoring items
    */
-  hasCalculateScoringItems(items, linkIdContext: string): boolean {
+  hasCalculatedScoringItems(items, linkIdContext: string): boolean {
     const scoreItems = this.getScoreItems(items, linkIdContext);
     return (scoreItems.length > 0);
   }
@@ -1336,7 +1378,7 @@ export class RuleEditorService {
    * - The selected item must have scoring items for the calculation. The scoring items are determined
    *   from items prior to the selected item.  So if the first question is selected, then it will not
    *   get a prompt for score calculation.
-   * - The selected item must not contain the old implementation of the pre-selected scoring items
+   * - The selected item must not contain the standard implementation of the pre-selected scoring items
    *   (missing the new scoring extension). 
    * @param questionnaire - FHIR Questionnaire
    * @param linkIdContext - link id of the selected item
@@ -1344,15 +1386,15 @@ export class RuleEditorService {
    * @return true if the scoring calculation prompt should not be displayed
    */
   shouldCalculateScoreForItem(questionnaire, linkIdContext:string, expressionUri: string): boolean {
-    // Should only calculated if the Output Expression is calculatedExpression
+    // Should only calculate if the Output Expression is calculatedExpression
     const hasCalculatedOutputExpression = this.isCalculatedExpression(expressionUri);
 
     let shouldCalculateScore = false;
 
-    if (hasCalculatedOutputExpression)
-      if(this.hasCalculateScoringItems(questionnaire.item, linkIdContext))
-        if (!this.hasOldCalculatedExpression(questionnaire, linkIdContext))
-          shouldCalculateScore = true;
+    if (hasCalculatedOutputExpression &&
+        this.hasCalculatedScoringItems(questionnaire.item, linkIdContext) &&
+        !this.hasStandardCalculatedExpression(questionnaire, linkIdContext))
+      shouldCalculateScore = true;
 
     this.doNotAskToCalculateScore = !shouldCalculateScore;
     return shouldCalculateScore;

@@ -276,70 +276,230 @@ describe('RuleEditorService', () => {
     
     const totalItem = service.getScoreItems(copy(phq9.item), "/39156-5");
     expect(totalItem.length).toEqual(9);
+
+    // PHQ9 Group - testing hierarchical scoring items.
+    const group1 = service.getScoreItems(copy(phq9_group.item), "/45900-0");
+    expect(group1.length).toEqual(0);
+
+    const childItem1 = service.getScoreItems(copy(phq9_group.item), "/45900-0/44250-9");
+    expect(childItem1.length).toEqual(0);
+
+    const childItem2 = service.getScoreItems(copy(phq9_group.item), "/45900-0/44255-8");
+    expect(childItem2.length).toEqual(1);
+    const parentOfChildItem2 = childItem2[0];
+    expect(Object.keys(parentOfChildItem2)).not.toContain('hasScore');
+    expect(Object.keys(parentOfChildItem2)).toContain('item');
+    expect(parentOfChildItem2.item.length).toEqual(1);
+
+    const childItem4 = service.getScoreItems(copy(phq9_group.item), "/45900-0/44254-1");
+    expect(childItem4.length).toEqual(1);
+    expect(childItem4[0].item.length).toEqual(3);
+
+    const parentScoringItem1 = service.getScoreItems(copy(phq9_group.item), "/44251-7");
+    expect(parentScoringItem1.length).toEqual(1);
+    expect(Object.keys(parentScoringItem1[0])).not.toContain('hasScore');
+    expect(parentScoringItem1[0].item.length).toEqual(4);
+
+    const parentScoringItem2 = service.getScoreItems(copy(phq9_group.item), "/44258-2");
+    expect(parentScoringItem2.length).toEqual(2);
+    expect(Object.keys(parentScoringItem2[0])).not.toContain('hasScore');
+    expect(Object.keys(parentScoringItem2[1])).toContain('hasScore');
+    expect(Object.keys(parentScoringItem2[1])).not.toContain('item');
+    
+    const parentNonScoringItem1 = service.getScoreItems(copy(phq9_group.item), "/44253-5");
+    // Have 3 sibling items before this.
+    expect(parentNonScoringItem1.length).toEqual(3);
+
+    const childItem6 = service.getScoreItems(copy(phq9_group.item), "/44253-5/44255-8");
+    expect(childItem6.length).toEqual(4);
+    const parentOfChildItem6 = childItem6[3];
+    expect(Object.keys(parentOfChildItem6)).not.toContain('hasScore');
+    expect(Object.keys(parentOfChildItem6)).toContain('item');
+    expect(parentOfChildItem6.item.length).toEqual(1);
+    
+    const parentScoringItem3 = service.getScoreItems(copy(phq9_group.item), "/44252-5");
+    expect(parentScoringItem3.length).toEqual(4);
+    expect(Object.keys(parentScoringItem3[0])).not.toContain('hasScore');
+    expect(Object.keys(parentScoringItem3[1])).toContain('hasScore');
+    expect(Object.keys(parentScoringItem3[1])).not.toContain('item');
+    expect(Object.keys(parentScoringItem3[2])).toContain('hasScore');
+    expect(Object.keys(parentScoringItem3[2])).not.toContain('item');
+    expect(Object.keys(parentScoringItem3[3])).not.toContain('hasScore');
+    expect(Object.keys(parentScoringItem3[3])).toContain('item');
+    
+    const childItem8 = service.getScoreItems(copy(phq9_group.item), "/44252-5/44255-8");
+    expect(childItem8.length).toEqual(5);
+    const parentOfChildItem8 = childItem8[4];
+    expect(Object.keys(parentOfChildItem8)).toContain('hasScore');
+    expect(Object.keys(parentOfChildItem8)).toContain('item');
+    expect(parentOfChildItem8.item.length).toEqual(1);
+
+    const parentScoringItem4 = service.getScoreItems(copy(phq9_group.item), "/44253-3");
+    expect(parentScoringItem4.length).toEqual(5);
+    expect(Object.keys(parentScoringItem4[0])).not.toContain('hasScore');
+    expect(Object.keys(parentScoringItem4[1])).toContain('hasScore');
+    expect(Object.keys(parentScoringItem4[1])).not.toContain('item');
+    expect(Object.keys(parentScoringItem4[2])).toContain('hasScore');
+    expect(Object.keys(parentScoringItem4[2])).not.toContain('item');
+    expect(Object.keys(parentScoringItem4[3])).not.toContain('hasScore');
+    expect(Object.keys(parentScoringItem4[3])).toContain('item');
+    expect(Object.keys(parentScoringItem4[4])).toContain('hasScore');
+    expect(Object.keys(parentScoringItem4[4])).toContain('item');
+
+    const parentScoringItem5 = service.getScoreItems(copy(phq9_group.item), "/44260-8");
+    expect(parentScoringItem5.length).toEqual(6);
+    expect(Object.keys(parentScoringItem5[0])).not.toContain('hasScore');
+    expect(Object.keys(parentScoringItem5[1])).toContain('hasScore');
+    expect(Object.keys(parentScoringItem5[1])).not.toContain('item');
+    expect(Object.keys(parentScoringItem5[2])).toContain('hasScore');
+    expect(Object.keys(parentScoringItem5[2])).not.toContain('item');
+    expect(Object.keys(parentScoringItem5[3])).not.toContain('hasScore');
+    expect(Object.keys(parentScoringItem5[3])).toContain('item');
+    expect(Object.keys(parentScoringItem5[4])).toContain('hasScore');
+    expect(Object.keys(parentScoringItem5[4])).toContain('item');
+    expect(Object.keys(parentScoringItem5[5])).toContain('hasScore');
+    expect(Object.keys(parentScoringItem5[5])).not.toContain('item');
+
+    const grandchildItem1 = service.getScoreItems(copy(phq9_group.item), "/44260-8/45907-0/44250-9");
+    expect(grandchildItem1.length).toEqual(7);
+    // /44260-8 is a scoring item and also contains child scoring items.
+    const grandParentOfGrandChildItem1 = grandchildItem1[6];
+    expect(grandParentOfGrandChildItem1.linkId).toEqual("/44260-8");
+    expect(grandParentOfGrandChildItem1.type).toEqual("choice");
+    expect(Object.keys(grandParentOfGrandChildItem1)).toContain('hasScore');
+    expect(Object.keys(grandParentOfGrandChildItem1)).toContain('item');
+    // /44260-8/45907-0 is a group, and for this selection, the grandchild is also empty,
+    // so it is not included here.
+    expect(grandParentOfGrandChildItem1.item.length).toEqual(0);
+
+    const grandchildItem4 = service.getScoreItems(copy(phq9_group.item), "/44260-8/45907-0/44254-1");
+    const parentOfGrandChildItem4 = grandchildItem4[6].item[0];
+    expect(parentOfGrandChildItem4.item.length).toEqual(3);
+    expect(parentOfGrandChildItem4.item[0].linkId).toEqual("/44260-8/45907-0/44250-9");
+    expect(parentOfGrandChildItem4.item[0].type).toEqual("choice");
+    expect(parentOfGrandChildItem4.item[1].linkId).toEqual("/44260-8/45907-0/44255-8");
+    expect(parentOfGrandChildItem4.item[1].type).toEqual("choice");
+    expect(parentOfGrandChildItem4.item[2].linkId).toEqual("/44260-8/45907-0/44259-0");
+    expect(parentOfGrandChildItem4.item[2].type).toEqual("choice");
+
+    const childNonScoringItem1 = service.getScoreItems(copy(phq9_group.item), "/44260-8/44253-5");
+    expect(childNonScoringItem1.length).toEqual(7);
+    // sibling
+    expect(childNonScoringItem1[6].item.length).toEqual(1);
+    expect(childNonScoringItem1[6].item[0].type).toEqual("group");
+
+    const grandchildItem6 = service.getScoreItems(copy(phq9_group.item), "/44260-8/44253-5/44255-8");
+    expect(grandchildItem6.length).toEqual(7);
+    // /44260-8 is a scoring item and also contains child scoring items.
+    const grandParentOfGrandChildItem6 = grandchildItem6[6];
+    expect(grandParentOfGrandChildItem6.linkId).toEqual("/44260-8");
+    expect(Object.keys(grandParentOfGrandChildItem6)).toContain('hasScore');
+    expect(Object.keys(grandParentOfGrandChildItem6)).toContain('item');
+    // /44260-8 has 2 child items
+    expect(grandParentOfGrandChildItem6.item.length).toEqual(2);
+    // /44260-8/44253-5 is a second child item, a non-scoring item, and contains child scoring items
+    const parentOfGrandChildItem6 = grandchildItem6[6].item[1];
+    expect(parentOfGrandChildItem6.linkId).toEqual("/44260-8/44253-5");
+    expect(parentOfGrandChildItem6.type).toEqual("choice");
+    expect(Object.keys(parentOfGrandChildItem6)).not.toContain('hasScore');
+    expect(Object.keys(parentOfGrandChildItem6)).toContain('item');
+    // sibling
+    expect(parentOfGrandChildItem6.item.length).toEqual(1);
+    expect(parentOfGrandChildItem6.item[0].linkId).toEqual("/44260-8/44253-5/44250-9");
+    expect(parentOfGrandChildItem6.item[0].type).toEqual("choice");
+
+    const childScoringItem1 = service.getScoreItems(copy(phq9_group.item), "/44260-8/44252-5");
+    expect(childScoringItem1.length).toEqual(7);
+    // sibling
+    expect(childScoringItem1[6].item.length).toEqual(2);
+    // 1st sibling is a group
+    expect(childScoringItem1[6].item[0].type).toEqual("group");
+    // 2nd sibling is a choice
+    expect(childScoringItem1[6].item[1].type).toEqual("choice");
+
+    const grandchildItem8 = service.getScoreItems(copy(phq9_group.item), "/44260-8/44252-5/44255-8");
+    expect(grandchildItem8.length).toEqual(7);
+    // /44260-8 is a scoring item and also contains child scoring items.
+    const grandParentOfGrandChildItem8 = grandchildItem8[6];
+    expect(grandParentOfGrandChildItem8.linkId).toEqual("/44260-8");
+    expect(Object.keys(grandParentOfGrandChildItem8)).toContain('hasScore');
+    expect(Object.keys(grandParentOfGrandChildItem8)).toContain('item');
+    // /44260-8 has 3 child items
+    expect(grandParentOfGrandChildItem8.item.length).toEqual(3);
+    // /44260-8/44252-5 is a third child item, a scoring item, and also contains child scoring items.
+    const parentOfGrandChildItem8 = grandchildItem8[6].item[2];
+    expect(parentOfGrandChildItem8.linkId).toEqual("/44260-8/44252-5");
+    expect(parentOfGrandChildItem8.type).toEqual("choice");
+    expect(Object.keys(parentOfGrandChildItem8)).toContain('hasScore');
+    expect(Object.keys(parentOfGrandChildItem8)).toContain('item');
+    // sibling
+    expect(parentOfGrandChildItem8.item.length).toEqual(1);
+    expect(parentOfGrandChildItem8.item[0].linkId).toEqual("/44260-8/44252-5/44250-9");
+    expect(parentOfGrandChildItem8.item[0].type).toEqual("choice");
   });
 
   it('should return whether the selected item has scoring items', () => {
-    const firstItem = service.hasCalculateScoringItems(copy(phq9.item), "/44250-9");
+    const firstItem = service.hasCalculatedScoringItems(copy(phq9.item), "/44250-9");
     expect(firstItem).toBeFalse();
 
-    const secondItem = service.hasCalculateScoringItems(copy(phq9.item), "/44255-8");
+    const secondItem = service.hasCalculatedScoringItems(copy(phq9.item), "/44255-8");
     expect(secondItem).toBeTrue();
     
-    const totalItem = service.hasCalculateScoringItems(copy(phq9.item), "/39156-5");
+    const totalItem = service.hasCalculatedScoringItems(copy(phq9.item), "/39156-5");
     expect(totalItem).toBeTrue();
   });
 
-  it('should determine if item contains old calculated expression', () => {
+  it('should determine if item contains standard calculated expression', () => {
     const scoringItem = copy(phq9_preselected_without_scoring_ext.item[0]);
-    const totalScoringOldCalculatedExpressionItem = copy(phq9_preselected_without_scoring_ext.item[9]);
+    const totalScoringStandardCalculatedExpressionItem = copy(phq9_preselected_without_scoring_ext.item[9]);
     const totalScoringNewCalculatedExpressionItem = copy(phq9_preselected.item[6]);
 
-    const result = service.hasOldCalculatedExpressionForItem(scoringItem);
+    const result = service.hasStandardCalculatedExpressionForItem(scoringItem);
     expect(result).toBeFalse();
 
     const result2 =
-      service.hasOldCalculatedExpressionForItem(totalScoringOldCalculatedExpressionItem);
+      service.hasStandardCalculatedExpressionForItem(totalScoringStandardCalculatedExpressionItem);
     expect(result2).toBeTrue();
 
     const result3 =
-      service.hasOldCalculatedExpressionForItem(totalScoringNewCalculatedExpressionItem);
+      service.hasStandardCalculatedExpressionForItem(totalScoringNewCalculatedExpressionItem);
     expect(result3).toBeFalse();
   });
 
 
-  it('should determine if item contains old calculated expression based on linkId', () => {
+  it('should determine if item contains standard calculated expression based on linkId', () => {
     // Empty linkId
     const emptyLinkId =
-      service.hasOldCalculatedExpression(copy(phq9_preselected_without_scoring_ext), "");
+      service.hasStandardCalculatedExpression(copy(phq9_preselected_without_scoring_ext), "");
     expect(emptyLinkId).toBeFalse();
 
     // Null linkId
     const nullLinkId =
-      service.hasOldCalculatedExpression(copy(phq9_preselected_without_scoring_ext), null);
+      service.hasStandardCalculatedExpression(copy(phq9_preselected_without_scoring_ext), null);
     expect(nullLinkId).toBeFalse();
 
     // Undefined linkId
     const undefinedLinkId =
-      service.hasOldCalculatedExpression(copy(phq9_preselected_without_scoring_ext), undefined);
+      service.hasStandardCalculatedExpression(copy(phq9_preselected_without_scoring_ext), undefined);
     expect(undefinedLinkId).toBeFalse();
 
     // Scoring item - does not contain calculated expression
     const scoringItem =
-      service.hasOldCalculatedExpression(copy(phq9_preselected_without_scoring_ext), "/44251-7");
+      service.hasStandardCalculatedExpression(copy(phq9_preselected_without_scoring_ext), "/44251-7");
     expect(scoringItem).toBeFalse();
 
-    // Predefined total scoring calculation with old calculated expression
-    const totalScoringOldCalculatedExpression =
-      service.hasOldCalculatedExpression(copy(phq9_preselected_without_scoring_ext), "/44261-6");
-    expect(totalScoringOldCalculatedExpression).toBeTrue();
+    // Predefined total scoring calculation with standard calculated expression
+    const totalScoringStandardCalculatedExpression =
+      service.hasStandardCalculatedExpression(copy(phq9_preselected_without_scoring_ext), "/44261-6");
+    expect(totalScoringStandardCalculatedExpression).toBeTrue();
 
     // Item that can be used as for total scoring calculation - does not contain calculated expression
-    const canBeTotalScoring = service.hasOldCalculatedExpression(copy(phq9), "/39156-5");
+    const canBeTotalScoring = service.hasStandardCalculatedExpression(copy(phq9), "/39156-5");
     expect(canBeTotalScoring).toBeFalse();
 
     // Predefined total scoring calculation with new calculated expression
     const totalScoringNewCalculatedExpression =
-      service.hasOldCalculatedExpression(copy(phq9_preselected), "/39156-5");
+      service.hasStandardCalculatedExpression(copy(phq9_preselected), "/39156-5");
     expect(totalScoringNewCalculatedExpression).toBeFalse();
   });
 
@@ -388,10 +548,10 @@ describe('RuleEditorService', () => {
       service.shouldCalculateScoreForItem(copy(phq9), "/44255-8", calculatedExpressionUri);
     expect(secondItemPrompt).toBeTrue();
 
-    // Predefined total scoring calculation with old calculated expression
-    const scoringOldCalculatedExpressionPrompt =
+    // Predefined total scoring calculation with standard calculated expression
+    const scoringStandardCalculatedExpressionPrompt =
       service.shouldCalculateScoreForItem(copy(phq9_preselected_without_scoring_ext), "/44261-6", calculatedExpressionUri);
-    expect(scoringOldCalculatedExpressionPrompt).toBeFalse();
+    expect(scoringStandardCalculatedExpressionPrompt).toBeFalse();
 
     // Predefined total scoring calculation with new calculated expression
     const scoringNewCalculatedExpressionPrompt =

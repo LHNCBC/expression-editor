@@ -272,7 +272,7 @@ describe('Rule editor', () => {
             cy.get('#selectAll').should('exist');
             //cy.get('.item-filter').should('exist');
             cy.get('div.items-tree').should('exist');
-            cy.get('div.items-tree tree-node').should('have.length', 20);
+            cy.get('div.items-tree tree-node').should('have.length', 26);
           });
       });
 
@@ -284,7 +284,7 @@ describe('Rule editor', () => {
           .within(() => {
             // Expand All button should be visible and the tree should be expanded by default  
             cy.get('#expandAll').should('exist').should('be.visible');
-            cy.get('div.items-tree tree-node').should('have.length', 20);
+            cy.get('div.items-tree tree-node').should('have.length', 26);
 
             cy.get('#collapseAll').click();
             cy.get('div.items-tree tree-node').should('have.length', 7);
@@ -295,7 +295,7 @@ describe('Rule editor', () => {
         cy.get('#score-items-selection').click();
         cy.get('div.scoring-items-selection-body')
           .within(() => {
-            cy.get('div.items-tree tree-node').should('have.length', 20);
+            cy.get('div.items-tree tree-node').should('have.length', 26);
 
             // Select All
             cy.get('#selectAll').should('exist').click();
@@ -315,7 +315,7 @@ describe('Rule editor', () => {
         cy.get('#score-items-selection').click();
         cy.get('div.scoring-items-selection-body')
           .within(() => {
-            cy.get('div.items-tree tree-node').should('have.length', 20);
+            cy.get('div.items-tree tree-node').should('have.length', 26);
             
             // Check the Select All button
             cy.get('#selectAll').should('exist').click();
@@ -345,7 +345,8 @@ describe('Rule editor', () => {
               '+ iif(%h.exists(), %h, 0) + iif(%i.exists(), %i, 0) + iif(%j.exists(), %j, 0) ' +
               '+ iif(%k.exists(), %k, 0) + iif(%l.exists(), %l, 0) + iif(%m.exists(), %m, 0) ' +
               '+ iif(%n.exists(), %n, 0) + iif(%o.exists(), %o, 0) + iif(%p.exists(), %p, 0) ' +
-              '+ iif(%q.exists(), %q, 0), {})"');          
+              '+ iif(%q.exists(), %q, 0) + iif(%r.exists(), %r, 0) + iif(%s.exists(), %s, 0) ' +
+              '+ iif(%t.exists(), %t, 0) + iif(%u.exists(), %u, 0) + iif(%v.exists(), %v, 0), {})"');      
       });
 
       it('should not be able to export score if no scoring items selected', () => {
@@ -354,7 +355,7 @@ describe('Rule editor', () => {
         // Validate to make sure that no items were selected
         cy.get('div.scoring-items-selection-body')
           .within(() => {
-            cy.get('div.items-tree tree-node').should('have.length', 20);
+            cy.get('div.items-tree tree-node').should('have.length', 26);
             cy.get('.angular-tree-component  [type="checkbox"]').as('checkboxes');
             cy.get('@checkboxes').each(($checkbox, index) => {
               cy.wrap($checkbox).should('not.be.checked');
@@ -382,7 +383,7 @@ describe('Rule editor', () => {
         // Validate to make sure that all items are selected
         cy.get('div.scoring-items-selection-body')
           .within(() => {
-            cy.get('div.items-tree tree-node').should('have.length', 20);
+            cy.get('div.items-tree tree-node').should('have.length', 26);
             cy.get('.angular-tree-component  [type="checkbox"]').as('checkboxes');
             
             cy.get('@checkboxes').each(($checkbox, index) => {
@@ -399,7 +400,7 @@ describe('Rule editor', () => {
         // Validate to make sure that no items are selected
         cy.get('div.scoring-items-selection-body')
           .within(() => {
-            cy.get('div.items-tree tree-node').should('have.length', 20);
+            cy.get('div.items-tree tree-node').should('have.length', 26);
             cy.get('.angular-tree-component  [type="checkbox"]').as('checkboxes');
             
             cy.get('@checkboxes').each(($checkbox, index) => {
@@ -415,7 +416,7 @@ describe('Rule editor', () => {
         cy.get('#score-items-selection').click();
         cy.get('div.scoring-items-selection-body')
           .within(() => {
-            cy.get('div.items-tree tree-node').should('have.length', 20);
+            cy.get('div.items-tree tree-node').should('have.length', 26);
             cy.get('.angular-tree-component  [type="checkbox"]').as('checkboxes');
             
             // Select an item from "Group 1"
@@ -511,7 +512,7 @@ describe('Rule editor', () => {
         cy.get('#score-items-selection').click();
         cy.get('div.scoring-items-selection-body')
           .within(() => {
-            cy.get('div.items-tree tree-node').should('have.length', 20);
+            cy.get('div.items-tree tree-node').should('have.length', 26);
             
             // Check the Select All button
             cy.get('#selectAll').should('exist').click();
@@ -537,7 +538,7 @@ describe('Rule editor', () => {
 
             // Non-scoring item at parent level
             expect(parsedData.item[2].type).to.eq('choice');
-            expect(parsedData.item[2].linkId).to.eq('/44453-5');
+            expect(parsedData.item[2].linkId).to.eq('/44453-6');
             expect(parsedData.item[2].text).to.eq('Non-scoring item');
             
             // Non-scoring item at parent level with child scoring items
@@ -565,13 +566,33 @@ describe('Rule editor', () => {
             // Non-scoring item at 3rd level of parent group and scoring item grand parent
             expect(parsedData.item[7].type).to.eq('choice');
             expect(parsedData.item[7].item).to.exist;
-            expect(parsedData.item[7].item).to.have.lengthOf(1);
+            expect(parsedData.item[7].item).to.have.lengthOf(3);
             expect(parsedData.item[7].item[0].type).to.eq('group');
+            expect(parsedData.item[7].item[0].linkId).to.eq('/44260-8/45907-0');
             expect(parsedData.item[7].item[0].item).to.exist;
             expect(parsedData.item[7].item[0].item).to.have.lengthOf(5);
             expect(parsedData.item[7].item[0].item[3].linkId).to.eq('/44260-8/45907-0/46613-6');
             expect(parsedData.item[7].item[0].item[3].text).to.eq('Non-scoring item - child of Sub group 1');            
 
+            expect(parsedData.item[7].item[1].type).to.eq('choice');
+            expect(parsedData.item[7].item[1].linkId).to.eq('/44260-8/44253-5');
+            expect(parsedData.item[7].item[1].item).to.exist;
+            expect(parsedData.item[7].item[1].hasScore).not.to.exist;
+            expect(parsedData.item[7].item[1].item).to.have.lengthOf(3);
+            expect(parsedData.item[7].item[1].item[0].linkId).to.eq('/44260-8/44253-5/46613-6');
+            expect(parsedData.item[7].item[1].item[0].text).to.eq('Non-scoring item - child of non-scoring item');            
+            expect(parsedData.item[7].item[1].item[2].linkId).to.eq('/44260-8/44253-5/44255-8');
+            expect(parsedData.item[7].item[1].item[2].text).to.eq('Feeling down, depressed, or hopeless?');
+
+            expect(parsedData.item[7].item[2].type).to.eq('choice');
+            expect(parsedData.item[7].item[2].linkId).to.eq('/44260-8/44252-5');
+            expect(parsedData.item[7].item[2].item).to.exist;
+            expect(parsedData.item[7].item[2].hasScore).not.to.exist;
+            expect(parsedData.item[7].item[2].item).to.have.lengthOf(3);
+            expect(parsedData.item[7].item[2].item[0].linkId).to.eq('/44260-8/44252-5/46613-6');
+            expect(parsedData.item[7].item[2].item[0].text).to.eq('Non-scoring item - child of scoring item');
+            expect(parsedData.item[7].item[2].item[2].linkId).to.eq('/44260-8/44252-5/44255-8');
+            expect(parsedData.item[7].item[2].item[2].text).to.eq('Feeling down, depressed, or hopeless?');             
           });
       });
     });
