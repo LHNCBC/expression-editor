@@ -75,7 +75,7 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
     this.validationSubscription = this.variableService.validationChange.subscribe((validation) => {
       if (validation) {
         this.validationError = true;
-        const errorMessage = "Save button. The 'Save' button is disabled due to a validation error";
+        const errorMessage = "Save button. The 'Save' button is disabled due to the validation error";
         if (validation['section'] === "Item Variables") {
           if (validation['variableName'])
             this.validationErrorMessage = errorMessage + " for the variable '" + validation['name'] +
