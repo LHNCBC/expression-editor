@@ -74,10 +74,10 @@
         <div class="form-inline" *ngSwitchCase="'simple'">
           <lhc-syntax-converter
             [id]="'variable-expression-' + i"
-            [index]="i"
             [simple]="variable.simple"
             [index]="i"
             [variables]="getAvailableVariables(i)"
+            [variableName]="variable.label"
             [lhcStyle]="lhcStyle"
             (simpleChange)="updateSimpleExpression(i, $event)"
             (expressionChange)="updateExpression(i, $event)">
@@ -87,7 +87,7 @@
           <input
             [id]="'variable-expression-' + i"
             [(ngModel)]="variable.expression"
-            (change)="onExpressionChange($event, i)" 
+            (change)="onExpressionChange($event, i)"
             [style]="lhcStyle.input"
             aria-label="FHIRPath Expression" class="flex-item" />
         </div>

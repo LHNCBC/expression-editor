@@ -1277,16 +1277,14 @@ export class RuleEditorService {
    * Generate a validation event to notify subscribers. If the result is null, the 'Save' button
    * is enabled; othewise, the 'Save' button is disabled.
    * @param errorType - validation error type 
+   * @param section - section where the error occurs
+   * @param name - name of the variable or field that contains the error
    */
-  notifyValidationResult(errorType: string): void {
+  notifyValidationResult(errorType: string, section: string, name: string): void {
     let result = null;
 
-    if (errorType) {
-      if (errorType === "case") {
-        result = {'caseConversionError': true, 'name': 'case-conversion-error', 'section': 'Output Expression'};
-      } else if (errorType === "expression") {
-        result = { 'expressionError': true, 'name': 'expression-error', 'section': 'Item Variables'};
-      }
+    if (errorType && section) {
+      result = { 'error': errorType, 'section': section, 'name': name};
     }
 
     setTimeout(() => {

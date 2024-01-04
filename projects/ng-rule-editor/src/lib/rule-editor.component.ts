@@ -42,9 +42,9 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
   showConfirmDialog = false;
 
   dialogTitle = "Converting FHIRPath Expression to Easy Path Expression";
-  dialogPrompt1 = "The Rule Editor does not support conversion from FHIRPath Expression " + 
-                  "to Easy Path Expression. Switching to the Easy Path Expression may " +
-                  "result in field not getting populated.";
+  dialogPrompt1 = "The Rule Editor does not support conversion from FHIRPath Expression " +
+                  "to Easy Path Expression. Switching to the Easy Path Expression for the " +
+                  "output expression would result in the expression becoming blank.";
   dialogPrompt2 = "Proceed?";
 
   private calculateSumSubscription;
@@ -75,8 +75,17 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
     this.validationSubscription = this.variableService.validationChange.subscribe((validation) => {
       if (validation) {
         this.validationError = true;
-        this.validationErrorMessage = "Save button. The save button is disabled due to validation" +
-                                      " error in the " + validation['section'] + " section.";
+        const errorMessage = "Save button. The 'Save' button is disabled due to a validation error";
+        if (validation['section'] === "Item Variables") {
+          if (validation['variableName'])
+            this.validationErrorMessage = errorMessage + " for the variable '" + validation['name'] +
+                                          "' found in the " + validation['section'] + " section.";
+          else
+            this.validationErrorMessage = errorMessage + " found in the " + validation['section'] +
+                                          " section.";
+        } else
+          this.validationErrorMessage = errorMessage + " for the " + validation['name'] +
+                                        " found in the " + validation['section'] + " section.";
       } else {
         this.validationError = false;
         this.validationErrorMessage = "";
@@ -132,9 +141,11 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
    * Export FHIR Questionnaire and download as a file
    */
   export(): void {
-    const finalExpression = this.finalExpressionExtension;
-    finalExpression.valueExpression.expression = this.finalExpression;
-    this.save.emit(this.variableService.export(this.expressionUri, finalExpression));
+    if (!this.validationError) {
+      const finalExpression = this.finalExpressionExtension;
+      finalExpression.valueExpression.expression = this.finalExpression;
+      this.save.emit(this.variableService.export(this.expressionUri, finalExpression));
+    }
   }
 
   /**
@@ -163,10 +174,14 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
    * Toggle the advanced interface based on the type
    */
   onTypeChange(event): void {
-     if (this.expressionSyntax === 'fhirpath' && event.target.value === 'simple') {
+    if (this.expressionSyntax === 'fhirpath' && event.target.value === 'simple') {
       if (this.finalExpression !== '' && this.finalExpression !== this.previousFinalExpression) {
         this.previousExpressionSyntax = this.expressionSyntax;
-        this.expressionSyntax = '';
+
+        if (this.caseStatements)
+          this.dialogPrompt1 = "The Rule Editor does not support conversion from FHIRPath Expression " +
+          "to Easy Path Expression. Switching to Easy Path Expression for the case statement " +
+          "would result in the expression becoming blank.";
         this.showConfirmDialog = true;
       } else {
         this.previousExpressionSyntax = event.target.value;
@@ -214,7 +229,11 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
    * Cancel changing from FHIRPath Expression to Easy Path Expression
    */
   closeConvertDialog(): void {
-    this.expressionSyntax = 'fhirpath';
+    this.expressionSyntax = '';
     this.showConfirmDialog = false;
+
+    setTimeout(() => {
+      this.expressionSyntax = 'fhirpath';
+    }, 10);
   }
 }

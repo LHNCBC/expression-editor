@@ -12,6 +12,7 @@ export class SyntaxConverterComponent implements OnChanges {
   @Input() variables;
   @Input() index;
   @Input() lhcStyle: SimpleStyle = {};
+  @Input() variableName: string;
   @Output() simpleChange = new EventEmitter<string>();
   @Output() expressionChange = new EventEmitter<string>();
  
@@ -44,6 +45,8 @@ export class SyntaxConverterComponent implements OnChanges {
     this.simpleChange.emit(simple);
     this.expressionChange.emit(fhirPath);
 
-    this.ruleEditorService.notifyValidationResult((this.hasError) ? 'expression' : null );
+    const section = (this.variableName) ? 'Item Variables' : 'Output Expression';
+    const errorFieldName = (this.variableName) ? this.variableName : "output expression";
+    this.ruleEditorService.notifyValidationResult((this.hasError) ? 'expressionError' : null, section, errorFieldName );
   }
 }

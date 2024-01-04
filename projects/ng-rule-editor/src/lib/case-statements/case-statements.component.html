@@ -8,22 +8,36 @@
     </div>
   </div>
   <div cdkDropList (cdkDropListDropped)="drop($event)">
-    <div class="case-row drag-case" [style]="lhcStyle.variableRow" *ngFor="let caseStatement of cases; index as i" [id]="'row-' + i" cdkDrag>
+    <div class="case-row drag-case" [style]="lhcStyle.variableRow" *ngFor="let caseStatement of cases; index as i"
+         [id]="'row-' + i" cdkDrag>
       <div class="case-condition-column">
         <!-- Inline SVG for the row drag and drop handle -->
-        <svg cdkDragHandle xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="handle" viewBox="0 0 16 16">
-          <path d="M7 2a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zM7 5a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zM7 8a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>
+        <svg cdkDragHandle xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
+             class="handle" viewBox="0 0 16 16">
+          <path d="M7 2a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zM7 5a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 
+                   0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zM7 8a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm-3 
+                   3a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 
+                   0a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>
         </svg>
-        <input *ngIf="syntax !== 'simple'" type="text" [id]="'case-condition-' + i" [(ngModel)]="caseStatement.condition" (ngModelChange)="onChange()" [style]="lhcStyle.input" class="condition" aria-label="Case condition" [class.field-error]="caseStatement.error.condition" />
-        <input *ngIf="syntax === 'simple'" type="text" [id]="'case-condition-' + i" [(ngModel)]="caseStatement.simpleCondition" (ngModelChange)="onChange()" [style]="lhcStyle.input" class="condition" aria-label="Case condition" [class.field-error]="caseStatement.error.condition" />
+        <input *ngIf="syntax !== 'simple'" type="text" [id]="'case-condition-' + i" [(ngModel)]="caseStatement.condition"
+               (ngModelChange)="onChange()" [style]="lhcStyle.input" class="condition" aria-label="Case condition"
+               [class.field-error]="caseStatement.error.condition" [attr.aria-invalid]="caseStatement.error.condition" />
+        <input *ngIf="syntax === 'simple'" type="text" [id]="'case-condition-' + i" [(ngModel)]="caseStatement.simpleCondition"
+               (ngModelChange)="onChange()" [style]="lhcStyle.input" class="condition" aria-label="Case condition"
+               [class.field-error]="caseStatement.error.condition" [attr.aria-invalid]="caseStatement.error.condition" />
         <span class="arrow">→</span>
       </div>
       <div class="case-output-column">
-        <input *ngIf="syntax !== 'simple'" type="text" [id]="'case-output-' + i" [(ngModel)]="caseStatement.output" (ngModelChange)="onChange()" [style]="lhcStyle.input" class="output" aria-label="Case output" [class.field-error]="caseStatement.error.output"/>
-        <input *ngIf="syntax === 'simple'" type="text" [id]="'case-output-' + i" [(ngModel)]="caseStatement.simpleOutput" (ngModelChange)="onChange()" [style]="lhcStyle.input" class="output" aria-label="Case output" [class.field-error]="caseStatement.error.output"/>
+        <input *ngIf="syntax !== 'simple'" type="text" [id]="'case-output-' + i" [(ngModel)]="caseStatement.output"
+               (ngModelChange)="onChange()" [style]="lhcStyle.input" class="output" aria-label="Case output"
+               [class.field-error]="caseStatement.error.output" [attr.aria-invalid]="caseStatement.error.output" />
+        <input *ngIf="syntax === 'simple'" type="text" [id]="'case-output-' + i" [(ngModel)]="caseStatement.simpleOutput"
+               (ngModelChange)="onChange()" [style]="lhcStyle.input" class="output" aria-label="Case output"
+               [class.field-error]="caseStatement.error.output" [attr.aria-invalid]="caseStatement.error.output" />
       </div>
       <div class="case-column-actions" *ngIf="cases.length > 1">
-        <button class="btn btn-danger remove-case" aria-label="Remove case" title="Remove case" [style]="lhcStyle.buttonDanger" (click)="onRemove(i)">x</button>
+        <button class="btn btn-danger remove-case" aria-label="Remove case" title="Remove case"
+                [style]="lhcStyle.buttonDanger" (click)="onRemove(i)">x</button>
       </div>
     </div>
   </div>
@@ -35,8 +49,10 @@
   <div class="case-condition-column"></div>
   <div class="case-output-column">
     <label>
-      <input *ngIf="syntax !== 'simple'" type="text" [(ngModel)]="defaultCase" (ngModelChange)="onChange()" [style]="lhcStyle.input" class="default" [ngClass]="{'field-error': defaultCaseError}"/>
-      <input *ngIf="syntax === 'simple'" type="text" [(ngModel)]="simpleDefaultCase" (ngModelChange)="onChange()" [style]="lhcStyle.input" class="default" [ngClass]="{'field-error': defaultCaseError}"/>
+      <input *ngIf="syntax !== 'simple'" type="text" [(ngModel)]="defaultCase" (ngModelChange)="onChange()"
+             [style]="lhcStyle.input" class="default" [class.field-error]="defaultCaseError" [attr.aria-invalid]="defaultCaseError" />
+      <input *ngIf="syntax === 'simple'" type="text" [(ngModel)]="simpleDefaultCase" (ngModelChange)="onChange()"
+             [style]="lhcStyle.input" class="default" [class.field-error]="defaultCaseError" [attr.aria-invalid]="defaultCaseError" />
     </label>
   </div>
 </div>
