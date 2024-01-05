@@ -177,7 +177,7 @@ describe('RuleEditorService', () => {
     // there should be 9 item selections
     expect(output.length).toEqual(9);
 
-    expect(output[3]).toEqual(outputItemWhereExpression);
+    expect(output[3]['itemQuery']).toEqual(outputItemWhereExpression);
   });
 
   it('should return partial selection item scoring expression with var "c"', () => {
@@ -187,7 +187,7 @@ describe('RuleEditorService', () => {
     // there should be only 3 item selections
     expect(output.length).toEqual(3);
 
-    expect(output[1]).toEqual(outputItemWhereExpression);
+    expect(output[1]['itemQuery']).toEqual(outputItemWhereExpression);
   });
 
   it('should return scoring expression with var "d"', () => {
@@ -219,7 +219,7 @@ describe('RuleEditorService', () => {
     // there should be 9 item selections
     expect(output.length).toEqual(9);
 
-    expect(output[3]).toEqual(outputGroupItemWhereExpression);
+    expect(output[3]['itemQuery']).toEqual(outputGroupItemWhereExpression);
   });
 
   it('should return partial selection item scoring expression with var "c"', () => {
@@ -229,7 +229,7 @@ describe('RuleEditorService', () => {
     // there should be only 3 item selections
     expect(output.length).toEqual(3);
 
-    expect(output[1]).toEqual(outputGroupItemWhereExpression);
+    expect(output[1]['itemQuery']).toEqual(outputGroupItemWhereExpression);
   });
 
   it('should return scoring expression with var "d"', () => {
@@ -268,56 +268,56 @@ describe('RuleEditorService', () => {
   });
 
   it('should return number of scoring items based on the selected item', () => {
-    const firstItem = service.getScoreItems(copy(phq9.item), "/44250-9");
+    const firstItem = service.getScoreItems(phq9.item, "/44250-9")['scoreItems'];
     expect(firstItem.length).toEqual(0);
 
-    const secondItem = service.getScoreItems(copy(phq9.item), "/44255-8");
+    const secondItem = service.getScoreItems(phq9.item, "/44255-8")['scoreItems'];
     expect(secondItem.length).toEqual(1);
     
-    const totalItem = service.getScoreItems(copy(phq9.item), "/39156-5");
+    const totalItem = service.getScoreItems(phq9.item, "/39156-5")['scoreItems'];
     expect(totalItem.length).toEqual(9);
 
     // PHQ9 Group - testing hierarchical scoring items.
-    const group1 = service.getScoreItems(copy(phq9_group.item), "/45900-0");
+    const group1 = service.getScoreItems(phq9_group.item, "/45900-0")['scoreItems'];
     expect(group1.length).toEqual(0);
 
-    const childItem1 = service.getScoreItems(copy(phq9_group.item), "/45900-0/44250-9");
+    const childItem1 = service.getScoreItems(phq9_group.item, "/45900-0/44250-9")['scoreItems'];
     expect(childItem1.length).toEqual(0);
 
-    const childItem2 = service.getScoreItems(copy(phq9_group.item), "/45900-0/44255-8");
+    const childItem2 = service.getScoreItems(phq9_group.item, "/45900-0/44255-8")['scoreItems'];
     expect(childItem2.length).toEqual(1);
     const parentOfChildItem2 = childItem2[0];
     expect(Object.keys(parentOfChildItem2)).not.toContain('hasScore');
     expect(Object.keys(parentOfChildItem2)).toContain('item');
     expect(parentOfChildItem2.item.length).toEqual(1);
 
-    const childItem4 = service.getScoreItems(copy(phq9_group.item), "/45900-0/44254-1");
+    const childItem4 = service.getScoreItems(phq9_group.item, "/45900-0/44254-1")['scoreItems'];
     expect(childItem4.length).toEqual(1);
     expect(childItem4[0].item.length).toEqual(3);
 
-    const parentScoringItem1 = service.getScoreItems(copy(phq9_group.item), "/44251-7");
+    const parentScoringItem1 = service.getScoreItems(phq9_group.item, "/44251-7")['scoreItems'];
     expect(parentScoringItem1.length).toEqual(1);
     expect(Object.keys(parentScoringItem1[0])).not.toContain('hasScore');
     expect(parentScoringItem1[0].item.length).toEqual(4);
 
-    const parentScoringItem2 = service.getScoreItems(copy(phq9_group.item), "/44258-2");
+    const parentScoringItem2 = service.getScoreItems(phq9_group.item, "/44258-2")['scoreItems'];
     expect(parentScoringItem2.length).toEqual(2);
     expect(Object.keys(parentScoringItem2[0])).not.toContain('hasScore');
     expect(Object.keys(parentScoringItem2[1])).toContain('hasScore');
     expect(Object.keys(parentScoringItem2[1])).not.toContain('item');
     
-    const parentNonScoringItem1 = service.getScoreItems(copy(phq9_group.item), "/44253-5");
+    const parentNonScoringItem1 = service.getScoreItems(phq9_group.item, "/44253-5")['scoreItems'];
     // Have 3 sibling items before this.
     expect(parentNonScoringItem1.length).toEqual(3);
 
-    const childItem6 = service.getScoreItems(copy(phq9_group.item), "/44253-5/44255-8");
+    const childItem6 = service.getScoreItems(phq9_group.item, "/44253-5/44255-8")['scoreItems'];
     expect(childItem6.length).toEqual(4);
     const parentOfChildItem6 = childItem6[3];
     expect(Object.keys(parentOfChildItem6)).not.toContain('hasScore');
     expect(Object.keys(parentOfChildItem6)).toContain('item');
     expect(parentOfChildItem6.item.length).toEqual(1);
     
-    const parentScoringItem3 = service.getScoreItems(copy(phq9_group.item), "/44252-5");
+    const parentScoringItem3 = service.getScoreItems(phq9_group.item, "/44252-5")['scoreItems'];
     expect(parentScoringItem3.length).toEqual(4);
     expect(Object.keys(parentScoringItem3[0])).not.toContain('hasScore');
     expect(Object.keys(parentScoringItem3[1])).toContain('hasScore');
@@ -327,14 +327,14 @@ describe('RuleEditorService', () => {
     expect(Object.keys(parentScoringItem3[3])).not.toContain('hasScore');
     expect(Object.keys(parentScoringItem3[3])).toContain('item');
     
-    const childItem8 = service.getScoreItems(copy(phq9_group.item), "/44252-5/44255-8");
+    const childItem8 = service.getScoreItems(phq9_group.item, "/44252-5/44255-8")['scoreItems'];
     expect(childItem8.length).toEqual(5);
     const parentOfChildItem8 = childItem8[4];
     expect(Object.keys(parentOfChildItem8)).toContain('hasScore');
     expect(Object.keys(parentOfChildItem8)).toContain('item');
     expect(parentOfChildItem8.item.length).toEqual(1);
 
-    const parentScoringItem4 = service.getScoreItems(copy(phq9_group.item), "/44253-3");
+    const parentScoringItem4 = service.getScoreItems(phq9_group.item, "/44253-3")['scoreItems'];
     expect(parentScoringItem4.length).toEqual(5);
     expect(Object.keys(parentScoringItem4[0])).not.toContain('hasScore');
     expect(Object.keys(parentScoringItem4[1])).toContain('hasScore');
@@ -346,7 +346,7 @@ describe('RuleEditorService', () => {
     expect(Object.keys(parentScoringItem4[4])).toContain('hasScore');
     expect(Object.keys(parentScoringItem4[4])).toContain('item');
 
-    const parentScoringItem5 = service.getScoreItems(copy(phq9_group.item), "/44260-8");
+    const parentScoringItem5 = service.getScoreItems(phq9_group.item, "/44260-8")['scoreItems'];
     expect(parentScoringItem5.length).toEqual(6);
     expect(Object.keys(parentScoringItem5[0])).not.toContain('hasScore');
     expect(Object.keys(parentScoringItem5[1])).toContain('hasScore');
@@ -360,7 +360,7 @@ describe('RuleEditorService', () => {
     expect(Object.keys(parentScoringItem5[5])).toContain('hasScore');
     expect(Object.keys(parentScoringItem5[5])).not.toContain('item');
 
-    const grandchildItem1 = service.getScoreItems(copy(phq9_group.item), "/44260-8/45907-0/44250-9");
+    const grandchildItem1 = service.getScoreItems(phq9_group.item, "/44260-8/45907-0/44250-9")['scoreItems'];
     expect(grandchildItem1.length).toEqual(7);
     // /44260-8 is a scoring item and also contains child scoring items.
     const grandParentOfGrandChildItem1 = grandchildItem1[6];
@@ -372,7 +372,7 @@ describe('RuleEditorService', () => {
     // so it is not included here.
     expect(grandParentOfGrandChildItem1.item.length).toEqual(0);
 
-    const grandchildItem4 = service.getScoreItems(copy(phq9_group.item), "/44260-8/45907-0/44254-1");
+    const grandchildItem4 = service.getScoreItems(phq9_group.item, "/44260-8/45907-0/44254-1")['scoreItems'];
     const parentOfGrandChildItem4 = grandchildItem4[6].item[0];
     expect(parentOfGrandChildItem4.item.length).toEqual(3);
     expect(parentOfGrandChildItem4.item[0].linkId).toEqual("/44260-8/45907-0/44250-9");
@@ -382,13 +382,13 @@ describe('RuleEditorService', () => {
     expect(parentOfGrandChildItem4.item[2].linkId).toEqual("/44260-8/45907-0/44259-0");
     expect(parentOfGrandChildItem4.item[2].type).toEqual("choice");
 
-    const childNonScoringItem1 = service.getScoreItems(copy(phq9_group.item), "/44260-8/44253-5");
+    const childNonScoringItem1 = service.getScoreItems(phq9_group.item, "/44260-8/44253-5")['scoreItems'];
     expect(childNonScoringItem1.length).toEqual(7);
     // sibling
     expect(childNonScoringItem1[6].item.length).toEqual(1);
     expect(childNonScoringItem1[6].item[0].type).toEqual("group");
 
-    const grandchildItem6 = service.getScoreItems(copy(phq9_group.item), "/44260-8/44253-5/44255-8");
+    const grandchildItem6 = service.getScoreItems(phq9_group.item, "/44260-8/44253-5/44255-8")['scoreItems'];
     expect(grandchildItem6.length).toEqual(7);
     // /44260-8 is a scoring item and also contains child scoring items.
     const grandParentOfGrandChildItem6 = grandchildItem6[6];
@@ -408,7 +408,7 @@ describe('RuleEditorService', () => {
     expect(parentOfGrandChildItem6.item[0].linkId).toEqual("/44260-8/44253-5/44250-9");
     expect(parentOfGrandChildItem6.item[0].type).toEqual("choice");
 
-    const childScoringItem1 = service.getScoreItems(copy(phq9_group.item), "/44260-8/44252-5");
+    const childScoringItem1 = service.getScoreItems(phq9_group.item, "/44260-8/44252-5")['scoreItems'];
     expect(childScoringItem1.length).toEqual(7);
     // sibling
     expect(childScoringItem1[6].item.length).toEqual(2);
@@ -417,7 +417,7 @@ describe('RuleEditorService', () => {
     // 2nd sibling is a choice
     expect(childScoringItem1[6].item[1].type).toEqual("choice");
 
-    const grandchildItem8 = service.getScoreItems(copy(phq9_group.item), "/44260-8/44252-5/44255-8");
+    const grandchildItem8 = service.getScoreItems(phq9_group.item, "/44260-8/44252-5/44255-8")['scoreItems'];
     expect(grandchildItem8.length).toEqual(7);
     // /44260-8 is a scoring item and also contains child scoring items.
     const grandParentOfGrandChildItem8 = grandchildItem8[6];

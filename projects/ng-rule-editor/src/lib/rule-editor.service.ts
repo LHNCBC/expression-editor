@@ -19,6 +19,17 @@ export interface SimpleStyle {
   description?: object;
 }
 
+interface WhereConditionExpression {
+  itemQuery: string;
+  answerOptionQuery: string;
+}
+
+interface Scoring {
+  foundLinkId : boolean;
+  // array of scoring items
+  scoreItems: any[];   
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -870,9 +881,13 @@ export class RuleEditorService {
    * lead to a potential performance impact when searching through a large number of items. 
    * @param items - Questionnaire items
    * @param linkId - link id of the total score item
-   * @return Array of link ids where conditions
+   * @return Array of WhereConditionExpression object(s) which consist of
+   *         - itemQuery - query to select the item
+   *         - answerOptionQuery - query to select a sub-item answer from the answer of the main item. 
+   *                               If an item does not contain any sub-items or as type 'group', then
+   *                               the query returns is the same as the itemQuery.   
    */
-  composeItemsWhereConditionExpressions(items, linkId: string): Array<string> {
+  composeItemsWhereConditionExpressions(items, linkId: string): Array<WhereConditionExpression> {
     const expressions = [];
     for (let i = 0; i < items.length; i++) {
       const item = items[i];
@@ -883,7 +898,12 @@ export class RuleEditorService {
       } else if (this.itemHasScore(item)) {
         if (this.itemLinkIdsForCalculation && this.itemLinkIdsForCalculation.length > 0 &&
             this.itemLinkIdsForCalculation.includes(item.linkId)) {
-          expressions.push(".item.where(linkId = '" + item.linkId + "')");
+
+          const expression = {
+            "itemQuery": ".item.where(linkId = '" + item.linkId + "')",
+            "answerOptionQuery": ".item.where(linkId = '" + item.linkId + "')"
+          }
+          expressions.push(expression);
         }
       }
 
@@ -891,7 +911,12 @@ export class RuleEditorService {
         const childExpressions = this.composeItemsWhereConditionExpressions(item.item, linkId);
         if (childExpressions.length > 0) {
           childExpressions.forEach((childExpression) => {
-            expressions.push(".item.where(linkId = '" + item.linkId + "')" + childExpression);
+            const typeChoice = (item.type !== "group") ? ".answer" : "";
+            const expression = {
+              "itemQuery": ".item.where(linkId = '" + item.linkId + "')" + childExpression.itemQuery,
+              "answerOptionQuery": ".item.where(linkId = '" + item.linkId + "')" + typeChoice + childExpression.answerOptionQuery
+            }
+            expressions.push(expression);
           });
         }
       }
@@ -900,6 +925,7 @@ export class RuleEditorService {
         continue;
       }
     }
+
     return expressions;
   }
 
@@ -914,8 +940,8 @@ export class RuleEditorService {
     // Retrieve itmes where expressions
     const itemExpressions = this.composeItemsWhereConditionExpressions(items, linkId);
     const scoreExpressions = itemExpressions.map((e, i) => {
-      return `%questionnaire${e}.answerOption` +
-        `.where(valueCoding.code=%resource${e}.answer.valueCoding.code).extension` +
+      return `%questionnaire${e.itemQuery}.answerOption` +
+        `.where(valueCoding.code=%resource${e.answerOptionQuery}.answer.valueCoding.code).extension` +
         `.where(url='http://hl7.org/fhir/StructureDefinition/ordinalValue').valueDecimal`;
     });
 
@@ -1209,14 +1235,18 @@ export class RuleEditorService {
   }
 
   /**
-   * Obtain a list of items containing the ordinal value that can be used for
-   * scoring calculation
+   * Obtain a list of items containing answers with the ordinal value (score/itemWeight)
+   * extension that can be used for scoring calculation
    * @param items - Questionnaire item array
    * @param linkId - link id of the total score item
-   * @return Array of scoring items
+   * @param level - item hierarchy level
+   * @return Scoring object which consist of
+   *         - foundLinkId : a flag to indicate whetherthe given linkId has been found
+   *         - scoreItems : array of scoring items
    */
-  getScoreItems(items, linkId: string = this.linkIdContext, level: number = 0 ): Array<any> {
+  getScoreItems(items, linkId: string = this.linkIdContext, level: number = 0 ): Scoring {
     const sItems = copy(items);
+    let foundLinkId = false;
     let scoreItems = [];
 
     for (let i = 0; i < sItems.length; i++) {
@@ -1228,8 +1258,7 @@ export class RuleEditorService {
 
       if (item.linkId === linkId) {
         // Do not consider items at or below the linkId context required
-        if (level > 0)
-          scoreItems.push(item);
+        foundLinkId = true;
         break;
       } else if (this.hasRuleEditorExtension(item)) {
         // If the current item is already a score calculation or this is
@@ -1239,17 +1268,12 @@ export class RuleEditorService {
 
       // Work with nested items
       if (item.item) {
-        let foundLinkId = false;
-        let childScoreItems = this.getScoreItems(item.item, linkId, level+1);
+        let childScoreItem = this.getScoreItems(item.item, linkId, level+1);
+
+        foundLinkId = childScoreItem.foundLinkId;
+        const childScoreItems = childScoreItem.scoreItems;
 
         if (childScoreItems && childScoreItems.length > 0) {
-          if (childScoreItems[childScoreItems.length - 1].linkId === linkId) {
-            // We found a match, there is no need to search further.
-            // Remove the item matching the link id.
-            childScoreItems.pop();
-            foundLinkId = true;
-          }
-
           let childHasScore = childScoreItems.length > 0;
           item.item = childScoreItems;
 
@@ -1263,9 +1287,6 @@ export class RuleEditorService {
           if (parentHasScore || childHasScore)
             scoreItems.push(item);
 
-          if (foundLinkId)
-            break;
-
         } else {
           item.item = [];
           if (this.itemHasScore(item)) {
@@ -1273,13 +1294,16 @@ export class RuleEditorService {
             scoreItems.push(item);
           }
         }
+        
+        if (foundLinkId)
+          break;
       } else if (this.itemHasScore(item)) {
         item['hasScore'] = true;
         scoreItems.push(item);
       }
     }
 
-    return scoreItems;
+    return { "foundLinkId" : foundLinkId, "scoreItems": scoreItems};
   }
 
   /**
@@ -1301,7 +1325,8 @@ export class RuleEditorService {
   }
 
   /**
-   * Determine if the given item has the standard total scoring configuration
+   * Determine if the given item has a calculated expression that is not extended with
+   * our custom total score extension. 
    * @param item - FHIR Item
    * @return true if the calculated expression is found and does not contain the new 
    * scoring extension
@@ -1347,13 +1372,12 @@ export class RuleEditorService {
   };
 
   /**
-   * Determine if the selected question has predefined scoring items but without
-   * new scoring extensions. Without the new scoring extensions, pre-select items
-   * cannot be displayed on the tree view properly.  Scoring calculation will insert
-   * rather than update.
+   * Determine if the selected question has a calculated expression that does not have
+   * our custom extension.
    * @param questionnaire - FHIR Questionnaire
    * @param linkIdContext - link id of the selected item
-   * @return true if the calculated expression does not contain the new scoring extension
+   * @return true if the calculated expression does not contain the new scoring extension.
+   * The prompt for calculating the sum of scores will not be displayed as a result.
    */
   hasStandardCalculatedExpression(questionnaire, linkIdContext: string): boolean {
     const item = this.findItemById(questionnaire.item, linkIdContext);
@@ -1368,8 +1392,8 @@ export class RuleEditorService {
    * @return true if has scoring items
    */
   hasCalculatedScoringItems(items, linkIdContext: string): boolean {
-    const scoreItems = this.getScoreItems(items, linkIdContext);
-    return (scoreItems.length > 0);
+    const scoreItemResult = this.getScoreItems(items, linkIdContext);
+    return (scoreItemResult.scoreItems.length > 0);
   }
 
   /**
