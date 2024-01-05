@@ -1,17 +1,13 @@
 {
   "name": "rule-editor",
-  "version": "3.1.7",
+  "version": "3.1.9",
   "scripts": {
     "ng": "ng",
     "start": "ng build --watch ng-rule-editor & sleep 25; ng serve --port 4202; s=$?; kill %1; exit $s",
     "start-public": "ng build --watch ng-rule-editor & sleep 25; node bin/start-public.js; s=$?; kill %1; exit $s",
-    "build:concatenate-gh": "concat -o docs/rule-editor.js dist/rule-editor/runtime.js dist/rule-editor/polyfills.js dist/rule-editor/main.js",
-    "build:concatenate": "concat -o dist/rule-editor/rule-editor.js dist/rule-editor/runtime.js dist/rule-editor/polyfills.js dist/rule-editor/main.js",
-    "build:gh-pages": "ng build ng-rule-editor && ng build rule-editor && ng build --output-path docs --base-href /rule-editor/ && npm run build:concatenate-gh",
-    "build": "ng build ng-rule-editor --configuration production && ng build rule-editor --configuration production && npm run build:concatenate && ng build",
+    "build:gh-pages": "ng build ng-rule-editor && ng build rule-editor && ng build --output-path docs --base-href /rule-editor/ && node concatenate.js --output-path docs",
+    "build": "ng build ng-rule-editor --configuration production && ng build rule-editor --configuration production && node concatenate.js && ng build",
     "test": "ng test --watch=false && ng run demo:cypress-run",
-
-    "testw": "ng run demo:cypress-run",
     "test:unit": "ng test --watch=false",
     "lint": "ng lint",
     "test:e2e": "ng e2e --port 4203"
@@ -48,6 +44,7 @@
     "@types/node": "^12.20.17",
     "codelyzer": "^6.0.0",
     "concat": "^1.0.3",
+    "concat-with-sourcemaps": "^1.1.0",
     "cypress": "^9.3.1",
     "cypress-file-upload": "^5.0.8",
     "jasmine-core": "~4.6.0",
