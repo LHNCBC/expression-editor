@@ -47,6 +47,8 @@ export class AppComponent implements OnInit, OnDestroy {
   fhirPreview: string;
   linkId = '';
   linkIds;
+  rootLevel = false;
+  defaultItemText;
   expressionUri = this.calculatedExpression;
   userExpressionChoices = null;
   customExpressionUri = false;
@@ -70,6 +72,7 @@ export class AppComponent implements OnInit, OnDestroy {
     this.fhirPreview = '';
     this.error = '';
     this.doNotAskToCalculateScore = false;
+    this.rootLevel = false;
 
     if (this.formType === '' || this.formType === 'upload') {
       this.liveAnnouncer.announce('Additional settings must be entered below to load the rule editor.');
@@ -84,8 +87,34 @@ export class AppComponent implements OnInit, OnDestroy {
       this.http.get(`./${this.formType}.json`)
         .subscribe(data => {
           this.fhir = data;
-        });
+
+          if (this.fhir && this.fhir.item instanceof Array) {
+            this.linkIds = this.getQuestionnaireLinkIds(this.fhir.item);
+
+            this.defaultItemText = this.linkIds.find((item) => {
+              return item.linkId === this.linkId;
+            }).text.trim();
+
+            this.composeAutocomplete();
+
+            this.autoComplete.setFieldToListValue(this.defaultItemText);
+          }
+      });
     }
+  }
+
+  /**
+   * Toggle between Root/Item section
+   */
+  toggleRootLevel(event): void {
+    if (this.rootLevel) {
+      this.linkId = '';
+    } else {
+      this.linkId = this.originalLinkId;
+      this.autoComplete.setFieldToListValue(this.defaultItemText);
+    }
+
+    this.changeDetectorRef.detectChanges();
   }
 
   /**
