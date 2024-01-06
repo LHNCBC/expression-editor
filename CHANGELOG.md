@@ -2,9 +2,13 @@
 
 This project follows [Semantic Versioning](http://semver.org/).
 
-## [3.1.10] 2023-12-06
+## [3.1.11] 2023-12-20
 ### Added
 - Added support for setting variables on the Questionnaire root
+
+## [3.1.10] 2023-12-13
+### Changed
+- Fixed issue with case statements not updating when switching to another case statement questonnaire.
 
 ## [3.1.9] 2023-12-05
 ### Added
