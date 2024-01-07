@@ -21,7 +21,7 @@ const outputItem = {
     name: 'i',
     language: 'text/fhirpath',
     expression: '%questionnaire.item.where(linkId = \'/44260-8\').answerOption.where(valueCoding.code=%resource.item.where(linkId = \'/44260-8\').answer.valueCoding.code).extension.where(url=\'http://hl7.org/fhir/StructureDefinition/ordinalValue\').valueDecimal',
-    extension: [{url: 'http://lhcforms.nlm.nih.gov/fhir/ext/rule-editor-score-variable'}]
+    extension: [{url: 'http://lhcforms.nlm.nih.gov/fhirExt/rule-editor-score-variable'}]
   }
 };
 

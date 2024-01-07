@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output } from '@angular/core';
+import { ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output } from '@angular/core';
 
 import { RuleEditorService, SimpleStyle } from './rule-editor.service';
 import { LiveAnnouncer } from '@angular/cdk/a11y';
@@ -54,7 +54,7 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
   private disableAdvancedSubscription;
   private validationSubscription;
 
-  constructor(private variableService: RuleEditorService, private liveAnnouncer: LiveAnnouncer) {}
+  constructor(private variableService: RuleEditorService, private liveAnnouncer: LiveAnnouncer, private changeDetectorRef: ChangeDetectorRef) {}
 
   ngOnInit(): void {
     this.calculateSumSubscription = this.variableService.mightBeScoreChange.subscribe((mightBeScore) => {
@@ -107,9 +107,30 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   /**
+   * There are scenarios when switching the questionnaire; some components may
+   * not get updated or displayed properly as Angular is not detecting changes.
+   * This function attempts to reset those variables so that the components will
+   * get updated correctly.
+   * @private
+   */
+  private resetVariablesOnQuestionnaireChange(): void {
+    this.expressionSyntax = null;
+    this.simpleExpression = null;
+    this.finalExpression = null;
+    this.linkIdContext = null;
+    this.calculateSum = false;
+    this.variables = [];
+    this.uneditableVariables = [];
+    this.caseStatements = false;
+
+    this.changeDetectorRef.detectChanges();
+  }
+
+  /**
    * Angular lifecycle hook called on input changes
    */
   ngOnChanges(): void {
+    this.resetVariablesOnQuestionnaireChange();
     this.reload();
   }
 
@@ -143,7 +164,8 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
   export(): void {
     if (!this.validationError) {
       const finalExpression = this.finalExpressionExtension;
-      finalExpression.valueExpression.expression = this.finalExpression;
+      if (finalExpression?.valueExpression)
+        finalExpression.valueExpression.expression = this.finalExpression;
       this.save.emit(this.variableService.export(this.expressionUri, finalExpression));
     }
   }
