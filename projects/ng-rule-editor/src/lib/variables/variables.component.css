@@ -32,7 +32,9 @@
 }
 
 .variable-column-type {
-  flex: 0 0 15em;
+  flex: 0 0 16em;
+  display:flex;
+  flex-direction: row;
 }
 
 .variable-column-details {

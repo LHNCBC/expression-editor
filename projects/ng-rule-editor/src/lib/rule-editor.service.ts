@@ -37,6 +37,7 @@ export class RuleEditorService {
   mightBeScoreChange: Subject<boolean> = new Subject<boolean>();
   finalExpressionChange: Subject<string> = new Subject<string>();
   disableAdvancedChange: Subject<boolean> = new Subject<boolean>();
+  validationChange: Subject<object> = new Subject<object>();
   uneditableVariables: UneditableVariable[];
   variables: Variable[];
   questions: Question[];
@@ -101,7 +102,7 @@ export class RuleEditorService {
    * queries are present
    * @param toggleOn - Set the advanced interface on (without having to run checks)
    */
-  checkAdvancedInterface(toggleOn?: boolean): void {
+  seeIfAdvancedInterfaceIsNeeded(toggleOn?: boolean): void {
     if (toggleOn) {
       this.needsAdvancedInterface = true;
     } else {
@@ -468,6 +469,7 @@ export class RuleEditorService {
           if (simpleSyntax === null && this.finalExpression !== '') {
             this.syntaxType = 'fhirpath';
             this.needsAdvancedInterface = true;
+            this.simpleExpression = '';
           } else {
             this.syntaxType = 'simple';
             this.simpleExpression = simpleSyntax;
@@ -640,7 +642,7 @@ export class RuleEditorService {
    */
   getQueryObservationFromExpression(name, expression, index?:number) : Variable {
     const queryObservation = this.processQueryVariable(name, expression, index);
-    return (queryObservation.type === "queryObservation")?queryObservation:null;
+    return (queryObservation.type === "queryObservation") ? queryObservation : null;
   }
 
   /**
@@ -1324,7 +1326,7 @@ export class RuleEditorService {
 
     }
     return queryString;
-  }
+  };
   
   /**
    * Get uneditable and editable variable names
@@ -1332,5 +1334,24 @@ export class RuleEditorService {
   getVariableNames(): string[] {
     return this.uneditableVariables.map(e => e.name).concat(
       this.variables.map(e => e.label));
-  }
+  };
+
+  /**
+   * Generate a validation event to notify subscribers. If the result is null, the 'Save' button
+   * is enabled; othewise, the 'Save' button is disabled.
+   * @param errorType - validation error type 
+   * @param section - section where the error occurs
+   * @param name - name of the variable or field that contains the error
+   */
+  notifyValidationResult(errorType: string, section: string, name: string): void {
+    let result = null;
+
+    if (errorType && section) {
+      result = { 'error': errorType, 'section': section, 'name': name};
+    }
+
+    setTimeout(() => {
+      this.validationChange.next(result);
+    }, 100);
+  };
 }

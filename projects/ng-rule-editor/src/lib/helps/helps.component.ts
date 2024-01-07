@@ -20,14 +20,30 @@ export class HelpsComponent implements OnInit {
    * Angular lifecycle hook for initialization
    */
   ngOnInit(): void {
-    if (this.type === 'expression')
-      this.matToolTip = "FHIRPath Expression Help";
   }
 
+  /**
+   * Angular lifecycle hook called on input changes
+   */
+  ngOnChanges(changes): void {
+    if (changes.type) {
+      if (changes.type.currentValue === 'expression' || changes.type.currentValue === 'fhirpath')
+        this.matToolTip = "FHIRPath Expression Help";
+      else
+        this.matToolTip = "Easy Path Expression Help";
+    }
+  }
+
+  /**
+   * Open Help Modal
+   */
   openHelp(): void {
     this.showHelp = true;
   }
 
+  /**
+   * Close Help Modal
+   */
   closeHelp(): void {
     this.liveAnnouncer.announce('Help dialog closed');
     this.showHelp = false;

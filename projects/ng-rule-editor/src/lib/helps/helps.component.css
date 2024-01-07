@@ -1,7 +1,6 @@
 div.help {
   display: flex;
-  column-gap: 2px;
-  width: 100%;
+  width: 20px;
 }
 
 button.help {

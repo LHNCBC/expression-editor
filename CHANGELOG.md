@@ -2,6 +2,10 @@
 
 This project follows [Semantic Versioning](http://semver.org/).
 
+## [3.1.13] 2024-01-04
+### Changed
+- Added prompt when switching from FHIRPath Expression to Easy Path Expression
+
 ## [3.1.12] 2023-12-22
 ### Added
 - Added a custom extension to store the variable type for each variable in the Questionnaire

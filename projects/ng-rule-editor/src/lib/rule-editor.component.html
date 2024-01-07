@@ -20,6 +20,17 @@
   <section id="final-expression-section" class="mb-3" *ngIf="expressionUri && itemLinkId">
     <h2 [style]="lhcStyle.h2">{{expressionLabel}}</h2>
 
+    <lhc-yes-no-dialog 
+      *ngIf="showConfirmDialog"
+      [title]="dialogTitle"
+      [prompt1]="dialogPrompt1"
+      [prompt2]="dialogPrompt2"
+      (yes)="convertFHIRPathToEasyPath()"
+      (no)="closeConvertDialog()"
+      [align]="'center'"
+      [lhcStyle]="lhcStyle">
+    </lhc-yes-no-dialog>
+
     <div class="expression-type flex-vertical" *ngIf="userExpressionChoices">
       <label for="expression-type">Expression Type</label>
       <select id="expression-type" class="form-control" aria-label="Expression type" [ngStyle]="lhcStyle.select" [(ngModel)]="finalExpressionExtension.url">
@@ -37,15 +48,17 @@
         <select
           id="variable-type-final"
           class="form-control"
-          [(ngModel)]="expressionSyntax"
+          [ngModel]="expressionSyntax"
           (change)="onTypeChange($event)"
           aria-label="Expression syntax type"
           [ngStyle]="lhcStyle.select">
           <option value="simple">Easy Path Expression</option>
           <option value="fhirpath">FHIRPath Expression</option>
         </select>
+        <lhc-helps [type]="expressionSyntax" [index]="'final'" class="flex-item" ></lhc-helps>
       </div>
       <div *ngIf="!caseStatements" class="expression" [ngSwitch]="expressionSyntax">
+        <lhc-helps *ngIf="!advancedInterface" [type]="'simple'" [index]="'final'" class="flex-item help" ></lhc-helps>
         <lhc-syntax-converter
           *ngSwitchCase="'simple'"
           id="variable-expression-final"
@@ -57,11 +70,9 @@
           [lhcStyle]="lhcStyle"></lhc-syntax-converter>
 
         <div *ngSwitchCase="'fhirpath'" class="flex-container">
-          <lhc-helps  [type]="'expression'" [index]="'final'" class="flex-item"></lhc-helps>
           <input
             type="text"
             aria-label="FHIRPath"
-            
             id="final-expression"
             class="form-control"
             [(ngModel)]="finalExpression"
@@ -81,5 +92,5 @@
     </div>
   </section>
 
-  <button class="primary" (click)="export()" [ngStyle]="lhcStyle.buttonPrimary" id="export">{{submitButtonName}}</button>
+  <button class="primary" [ngClass]="{'disabled': validationError}" [attr.aria-label]="validationErrorMessage"  (click)="export()" [ngStyle]="lhcStyle.buttonPrimary" id="export">{{submitButtonName}}</button>
 </div>

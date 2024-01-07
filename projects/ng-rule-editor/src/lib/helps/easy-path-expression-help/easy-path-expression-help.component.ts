@@ -473,11 +473,11 @@ export class EasyPathExpressionHelpComponent {
     let announceText = '';
 
     announceText += item.description + " ";
-    let usage = (item.hasOwnProperty('usageScreenReader'))?item.usageScreenReader:item.usage;
+    let usage = (item.hasOwnProperty('usageScreenReader')) ? item.usageScreenReader : item.usage;
     announceText += "The usage is " + usage + ".   ";
     announceText += "The expected output is " + item.output + ".  ";
 
-    let ex = (item.hasOwnProperty('exampleScreenReader'))?item.exampleScreenReader:item.example;
+    let ex = (item.hasOwnProperty('exampleScreenReader')) ? item.exampleScreenReader : item.example;
 
     for (let i = 0; i < ex.length; i++) {
       announceText += "Example " + (i + 1) + ".  "  + ex[i] + ". ";

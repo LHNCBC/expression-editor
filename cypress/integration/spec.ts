@@ -1108,6 +1108,14 @@ describe('Rule editor', () => {
         // Change variable type to Easy Path Expression
         cy.get('#variable-type-final').should('exist').select('simple');
 
+        // Dialog should get displayed
+        cy.get('lhc-yes-no-dialog').should('exist')
+          .should('be.visible')
+          .within( ()=> {
+            // Select 'Yes' to convert from 'FHIRPath Expression' to 'Easy Path Expression'
+            cy.get('#yes').should('exist').click();
+          });
+
         // There should still be 3 case statements. But the cases/expressions might be blank.
         cy.get('#cdk-drop-list-1 > div').should('have.length', 3);
         cy.get('#case-condition-0').should('be.empty');

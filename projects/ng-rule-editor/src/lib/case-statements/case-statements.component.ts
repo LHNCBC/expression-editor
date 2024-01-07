@@ -8,7 +8,7 @@ import { LiveAnnouncer } from '@angular/cdk/a11y';
 @Component({
   selector: 'lhc-case-statements',
   templateUrl: './case-statements.component.html',
-  styleUrls: ['./case-statements.component.css']
+  styleUrls: ['../rule-editor.component.css', './case-statements.component.css']
 })
 export class CaseStatementsComponent implements OnInit, OnChanges {
   @Input() lhcStyle: SimpleStyle = {};
@@ -25,8 +25,12 @@ export class CaseStatementsComponent implements OnInit, OnChanges {
   defaultCase: string;
   simpleDefaultCase: string;
   cases: Array<CaseStatement> = [{condition: '', simpleCondition: '', output: '', simpleOutput: ''}];
+
   output = '';
   hidePreview = false;
+
+  hasError = false;
+  defaultCaseError = false;
 
   constructor(private ruleEditorService: RuleEditorService,
               private liveAnnouncer: LiveAnnouncer) {}
@@ -212,6 +216,23 @@ export class CaseStatementsComponent implements OnInit, OnChanges {
 
     const defaultCase = this.transformIfSimple(isSimple ?
       this.simpleDefaultCase : this.defaultCase, true);
+
+    this.cases[level].error = {};
+    this.cases[level].error['output'] = (output === 'Not valid') ? true : false;
+    this.cases[level].error['condition'] = (condition === 'Not valid') ? true : false;
+    this.defaultCaseError = (defaultCase === 'Not valid') ? true : false;
+
+    this.hasError = false;
+    let errorFieldName;
+    if (this.defaultCaseError) {
+      this.hasError = true;
+      errorFieldName = "default case";
+    } else {
+      this.hasError = (this.cases || []).some((c) => (c?.error && (c.error['condition'] || c.error['output'])));
+      errorFieldName = "case condition or output";
+    }
+
+    this.ruleEditorService.notifyValidationResult((this.hasError) ? 'caseConversionError' : null, 'Output Expression', errorFieldName);
 
     if (level === 0) {
       const previousValue = this.hidePreview;

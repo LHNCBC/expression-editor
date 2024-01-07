@@ -1,6 +1,6 @@
 {
   "name": "ng-rule-editor",
-  "version": "3.1.12",
+  "version": "3.1.13",
   "peerDependencies": {
     "@angular/animations": "~15.2.4",
     "@angular/cdk": "~15.2.4",

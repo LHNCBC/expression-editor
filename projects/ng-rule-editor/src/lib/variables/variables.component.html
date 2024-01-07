@@ -1,5 +1,16 @@
 <h2 [style]="lhcStyle.h2">Item Variables</h2>
 
+<lhc-yes-no-dialog 
+  *ngIf="showConfirmDialog"
+  [title]="dialogTitle"
+  [prompt1]="dialogPrompt1"
+  [prompt2]="dialogPrompt2"
+  (yes)="convertFHIRPathToEasyPath($event)"
+  (no)="closeConvertDialog()"
+  [align]="'center'"
+  [lhcStyle]="lhcStyle">
+</lhc-yes-no-dialog>
+
 <div class="container">
   <div class="variable-header" [style]="lhcStyle.variableHeader" aria-hidden="true">
     <div class="variable-column-label">Label</div>
@@ -39,12 +50,13 @@
       <div class="variable-column-type">
         <select
           [id]="'variable-type-' + i"
-          [(ngModel)]="variable.type"
-          (change)="onTypeChange($event)"
+          [ngModel]="variable.type"
+          (change)="onTypeChange($event, i)"
           [style]="lhcStyle.select"
           aria-label="Variable type">
           <option *ngFor="let type of variableType | keyvalue" value="{{type.key}}">{{type.value}}</option>
         </select>
+        <lhc-helps  [type]="variable.type" [index]="i" class="flex-item"></lhc-helps>
       </div>
       <div class="variable-column-details" [ngSwitch]="variable.type">
         <lhc-question
@@ -62,21 +74,20 @@
         <div class="form-inline" *ngSwitchCase="'simple'">
           <lhc-syntax-converter
             [id]="'variable-expression-' + i"
-            [index]="i"
             [simple]="variable.simple"
             [index]="i"
             [variables]="getAvailableVariables(i)"
+            [variableName]="variable.label"
             [lhcStyle]="lhcStyle"
             (simpleChange)="updateSimpleExpression(i, $event)"
             (expressionChange)="updateExpression(i, $event)">
           </lhc-syntax-converter>
         </div>
         <div class="form-inline" *ngSwitchCase="'expression'" class="flex-container">
-          <lhc-helps [type]="'expression'" [index]="i" class="flex-item"></lhc-helps>
           <input
             [id]="'variable-expression-' + i"
             [(ngModel)]="variable.expression"
-            (change)="onExpressionChange($event, i)" 
+            (change)="onExpressionChange($event, i)"
             [style]="lhcStyle.input"
             aria-label="FHIRPath Expression" class="flex-item" />
         </div>
