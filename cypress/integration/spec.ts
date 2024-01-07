@@ -266,7 +266,7 @@ describe('Rule editor', () => {
             cy.get('#variable-type-0').should('have.value', 'question');
             cy.get('#question-0').should('have.value', "Weight (/29463-7)" );
             // The unit however should get reset to default
-            cy.get('div.unit-select > select').should('have.value', '');
+            cy.get('div.unit-select > select').should('have.value', 'lbs');
           });
 
         cy.get('div#row-1')
@@ -274,7 +274,7 @@ describe('Rule editor', () => {
             cy.get('#variable-type-1').should('have.value', 'question');
             cy.get('#question-1').should('have.value', "Body height (/8302-2)" );
             // The unit however should get reset to default
-            cy.get('div.unit-select>select').should('have.value', '');
+            cy.get('div.unit-select>select').should('have.value', 'cm');
           });
 
           cy.get('div#row-2')
@@ -336,7 +336,7 @@ describe('Rule editor', () => {
             cy.get('#variable-type-0').should('have.value', 'question');
             cy.get('#question-0').should('have.value', "Body height (/8302-2)" );
             // The unit however should get reset to default
-            cy.get('div.unit-select>select').should('have.value', '');
+            cy.get('div.unit-select>select').should('have.value', 'cm');
           });
 
         cy.get('div#row-1')
@@ -344,11 +344,101 @@ describe('Rule editor', () => {
             cy.get('#variable-type-1').should('have.value', 'question');
             cy.get('#question-1').should('have.value', "Weight (/29463-7)" );
             // The unit however should get reset to default
-            cy.get('div.unit-select>select').should('have.value', '');
+            cy.get('div.unit-select>select').should('have.value', 'lbs');
           });
       });
 
+      it('should be able to switch from Question variable type to FHIRPath Expression and back', () => {
+        cy.get('select#questionnaire-select').select('BMI Calculation (Easy Path expression)');
+
+        cy.title().should('eq', 'Rule Editor');
+
+        // Variables section
+        cy.get('lhc-variables > h2').should('contain', 'Item Variables');
+        cy.get('#variables-section .variable-row').should('have.length', 2);
+
+        // Check the Advanced Interface checkbox
+        cy.get('input#advanced-interface').check();
+
+        // Add a variable
+        cy.get('#add-variable').should('exist').should('be.visible').click();
+        cy.get('#variables-section .variable-row').should('have.length', 3);
+
+        cy.get('div#row-2')
+          .within(() => {
+            cy.get('#variable-type-2')
+              .should('have.value', 'question');
+            cy.get('#question-2').clear().type('height');
+          });
+
+        cy.get('#completionOptions').contains('8302-2').click();
+
+        cy.get('div#row-2')
+          .within(() => {
+            cy.get('div.unit-select>select').select('cm');
+
+            cy.get('div.fhirpath > pre').should('contain.text',
+              "%resource.item.where(linkId='/8302-2').answer.value*2.54");
+
+            // Switch to FHIRPath Expression variable type
+            cy.get('#variable-type-2').select('expression');
+            cy.get('#variable-expression-2').should('have.value',
+              "%resource.item.where(linkId='/8302-2').answer.value*2.54");
+
+            // Switch back to Question variable type
+            cy.get('#variable-type-2').select('question');
+            cy.get('#question-2').should('have.value', 'Body height (/8302-2)');
+            cy.get('div.unit-select>select').should('have.value', 'cm');
+            cy.get('div.fhirpath > pre').should('contain.text',
+              "%resource.item.where(linkId='/8302-2').answer.value*2.54");
+
+          });
+
+      });
       
+      it('should retain Question setting when the Advanced Interface checkbox is clicked', () => {
+        cy.get('select#questionnaire-select').select('BMI Calculation (Easy Path expression)');
+
+        cy.title().should('eq', 'Rule Editor');
+
+        // Variables section
+        cy.get('lhc-variables > h2').should('contain', 'Item Variables');
+        cy.get('#variables-section .variable-row').should('have.length', 2);
+
+        // Add a variable
+        cy.get('#add-variable').should('exist').should('be.visible').click();
+        cy.get('#variables-section .variable-row').should('have.length', 3);
+
+        cy.get('div#row-2')
+          .within(() => {
+            cy.get('#variable-type-2')
+              .should('have.value', 'question');
+            cy.get('#question-2').clear().type('height');
+          });
+
+        cy.get('#completionOptions').contains('8302-2').click();
+
+        cy.get('div#row-2')
+          .within(() => {
+            cy.get('div.unit-select>select').select('cm');
+
+            cy.get('div.fhirpath > pre').should('contain.text',
+              "%resource.item.where(linkId='/8302-2').answer.value*2.54");
+          });
+
+          // Check the Advanced Interface checkbox
+          cy.get('input#advanced-interface').check();
+
+          // Validate that the settings still there
+          cy.get('div#row-2')
+          .within(() => {
+            cy.get('div.unit-select>select').should('have.value', 'cm');
+
+            cy.get('div.fhirpath > pre').should('contain.text',
+              "%resource.item.where(linkId='/8302-2').answer.value*2.54");
+          });
+      });
+
       it('should be able to save FHIR Query resource other than Observation', () => {
         cy.get('#questionnaire-select').select('BMI Calculation (Easy Path expression)');
     
@@ -366,7 +456,6 @@ describe('Rule editor', () => {
             cy.get('#variable-type-0')
               .should('have.value', 'question')
               .select('queryObservation');
-            //cy.get('#variable-type-0').select('FHIR Query (Observation)');
             cy.get('#autocomplete-0').type('Vit A Bld-mCnc');
           });
 
@@ -707,7 +796,7 @@ describe('Rule editor', () => {
             cy.get('#variable-expression-1')
               .should('exist')
               .should('be.visible')
-              .should('have.value', "%resource.item.where(linkId='/8302-2').answer.value");
+              .should('have.value', "%resource.item.where(linkId='/8302-2').answer.value*0.0254");
 
             // No change in FHIRPath Expression, so switching back to Question variable type should retain the value.
             cy.get('#variable-type-1').select('question');
@@ -723,7 +812,7 @@ describe('Rule editor', () => {
             cy.get('#variable-expression-1')
               .should('exist')
               .should('be.visible')
-              .should('have.value', "%resource.item.where(linkId='/8302-2').answer.value");
+              .should('have.value', "%resource.item.where(linkId='/8302-2').answer.value*0.0254");
 
             // No change in FHIR Query Expression, so switching back to Question Expression should retain the value.
             cy.get('#variable-type-1').select('question');
@@ -879,7 +968,10 @@ describe('Rule editor', () => {
     describe('Query support', () => {
       it('should display the query editor', () => {
         // Check the demo questionnaire load
+        cy.intercept('/query.json').as('query');
         cy.get('select#questionnaire-select').select('Query');
+        cy.wait('@query');
+
         cy.get('#variable-type-2').contains('FHIR Query (Observation)');
 
         // Variables section

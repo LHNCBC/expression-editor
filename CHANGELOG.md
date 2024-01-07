@@ -2,6 +2,10 @@
 
 This project follows [Semantic Versioning](http://semver.org/).
 
+## [3.1.12] 2023-12-22
+### Added
+- Added a custom extension to store the variable type for each variable in the Questionnaire
+
 ## [3.1.11] 2023-12-20
 ### Added
 - Added support for setting variables on the Questionnaire root

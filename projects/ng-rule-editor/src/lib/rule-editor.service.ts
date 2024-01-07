@@ -23,9 +23,10 @@ export interface SimpleStyle {
   providedIn: 'root'
 })
 export class RuleEditorService {
-  static SCORE_VARIABLE_EXTENSION = 'http://lhcforms.nlm.nih.gov/fhir/ext/rule-editor-score-variable';
-  static SCORE_EXPRESSION_EXTENSION = 'http://lhcforms.nlm.nih.gov/fhir/ext/rule-editor-score-expression';
-  static SIMPLE_SYNTAX_EXTENSION = 'http://lhcforms.nlm.nih.gov/fhir/ext/simple-syntax';
+  static SCORE_VARIABLE_EXTENSION = 'http://lhcforms.nlm.nih.gov/fhirExt/rule-editor-score-variable';
+  static SCORE_EXPRESSION_EXTENSION = 'http://lhcforms.nlm.nih.gov/fhirExt/rule-editor-score-expression';
+  static SIMPLE_SYNTAX_EXTENSION = 'http://lhcforms.nlm.nih.gov/fhirExt/simple-syntax';
+  static VARIABLE_TYPE = 'http://lhcforms.nlm.nih.gov/fhirExt/rule-editor-variable-type';
 
   syntaxType = 'simple';
   linkIdContext: string;
@@ -242,6 +243,38 @@ export class RuleEditorService {
   }
 
   /**
+   * Returns custom extension variable type for the given item extension
+   * @param extension - FHIR extension
+   * @return variable type defined in valueString or null
+   * @private
+   */
+  private getVariableTypeFromExtension(extension): string {
+    if (extension?.valueExpression?.extension) {
+      const variableType = extension.valueExpression.extension.find(e => e.url === RuleEditorService.VARIABLE_TYPE);
+
+      if (variableType?.valueString)
+        return variableType.valueString;
+    }
+
+    return null;
+  };
+
+  /**
+   * Returns expression language based on the variableType if available; 
+   * otherwise, returns from the extension valueExpression language
+   * @param extension - FHIR extension
+   * @param variableType - Custom extension variable type
+   * @return expression language ('text/fhirpath' or 'application/x-fhir-query')
+   * @private
+   */
+  private getExtensionLanguage(extension, variableType) {
+    if (variableType !== null) {
+      return (variableType.indexOf('query') > -1) ? this.LANGUAGE_FHIR_QUERY : this.LANGUAGE_FHIRPATH;
+    }
+    return extension.valueExpression.language;
+  }
+
+  /**
    * Get and remove the variables from an item or FHIR questionnaire
    * @param item - FHIR Questionnaire or item
    * @return Array of variables
@@ -257,13 +290,18 @@ export class RuleEditorService {
 
     item.extension.forEach((extension) => {
       if (extension.url === this.VARIABLE_EXTENSION && extension.valueExpression) {
-        switch (extension.valueExpression.language) {
+
+        const extensionVariableType = this.getVariableTypeFromExtension(extension);
+        const extensionLanguage = this.getExtensionLanguage(extension, extensionVariableType);
+
+        switch(extensionLanguage) {
           case this.LANGUAGE_FHIRPATH:
             const fhirPathVarToAdd = this.processVariable(
               extension.valueExpression.name,
               extension.valueExpression.expression,
               extension.__$index,
-              extension.valueExpression.extension);
+              extension.valueExpression.extension,
+              extensionVariableType);
             if (fhirPathVarToAdd.type === 'expression') {
               this.needsAdvancedInterface = true;
             }
@@ -273,7 +311,8 @@ export class RuleEditorService {
             const queryVarToAdd = this.processQueryVariable(
               extension.valueExpression.name,
               extension.valueExpression.expression,
-              extension.__$index);
+              extension.__$index,
+              extensionVariableType);
             if (queryVarToAdd.type === 'query') {
               this.needsAdvancedInterface = true;
             }
@@ -527,14 +566,21 @@ export class RuleEditorService {
    * question, expression etc
    * @private
    */
-  private processVariable(name, expression, index?: number, extensions?): Variable {
+  private processVariable(name, expression, index?: number, extensions?, variableType?: string): Variable {
     const matches = expression.match(this.QUESTION_REGEX);
 
     const simpleExtension = extensions && extensions.find(e => e.url === RuleEditorService.SIMPLE_SYNTAX_EXTENSION);
 
-    if (matches !== null) {
-      const linkId = matches[1];
-      const factor = matches[2];
+    if ((variableType === 'question' && (matches !== null || expression === '')) ||
+       (!variableType && matches !== null)) {
+
+      let linkId: string;
+      let factor: string;
+      
+      if (matches) {
+        linkId = matches[1];
+        factor = matches[2];
+      }
 
       const variable: Variable = {
         __$index: index,
@@ -554,10 +600,18 @@ export class RuleEditorService {
             return e.factor.toString() === factor;
           });
 
-          variable.unit = conversion.unit;
+          if (conversion && conversion.unit)
+            variable.unit = conversion.unit;
+          else {
+            return {
+              __$index: index,
+              label: name,
+              type: 'expression',
+              expression
+            };
+          }
         }
       }
-
       return variable;
     } else if (simpleExtension !== undefined) {
       return {
@@ -600,10 +654,9 @@ export class RuleEditorService {
    * question, expression etc
    * @private
    */
-  private processQueryVariable(name, expression, index?: number): Variable {
+  private processQueryVariable(name, expression, index?: number, variableType?: string): Variable {
     let matches = this.decodeQueryURIExpression(expression).match(this.QUERY_REGEX);
-
-    if (matches !== null) {
+    if ((variableType === "queryObservation") || (!variableType && matches !== null)) {
       const codes = matches[1].split(',');
       const timeInterval = parseInt(matches[2], 10);
       const timeIntervalUnits = matches[3];
@@ -702,18 +755,22 @@ export class RuleEditorService {
         url: this.VARIABLE_EXTENSION,
         valueExpression: {
           name: e.label,
-          language: e.type === 'query' ? this.LANGUAGE_FHIR_QUERY : this.LANGUAGE_FHIRPATH,
+          language: (e.type.indexOf('query') > -1 )? this.LANGUAGE_FHIR_QUERY : this.LANGUAGE_FHIRPATH,
           expression: (e.type === 'expression' || e.type === 'query' || e.type === 'queryObservation') ? 
-            this.encodeQueryURIExpression(e.expression) : e.expression
+            this.encodeQueryURIExpression(e.expression) : e.expression,
+          extension: [{
+            "url": "http://lhcforms.nlm.nih.gov/fhirExt/rule-editor-variable-type",
+            "valueString": e.type
+          }] 
         }
       };
 
       if (e.type === 'simple') {
         // @ts-ignore
-        variable.valueExpression.extension = [{
-          url: RuleEditorService.SIMPLE_SYNTAX_EXTENSION,
-          valueString: e.simple
-        }];
+        variable.valueExpression.extension.push({
+            url: RuleEditorService.SIMPLE_SYNTAX_EXTENSION,
+            valueString: e.simple
+        });
       }
 
       return variable;
@@ -755,7 +812,7 @@ export class RuleEditorService {
     if (hasQueryObservations !== undefined) {
       let patientLaunchContext;
 
-      if (fhir.extension && fhir.hasOwnProperty('extension')) {
+      if (fhir?.extension) {
         patientLaunchContext = fhir.extension.find((extension) => {
           if (extension.url === this.LAUNCH_CONTEXT_URI &&
               Array.isArray(extension.extension)) {
@@ -1095,8 +1152,9 @@ export class RuleEditorService {
    * @param convertible - Units can be converted
    * @param unit - Base units
    * @param toUnit - Destination units
+   * @param expression - question expression
    */
-  valueOrScoreExpression(linkId: string, itemHasScore: boolean, convertible: boolean, unit: string, toUnit: string): string {
+  valueOrScoreExpression(linkId: string, itemHasScore: boolean, convertible: boolean, unit: string, toUnit: string, expression: string): string {
     if (itemHasScore) {
       return `%questionnaire.item.where(linkId = '${linkId}').answerOption` +
         `.where(valueCoding.code=%resource.item.where(linkId = '${linkId}').answer.valueCoding.code).extension` +
@@ -1105,7 +1163,11 @@ export class RuleEditorService {
       const factor = UNIT_CONVERSION[unit].find((e) => e.unit === toUnit).factor;
       return `%resource.item.where(linkId='${linkId}').answer.value*${factor}`;
     } else {
-      return `%resource.item.where(linkId='${linkId}').answer.value`;
+      const matches = expression.match(this.QUESTION_REGEX);
+      if(matches && matches[2])
+        return `%resource.item.where(linkId='${linkId}').answer.value*${matches[2]}`;
+      else
+        return `%resource.item.where(linkId='${linkId}').answer.value`;
     }
   }
 
