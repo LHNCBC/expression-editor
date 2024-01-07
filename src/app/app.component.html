@@ -20,6 +20,17 @@
     <option value="query">Query</option>
   </select>
 </label>
+
+<label *ngIf="formType != 'upload'" [hidden]="rootLevel">
+  Question:
+  <input placeholder="Please select" class="query-autocomplete" #autoComplete id="question" />
+</label>
+
+<span *ngIf="formType != 'upload'" class="checkbox">
+  <input type="checkbox" id="useRootLevel" [(ngModel)]="rootLevel" (change)="toggleRootLevel($event)">
+  <label>Root level</label>
+</span>
+
 <div *ngIf="formType == 'upload'" id="upload">
   <p>Please specify the questionnaire, item Link ID, and the corresponding Expression URI where the output should be placed:</p>
   <label>Questionnaire:

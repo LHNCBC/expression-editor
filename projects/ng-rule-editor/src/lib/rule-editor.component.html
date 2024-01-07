@@ -17,7 +17,7 @@
     <lhc-variables [lhcStyle]="lhcStyle" [advancedInterface]="advancedInterface"></lhc-variables>
   </section>
 
-  <section id="final-expression-section" class="mb-3" *ngIf="expressionUri">
+  <section id="final-expression-section" class="mb-3" *ngIf="expressionUri && itemLinkId">
     <h2 [style]="lhcStyle.h2">{{expressionLabel}}</h2>
 
     <div class="expression-type flex-vertical" *ngIf="userExpressionChoices">
@@ -29,7 +29,7 @@
 
     <div class="checkbox">
       <input type="checkbox" id="case-statements" [(ngModel)]="caseStatements">
-      <label for="case-statements">Use case statements</label>
+      <label for="case-statements">Case Statements Helper</label>
     </div>
 
     <div class="flex-container">

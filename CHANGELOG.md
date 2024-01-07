@@ -2,11 +2,23 @@
 
 This project follows [Semantic Versioning](http://semver.org/).
 
-## [3.1.9] 2023-11-28
+## [3.1.12] 2023-12-22
 ### Added
 - Added a custom extension to store the variable type for each variable in the Questionnaire
 
-## [3.1.8] 2023-11-17
+## [3.1.11] 2023-12-20
+### Added
+- Added support for setting variables on the Questionnaire root
+
+## [3.1.10] 2023-12-13
+### Changed
+- Fixed issue with case statements not updating when switching to another case statement questonnaire.
+
+## [3.1.9] 2023-12-05
+### Added
+- Added source map
+
+## [3.1.8] 2023-11-21
 ### Changed
 - Updated label for Case Statement
 - Fixed the css issue

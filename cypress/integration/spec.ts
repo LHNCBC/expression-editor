@@ -41,13 +41,136 @@ describe('Rule editor', () => {
 
       it('should be able to select autocomplete question', () => {
         cy.get('#question-1').clear().type('bmi');
-        cy.contains('39156-5').click();
+        cy.get('span#completionOptions > ul > li').contains('39156-5').click();
         cy.get('#question-1').parent().next('.unit-select').children('select').should('not.exist');
         cy.get('#question-1').clear().type('height');
-        cy.contains('8302-2').click();
+        cy.get('span#completionOptions > ul > li').contains('8302-2').click();
         cy.get('#question-1').parent().next('.unit-select').children('select').should('exist'); 
       });
 
+      it('should be able to add variable(s) to default question', () => {
+        cy.title().should('eq', 'Rule Editor');
+
+        // By default, the selected item is BMI
+        cy.get('#question').should('exist').should('be.visible').should('have.value', 'BMI (/39156-5)');
+
+        // Variables section
+        cy.get('lhc-variables > h2').should('contain', 'Item Variables');
+        cy.get('#variables-section .variable-row').should('have.length', 2);
+
+        // Output Expression section should be displayed
+        cy.get('#final-expression-section h2').should('contain', 'Output Expression');
+
+        // Add a new variable
+        cy.get('#add-variable').click();
+        cy.get('#variables-section .variable-row').should('have.length', 3);
+        cy.get('div#row-2')
+          .within(() => {
+            cy.get('#variable-label-2').clear().type('39156_5_variable2');
+            cy.get('#variable-type-2').should('have.value', 'question');
+            cy.get('#question-2').clear().type('Clothing worn during measure');
+          });
+        cy.get('span#completionOptions > ul > li').contains('8352-7').click();
+
+        // Save (Export) should output the questionnaire for the given Variable Type
+        cy.get('#export').click();
+
+        // Checking the output, it should have the new variable created under the BMI item extension
+        cy.get('pre#output').invoke('text').then((jsonData) => {
+            // Parse the JSON data
+            const parsedData = JSON.parse(jsonData);
+
+            expect(parsedData.item).to.exist;
+            expect(parsedData.item).to.have.lengthOf(5);
+            expect(parsedData.item[3].linkId).to.exist;
+            expect(parsedData.item[3].linkId).to.have.string('/39156-5');
+            expect(parsedData.item[3].extension).to.exist;
+            expect(parsedData.item[3].extension).that.contains.name.match(/^39156_5_variable2/);
+        });
+      });
+
+      it('should be able to select a different question in the questionnaire and add a variable', () => {
+        cy.title().should('eq', 'Rule Editor');
+
+        // By default, the selected item is BMI
+        cy.get('#question').should('exist').should('be.visible').should('have.value', 'BMI (/39156-5)');
+
+        // Select a different item in the quesitonnaire
+        cy.get('#question').clear().type('Clothing worn during measure');
+        cy.get('span#completionOptions > ul > li').contains('8352-7').click();
+        cy.get('#question').should('have.value', 'Clothing worn during measure (/8352-7)');
+
+        // Variables section
+        cy.get('lhc-variables > h2').should('contain', 'Item Variables');
+        cy.get('#variables-section .variable-row').should('have.length', 0);
+
+        // Output Expression section should be displayed
+        cy.get('#final-expression-section h2').should('contain', 'Output Expression');
+
+        // Add a new variable
+        cy.get('#add-variable').click();
+        cy.get('#variables-section .variable-row').should('have.length', 1);
+        cy.get('#variable-label-0').clear().type('8352_7_variable0');
+        cy.get('#variable-type-0').select('Easy Path Expression');
+        cy.get('#simple-expression-0').type('1 + 1');
+
+        // Save (Export) should output the questionnaire for the given Variable Type
+        cy.get('#export').click();
+
+        // Checking the output, it should have the new variable created under the 
+        // "Clothing worn during measure" item extension
+        cy.get('pre#output').invoke('text').then((jsonData) => {
+            // Parse the JSON data
+            const parsedData = JSON.parse(jsonData);
+
+            expect(parsedData.item).to.exist;
+            expect(parsedData.item).to.have.lengthOf(5);
+            expect(parsedData.item[1].linkId).to.exist;
+            expect(parsedData.item[1].linkId).to.have.string('/8352-7');
+            expect(parsedData.item[1].extension).to.exist;
+            expect(parsedData.item[1].extension).that.contains.name.match(/^8352_7_variable0/);
+        });
+      });
+
+      it('should be able to select and add a variable to root level', () => {
+        cy.title().should('eq', 'Rule Editor');
+
+        // By default, the selected item is BMI
+        cy.get('#question').should('exist').should('be.visible').should('have.value', 'BMI (/39156-5)');
+
+        // Select the Root level (no item selected)
+        cy.get('#useRootLevel').check();
+
+        // Variables section
+        cy.get('lhc-variables > h2').should('contain', 'Item Variables');
+        cy.get('#variables-section .variable-row').should('have.length', 0);
+
+        // Output Expression section should be hidden
+        cy.get('#final-expression-section').should('not.exist');
+
+        // Add a new variable
+        cy.get('#add-variable').click();
+        cy.get('#variables-section .variable-row').should('have.length', 1);
+        cy.get('#variable-label-0').clear().type('root_variable0');
+        cy.get('#variable-type-0').select('Easy Path Expression');
+        cy.get('#simple-expression-0').type('1 + 1');
+
+        // Save (Export) should output the questionnaire for the given Variable Type
+        cy.get('#export').click();
+        
+        // Checking the output, it should have the new variable created under the root extension
+        cy.get('pre#output').invoke('text').then((jsonData) => {
+            // Parse the JSON data
+            const parsedData = JSON.parse(jsonData);
+
+            expect(parsedData.extension).to.exist;
+            expect(parsedData.extension).to.have.lengthOf(1);
+            expect(parsedData.extension[0].valueExpression).to.exist;
+            expect(parsedData.extension[0].valueExpression.name).to.exist;
+            expect(parsedData.extension[0].valueExpression.name).to.have.string('root_variable0');
+        });
+      });
+            
       it('should URL encoded the output for the x-fhir-output', () => {
         cy.get('#questionnaire-select').select('BMI Calculation (Easy Path expression)');
         
@@ -965,6 +1088,82 @@ describe('Rule editor', () => {
         cy.get('lhc-case-statements > lhc-syntax-preview').contains(
           `iif(%bmi<18.5,'underweight',iif(%bmi<25,'normal',iif(%bmi<30,'overweight','obese')))`);
       });
+
+      it('should reset case statements when switching between 2 case statements questionnaire', () => {
+        cy.intercept('/bmicase.json').as('bmicase');
+        cy.get('select#questionnaire-select').select('BMI Calculation (with cases)');
+        cy.wait('@bmicase');
+
+        cy.get('#advanced-interface').should('be.checked');
+
+        // There should be 3 case statements
+        cy.get('#cdk-drop-list-1 > div').should('have.length', 3);
+        cy.get('#case-condition-0').should('have.value', '%bmi<18.5');
+        cy.get('#case-output-0').should('have.value', "'underweight'");
+        cy.get('#case-condition-1').should('have.value', '%bmi<25');
+        cy.get('#case-output-1').should('have.value', "'normal'");
+        cy.get('#case-condition-2').should('have.value', '%bmi<30');
+        cy.get('#case-output-2').should('have.value', "'overweight'");
+                
+        // Change variable type to Easy Path Expression
+        cy.get('#variable-type-final').should('exist').select('simple');
+
+        // There should still be 3 case statements. But the cases/expressions might be blank.
+        cy.get('#cdk-drop-list-1 > div').should('have.length', 3);
+        cy.get('#case-condition-0').should('be.empty');
+        cy.get('#case-output-0').should('be.empty');
+        cy.get('#case-condition-1').should('be.empty');
+        cy.get('#case-output-1').should('be.empty');
+        cy.get('#case-condition-2').should('be.empty');
+        cy.get('#case-output-2').should('be.empty');
+        
+        // Switch questionnaire to 'BMI Calculation (Easy Path expression with cases)'
+        cy.get('select#questionnaire-select').select('BMI Calculation (Easy Path expression with cases)');
+
+        // Case statement expressions and outputs should be populated
+        cy.get('#cdk-drop-list-1 > div').should('have.length', 3);
+        cy.get('#case-condition-0').should('have.value', 'bmi<18.5');
+        cy.get('#case-output-0').should('have.value', "underweight");
+        cy.get('#case-condition-1').should('have.value', 'bmi<25');
+        cy.get('#case-output-1').should('have.value', "normal");
+        cy.get('#case-condition-2').should('have.value', 'bmi<30');
+        cy.get('#case-output-2').should('have.value', "overweight");
+      });
+
+      it('should reset case statements when switching between 2 case statements questionnaire 2', () => {
+        cy.intercept('/bmicasesimple.json').as('bmicasesimple');
+        cy.get('select#questionnaire-select').select('BMI Calculation (Easy Path expression with cases)');
+        cy.wait('@bmicasesimple');
+
+        // Check the 'Advanced interface' checkbox
+        cy.get('#advanced-interface').should('not.be.checked');
+        cy.get('#advanced-interface').click();
+
+        // Case statement expressions and outputs should be populated
+        cy.get('#cdk-drop-list-1 > div').should('have.length', 3);
+        cy.get('#case-condition-0').should('have.value', 'bmi<18.5');
+        cy.get('#case-output-0').should('have.value', "underweight");
+        cy.get('#case-condition-1').should('have.value', 'bmi<25');
+        cy.get('#case-output-1').should('have.value', "normal");
+        cy.get('#case-condition-2').should('have.value', 'bmi<30');
+        cy.get('#case-output-2').should('have.value', "overweight");
+
+        // Clear the case output and type 'underweight1234'
+        cy.get('#case-output-0').clear().type('underweight1234');
+
+        // Switch questionnaire to 'BMI Calculation (with cases)'
+        cy.get('select#questionnaire-select').select('BMI Calculation (with cases)');
+
+        // There should be 3 case statements
+        cy.get('#cdk-drop-list-1 > div').should('have.length', 3);
+        cy.get('#case-condition-0').should('have.value', '%bmi<18.5');
+        cy.get('#case-output-0').should('have.value', "'underweight'");
+        cy.get('#case-condition-1').should('have.value', '%bmi<25');
+        cy.get('#case-output-1').should('have.value', "'normal'");
+        cy.get('#case-condition-2').should('have.value', '%bmi<30');
+        cy.get('#case-output-2').should('have.value', "'overweight'");
+      });
+
     });
   });
 });

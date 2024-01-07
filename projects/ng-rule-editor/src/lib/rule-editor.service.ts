@@ -410,7 +410,7 @@ export class RuleEditorService {
       this.caseStatements = false;
       this.processItem(this.fhir.item);
 
-      if (linkIdContext !== undefined && linkIdContext !== '') {
+      if (linkIdContext) {
         this.uneditableVariables = this.getUneditableVariables(this.fhir, linkIdContext);
         this.variables = this.extractVariablesFromItems(this.fhir.item, linkIdContext);
       } else {
@@ -792,7 +792,8 @@ export class RuleEditorService {
     });
 
     if (this.syntaxType === 'simple') {
-      this.findOrAddExtension(finalExpression.valueExpression.extension, RuleEditorService.SIMPLE_SYNTAX_EXTENSION, 'String', this.simpleExpression);
+      if (finalExpression && finalExpression.hasOwnProperty('valueExpression') && finalExpression.valueExpression) 
+        this.findOrAddExtension(finalExpression.valueExpression.extension, RuleEditorService.SIMPLE_SYNTAX_EXTENSION, 'String', this.simpleExpression);
     }
 
     if (this.linkIdContext !== undefined && this.linkIdContext !== null && this.linkIdContext !== '') {
