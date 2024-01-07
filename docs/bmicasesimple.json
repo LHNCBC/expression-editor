@@ -196,7 +196,7 @@
             "language": "text/fhirpath",
             "expression": "%weight/%height.power(2)",
             "extension": [{
-              "url": "http://lhcforms.nlm.nih.gov/fhir/ext/simple-syntax",
+              "url": "http://lhcforms.nlm.nih.gov/fhirExt/simple-syntax",
               "valueString": "weight/height^2"
             }]
           }
@@ -207,7 +207,7 @@
             "language": "text/fhirpath",
             "expression": "iif(%bmi<18.5,'underweight',iif(%bmi<25,'normal',iif(%bmi<30,'overweight','obese')))",
             "extension": [{
-              "url": "http://lhcforms.nlm.nih.gov/fhir/ext/simple-syntax",
+              "url": "http://lhcforms.nlm.nih.gov/fhirExt/simple-syntax",
               "valueString": "iif(bmi<18.5,'underweight',iif(bmi<25,'normal',iif(bmi<30,'overweight','obese')))"
             }]
           }

@@ -189,7 +189,7 @@
             "language": "text/fhirpath",
             "expression": "%a/(%b.power(2))",
             "extension": [{
-              "url": "http://lhcforms.nlm.nih.gov/fhir/ext/simple-syntax",
+              "url": "http://lhcforms.nlm.nih.gov/fhirExt/simple-syntax",
               "valueString": "a/b^2"
             }]
           }
