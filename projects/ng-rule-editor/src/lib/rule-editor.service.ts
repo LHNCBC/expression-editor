@@ -884,8 +884,6 @@ export class RuleEditorService {
    * @return Array of WhereConditionExpression object(s) which consist of
    *         - itemQuery - query to select the item
    *         - answerOptionQuery - query to select a sub-item answer from the answer of the main item. 
-   *                               If an item does not contain any sub-items or as type 'group', then
-   *                               the query returns is the same as the itemQuery.   
    */
   composeItemsWhereConditionExpressions(items, linkId: string): Array<WhereConditionExpression> {
     const expressions = [];
@@ -1241,7 +1239,7 @@ export class RuleEditorService {
    * @param linkId - link id of the total score item
    * @param level - item hierarchy level
    * @return Scoring object which consist of
-   *         - foundLinkId : a flag to indicate whetherthe given linkId has been found
+   *         - foundLinkId : a flag to indicate whether the given linkId has been found
    *         - scoreItems : array of scoring items
    */
   getScoreItems(items, linkId: string = this.linkIdContext, level: number = 0 ): Scoring {
@@ -1303,7 +1301,7 @@ export class RuleEditorService {
       }
     }
 
-    return { "foundLinkId" : foundLinkId, "scoreItems": scoreItems};
+    return {foundLinkId, scoreItems};
   }
 
   /**

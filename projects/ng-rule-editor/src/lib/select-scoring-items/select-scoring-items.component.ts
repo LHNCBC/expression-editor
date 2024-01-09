@@ -73,7 +73,7 @@ export class SelectScoringItemsComponent implements OnInit {
     this.selectedLinkIds = this.ruleEditorService.getSelectedScoringLinkIds(this.items);
 
     // Get items that can be used for Scoring calculation
-    this.scoringItems = this.ruleEditorService.getScoreItems(this.items)['scoreItems'];
+    this.scoringItems = this.ruleEditorService.getScoreItems(this.items).scoreItems;
     this.hasChildren = this.hasChildItems(this.scoringItems);
     // If there are child items, if yes then we want to expand the tree by default.
     this.expandAll = this.hasChildren;
