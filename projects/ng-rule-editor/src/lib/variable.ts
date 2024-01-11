@@ -24,11 +24,18 @@ export interface Question {
   unit?: string;
 }
 
+export interface CaseStatementError {
+  case?: boolean;
+  condition?: boolean;
+  output?: boolean;
+}
+
 export interface CaseStatement {
   condition: string;
   simpleCondition?: string;
   output: string;
   simpleOutput?: string;
+  error?: CaseStatementError;
 }
 
 export enum AllVariableType {

@@ -5,13 +5,14 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 @Component({
   selector: 'lhc-syntax-preview',
   templateUrl: './syntax-preview.component.html',
-  styleUrls: ['./syntax-preview.component.css']
+  styleUrls: ['../rule-editor.component.css', './syntax-preview.component.css']
 })
 export class SyntaxPreviewComponent implements OnInit {
   @Input() syntax;
   @Input() lhcStyle: SimpleStyle;
   @Input() showWhenEmpty = false;
-
+  @Input() hasError = false;
+  
   constructor(private snackBar: MatSnackBar) { }
 
   ngOnInit(): void {

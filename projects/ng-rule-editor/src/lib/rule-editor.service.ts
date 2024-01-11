@@ -34,11 +34,11 @@ interface Scoring {
   providedIn: 'root'
 })
 export class RuleEditorService {
-  static SCORE_VARIABLE_EXTENSION = 'http://lhcforms.nlm.nih.gov/fhir/ext/rule-editor-score-variable';
-  static SCORE_EXPRESSION_EXTENSION = 'http://lhcforms.nlm.nih.gov/fhir/ext/rule-editor-score-expression';
-  static SCORE_EXPRESSION_EXTENSION_LINKIDS = 'http://lhcforms.nlm.nih.gov/fhir/ext/rule-editor-score-expression-linkids';
-  
-  static SIMPLE_SYNTAX_EXTENSION = 'http://lhcforms.nlm.nih.gov/fhir/ext/simple-syntax';
+  static SCORE_VARIABLE_EXTENSION = 'http://lhcforms.nlm.nih.gov/fhirExt/rule-editor-score-variable';
+  static SCORE_EXPRESSION_EXTENSION = 'http://lhcforms.nlm.nih.gov/fhirExt/rule-editor-score-expression';
+  static SCORE_EXPRESSION_EXTENSION_LINKIDS = 'http://lhcforms.nlm.nih.gov/fhirExt/rule-editor-score-expression-linkids';
+  static SIMPLE_SYNTAX_EXTENSION = 'http://lhcforms.nlm.nih.gov/fhirExt/simple-syntax';
+  static VARIABLE_TYPE = 'http://lhcforms.nlm.nih.gov/fhirExt/rule-editor-variable-type';
 
   syntaxType = 'simple';
   linkIdContext: string;
@@ -49,6 +49,7 @@ export class RuleEditorService {
   scoreCalculationChange: Subject<boolean> = new Subject<boolean>();
   finalExpressionChange: Subject<string> = new Subject<string>();
   disableAdvancedChange: Subject<boolean> = new Subject<boolean>();
+  validationChange: Subject<object> = new Subject<object>();
   uneditableVariables: UneditableVariable[];
   variables: Variable[];
   questions: Question[];
@@ -100,6 +101,7 @@ export class RuleEditorService {
    */
   remove(i: number): void {
     this.variables.splice(i, 1);
+    this.variablesChange.next(this.variables);
   }
 
   /**
@@ -114,7 +116,7 @@ export class RuleEditorService {
    * queries are present
    * @param toggleOn - Set the advanced interface on (without having to run checks)
    */
-  checkAdvancedInterface(toggleOn?: boolean): void {
+  seeIfAdvancedInterfaceIsNeeded(toggleOn?: boolean): void {
     if (toggleOn) {
       this.needsAdvancedInterface = true;
     } else {
@@ -256,6 +258,38 @@ export class RuleEditorService {
   }
 
   /**
+   * Returns custom extension variable type for the given item extension
+   * @param extension - FHIR extension
+   * @return variable type defined in valueString or null
+   * @private
+   */
+  private getVariableTypeFromExtension(extension): string {
+    if (extension?.valueExpression?.extension) {
+      const variableType = extension.valueExpression.extension.find(e => e.url === RuleEditorService.VARIABLE_TYPE);
+
+      if (variableType?.valueString)
+        return variableType.valueString;
+    }
+
+    return null;
+  };
+
+  /**
+   * Returns expression language based on the variableType if available; 
+   * otherwise, returns from the extension valueExpression language
+   * @param extension - FHIR extension
+   * @param variableType - Custom extension variable type
+   * @return expression language ('text/fhirpath' or 'application/x-fhir-query')
+   * @private
+   */
+  private getExtensionLanguage(extension, variableType) {
+    if (variableType !== null) {
+      return (variableType.indexOf('query') > -1) ? this.LANGUAGE_FHIR_QUERY : this.LANGUAGE_FHIRPATH;
+    }
+    return extension.valueExpression.language;
+  }
+
+  /**
    * Get and remove the variables from an item or FHIR questionnaire
    * @param item - FHIR Questionnaire or item
    * @return Array of variables
@@ -271,13 +305,18 @@ export class RuleEditorService {
 
     item.extension.forEach((extension) => {
       if (extension.url === this.VARIABLE_EXTENSION && extension.valueExpression) {
-        switch (extension.valueExpression.language) {
+
+        const extensionVariableType = this.getVariableTypeFromExtension(extension);
+        const extensionLanguage = this.getExtensionLanguage(extension, extensionVariableType);
+
+        switch(extensionLanguage) {
           case this.LANGUAGE_FHIRPATH:
             const fhirPathVarToAdd = this.processVariable(
               extension.valueExpression.name,
               extension.valueExpression.expression,
               extension.__$index,
-              extension.valueExpression.extension);
+              extension.valueExpression.extension,
+              extensionVariableType);
             if (fhirPathVarToAdd.type === 'expression') {
               this.needsAdvancedInterface = true;
             }
@@ -287,7 +326,8 @@ export class RuleEditorService {
             const queryVarToAdd = this.processQueryVariable(
               extension.valueExpression.name,
               extension.valueExpression.expression,
-              extension.__$index);
+              extension.__$index,
+              extensionVariableType);
             if (queryVarToAdd.type === 'query') {
               this.needsAdvancedInterface = true;
             }
@@ -388,7 +428,7 @@ export class RuleEditorService {
       this.caseStatements = false;
       this.processItem(this.fhir.item);
 
-      if (linkIdContext !== undefined && linkIdContext !== '') {
+      if (linkIdContext) {
         this.uneditableVariables = this.getUneditableVariables(this.fhir, linkIdContext);
         this.variables = this.extractVariablesFromItems(this.fhir.item, linkIdContext);
       } else {
@@ -398,6 +438,12 @@ export class RuleEditorService {
         // Since we don't have a target item the output expression does not make sense so hide it.
         expressionUri = '';
       }
+
+      this.variables.forEach((variable, index) => {
+        if (variable.type === "expression" || variable.type === "query" || variable.type === "queryObservation") {
+          variable.expression = this.decodeQueryURIExpression(variable.expression);
+        }
+      });
 
       this.uneditableVariablesChange.next(this.uneditableVariables);
       this.variablesChange.next(this.variables);
@@ -440,6 +486,7 @@ export class RuleEditorService {
           if (simpleSyntax === null && this.finalExpression !== '') {
             this.syntaxType = 'fhirpath';
             this.needsAdvancedInterface = true;
+            this.simpleExpression = '';
           } else {
             this.syntaxType = 'simple';
             this.simpleExpression = simpleSyntax;
@@ -539,14 +586,21 @@ export class RuleEditorService {
    * question, expression etc
    * @private
    */
-  private processVariable(name, expression, index?: number, extensions?): Variable {
+  private processVariable(name, expression, index?: number, extensions?, variableType?: string): Variable {
     const matches = expression.match(this.QUESTION_REGEX);
 
     const simpleExtension = extensions && extensions.find(e => e.url === RuleEditorService.SIMPLE_SYNTAX_EXTENSION);
 
-    if (matches !== null) {
-      const linkId = matches[1];
-      const factor = matches[2];
+    if ((variableType === 'question' && (matches !== null || expression === '')) ||
+       (!variableType && matches !== null)) {
+
+      let linkId: string;
+      let factor: string;
+      
+      if (matches) {
+        linkId = matches[1];
+        factor = matches[2];
+      }
 
       const variable: Variable = {
         __$index: index,
@@ -566,10 +620,18 @@ export class RuleEditorService {
             return e.factor.toString() === factor;
           });
 
-          variable.unit = conversion.unit;
+          if (conversion && conversion.unit)
+            variable.unit = conversion.unit;
+          else {
+            return {
+              __$index: index,
+              label: name,
+              type: 'expression',
+              expression
+            };
+          }
         }
       }
-
       return variable;
     } else if (simpleExtension !== undefined) {
       return {
@@ -590,6 +652,18 @@ export class RuleEditorService {
   }
 
   /**
+   * Retrieves Query Observation from the expression.
+   * @param name - Name to assign variable
+   * @param expression - Expression to process
+   * @param index - Original order in extension list
+   * @return Returns a Query Observation or null
+   */
+  getQueryObservationFromExpression(name, expression, index?:number) : Variable {
+    const queryObservation = this.processQueryVariable(name, expression, index);
+    return (queryObservation.type === "queryObservation") ? queryObservation : null;
+  }
+
+  /**
    * Process a x-fhir-query expression into a more user friendly format if
    * possible. Show a code autocomplete field if possible if not show the
    * expression editing field.
@@ -600,11 +674,10 @@ export class RuleEditorService {
    * question, expression etc
    * @private
    */
-  private processQueryVariable(name, expression, index?: number): Variable {
-    const matches = expression.match(this.QUERY_REGEX);
-
-    if (matches !== null) {
-      const codes = matches[1].split('%2C');  // URL encoded comma ','
+  private processQueryVariable(name, expression, index?: number, variableType?: string): Variable {
+    let matches = this.decodeQueryURIExpression(expression).match(this.QUERY_REGEX);
+    if ((variableType === "queryObservation") || (!variableType && matches !== null)) {
+      const codes = matches[1].split(',');
       const timeInterval = parseInt(matches[2], 10);
       const timeIntervalUnits = matches[3];
 
@@ -702,17 +775,22 @@ export class RuleEditorService {
         url: this.VARIABLE_EXTENSION,
         valueExpression: {
           name: e.label,
-          language: e.type === 'query' ? this.LANGUAGE_FHIR_QUERY : this.LANGUAGE_FHIRPATH,
-          expression: e.expression
+          language: (e.type.indexOf('query') > -1 )? this.LANGUAGE_FHIR_QUERY : this.LANGUAGE_FHIRPATH,
+          expression: (e.type === 'expression' || e.type === 'query' || e.type === 'queryObservation') ? 
+            this.encodeQueryURIExpression(e.expression) : e.expression,
+          extension: [{
+            "url": "http://lhcforms.nlm.nih.gov/fhirExt/rule-editor-variable-type",
+            "valueString": e.type
+          }] 
         }
       };
 
       if (e.type === 'simple') {
         // @ts-ignore
-        variable.valueExpression.extension = [{
-          url: RuleEditorService.SIMPLE_SYNTAX_EXTENSION,
-          valueString: e.simple
-        }];
+        variable.valueExpression.extension.push({
+            url: RuleEditorService.SIMPLE_SYNTAX_EXTENSION,
+            valueString: e.simple
+        });
       }
 
       return variable;
@@ -734,7 +812,8 @@ export class RuleEditorService {
     });
 
     if (this.syntaxType === 'simple') {
-      this.findOrAddExtension(finalExpression.valueExpression.extension, RuleEditorService.SIMPLE_SYNTAX_EXTENSION, 'String', this.simpleExpression);
+      if (finalExpression && finalExpression.hasOwnProperty('valueExpression') && finalExpression.valueExpression) 
+        this.findOrAddExtension(finalExpression.valueExpression.extension, RuleEditorService.SIMPLE_SYNTAX_EXTENSION, 'String', this.simpleExpression);
     }
 
     if (this.linkIdContext !== undefined && this.linkIdContext !== null && this.linkIdContext !== '') {
@@ -751,20 +830,24 @@ export class RuleEditorService {
     });
 
     if (hasQueryObservations !== undefined) {
-      const patientLaunchContext = fhir.extension.find((extension) => {
-        if (extension.url === this.LAUNCH_CONTEXT_URI &&
-            Array.isArray(extension.extension)) {
-          const patientName = extension.extension.find((subExtension) => {
-            return subExtension.url === 'name' && subExtension.valueId === 'patient';
-          });
+      let patientLaunchContext;
 
-          if (patientName !== undefined) {
-            return true;
+      if (fhir?.extension) {
+        patientLaunchContext = fhir.extension.find((extension) => {
+          if (extension.url === this.LAUNCH_CONTEXT_URI &&
+              Array.isArray(extension.extension)) {
+            const patientName = extension.extension.find((subExtension) => {
+              return subExtension.url === 'name' && subExtension.valueId === 'patient';
+            });
+
+            if (patientName !== undefined) {
+              return true;
+            }
           }
-        }
 
-        return false;
-      });
+          return false;
+        });
+      }
 
       if (patientLaunchContext === undefined) {
         // Add launchContext
@@ -785,12 +868,18 @@ export class RuleEditorService {
           ]
         });
 
-        this.uneditableVariables.push({
-          name,
-          type,
-          description
-        });
-        this.uneditableVariablesChange.next(this.uneditableVariables);
+        // Check to see if the uneditable variable already exists. Add to 
+        // uneditableVariables if not.
+        const exists = (u) => u.name === name && u.type === type;
+        if (!this.uneditableVariables.some(exists)) {
+          this.uneditableVariables.push({
+            name,
+            type,
+            description
+          });
+
+          this.uneditableVariablesChange.next(this.uneditableVariables);
+        }
       }
     }
 
@@ -1217,9 +1306,10 @@ export class RuleEditorService {
    * @param convertible - Units can be converted
    * @param unit - Base units
    * @param toUnit - Destination units
-   * @return expression
+   * @param expression - question expression
+   * @return expression based on matching criteria
    */
-  valueOrScoreExpression(linkId: string, itemHasScore: boolean, convertible: boolean, unit: string, toUnit: string): string {
+  valueOrScoreExpression(linkId: string, itemHasScore: boolean, convertible: boolean, unit: string, toUnit: string, expression: string): string {
     if (itemHasScore) {
       return `%questionnaire.item.where(linkId = '${linkId}').answerOption` +
         `.where(valueCoding.code=%resource.item.where(linkId = '${linkId}').answer.valueCoding.code).extension` +
@@ -1228,7 +1318,11 @@ export class RuleEditorService {
       const factor = UNIT_CONVERSION[unit].find((e) => e.unit === toUnit).factor;
       return `%resource.item.where(linkId='${linkId}').answer.value*${factor}`;
     } else {
-      return `%resource.item.where(linkId='${linkId}').answer.value`;
+      const matches = expression.match(this.QUESTION_REGEX);
+      if(matches && matches[2])
+        return `%resource.item.where(linkId='${linkId}').answer.value*${matches[2]}`;
+      else
+        return `%resource.item.where(linkId='${linkId}').answer.value`;
     }
   }
 
@@ -1421,4 +1515,186 @@ export class RuleEditorService {
     this.doNotAskToCalculateScore = !shouldCalculateScore;
     return shouldCalculateScore;
   }
+
+  /** 
+   * Performs URL decode.  Returns input str as is if URL decode failed.
+   * @param str - input url string
+   * @private
+   */
+  private getDecodeURI(str) {
+    try {
+      return decodeURIComponent(str);
+    } catch(e) {
+      return str;
+    }
+  }
+
+  /**
+   * Decode the Query URL expression.  This supports the query that was saved
+   * prior to this change (without URL encoded, just the %2C) and the new
+   * URL encoded string
+   * @param excodedExp - Encoded expression
+   * @return Decoded URL expression string
+   */
+  decodeQueryURIExpression(expression: string): string {
+    const decodedParams: string[] = [];
+    const resourceArr = expression.split("?");
+    let queryString = resourceArr[0];
+
+    if (resourceArr.length > 1) {
+      const queryParams = resourceArr[1].split('&');
+
+      queryParams.forEach((queryParam) => {
+        const param = queryParam.split('=');
+        const paramKey = this.getDecodeURI(param[0]);
+        const paramVal = this.getDecodeURI(param[1]);
+
+        decodedParams.push(`${paramKey}=${paramVal}`);
+      });
+      queryString += '?' + decodedParams.join('&');
+    }
+    return queryString;
+  }
+
+  /**
+   * Validate the paramValue has valid double braces syntax.
+   * @param paramValue - URL param value
+   * @return True if no opening and closingdouble braces found
+   *         True if matching opening and closing double braces found
+   *         False if an opening or closing double braces is not found
+   *         False if a closing double brace occurs before an opening double brace
+   *         False if double braces are found to be nested within each other  
+   */
+  isValidDoubleBracesSyntax(paramValue: string): boolean {
+    let not_done = true;
+    let indexLoc = 0;
+    while (not_done) {
+      const openDblBracesIdx = paramValue.indexOf("{{", indexLoc);
+      const closeDblBracesIdx = paramValue.indexOf("}}", indexLoc);
+
+      if (openDblBracesIdx === -1 && closeDblBracesIdx === -1)
+        return true;
+      else if (openDblBracesIdx === -1 || closeDblBracesIdx === -1)
+        return false;
+      else {
+        if (closeDblBracesIdx < openDblBracesIdx)
+          return false;
+        
+        const nextOpenDblBracesIdx = paramValue.indexOf("{{", openDblBracesIdx + 2);
+        if (nextOpenDblBracesIdx === -1)
+          return true;
+        else if (nextOpenDblBracesIdx < closeDblBracesIdx)
+          return false;
+
+        indexLoc = closeDblBracesIdx + 2;
+      }
+    }
+  };
+
+
+  /**
+   * Perform URL encode while ignoring the {{}} and the content inside.
+   * @param paramValue - URL param value
+   * @return URL-encoded paramValue if paramValue contains no opening and closing double braces
+   *         URL-encoded paramValue if paramValue contains the correct order and number of 
+   *           opening and closing double braces.  URL encode only the portions of the string
+   *           that are not enclosed in dobule braces  
+   *         Non URL-encoded paramValue if the string starts with an opening double brace and
+   *           ends with a closing double brace
+   *         Non URL-encoded paramValue if the count number of opening double braces does not
+   *           match the count number of the closing double braces
+   *         Non URL-encoded paramValue if the result from the isValidDoubleBracesSyntax 
+   *           function is "false"
+   */
+  encodeParamValue(paramValue: string): string {
+    if (!paramValue)
+      return "";
+    const openDblBracesCount = (paramValue.match(/{{/g) || []).length;
+    const closeDblBracesCount = (paramValue.match(/}}/g) || []).length;
+
+    if (openDblBracesCount === 0 && closeDblBracesCount === 0) {
+      return encodeURIComponent(paramValue);
+    } else if (openDblBracesCount === 1 && closeDblBracesCount === 1 &&
+               paramValue.startsWith("{{") && paramValue.endsWith("}}")) {
+      return paramValue;
+    } else if (openDblBracesCount !== closeDblBracesCount) {
+      // if the number of open and close are not equal, we are just going to return as is
+      return paramValue;
+    } else if (!this.isValidDoubleBracesSyntax(paramValue)) {
+      return paramValue;
+    } else {
+      let tmpStr = '';
+      let indexLoc = 0;
+      for (let i = 0; i < openDblBracesCount; i++) {
+        const openDblBracesIdx = paramValue.indexOf("{{", indexLoc);
+        const closeDblBracesIdx = paramValue.indexOf("}}", openDblBracesIdx);
+
+        if (openDblBracesIdx > indexLoc) 
+          tmpStr += encodeURIComponent(paramValue.substring(indexLoc, openDblBracesIdx));
+        tmpStr += paramValue.substring(openDblBracesIdx, closeDblBracesIdx + 2);
+
+        indexLoc = closeDblBracesIdx + 2;
+      }
+
+      if (indexLoc < paramValue.length)
+        tmpStr += encodeURIComponent(paramValue.substring(indexLoc));
+      return tmpStr;
+    }
+  };
+
+  /**
+   * Encode the Query URL expression.  If the input does not match
+   * with QUERY_REGEX, then return as is.
+   * @param expression - url expression
+   * @return Encoded URL expression string
+   */
+  encodeQueryURIExpression(expression: string): string {
+    const encodedParams: string[] = [];
+    const resourceArr = expression.split("?");
+    let queryString = resourceArr[0];
+    if (resourceArr.length > 1 && resourceArr[1] !== "") {
+      const queryParams = resourceArr[1].split('&');
+
+      queryParams.forEach((queryParam) => {
+        const param = queryParam.split('=');
+        if (param.length > 1 && param[1] !== "") {
+          const encodedKey = encodeURIComponent(param[0]);
+          const encodedValue = this.encodeParamValue(param[1]);
+
+          encodedParams.push(`${encodedKey}=${encodedValue}`);
+        }
+      });
+      if (encodedParams.length > 0)
+        queryString += '?' + encodedParams.join('&');
+
+    }
+    return queryString;
+  };
+  
+  /**
+   * Get uneditable and editable variable names
+   */
+  getVariableNames(): string[] {
+    return this.uneditableVariables.map(e => e.name).concat(
+      this.variables.map(e => e.label));
+  };
+
+  /**
+   * Generate a validation event to notify subscribers. If the result is null, the 'Save' button
+   * is enabled; othewise, the 'Save' button is disabled.
+   * @param errorType - validation error type 
+   * @param section - section where the error occurs
+   * @param name - name of the variable or field that contains the error
+   */
+  notifyValidationResult(errorType: string, section: string, name: string): void {
+    let result = null;
+
+    if (errorType && section) {
+      result = { 'error': errorType, 'section': section, 'name': name};
+    }
+
+    setTimeout(() => {
+      this.validationChange.next(result);
+    }, 100);
+  };
 }

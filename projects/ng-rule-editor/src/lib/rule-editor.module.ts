@@ -20,6 +20,10 @@ import { SyntaxPreviewComponent } from './syntax-preview/syntax-preview.componen
 import { QueryObservationComponent } from './query-observation/query-observation.component';
 import { CaseStatementsComponent } from './case-statements/case-statements.component';
 import { SelectScoringItemsComponent } from './select-scoring-items/select-scoring-items.component';
+import { EasyPathExpressionHelpComponent } from './helps/easy-path-expression-help/easy-path-expression-help.component';
+import { FhirpathExpressionHelpComponent } from './helps/fhirpath-expression-help/fhirpath-expression-help.component';
+import { HelpsComponent } from './helps/helps.component';
+import { YesNoDialogComponent } from './yes-no-dialog/yes-no-dialog.component';
 
 @NgModule({
   declarations: [
@@ -33,7 +37,11 @@ import { SelectScoringItemsComponent } from './select-scoring-items/select-scori
     SyntaxPreviewComponent,
     QueryObservationComponent,
     CaseStatementsComponent,
-    SelectScoringItemsComponent
+    SelectScoringItemsComponent,
+    EasyPathExpressionHelpComponent,
+    FhirpathExpressionHelpComponent,
+    HelpsComponent,
+    YesNoDialogComponent
   ],
   imports: [
     FormsModule,
@@ -43,7 +51,8 @@ import { SelectScoringItemsComponent } from './select-scoring-items/select-scori
     ClipboardModule,
     MatTooltipModule,
     MatSnackBarModule,
-    TreeModule
+    TreeModule,
+    A11yModule
   ],
   exports: [
     RuleEditorComponent

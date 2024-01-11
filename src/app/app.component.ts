@@ -88,7 +88,19 @@ export class AppComponent implements OnInit, OnDestroy {
       this.http.get(`./${this.formType}.json`)
         .subscribe(data => {
           this.fhir = data;
-        });
+
+          if (this.fhir && this.fhir.item instanceof Array) {
+            this.linkIds = this.getQuestionnaireLinkIds(this.fhir.item);
+
+            this.defaultItemText = this.linkIds.find((item) => {
+              return item.linkId === this.linkId;
+            }).text.trim();
+
+            this.composeAutocomplete();
+
+            this.autoComplete.setFieldToListValue(this.defaultItemText);
+          }
+      });
     }
   }
 

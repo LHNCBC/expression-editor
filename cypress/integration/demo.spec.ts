@@ -24,7 +24,7 @@ describe('Rule editor demo', () => {
 
       // Updating the linkId should update the Rule Editor instantly
       cy.get('#question').type('bmi');
-      cy.contains('39156-5').click();
+      cy.get('span#completionOptions > ul > li').contains('39156-5').click();
 
       cy.get('#final-expression').should('have.value', '(%a/(%b.power(2))).round(1)');
 

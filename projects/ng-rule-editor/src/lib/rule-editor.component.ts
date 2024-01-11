@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output } from '@angular/core';
+import { ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output } from '@angular/core';
 
 import { RuleEditorService, SimpleStyle } from './rule-editor.service';
 import { LiveAnnouncer } from '@angular/cdk/a11y';
@@ -30,18 +30,33 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
   linkIdContext: string;
   calculateSum: boolean;
   variables: string[];
+  uneditableVariables: string[];
   caseStatements: boolean;
   disableInterfaceToggle = false;
   loadError = false;
   selectItems: boolean;
   hideRuleEditor = false;
+  validationError = false;
+  validationErrorMessage;
+
+  previousExpressionSyntax;
+  previousFinalExpression;
+  showConfirmDialog = false;
+
+  dialogTitle = "Converting FHIRPath Expression to Easy Path Expression";
+  dialogPrompt1 = "The Rule Editor does not support conversion from FHIRPath Expression " +
+                  "to Easy Path Expression. Switching to the Easy Path Expression for the " +
+                  "output expression would result in the expression becoming blank.";
+  dialogPrompt2 = "Proceed?";
 
   private calculateSumSubscription;
   private finalExpressionSubscription;
   private variablesSubscription;
+  private uneditableVariablesSubscription;
   private disableAdvancedSubscription;
+  private validationSubscription;
 
-  constructor(private variableService: RuleEditorService, private liveAnnouncer: LiveAnnouncer) {}
+  constructor(private variableService: RuleEditorService, private liveAnnouncer: LiveAnnouncer, private changeDetectorRef: ChangeDetectorRef) {}
 
   ngOnInit(): void {
     this.calculateSumSubscription = this.variableService.scoreCalculationChange.subscribe((scoreCalculation) => {
@@ -51,10 +66,32 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
       this.finalExpression = finalExpression;
     });
     this.variablesSubscription = this.variableService.variablesChange.subscribe((variables) => {
-      this.variables = variables.map(e => e.label);
+      this.variables = this.variableService.getVariableNames();
+    });
+    this.uneditableVariablesSubscription = this.variableService.uneditableVariablesChange.subscribe((variables) => {
+      this.variables = this.variableService.getVariableNames();
     });
     this.disableAdvancedSubscription = this.variableService.disableAdvancedChange.subscribe((disable) => {
       this.disableInterfaceToggle = disable;
+    });
+    this.validationSubscription = this.variableService.validationChange.subscribe((validation) => {
+      if (validation) {
+        this.validationError = true;
+        const errorMessage = "Save button. The 'Save' button is disabled due to the validation error";
+        if (validation['section'] === "Item Variables") {
+          if (validation['variableName'])
+            this.validationErrorMessage = errorMessage + " for the variable '" + validation['name'] +
+                                          "' found in the " + validation['section'] + " section.";
+          else
+            this.validationErrorMessage = errorMessage + " found in the " + validation['section'] +
+                                          " section.";
+        } else
+          this.validationErrorMessage = errorMessage + " for the " + validation['name'] +
+                                        " found in the " + validation['section'] + " section.";
+      } else {
+        this.validationError = false;
+        this.validationErrorMessage = "";
+      }
     });
   }
 
@@ -65,7 +102,30 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
     this.calculateSumSubscription.unsubscribe();
     this.finalExpressionSubscription.unsubscribe();
     this.variablesSubscription.unsubscribe();
+    this.uneditableVariablesSubscription.unsubscribe();
     this.disableAdvancedSubscription.unsubscribe();
+
+    this.validationSubscription.unsubscribe();
+  }
+
+  /**
+   * There are scenarios when switching the questionnaire; some components may
+   * not get updated or displayed properly as Angular is not detecting changes.
+   * This function attempts to reset those variables so that the components will
+   * get updated correctly.
+   * @private
+   */
+  private resetVariablesOnQuestionnaireChange(): void {
+    this.expressionSyntax = null;
+    this.simpleExpression = null;
+    this.finalExpression = null;
+    this.linkIdContext = null;
+    this.calculateSum = false;
+    this.variables = [];
+    this.uneditableVariables = [];
+    this.caseStatements = false;
+
+    this.changeDetectorRef.detectChanges();
   }
 
   /**
@@ -76,6 +136,7 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
     this.selectItems = false;
     this.hideRuleEditor = false;
     this.doNotAskToCalculateScore = false;
+    this.resetVariablesOnQuestionnaireChange();
     this.reload();
 
   }
@@ -109,17 +170,19 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
     this.calculateSum = (this.variableService.scoreCalculation && !this.doNotAskToCalculateScore);
     this.finalExpressionExtension = this.variableService.finalExpressionExtension;
     this.finalExpression = this.variableService.finalExpression;
-    this.variables = this.variableService.uneditableVariables.map(e => e.name).concat(
-      this.variableService.variables.map(e => e.label));
+    this.variables = this.variableService.getVariableNames();
   }
 
   /**
    * Export FHIR Questionnaire and download as a file
    */
   export(): void {
-    const finalExpression = this.finalExpressionExtension;
-    finalExpression.valueExpression.expression = this.finalExpression;
-    this.save.emit(this.variableService.export(this.expressionUri, finalExpression));
+    if (!this.validationError) {
+      const finalExpression = this.finalExpressionExtension;
+      if (finalExpression?.valueExpression)
+        finalExpression.valueExpression.expression = this.finalExpression;
+      this.save.emit(this.variableService.export(this.expressionUri, finalExpression));
+    }
   }
 
   /**
@@ -163,12 +226,31 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
    * Toggle the advanced interface based on the type
    */
   onTypeChange(event): void {
+    if (this.expressionSyntax === 'fhirpath' && event.target.value === 'simple') {
+      if (this.finalExpression !== '' && this.finalExpression !== this.previousFinalExpression) {
+        this.previousExpressionSyntax = this.expressionSyntax;
+
+        if (this.caseStatements)
+          this.dialogPrompt1 = "The Rule Editor does not support conversion from FHIRPath Expression " +
+          "to Easy Path Expression. Switching to Easy Path Expression for the case statement " +
+          "would result in the expression becoming blank.";
+        this.showConfirmDialog = true;
+      } else {
+        this.previousExpressionSyntax = event.target.value;
+        this.expressionSyntax = event.target.value;
+      }
+      return;
+    } else {
+      this.expressionSyntax = event.target.value;
+    }
+    this.previousFinalExpression = this.finalExpression;
+
     if (event.target.value === 'fhirpath') {
-      this.variableService.checkAdvancedInterface(true);
+      this.variableService.seeIfAdvancedInterfaceIsNeeded(true);
     } else {
       // Need to check all other variables and the final expression before we
       // allow the advanced interface to be removed
-      this.variableService.checkAdvancedInterface();
+      this.variableService.seeIfAdvancedInterfaceIsNeeded();
     }
 
     if (this.variableService.needsAdvancedInterface) {
@@ -177,5 +259,33 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
     } else {
       this.disableInterfaceToggle = false;
     }
+  }
+
+  /**
+   * Proceed with changing from FHIRPath Expression to Easy Path Expression
+   */
+  convertFHIRPathToEasyPath(): void {
+    if (this.previousFinalExpression &&
+        this.previousFinalExpression !== this.finalExpression && 
+        this.simpleExpression && 
+        this.simpleExpression !== '') {
+      this.simpleExpression = '';
+    }
+    this.showConfirmDialog = false;
+    this.expressionSyntax = 'simple';
+
+    this.variableService.seeIfAdvancedInterfaceIsNeeded();
+  }
+
+  /**
+   * Cancel changing from FHIRPath Expression to Easy Path Expression
+   */
+  closeConvertDialog(): void {
+    this.expressionSyntax = '';
+    this.showConfirmDialog = false;
+
+    setTimeout(() => {
+      this.expressionSyntax = 'fhirpath';
+    }, 10);
   }
 }

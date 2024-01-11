@@ -10,9 +10,9 @@
       <option *ngFor="let u of conversionOptions" value="{{u.unit}}">Convert to {{u.unit}}</option>
     </select>
 
-    <div *ngIf="isNonConvertibleUnit" class="detail">{{unit}}</div>
+    <div *ngIf="isNonConvertibleUnit" class="detail">Unit: {{unit}}</div>
     <div *ngIf="itemHasScore" class="detail">Score</div>
   </div>
 </div>
 
-<lhc-syntax-preview [syntax]="variable.expression" [lhcStyle]="lhcStyle"></lhc-syntax-preview>
+<lhc-syntax-preview [syntax]="expression" [lhcStyle]="lhcStyle"></lhc-syntax-preview>

@@ -16,6 +16,7 @@
             "outputPath": "dist/demo",
             "index": "src/index.html",
             "main": "src/main.ts",
+            "sourceMap": true,
             "polyfills": "src/polyfills.ts",
             "tsConfig": "tsconfig.app.json",
             "aot": true,
@@ -26,7 +27,7 @@
                 "output": ""
               },
               {
-                "glob": "rule-editor.js",
+                "glob": "rule-editor.js?(.map)",
                 "input": "dist/rule-editor/",
                 "output": ""
               }
@@ -246,6 +247,7 @@
             "outputPath": "dist/rule-editor",
             "index": "projects/rule-editor/src/index.html",
             "main": "projects/rule-editor/src/main.ts",
+            "sourceMap": true,
             "polyfills": "projects/rule-editor/src/polyfills.ts",
             "tsConfig": "projects/rule-editor/tsconfig.app.json",
             "aot": true,
@@ -265,7 +267,7 @@
               ],
               "optimization": true,
               "outputHashing": "none",
-              "sourceMap": false,
+              "sourceMap": true,
               "namedChunks": false,
               "extractLicenses": true,
               "vendorChunk": false,
