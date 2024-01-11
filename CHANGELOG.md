@@ -2,6 +2,10 @@
 
 This project follows [Semantic Versioning](http://semver.org/).
 
+## [3.1.14] 2023-01-09
+### Added
+- Added the ability to select items for scoring calculation
+
 ## [3.1.13] 2024-01-04
 ### Changed
 - Added prompt when switching from FHIRPath Expression to Easy Path Expression

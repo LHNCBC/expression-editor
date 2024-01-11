@@ -17,6 +17,8 @@
     <option value="bmicasesimple">BMI Calculation (Easy Path expression with cases)</option>
     <option value="bmivariabletype">BMI Variable Type</option>
     <option value="phq9">PHQ9 (no FHIRPath)</option>
+    <option value="phq9_group">PHQ9 Group (no FHIRPath)</option>
+    <option value="phq9_preselected">PHQ9 Pre-selected (no FHIRPath)</option>
     <option value="query">Query</option>
   </select>
 </label>
@@ -38,10 +40,15 @@
   </label>
   <span *ngIf="fhir">
     <label>
+      <input type="checkbox" id="root-level" [(ngModel)]="rootLevel" (change)="toggleRootLevel()">
+      Root level
+    </label>
+
+    <label>
       Question:
       <input placeholder="Please select" class="query-autocomplete" #autoComplete id="question" />
-
     </label>
+
     <label [hidden]="!linkId">
       Output Expression:
       <div id="expression-entry">
@@ -61,25 +68,24 @@
   {{error}}
 </div>
 <div *ngIf="fhir">
-  <div class="rule-editor">
-    <lhc-rule-editor
-      [fhirQuestionnaire]="fhir"
-      [itemLinkId]="linkId"
+  <lhc-rule-editor
+    [fhirQuestionnaire]="fhir"
+    [itemLinkId]="linkId"
 
-      [submitButtonName]="'Save'"
-      [expressionLabel]="'Output Expression'"
-      [expressionUri]="linkId ? expressionUri : ''"
-      [userExpressionChoices]=userExpressionChoices
-      [lhcStyle]="{
-        buttonPrimary: { backgroundColor: 'navy', color: 'white' },
-        buttonSecondary: { backgroundColor: 'darkgreen', color: 'white' },
-        input: { backgroundColor: '#ffe' },
-        select: { backgroundColor: '#ffe' }
-      }"
-      [doNotAskToCalculateScore]="doNotAskToCalculateScore"
-      (save)="onSave($event)">
-    </lhc-rule-editor>
-  </div>
+    [submitButtonName]="'Save'"
+    [expressionLabel]="'Output Expression'"
+    [expressionUri]="linkId ? expressionUri : ''"
+    [userExpressionChoices]=userExpressionChoices
+    [lhcStyle]="{
+      buttonPrimary: { backgroundColor: 'navy', color: 'white' },
+      buttonSecondary: { backgroundColor: 'darkgreen', color: 'white' },
+      input: { backgroundColor: '#ffe' },
+      select: { backgroundColor: '#ffe' }
+    }"
+    [doNotAskToCalculateScore]="doNotAskToCalculateScore"
+    (save)="onSave($event)">
+  </lhc-rule-editor>
+
 
   <button *ngIf="fhirPreview" (click)="downloadJson(fhirPreview)" class="download">
     Download Questionnaire

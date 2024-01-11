@@ -38,6 +38,8 @@ strong.help_item {
   font-size: 18px;
   font-weight: bold;
   border: 1px solid black;
+  height: 100%;
+  padding: 1px 6px;
 }
 
 .close:hover,

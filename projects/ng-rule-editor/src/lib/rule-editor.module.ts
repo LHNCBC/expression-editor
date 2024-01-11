@@ -7,6 +7,7 @@ import { MatRadioModule } from '@angular/material/radio';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { A11yModule } from '@angular/cdk/a11y';
+import { TreeModule } from '@bugsplat/angular-tree-component';
 
 import { RuleEditorComponent } from './rule-editor.component';
 import { VariablesComponent } from './variables/variables.component';
@@ -18,6 +19,7 @@ import { SyntaxConverterComponent } from './syntax-converter/syntax-converter.co
 import { SyntaxPreviewComponent } from './syntax-preview/syntax-preview.component';
 import { QueryObservationComponent } from './query-observation/query-observation.component';
 import { CaseStatementsComponent } from './case-statements/case-statements.component';
+import { SelectScoringItemsComponent } from './select-scoring-items/select-scoring-items.component';
 import { EasyPathExpressionHelpComponent } from './helps/easy-path-expression-help/easy-path-expression-help.component';
 import { FhirpathExpressionHelpComponent } from './helps/fhirpath-expression-help/fhirpath-expression-help.component';
 import { HelpsComponent } from './helps/helps.component';
@@ -35,6 +37,7 @@ import { YesNoDialogComponent } from './yes-no-dialog/yes-no-dialog.component';
     SyntaxPreviewComponent,
     QueryObservationComponent,
     CaseStatementsComponent,
+    SelectScoringItemsComponent,
     EasyPathExpressionHelpComponent,
     FhirpathExpressionHelpComponent,
     HelpsComponent,
@@ -48,6 +51,7 @@ import { YesNoDialogComponent } from './yes-no-dialog/yes-no-dialog.component';
     ClipboardModule,
     MatTooltipModule,
     MatSnackBarModule,
+    TreeModule,
     A11yModule
   ],
   exports: [

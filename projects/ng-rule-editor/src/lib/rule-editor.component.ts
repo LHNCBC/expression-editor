@@ -34,6 +34,8 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
   caseStatements: boolean;
   disableInterfaceToggle = false;
   loadError = false;
+  selectItems: boolean;
+  hideRuleEditor = false;
   validationError = false;
   validationErrorMessage;
 
@@ -57,8 +59,8 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
   constructor(private variableService: RuleEditorService, private liveAnnouncer: LiveAnnouncer, private changeDetectorRef: ChangeDetectorRef) {}
 
   ngOnInit(): void {
-    this.calculateSumSubscription = this.variableService.mightBeScoreChange.subscribe((mightBeScore) => {
-      this.calculateSum = mightBeScore;
+    this.calculateSumSubscription = this.variableService.scoreCalculationChange.subscribe((scoreCalculation) => {
+      this.calculateSum = (scoreCalculation && !this.doNotAskToCalculateScore);
     });
     this.finalExpressionSubscription = this.variableService.finalExpressionChange.subscribe((finalExpression) => {
       this.finalExpression = finalExpression;
@@ -130,8 +132,13 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
    * Angular lifecycle hook called on input changes
    */
   ngOnChanges(): void {
+    this.calculateSum = false;
+    this.selectItems = false;
+    this.hideRuleEditor = false;
+    this.doNotAskToCalculateScore = false;
     this.resetVariablesOnQuestionnaireChange();
     this.reload();
+
   }
 
   /**
@@ -152,7 +159,15 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
     this.simpleExpression = this.variableService.simpleExpression;
     this.linkIdContext = this.variableService.linkIdContext;
     this.expressionSyntax = this.variableService.syntaxType;
-    this.calculateSum = this.variableService.mightBeScore;
+    this.selectItems = false;
+
+    if (this.linkIdContext) {
+      this.doNotAskToCalculateScore = !this.variableService.shouldCalculateScoreForItem(this.fhirQuestionnaire, this.linkIdContext, this.expressionUri);
+    } else {
+      this.doNotAskToCalculateScore = true;
+    }
+
+    this.calculateSum = (this.variableService.scoreCalculation && !this.doNotAskToCalculateScore);
     this.finalExpressionExtension = this.variableService.finalExpressionExtension;
     this.finalExpression = this.variableService.finalExpression;
     this.variables = this.variableService.getVariableNames();
@@ -174,8 +189,23 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
    * Create a new instance of a FHIR questionnaire file by summing all ordinal
    * values
    */
+  selectItemsForSumOfScores(): void {
+    this.selectItems = true;
+  }
+
+  /**
+   * Create a new instance of a FHIR questionnaire file by summing all ordinal
+   * values
+   */
   addSumOfScores(): void {
+    this.calculateSum = false;
+    this.selectItems = false;
+    this.hideRuleEditor = true;
+
+    this.variableService.removeSumOfScores(this.fhirQuestionnaire, this.linkIdContext);
     this.save.emit(this.variableService.addSumOfScores());
+
+    this.reload();
   }
 
   /**

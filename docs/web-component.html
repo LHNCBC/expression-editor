@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>Web Component</title>
-<!--  <link rel="stylesheet" href="/rule-editor/styles.css"/>-->
+ <link rel="stylesheet" href="./styles.css"/>
 
   <link rel="shortcut icon" href="data:image/x-icon;," type="image/x-icon">
 
@@ -33,6 +33,7 @@
       editor.fhirQuestionnaire = data;
       editor.itemLinkId = '/39156-5';
       editor.titlename = 'test';
+      editor.expressionUri = 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression';
 
       editor.addEventListener('save', (data) => {
         output.innerText = JSON.stringify(data.detail, null, 2);
