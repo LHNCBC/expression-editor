@@ -2,6 +2,10 @@
 
 This project follows [Semantic Versioning](http://semver.org/).
 
+## [3.1.15] 2024-01-16
+### Changed
+- Converted the Rule Editor demo to display in a dialog
+
 ## [3.1.14] 2023-01-09
 ### Added
 - Added the ability to select items for scoring calculation
