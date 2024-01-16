@@ -21,6 +21,7 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
   @Input() expressionUri = '';
   @Input() lhcStyle: SimpleStyle = {};
   @Output() save = new EventEmitter<object>();
+  @Output() cancel = new EventEmitter<object>();
 
   errorLoading = 'Could not detect a FHIR Questionnaire; please try a different file.';
   expressionSyntax: string;
@@ -287,5 +288,14 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
     setTimeout(() => {
       this.expressionSyntax = 'fhirpath';
     }, 10);
+  }
+
+  /**
+   * Cancel changes to the Rule Editor expression
+   */
+  cancelRuleEditorChanges(): void {
+    this.calculateSum = false;
+    this.selectItems = false;
+    this.cancel.emit();
   }
 }

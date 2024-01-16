@@ -10,6 +10,13 @@ describe('Rule editor', () => {
         cy.get('select#questionnaire-select').select('BMI Calculation');
         cy.wait('@bmi');
 
+        // The demo has 'BMI (/39156-5) selected by default
+        cy.get('#question').should('have.value', 'BMI (/39156-5)');
+        // Click the button to edit the expression
+        cy.get('button#editRuleEditor').should('exist').click();
+        // The Rule Editor dialog should now appear
+        cy.get('#rule-editor-dialog').should('exist');
+
         // Variables section
         cy.get('lhc-variables > h2').should('contain', 'Item Variables');
         cy.get('#variables-section .variable-row').should('have.length', 2);
@@ -46,7 +53,7 @@ describe('Rule editor', () => {
         cy.get('span#completionOptions').contains('29463-7').click();
 
         // Add variable of variable type "Question"
-        cy.get('#add-variable').click();
+        cy.get('#add-variable').click({force: true});
         cy.get('#variables-section .variable-row').should('have.length', 6);
         cy.get('div#row-5')
           .within(() => {
@@ -116,6 +123,13 @@ describe('Rule editor', () => {
         cy.get('select#questionnaire-select').select('BMI Calculation');
         cy.wait('@bmi');
 
+        // The demo has 'BMI (/39156-5) selected by default
+        cy.get('#question').should('have.value', 'BMI (/39156-5)');
+        // Click the button to edit the expression
+        cy.get('button#editRuleEditor').should('exist').click();
+        // The Rule Editor dialog should now appear
+        cy.get('#rule-editor-dialog').should('exist');
+
         // Variables section
         cy.get('lhc-variables > h2').should('contain', 'Item Variables');
         cy.get('#variables-section .variable-row').should('have.length', 2);
@@ -164,6 +178,13 @@ describe('Rule editor', () => {
         cy.intercept('/bmivariabletype.json').as('bmivariable');
         cy.get('select#questionnaire-select').select('BMI Variable Type');
         cy.wait('@bmivariable');
+
+        // The demo has 'BMI (/39156-5) selected by default
+        cy.get('#question').should('have.value', 'BMI (/39156-5)');
+        // Click the button to edit the expression
+        cy.get('button#editRuleEditor').should('exist').click();
+        // The Rule Editor dialog should now appear
+        cy.get('#rule-editor-dialog').should('exist');
 
         cy.title().should('eq', 'Rule Editor');
 
@@ -229,6 +250,13 @@ describe('Rule editor', () => {
         cy.intercept('/bmivariabletype.json').as('bmivariable');
         cy.get('select#questionnaire-select').select('BMI Variable Type');
         cy.wait('@bmivariable');
+
+        // The demo has 'BMI (/39156-5) selected by default
+        cy.get('#question').should('have.value', 'BMI (/39156-5)');
+        // Click the button to edit the expression
+        cy.get('button#editRuleEditor').should('exist').click();
+        // The Rule Editor dialog should now appear
+        cy.get('#rule-editor-dialog').should('exist');
 
         cy.title().should('eq', 'Rule Editor');
 
@@ -313,6 +341,13 @@ describe('Rule editor', () => {
         cy.get('select#questionnaire-select').select('BMI Variable Type');
         cy.wait('@bmivariable');
 
+        // The demo has 'BMI (/39156-5) selected by default
+        cy.get('#question').should('have.value', 'BMI (/39156-5)');
+        // Click the button to edit the expression
+        cy.get('button#editRuleEditor').should('exist').click();
+        // The Rule Editor dialog should now appear
+        cy.get('#rule-editor-dialog').should('exist');
+
         cy.title().should('eq', 'Rule Editor');
 
         // Question - weight default to kg
@@ -383,6 +418,13 @@ describe('Rule editor', () => {
         cy.get('select#questionnaire-select').select('BMI Variable Type');
         cy.wait('@bmivariable');
 
+        // The demo has 'BMI (/39156-5) selected by default
+        cy.get('#question').should('have.value', 'BMI (/39156-5)');
+        // Click the button to edit the expression
+        cy.get('button#editRuleEditor').should('exist').click();
+        // The Rule Editor dialog should now appear
+        cy.get('#rule-editor-dialog').should('exist');
+
         cy.title().should('eq', 'Rule Editor');
 
         cy.get('div#row-23')
@@ -397,6 +439,13 @@ describe('Rule editor', () => {
         cy.intercept('/bmivariabletype.json').as('bmivariable');
         cy.get('select#questionnaire-select').select('BMI Variable Type');
         cy.wait('@bmivariable');
+
+        // The demo has 'BMI (/39156-5) selected by default
+        cy.get('#question').should('have.value', 'BMI (/39156-5)');
+        // Click the button to edit the expression
+        cy.get('button#editRuleEditor').should('exist').click();
+        // The Rule Editor dialog should now appear
+        cy.get('#rule-editor-dialog').should('exist');
 
         cy.title().should('eq', 'Rule Editor');
 
@@ -439,6 +488,13 @@ describe('Rule editor', () => {
         cy.intercept('/bmivariabletype.json').as('bmivariable');
         cy.get('select#questionnaire-select').select('BMI Variable Type');
         cy.wait('@bmivariable');
+
+        // The demo has 'BMI (/39156-5) selected by default
+        cy.get('#question').should('have.value', 'BMI (/39156-5)');
+        // Click the button to edit the expression
+        cy.get('button#editRuleEditor').should('exist').click();
+        // The Rule Editor dialog should now appear
+        cy.get('#rule-editor-dialog').should('exist');
 
         cy.title().should('eq', 'Rule Editor');
 
@@ -528,6 +584,13 @@ describe('Rule editor', () => {
         cy.intercept('/bmivariabletype.json').as('bmivariable');
         cy.get('select#questionnaire-select').select('BMI Variable Type');
         cy.wait('@bmivariable');
+
+        // The demo has 'BMI (/39156-5) selected by default
+        cy.get('#question').should('have.value', 'BMI (/39156-5)');
+        // Click the button to edit the expression
+        cy.get('button#editRuleEditor').should('exist').click();
+        // The Rule Editor dialog should now appear
+        cy.get('#rule-editor-dialog').should('exist');
 
         cy.title().should('eq', 'Rule Editor');
 

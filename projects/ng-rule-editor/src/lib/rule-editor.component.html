@@ -111,5 +111,7 @@
     </section>
  
     <button class="primary" [ngClass]="{'disabled': validationError}" [attr.aria-label]="validationErrorMessage"  (click)="export()" [ngStyle]="lhcStyle.buttonPrimary" id="export">{{submitButtonName}}</button>
+    <button type="button" id="close" class="btn btn-primary" (click)="cancelRuleEditorChanges()" >Close</button>
+
   </div>
 </div>

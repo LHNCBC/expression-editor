@@ -58,6 +58,9 @@ export class AppComponent implements OnInit, OnDestroy {
   error = '';
   doNotAskToCalculateScore = false;
 
+  displayRuleEditor = false;
+  displayRuleEditorResult = false;
+
   constructor(private http: HttpClient, private liveAnnouncer: LiveAnnouncer, private changeDetectorRef: ChangeDetectorRef) {}
 
   ngOnInit(): void {
@@ -125,6 +128,8 @@ export class AppComponent implements OnInit, OnDestroy {
    * Show a preview of the output questionnaire under the rule editor
    */
   onSave(fhirResult): void {
+    this.displayRuleEditor = false;
+    this.displayRuleEditorResult = true;
     this.fhirPreview = JSON.stringify(fhirResult, null, 2);
   }
 
@@ -281,4 +286,44 @@ export class AppComponent implements OnInit, OnDestroy {
     }
   }
 
+  /**
+   * Close the Rule Editor dialog
+   */
+  closeRuleEditorDialog(): void {
+    this.displayRuleEditor = false;
+  }
+
+  /**
+   * Open the Rule Editor dialog to edit the expression for the
+   * selected item/question
+   */
+  editRuleEditorDialog(): void {
+    this.displayRuleEditor = true;
+    this.displayRuleEditorResult = false;
+
+    // The lhc-rule-editor component is not presented before the
+    // 'Edit Rule Editor' button is clicked due to the use of *ngIf.
+    // The attributes for the lhc-rule-editor component are not 
+    // getting updated as a result. The below steps are used to 
+    // trigger changes to those attributes. 
+    const tmpUserExpressionChoices = this.userExpressionChoices;
+    const tmpCustomExpressionUri = this.customExpressionUri;
+ 
+    this.userExpressionChoices = null;
+    this.customExpressionUri = null;
+
+    this.changeDetectorRef.detectChanges();
+
+    this.userExpressionChoices = tmpUserExpressionChoices;
+    this.customExpressionUri = tmpCustomExpressionUri;
+  }
+
+  /**
+   * Check if the Rule Editor expression can be edited.
+   * @return true if one of the root level checkbox is checked or there is 
+   * a question selected.
+   */
+  canEditRuleEditor(): boolean {
+    return (this.rootLevel || this.linkId !== null); 
+  }
 }
