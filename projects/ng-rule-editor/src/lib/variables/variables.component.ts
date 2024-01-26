@@ -101,6 +101,8 @@ export class VariablesComponent implements OnInit, OnChanges, OnDestroy {
    */
   drop(event: CdkDragDrop<Variable[]>): void {
     moveItemInArray(this.variables, event.previousIndex, event.currentIndex);
+
+    this.ruleEditorService.moveItemInVariableItemsErrors(event.previousIndex, event.currentIndex);
   }
 
   /**

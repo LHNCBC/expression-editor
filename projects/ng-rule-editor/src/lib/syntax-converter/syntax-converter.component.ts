@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnChanges } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnChanges, ViewChild } from '@angular/core';
 import { EasyPathExpressionsPipe } from '../easy-path-expressions.pipe';
 import { RuleEditorService, SimpleStyle } from '../rule-editor.service';
 
@@ -13,9 +13,14 @@ export class SyntaxConverterComponent implements OnChanges {
   @Input() index;
   @Input() lhcStyle: SimpleStyle = {};
   @Input() variableName: string;
+
+  @Input() validateInput = false;
+
   @Output() simpleChange = new EventEmitter<string>();
   @Output() expressionChange = new EventEmitter<string>();
  
+  @ViewChild('exp') exp;
+
   fhirPathExpression: string;
   jsToFhirPathPipe = new EasyPathExpressionsPipe();
 
@@ -39,14 +44,34 @@ export class SyntaxConverterComponent implements OnChanges {
     this.fhirPathExpression = fhirPath;
 
     this.hasError = false;
-    if (fhirPath === 'Not valid' && !this.hasError)
+    if (fhirPath === 'Not valid')
       this.hasError = true;
 
     this.simpleChange.emit(simple);
     this.expressionChange.emit(fhirPath);
 
-    const section = (this.variableName) ? 'Item Variables' : 'Output Expression';
+    const section = (this.variableName) ? RuleEditorService.ITEM_VARIABLES_SECTION : RuleEditorService.OUTPUT_EXPRESSION_SECTION;
     const errorFieldName = (this.variableName) ? this.variableName : "output expression";
-    this.ruleEditorService.notifyValidationResult((this.hasError) ? 'expressionError' : null, section, errorFieldName );
+
+    if (this.hasError) { 
+      const param = {
+        "section" : (this.index === 'final') ? RuleEditorService.OUTPUT_EXPRESSION_SECTION : RuleEditorService.ITEM_VARIABLES_SECTION,
+        "field": "expression",
+        "id" : "simple",
+        "name" : this.variableName,
+        "index" : this.index
+      }
+      const result = {
+        "invalidExpressionError": true,
+        "message": "Invalid expression",
+        "ariaMessage": "The expression is not a valid expression"
+      };
+
+      setTimeout(() => {
+        this.exp.control.setErrors(result);
+        this.ruleEditorService.notifyValidationResult(param, result);
+      }, 10);
+
+    }
   }
 }

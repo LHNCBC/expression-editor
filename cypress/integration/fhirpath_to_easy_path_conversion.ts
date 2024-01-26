@@ -332,7 +332,8 @@ describe('Rule editor', () => {
         cy.get('#simple-expression-2')
         .should('exist')
         .should('be.visible')
-        .should('not.have.class', 'field-error');
+        .should('have.class', 'field-error');
+        cy.get('lhc-syntax-preview > div > div > pre').should('contain.text', 'Expression is required.');
 
         // Type 'a' into the expression
         cy.get('#simple-expression-2').type('a');

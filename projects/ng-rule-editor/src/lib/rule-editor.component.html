@@ -85,17 +85,36 @@
             [variables]="variables"
             (expressionChange)="updateFinalExpression($event)"
             (simpleChange)="updateSimpleExpression($event)"
-            [lhcStyle]="lhcStyle"></lhc-syntax-converter>
+            [lhcStyle]="lhcStyle"
+            [validateInput]="true" >
+          </lhc-syntax-converter>
 
-          <div *ngSwitchCase="'fhirpath'" class="flex-container">
-            <input
-              type="text"
-              aria-label="FHIRPath"
-              id="final-expression"
-              class="form-control"
-              [(ngModel)]="finalExpression"
-              [ngStyle]="lhcStyle.input"
-              class="flex-item">
+          <div *ngSwitchCase="'fhirpath'" class="flex-vertical">
+            <div>
+              <input
+                type="text"
+                aria-label="FHIRPath"
+                id="final-expression"
+                class="form-control"
+                [(ngModel)]="finalExpression"
+                [ngStyle]="lhcStyle.input"
+                class="flex-item"
+                
+                [class.field-error]="exp.errors"
+                #exp="ngModel"
+                lhcExpressionValidator
+                [lhcExpressionValidateInput]="true"
+                [lhcExpressionValidatorParams]="{'section': 'Output Expression',
+                                                 'field': 'expression',
+                                                 'id': 'final-expression'}"
+                >
+            </div>
+
+            <div id="expression-error" role="alert" class="row error-span">
+              <p class="expression-error" *ngIf="exp.errors">
+                {{exp.errors.message}}
+              </p>
+            </div>
           </div>
         </div>
         <lhc-case-statements
@@ -110,6 +129,8 @@
       </div>
     </section>
  
-    <button class="primary" [ngClass]="{'disabled': validationError}" [attr.aria-label]="validationErrorMessage"  (click)="export()" [ngStyle]="lhcStyle.buttonPrimary" id="export">{{submitButtonName}}</button>
+    <button class="primary" [ngClass]="{'disabled': validationError}" 
+            [attr.aria-label]="validationErrorMessage"  (click)="export()" [ngStyle]="lhcStyle.buttonPrimary"
+            id="export">{{submitButtonName}}</button>
   </div>
 </div>

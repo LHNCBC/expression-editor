@@ -80,7 +80,10 @@
             [variableName]="variable.label"
             [lhcStyle]="lhcStyle"
             (simpleChange)="updateSimpleExpression(i, $event)"
-            (expressionChange)="updateExpression(i, $event)">
+            (expressionChange)="updateExpression(i, $event)"
+
+            [validateInput]="true"
+            >
           </lhc-syntax-converter>
         </div>
         <div class="form-inline" *ngSwitchCase="'expression'" class="flex-container">

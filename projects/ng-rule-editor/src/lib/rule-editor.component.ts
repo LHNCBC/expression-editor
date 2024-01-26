@@ -2,6 +2,7 @@ import { ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, OnDestroy
 
 import { RuleEditorService, SimpleStyle } from './rule-editor.service';
 import { LiveAnnouncer } from '@angular/cdk/a11y';
+import { ValidationResult } from './variable';
 
 @Component({
   // tslint:disable-next-line:component-selector
@@ -74,26 +75,40 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
     this.disableAdvancedSubscription = this.variableService.disableAdvancedChange.subscribe((disable) => {
       this.disableInterfaceToggle = disable;
     });
-    this.validationSubscription = this.variableService.validationChange.subscribe((validation) => {
-      if (validation) {
-        this.validationError = true;
-        const errorMessage = "Save button. The 'Save' button is disabled due to the validation error";
-        if (validation['section'] === "Item Variables") {
-          if (validation['variableName'])
-            this.validationErrorMessage = errorMessage + " for the variable '" + validation['name'] +
-                                          "' found in the " + validation['section'] + " section.";
-          else
-            this.validationErrorMessage = errorMessage + " found in the " + validation['section'] +
-                                          " section.";
-        } else
-          this.validationErrorMessage = errorMessage + " for the " + validation['name'] +
-                                        " found in the " + validation['section'] + " section.";
-      } else {
-        this.validationError = false;
-        this.validationErrorMessage = "";
-      }
+    this.validationSubscription = this.variableService.validationChange.subscribe((validation: ValidationResult) => {
+      this.validationError = validation.hasError;
+
+      this.validationErrorMessage = (this.validationError) ? this.composeAriaValidationErrorMessage(validation) : "";
     });
   }
+
+  /**
+   * Compose the string message to be used as the aria-label to explain why the 'Save' button is disabled.
+   * @return string to be used by the 'Save' button as the aria-label in the case of any validation error.
+   */
+  composeAriaValidationErrorMessage(validation: ValidationResult): string {
+    let message = "The 'save' button is disabled due to ";
+    let itemVariablesMessage = "";
+    if (validation.errorInItemVariables) {
+      itemVariablesMessage = "error in the Item Variable section ";
+    }
+
+    let outputExpressionMessage = "";
+
+    if (validation.errorInOutputExpression) {
+      if (itemVariablesMessage !== "")
+        outputExpressionMessage += " and ";
+      outputExpressionMessage += "error with the expression in the Output Expression section";
+    } else if (validation.errorInOutputCaseStatement) {
+      if (itemVariablesMessage !== "")
+        outputExpressionMessage += " and ";
+      outputExpressionMessage += "error with the case statement in the Output Expression section";
+    }
+
+    message += itemVariablesMessage + outputExpressionMessage;
+    
+    return message;
+  };
 
   /**
    * Angular lifecycle hook called before the component is destroyed
@@ -124,6 +139,8 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
     this.variables = [];
     this.uneditableVariables = [];
     this.caseStatements = false;
+
+    this.variableService.resetValidationErrors();
 
     this.changeDetectorRef.detectChanges();
   }

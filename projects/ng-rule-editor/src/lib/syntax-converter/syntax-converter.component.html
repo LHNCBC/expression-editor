@@ -9,11 +9,21 @@
       [style]="lhcStyle.input"
       [attr.aria-invalid]="hasError"
       aria-describedby="fhirpath-error"
-      [ngClass]="{'field-error': hasError}" />
+      [ngClass]="{'field-error': hasError}"
+     
+      [class.field-error]="exp.errors"
+      #exp="ngModel"
+      lhcExpressionValidator
+      [lhcExpressionValidateInput]="validateInput"
+      [lhcExpressionValidatorParams]="{'section': (index === 'final') ? 'Output Expression' : 'Item Variables',
+                                       'field': 'expression',
+                                       'id': 'simple-expression-' + index, 'name': variableName, 'index': index}"
+      />
+
     <lhc-syntax-preview
-      [syntax]="fhirPathExpression"
+      [syntax]="(exp.invalid) ? exp.errors.message : fhirPathExpression"
       [lhcStyle]="{'width': 'auto'}"
-      [hasError]="hasError">
+      [hasError]="exp.invalid">
     </lhc-syntax-preview>
   </div>
 </div>

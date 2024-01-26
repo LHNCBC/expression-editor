@@ -482,6 +482,26 @@ describe('Rule editor', () => {
             cy.get('#variable-type-14').select('FHIRPath Expression');
           });
 
+        // There is an error in the Output Expression
+        cy.get('#simple-expression-final').should('have.class', 'field-error');
+        cy.get('#final-expression-section lhc-syntax-preview > div > div > pre').should('contain.text', 'Invalid expression');
+        // As a result, the Save button is disabled
+        cy.get('#export').should('have.class', 'disabled');
+
+        // Fix the expression in the Output Expression section
+        cy.get('#simple-expression-final').clear().type('1 + 1');
+
+        // The Output Expression should no longer have error
+        cy.get('#simple-expression-final').should('not.have.class', 'field-error');
+        cy.get('#final-expression-section lhc-syntax-preview > div > div > pre').should('contain.text', '1 + 1');
+        // However, the 'Save' button should still be disabled due to an error with the first variable
+        cy.get('#export').should('have.class', 'disabled');
+
+        // Enter expression to the first variable
+        cy.get('#simple-expression-0').type('1 + 1');
+        // The 'Save' button should now be enabled
+        cy.get('#export').should('not.have.class', 'disabled');
+
         // Click Save
         cy.get('#export').click();
 
