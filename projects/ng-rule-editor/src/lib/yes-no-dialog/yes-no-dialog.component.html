@@ -1,6 +1,9 @@
 <div 
   cdkTrapFocus
   role="dialog"
+  aria-labelledby="dlg-title"
+  aria-describedby="dlg-prompt1 dlg-prompt2"
+  [cdkTrapFocusAutoCapture]="true"
   cdkFocusInitial
   aria-modal="true"
   id="yes-no-dialog"
@@ -8,17 +11,17 @@
   class="yes-no-modal">
   <div class="yes-no-modal-content yes-no-content" #modal aria-modal="true" [style.width]="dialogWidth">
     <div class="yes-no-modal-header">
-      <h2>{{title}}</h2>
+      <h2 id="dlg-title">{{title}}</h2>
     </div>
     <div class="yes-no-modal-body">
-      <label>{{prompt1}}</label>
+      <label id="dlg-prompt1">{{prompt1}}</label>
       <p></p>
-      <label>{{prompt2}}</label>
+      <label id="dlg-prompt2">{{prompt2}}</label>
 
     </div>
     <div class="yes-no-modal-footer">
-      <button id="yes-button" class="primary" [style]="lhcStyle.buttonPrimary" (click)="onYes()" >Yes</button>
-      <button id="no-button" (click)="onNo()">No</button>
+      <button id="yes-button" role="button" class="primary" [style]="lhcStyle.buttonPrimary" (click)="onYes()" >Yes</button>
+      <button id="no-button" role="button" (click)="onNo()">No</button>
     </div>
   </div>
 </div>

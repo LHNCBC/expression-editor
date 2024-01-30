@@ -35,7 +35,7 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
   caseStatements: boolean;
   disableInterfaceToggle = false;
   loadError = false;
-  cancelChanges = false;
+  showCancelConfirmationDialog = false;
 
   private calculateSumSubscription;
   private finalExpressionSubscription;
@@ -118,23 +118,31 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
    * Cancelling changes to the Rule Editor
    * 
    */
-  cancelExpression(): void {
-    this.cancelChanges = true;
+  cancelRuleEditorChanges(): void {
+    this.showCancelConfirmationDialog = true;
   }
 
   /**
    * Confirm to cancel change
    */
   confirmCancel(): void {
-    this.cancel.emit();
-    this.cancelChanges = false;
+    this.liveAnnouncer.announce("'yes' is selected. Help dialog closed.");
+
+    setTimeout(() => {
+      this.cancel.emit();
+      this.showCancelConfirmationDialog = false;
+    }, 500);
   }
 
   /**
    * Discard the cancel request
    */
   discardCancel(): void {
-    this.cancelChanges = false;
+    this.liveAnnouncer.announce("'no' is selected. Help dialog closed");
+
+    setTimeout(() => {
+      this.showCancelConfirmationDialog = false;
+    }, 100);
   }
 
   /**

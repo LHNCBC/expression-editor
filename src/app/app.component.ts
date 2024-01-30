@@ -13,7 +13,8 @@ export class AppComponent implements OnInit, OnDestroy {
   @ViewChild('autoComplete', {static: false}) autoCompleteElement: ElementRef;
   autoComplete;
 
-  formAppearedAnnouncement = 'The rule editor for the selected form has appeared below the current field.';
+  formAppearedAnnouncement = "The Rule Editor questionnaire is loaded";
+  formReloadAnnouncement = "The Rule Editor questionnaire is reloaded";
   calculatedExpression = 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression';
   originalLinkId = '/39156-5';
   expressionTypes = [
@@ -59,13 +60,14 @@ export class AppComponent implements OnInit, OnDestroy {
   constructor(private http: HttpClient, private liveAnnouncer: LiveAnnouncer, private changeDetectorRef: ChangeDetectorRef) {}
 
   ngOnInit(): void {
-    this.onChange();
+    this.onChange(false);
   }
 
   /**
    * Used when changing the questionnaire dropdown
+   * @param reload - reload the questionnaire
    */
-  onChange(): void {
+  onChange(reload=false): void {
     // Clear out preview when changing forms
     this.fhirPreview = '';
     this.error = '';
@@ -77,7 +79,7 @@ export class AppComponent implements OnInit, OnDestroy {
       this.file = '';
       this.linkId = '';
     } else {
-      this.liveAnnouncer.announce(this.formAppearedAnnouncement);
+      this.liveAnnouncer.announce((reload) ? this.formReloadAnnouncement : this.formAppearedAnnouncement);
       this.linkId = this.originalLinkId;
       this.expressionUri = this.calculatedExpression;
 
@@ -90,6 +92,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
   /**
    * Show a preview of the output questionnaire under the rule editor
+   * @param fhirResult - questionnaire JSON structure
    */
   onSave(fhirResult): void {
     this.fhirPreview = JSON.stringify(fhirResult, null, 2);
@@ -101,7 +104,7 @@ export class AppComponent implements OnInit, OnDestroy {
   onCancel(): void {
     // Reset it back to the 'bmisimple' questionnaire
     this.formType = 'bmisimple';
-    this.onChange();
+    this.onChange(true);
   }
 
 

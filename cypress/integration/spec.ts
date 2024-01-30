@@ -41,10 +41,10 @@ describe('Rule editor', () => {
 
       it('should be able to select autocomplete question', () => {
         cy.get('#question-1').clear().type('bmi');
-        cy.contains('39156-5').click();
+        cy.get('span#completionOptions > ul > li').contains('39156-5').click();
         cy.get('#question-1').parent().next('.unit-select').children('select').should('not.exist');
         cy.get('#question-1').clear().type('height');
-        cy.contains('8302-2').click();
+        cy.get('span#completionOptions > ul > li').contains('8302-2').click();
         cy.get('#question-1').parent().next('.unit-select').children('select').should('exist'); 
       });
 
@@ -457,9 +457,8 @@ describe('Rule editor', () => {
             // Select question Weight again
             cy.get('#question-0').clear().type('weight');
           });
-
-        cy.get('#completionOptions').contains('29463-7').click();
-
+        cy.get('span#completionOptions > ul > li').contains('29463-7').click();
+        
         cy.get('div#row-0')
           .within(() => {
             // Now select Easy Path Expression variable type
@@ -545,8 +544,8 @@ describe('Rule editor', () => {
             cy.get('#question-1').clear().type('weight');
           });
 
-        cy.get('#completionOptions').contains('29463-7').click();
-
+        cy.get('span#completionOptions > ul > li').contains('29463-7').click();
+        
         cy.get('div#row-1')
           .within(() => {
             // Switch back to Easy Path Expression variable type.  The expression should get cleared out
@@ -670,8 +669,8 @@ describe('Rule editor', () => {
         cy.get('#add-variable').click();
         cy.get('#variables-section .variable-row').should('have.length', 3);
         cy.get('#question-2').clear().type('BMI (/39156-5)');
-        cy.contains('39156-5').click();
-  
+        cy.get('span#completionOptions > ul > li').contains('39156-5').click();
+
         // Confirm that variable c is available for Output expression 
         cy.get('#simple-expression-final').clear().type('a + b + c');
         cy.get('lhc-syntax-preview>div>div>pre').should('not.have.text', 'Not valid');
@@ -700,7 +699,7 @@ describe('Rule editor', () => {
         cy.get('div.rule-editor lhc-yes-no-dialog').should('not.exist');
 
         // Cancel button
-        cy.get('#cancel-expression').should('exist').click();
+        cy.get('#cancel-changes').should('exist').click();
 
         // The dialog to confirm cancel should be displayed
         cy.get('div.rule-editor lhc-yes-no-dialog').should('exist');
@@ -727,10 +726,10 @@ describe('Rule editor', () => {
         cy.get('#add-variable').click();
         cy.get('#variables-section .variable-row').should('have.length', 3);
         cy.get('#question-2').clear().type('BMI (/39156-5)');
-        cy.contains('39156-5').click();
+        cy.get('span#completionOptions > ul > li').contains('39156-5').click();
         
         // Cancel button
-        cy.get('#cancel-expression').should('exist').click();
+        cy.get('#cancel-changes').should('exist').click();
 
         // The dialog to confirm cancel should be displayed
         cy.get('div.rule-editor lhc-yes-no-dialog').should('exist');
