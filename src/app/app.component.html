@@ -9,7 +9,7 @@
 
 <label>
   Questionnaire:
-  <select [(ngModel)]="formType" (change)="onChange()" id="questionnaire-select">
+  <select [(ngModel)]="questionnaire" (change)="onChange()" id="questionnaire-select">
     <option value="upload">Upload your own questionnaire</option>
     <option value="bmi">BMI Calculation</option>
     <option value="bmisimple">BMI Calculation (Easy Path expression)</option>
@@ -19,7 +19,7 @@
     <option value="query">Query</option>
   </select>
 </label>
-<div *ngIf="formType == 'upload'" id="upload">
+<div *ngIf="questionnaire == 'upload'" id="upload">
   <p>Please specify the questionnaire, item Link ID, and the corresponding Expression URI where the output should be placed:</p>
   <label>Questionnaire:
     <input type="file" id="file-upload" [(ngModel)]="file" accept=".json" (change)="prepareForImport($event)">

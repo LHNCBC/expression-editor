@@ -126,7 +126,7 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
    * Confirm to cancel change
    */
   confirmCancel(): void {
-    this.liveAnnouncer.announce("'yes' is selected. Help dialog closed.");
+    this.liveAnnouncer.announce("'yes' was selected. Changes were canceled.");
 
     setTimeout(() => {
       this.cancel.emit();
@@ -138,7 +138,7 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
    * Discard the cancel request
    */
   discardCancel(): void {
-    this.liveAnnouncer.announce("'no' is selected. Help dialog closed");
+    this.liveAnnouncer.announce("'no' was selected. Changes were not canceled");
 
     setTimeout(() => {
       this.showCancelConfirmationDialog = false;

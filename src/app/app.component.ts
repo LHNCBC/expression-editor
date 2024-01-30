@@ -13,8 +13,8 @@ export class AppComponent implements OnInit, OnDestroy {
   @ViewChild('autoComplete', {static: false}) autoCompleteElement: ElementRef;
   autoComplete;
 
-  formAppearedAnnouncement = "The Rule Editor questionnaire is loaded";
-  formReloadAnnouncement = "The Rule Editor questionnaire is reloaded";
+  formAppearedAnnouncement = "The Rule Editor questionnaire has loaded";
+  formReloadAnnouncement = "The Rule Editor questionnaire has reloaded";
   calculatedExpression = 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression';
   originalLinkId = '/39156-5';
   expressionTypes = [
@@ -52,7 +52,7 @@ export class AppComponent implements OnInit, OnDestroy {
   userExpressionChoices = null;
   customExpressionUri = false;
   fhir = null;
-  formType = 'bmisimple';
+  questionnaire = 'bmisimple';
   file = '';
   error = '';
   doNotAskToCalculateScore = false;
@@ -73,19 +73,19 @@ export class AppComponent implements OnInit, OnDestroy {
     this.error = '';
     this.doNotAskToCalculateScore = false;
 
-    if (this.formType === '' || this.formType === 'upload') {
+    if (this.questionnaire === '' || this.questionnaire === 'upload') {
       this.liveAnnouncer.announce('Additional settings must be entered below to load the rule editor.');
       this.fhir = null;
       this.file = '';
       this.linkId = '';
     } else {
-      this.liveAnnouncer.announce((reload) ? this.formReloadAnnouncement : this.formAppearedAnnouncement);
       this.linkId = this.originalLinkId;
       this.expressionUri = this.calculatedExpression;
 
-      this.http.get(`./${this.formType}.json`)
+      this.http.get(`./${this.questionnaire}.json`)
         .subscribe(data => {
           this.fhir = data;
+          this.liveAnnouncer.announce((reload) ? this.formReloadAnnouncement : this.formAppearedAnnouncement);
         });
     }
   }
@@ -103,7 +103,7 @@ export class AppComponent implements OnInit, OnDestroy {
    */
   onCancel(): void {
     // Reset it back to the 'bmisimple' questionnaire
-    this.formType = 'bmisimple';
+    this.questionnaire = 'bmisimple';
     this.onChange(true);
   }
 
