@@ -25,7 +25,7 @@ describe('Rule editor demo', () => {
       cy.get('span#completionOptions > ul > li').contains('39156-5').click();
 
       // Click the button to edit the expression
-      cy.get('button#editRuleEditor').should('exist').click();
+      cy.get('button#openRuleEditor').should('exist').click();
       // The Rule Editor dialog should now appear
       cy.get('#rule-editor-dialog').should('exist');
 
@@ -36,7 +36,7 @@ describe('Rule editor demo', () => {
       cy.get('#expression-entry > select').select('2');
 
       // Click the button to edit the expression
-      cy.get('button#editRuleEditor').should('exist').click();
+      cy.get('button#openRuleEditor').should('exist').click();
       // The Rule Editor dialog should now appear
       cy.get('#rule-editor-dialog').should('exist');
 
@@ -46,7 +46,7 @@ describe('Rule editor demo', () => {
       cy.get('#output').should('contain.text', 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression');
 
       // Click the button to edit the expression
-      cy.get('button#editRuleEditor').should('exist').click();
+      cy.get('button#openRuleEditor').should('exist').click();
       // The Rule Editor dialog should now appear
       cy.get('#rule-editor-dialog').should('exist');
 
@@ -101,7 +101,7 @@ describe('Rule editor demo', () => {
       cy.get('div#expression-entry > select').should('have.value', '1');
 
       // Click the button to edit the expression
-      cy.get('button#editRuleEditor').should('exist').click();
+      cy.get('button#openRuleEditor').should('exist').click();
       // The Rule Editor dialog should now appear
       cy.get('#rule-editor-dialog').should('exist');
 
@@ -137,7 +137,7 @@ describe('Rule editor demo', () => {
       cy.get('span#completionOptions > ul > li').contains('44250-9').click();
 
       // Click the button to edit the expression
-      cy.get('button#editRuleEditor').should('exist').click();
+      cy.get('button#openRuleEditor').should('exist').click();
       // The Rule Editor dialog should now appear
       cy.get('#rule-editor-dialog').should('exist');
 
@@ -151,7 +151,7 @@ describe('Rule editor demo', () => {
       cy.get('span#completionOptions > ul > li').contains('44255-8').click();
 
       // Click the button to edit the expression
-      cy.get('button#editRuleEditor').should('exist').click();
+      cy.get('button#openRuleEditor').should('exist').click();
       // The Rule Editor dialog should now appear
       cy.get('#rule-editor-dialog').should('exist');
 
@@ -173,7 +173,7 @@ describe('Rule editor demo', () => {
       cy.get('div#expression-entry > select').should('have.value', '1');
 
       // Click the button to edit the expression
-      cy.get('button#editRuleEditor').should('exist').click();
+      cy.get('button#openRuleEditor').should('exist').click();
       // The Rule Editor dialog should now appear
       cy.get('#rule-editor-dialog').should('exist');
 
@@ -190,7 +190,7 @@ describe('Rule editor demo', () => {
       cy.get('div#expression-entry > select').select('Answer Expression').should('have.value', '0');
 
       // Click the button to edit the expression
-      cy.get('button#editRuleEditor').should('exist').click();
+      cy.get('button#openRuleEditor').should('exist').click();
       // The Rule Editor dialog should now appear
       cy.get('#rule-editor-dialog').should('exist');
 
@@ -204,7 +204,7 @@ describe('Rule editor demo', () => {
       cy.get('div#expression-entry > select').select('Enable When Expression').should('have.value', '3');
 
       // Click the button to edit the expression
-      cy.get('button#editRuleEditor').should('exist').click();
+      cy.get('button#openRuleEditor').should('exist').click();
       // The Rule Editor dialog should now appear
       cy.get('#rule-editor-dialog').should('exist');
 
@@ -218,7 +218,7 @@ describe('Rule editor demo', () => {
       cy.get('div#expression-entry > select').select('Initial Expression').should('have.value', '4');
 
       // Click the button to edit the expression
-      cy.get('button#editRuleEditor').should('exist').click();
+      cy.get('button#openRuleEditor').should('exist').click();
       // The Rule Editor dialog should now appear
       cy.get('#rule-editor-dialog').should('exist');
 
@@ -233,7 +233,7 @@ describe('Rule editor demo', () => {
         .should('have.value', '2');
 
       // Click the button to edit the expression
-      cy.get('button#editRuleEditor').should('exist').click();
+      cy.get('button#openRuleEditor').should('exist').click();
       // The Rule Editor dialog should now appear
       cy.get('#rule-editor-dialog').should('exist');
 
@@ -247,7 +247,7 @@ describe('Rule editor demo', () => {
       cy.get('div#expression-entry > select').select('Other...').should('have.value', 'custom');
 
       // Click the button to edit the expression
-      cy.get('button#editRuleEditor').should('exist').click();
+      cy.get('button#openRuleEditor').should('exist').click();
       // The Rule Editor dialog should now appear
       cy.get('#rule-editor-dialog').should('exist');
 
@@ -261,7 +261,7 @@ describe('Rule editor demo', () => {
         .type('http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-enableWhenExpression');
 
       // Click the button to edit the expression
-      cy.get('button#editRuleEditor').should('exist').click();
+      cy.get('button#openRuleEditor').should('exist').click();
       // The Rule Editor dialog should now appear
       cy.get('#rule-editor-dialog').should('exist');
       
@@ -275,7 +275,7 @@ describe('Rule editor demo', () => {
         .type('http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression');
 
       // Click the button to edit the expression
-      cy.get('button#editRuleEditor').should('exist').click();
+      cy.get('button#openRuleEditor').should('exist').click();
       // The Rule Editor dialog should now appear
       cy.get('#rule-editor-dialog').should('exist');
       
@@ -299,14 +299,14 @@ describe('Rule editor demo', () => {
       cy.get('span#completionOptions > ul > li').contains('44261-6').click();
 
       // Click the button to edit the expression
-      cy.get('button#editRuleEditor').should('exist').click();
+      cy.get('button#openRuleEditor').should('exist').click();
       // The Rule Editor dialog should now appear
       cy.get('#rule-editor-dialog').should('exist');
 
       // The prompt should not be displayed.
       cy.get('lhc-calculate-sum-prompt').should('not.exist');
 
-      cy.get('#close').click();
+      cy.get('#cancel').click();
 
       // Selecting a different question that does not have predefined scoring
       // items should still get prompt
@@ -317,7 +317,7 @@ describe('Rule editor demo', () => {
         .should('have.value', '1');;
 
       // Click the button to edit the expression
-      cy.get('button#editRuleEditor').should('exist').click();
+      cy.get('button#openRuleEditor').should('exist').click();
       // The Rule Editor dialog should now appear
       cy.get('#rule-editor-dialog').should('exist');
 
@@ -341,7 +341,7 @@ describe('Rule editor demo', () => {
         .should('have.value', '1');;
 
       // Click the button to edit the expression
-      cy.get('button#editRuleEditor').should('exist').click();
+      cy.get('button#openRuleEditor').should('exist').click();
       // The Rule Editor dialog should now appear
       cy.get('#rule-editor-dialog').should('exist');
 
@@ -374,7 +374,7 @@ describe('Rule editor demo', () => {
         .should('have.value', '1');;
 
       // Click the button to edit the expression
-      cy.get('button#editRuleEditor').should('exist').click();
+      cy.get('button#openRuleEditor').should('exist').click();
       // The Rule Editor dialog should now appear
       cy.get('#rule-editor-dialog').should('exist');
 
@@ -443,7 +443,7 @@ describe('Rule editor demo', () => {
       // The demo has '(/39156-5) selected by default
       cy.get('#question').should('contain.value', '(/39156-5)');
       // Click the button to edit the expression
-      cy.get('button#editRuleEditor').should('exist').click();
+      cy.get('button#openRuleEditor').should('exist').click();
       // The Rule Editor dialog should now appear
       cy.get('#rule-editor-dialog').should('exist');
 

@@ -297,12 +297,12 @@ export class AppComponent implements OnInit, OnDestroy {
    * Open the Rule Editor dialog to edit the expression for the
    * selected item/question
    */
-  editRuleEditorDialog(): void {
+  openRuleEditorDialog(): void {
     this.displayRuleEditor = true;
     this.displayRuleEditorResult = false;
 
     // The lhc-rule-editor component is not presented before the
-    // 'Edit Rule Editor' button is clicked due to the use of *ngIf.
+    // 'Open Rule Editor' button is clicked due to the use of *ngIf.
     // The attributes for the lhc-rule-editor component are not 
     // getting updated as a result. The below steps are used to 
     // trigger changes to those attributes. 
@@ -319,11 +319,11 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Check if the Rule Editor expression can be edited.
+   * Check if the Rule Editor can be opened to edit the expression.
    * @return true if one of the root level checkbox is checked or there is 
    * a question selected.
    */
-  canEditRuleEditor(): boolean {
+  canOpenRuleEditor(): boolean {
     return (this.rootLevel || this.linkId !== null); 
   }
 }

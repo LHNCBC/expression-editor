@@ -14,7 +14,7 @@ describe('Rule editor', () => {
         // The demo has 'BMI (/39156-5) selected by default
         cy.get('#question').should('have.value', 'BMI (/39156-5)');
         // Click the button to edit the expression
-        cy.get('button#editRuleEditor').should('exist').click();
+        cy.get('button#openRuleEditor').should('exist').click();
         // The Rule Editor dialog should now appear
         cy.get('#rule-editor-dialog').should('exist');
 
@@ -50,7 +50,7 @@ describe('Rule editor', () => {
         // The demo has 'BMI (/39156-5) selected by default
         cy.get('#question').should('have.value', 'BMI (/39156-5)');
         // Click the button to edit the expression
-        cy.get('button#editRuleEditor').should('exist').click();
+        cy.get('button#openRuleEditor').should('exist').click();
         // The Rule Editor dialog should now appear
         cy.get('#rule-editor-dialog').should('exist');
 
@@ -85,7 +85,7 @@ describe('Rule editor', () => {
         // The demo has 'BMI (/39156-5) selected by default
         cy.get('#question').should('have.value', 'BMI (/39156-5)');
         // Click the button to edit the expression
-        cy.get('button#editRuleEditor').should('exist').click();
+        cy.get('button#openRuleEditor').should('exist').click();
         // The Rule Editor dialog should now appear
         cy.get('#rule-editor-dialog').should('exist');
 
@@ -157,7 +157,7 @@ describe('Rule editor', () => {
         // The demo has 'BMI (/39156-5) selected by default
         cy.get('#question').should('have.value', 'BMI (/39156-5)');
         // Click the button to edit the expression
-        cy.get('button#editRuleEditor').should('exist').click();
+        cy.get('button#openRuleEditor').should('exist').click();
         // The Rule Editor dialog should now appear
         cy.get('#rule-editor-dialog').should('exist');
 
@@ -207,7 +207,7 @@ describe('Rule editor', () => {
         // The demo has 'BMI (/39156-5) selected by default
         cy.get('#question').should('have.value', 'BMI (/39156-5)');
         // Click the button to edit the expression
-        cy.get('button#editRuleEditor').should('exist').click();
+        cy.get('button#openRuleEditor').should('exist').click();
         // The Rule Editor dialog should now appear
         cy.get('#rule-editor-dialog').should('exist');
 
@@ -257,7 +257,7 @@ describe('Rule editor', () => {
         // The demo has 'BMI (/39156-5) selected by default
         cy.get('#question').should('have.value', 'BMI (/39156-5)');
         // Click the button to edit the expression
-        cy.get('button#editRuleEditor').should('exist').click();
+        cy.get('button#openRuleEditor').should('exist').click();
         // The Rule Editor dialog should now appear
         cy.get('#rule-editor-dialog').should('exist');
 
@@ -310,7 +310,7 @@ describe('Rule editor', () => {
         // The demo has 'BMI (/39156-5) selected by default
         cy.get('#question').should('have.value', 'BMI (/39156-5)');
         // Click the button to edit the expression
-        cy.get('button#editRuleEditor').should('exist').click();
+        cy.get('button#openRuleEditor').should('exist').click();
         // The Rule Editor dialog should now appear
         cy.get('#rule-editor-dialog').should('exist');
 
@@ -370,7 +370,7 @@ describe('Rule editor', () => {
         // The demo has 'BMI (/39156-5) selected by default
         cy.get('#question').should('have.value', 'BMI (/39156-5)');
         // Click the button to edit the expression
-        cy.get('button#editRuleEditor').should('exist').click();
+        cy.get('button#openRuleEditor').should('exist').click();
         // The Rule Editor dialog should now appear
         cy.get('#rule-editor-dialog').should('exist');
 
@@ -416,7 +416,7 @@ describe('Rule editor', () => {
         // The demo has 'BMI (/39156-5) selected by default
         cy.get('#question').should('have.value', 'BMI (/39156-5)');
         // Click the button to edit the expression
-        cy.get('button#editRuleEditor').should('exist').click();
+        cy.get('button#openRuleEditor').should('exist').click();
         // The Rule Editor dialog should now appear
         cy.get('#rule-editor-dialog').should('exist');
 
@@ -460,7 +460,7 @@ describe('Rule editor', () => {
         // The demo has 'BMI (/39156-5) selected by default
         cy.get('#question').should('have.value', 'BMI (/39156-5)');
         // Click the button to edit the expression
-        cy.get('button#editRuleEditor').should('exist').click();
+        cy.get('button#openRuleEditor').should('exist').click();
         // The Rule Editor dialog should now appear
         cy.get('#rule-editor-dialog').should('exist');
 
@@ -509,7 +509,7 @@ describe('Rule editor', () => {
         // The demo has 'BMI (/39156-5) selected by default
         cy.get('#question').should('have.value', 'BMI (/39156-5)');
         // Click the button to edit the expression
-        cy.get('button#editRuleEditor').should('exist').click();
+        cy.get('button#openRuleEditor').should('exist').click();
         // The Rule Editor dialog should now appear
         cy.get('#rule-editor-dialog').should('exist');
 
@@ -558,7 +558,7 @@ describe('Rule editor', () => {
         // The demo has 'BMI (/39156-5) selected by default
         cy.get('#question').should('have.value', 'BMI (/39156-5)');
         // Click the button to edit the expression
-        cy.get('button#editRuleEditor').should('exist').click();
+        cy.get('button#openRuleEditor').should('exist').click();
         // The Rule Editor dialog should now appear
         cy.get('#rule-editor-dialog').should('exist');
 
@@ -601,7 +601,7 @@ describe('Rule editor', () => {
         // The demo has 'BMI (/39156-5) selected by default
         cy.get('#question').should('have.value', 'BMI (/39156-5)');
         // Click the button to edit the expression
-        cy.get('button#editRuleEditor').should('exist').click();
+        cy.get('button#openRuleEditor').should('exist').click();
         // The Rule Editor dialog should now appear
         cy.get('#rule-editor-dialog').should('exist');
 
@@ -672,7 +672,7 @@ describe('Rule editor', () => {
         // The demo has 'BMI (/39156-5) selected by default
         cy.get('#question').should('have.value', 'BMI (/39156-5)');
         // Click the button to edit the expression
-        cy.get('button#editRuleEditor').should('exist').click();
+        cy.get('button#openRuleEditor').should('exist').click();
         // The Rule Editor dialog should now appear
         cy.get('#rule-editor-dialog').should('exist');
 
@@ -759,7 +759,7 @@ describe('Rule editor', () => {
         // The demo has 'BMI (/39156-5) selected by default
         cy.get('#question').should('have.value', 'BMI (/39156-5)');
         // Click the button to edit the expression
-        cy.get('button#editRuleEditor').should('exist').click();
+        cy.get('button#openRuleEditor').should('exist').click();
         // The Rule Editor dialog should now appear
         cy.get('#rule-editor-dialog').should('exist');
 
@@ -848,7 +848,7 @@ describe('Rule editor', () => {
         // The demo has 'BMI (/39156-5) selected by default
         cy.get('#question').should('have.value', 'BMI (/39156-5)');
         // Click the button to edit the expression
-        cy.get('button#editRuleEditor').should('exist').click();
+        cy.get('button#openRuleEditor').should('exist').click();
         // The Rule Editor dialog should now appear
         cy.get('#rule-editor-dialog').should('exist');
 
@@ -922,7 +922,7 @@ describe('Rule editor', () => {
         // The demo has 'BMI (/39156-5) selected by default
         cy.get('#question').should('have.value', 'BMI (/39156-5)');
         // Click the button to edit the expression
-        cy.get('button#editRuleEditor').should('exist').click();
+        cy.get('button#openRuleEditor').should('exist').click();
         // The Rule Editor dialog should now appear
         cy.get('#rule-editor-dialog').should('exist');
 
@@ -1006,7 +1006,7 @@ describe('Rule editor', () => {
         // The demo has 'BMI (/39156-5) selected by default
         cy.get('#question').should('have.value', 'BMI (/39156-5)');
         // Click the button to edit the expression
-        cy.get('button#editRuleEditor').should('exist').click();
+        cy.get('button#openRuleEditor').should('exist').click();
         // The Rule Editor dialog should now appear
         cy.get('#rule-editor-dialog').should('exist');
 
@@ -1139,7 +1139,7 @@ describe('Rule editor', () => {
         // The demo has 'BMI (/39156-5) selected by default
         cy.get('#question').should('have.value', 'BMI (/39156-5)');
         // Click the button to edit the expression
-        cy.get('button#editRuleEditor').should('exist').click();
+        cy.get('button#openRuleEditor').should('exist').click();
         // The Rule Editor dialog should now appear
         cy.get('#rule-editor-dialog').should('exist');
 

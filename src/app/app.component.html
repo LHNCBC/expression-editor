@@ -68,9 +68,9 @@
 </div>
 
 <div class="btn">
-  <button class="primary btn" (click)="editRuleEditorDialog()" 
-          aria-label="Edit Rule Editor button. "
-          id="editRuleEditor" [disabled]="!canEditRuleEditor()">Edit Rule Editor</button>
+  <button class="primary btn" (click)="openRuleEditorDialog()" 
+          aria-label="Open Rule Editor button. "
+          id="openRuleEditor" [disabled]="!canOpenRuleEditor()">Open Rule Editor</button>
 </div>
 
 <div class="error" *ngIf="error">
