@@ -13,8 +13,8 @@ export class AppComponent implements OnInit, OnDestroy {
   @ViewChild('autoComplete', {static: false}) autoCompleteElement: ElementRef;
   autoComplete;
 
-  formAppearedAnnouncement = "The Rule Editor questionnaire has loaded";
-  formReloadAnnouncement = "The Rule Editor questionnaire has reloaded";
+  formAppearedAnnouncement = "The Rule Editor questionnaire has been loaded";
+  formReloadAnnouncement = "The Rule Editor questionnaire has been reloaded";
   calculatedExpression = 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression';
   originalLinkId = '/39156-5';
   expressionTypes = [
