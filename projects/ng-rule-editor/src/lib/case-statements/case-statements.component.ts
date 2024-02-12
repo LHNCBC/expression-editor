@@ -1,18 +1,19 @@
 import { ChangeDetectorRef,  Component, EventEmitter, Input, OnChanges, OnInit, Output, ViewChild,
-         ViewChildren, QueryList, AfterViewInit } from '@angular/core';
+         ViewChildren, QueryList, AfterViewInit, OnDestroy } from '@angular/core';
 import { RuleEditorService, SimpleStyle } from '../rule-editor.service';
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
-import { CASE_REGEX, CaseStatement, ValidationError, Variable } from '../variable';
+import { CASE_REGEX, CaseStatement, ValidationError, Variable, FieldTypes, SectionTypes } from '../variable';
 import { EasyPathExpressionsPipe } from '../easy-path-expressions.pipe';
 import { LiveAnnouncer } from '@angular/cdk/a11y';
 import { NgModel } from '@angular/forms';
+import * as fhirpath from 'fhirpath';
 
 @Component({
   selector: 'lhc-case-statements',
   templateUrl: './case-statements.component.html',
   styleUrls: ['../rule-editor.component.css', './case-statements.component.css']
 })
-export class CaseStatementsComponent implements OnInit, OnChanges, AfterViewInit {
+export class CaseStatementsComponent implements OnInit, OnChanges, OnDestroy, AfterViewInit {
   @Input() lhcStyle: SimpleStyle = {};
   @Input() syntax: string;
   @Input() simpleExpression: string;
@@ -21,9 +22,9 @@ export class CaseStatementsComponent implements OnInit, OnChanges, AfterViewInit
   @Output() expressionChange = new EventEmitter<string>();
   @Output() simpleChange = new EventEmitter<string>();
 
-  @ViewChildren('caseConditionRef') caseConditions: QueryList<NgModel>;
-  @ViewChildren('caseOutputRef') caseOutputs: QueryList<NgModel>;
-  @ViewChild('caseDefaultRef') caseDefault:NgModel;
+  @ViewChildren('caseConditionRef') caseConditionRefs: QueryList<NgModel>;
+  @ViewChildren('caseOutputRef') caseOutputRefs: QueryList<NgModel>;
+  @ViewChild('caseDefaultRef') caseDefaultRef:NgModel;
  
   STRING_REGEX = /^'(.*)'$/;
   pipe = new EasyPathExpressionsPipe();
@@ -37,6 +38,7 @@ export class CaseStatementsComponent implements OnInit, OnChanges, AfterViewInit
 
   hasError = false;
   defaultCaseError = '';
+  performValidationSubscription;
 
   constructor(private ruleEditorService: RuleEditorService,
               private liveAnnouncer: LiveAnnouncer,
@@ -53,9 +55,43 @@ export class CaseStatementsComponent implements OnInit, OnChanges, AfterViewInit
     }
 
     this.output = this.getIif(0);
+
+    // performValidationSubscription is triggered when the 'Save' button is clicked, allowing each
+    // subscribed component to validate the expression data.
+    this.performValidationSubscription = this.ruleEditorService.performValidationChange.subscribe((validation) => {
+      this.caseConditionRefs.forEach((cc, index) => {
+        if (!cc.control.value || cc.control.value === "") {
+          cc.control.markAsTouched();
+          cc.control.markAsDirty();
+        }
+      });
+      this.caseOutputRefs.forEach((co, index) => {
+        if (!co.control.value || co.control.value === "") {
+          co.control.markAsTouched();
+          co.control.markAsDirty();
+        }
+      });
+
+      if (!this.caseDefaultRef.control.value || this.caseDefaultRef.control.value === "") {
+        this.caseDefaultRef.control.markAsTouched();
+        this.caseDefaultRef.control.markAsDirty();
+      }
+      this.onChange();
+    });
   }
 
+  /**
+   * Angular lifecycle hook called before the component is destroyed
+   */
+  ngOnDestroy(): void {
+    this.performValidationSubscription.unsubscribe();
+  }
+
+  /**
+   * Perform check on any Case statement errors 
+   */
   ngAfterViewInit() {
+    this.changeDetectorRef.detectChanges();
     this.updateCaseStatementsErrors();
   }
 
@@ -149,14 +185,14 @@ export class CaseStatementsComponent implements OnInit, OnChanges, AfterViewInit
     if (result === 'Not valid') {
       errorObj = {
         "invalidCaseStatementError": true,
-        "message": "The " + key + " is invalid",
-        "ariaMessage": "The " + key + " is invalid"
+        "message": "The " + key + " is invalid.",
+        "ariaMessage": "The " + key + " is invalid."
       };
     } else if (result ===  'Required') {
       errorObj = {
         "invalidCaseStatementError": true,
-        "message": "The " + key + " is required",
-        "ariaMessage": "The " + key + " is required"
+        "message": "The " + key + " is required.",
+        "ariaMessage": "The " + key + " is required."
       };
     }
     return errorObj;
@@ -191,9 +227,11 @@ export class CaseStatementsComponent implements OnInit, OnChanges, AfterViewInit
   checkAndUpdateCaseErrors(caseElements: any, type: string): boolean {
     let hasError = false;
     caseElements.forEach((c, index) => {
-      const errorFound = this.setElementError(c, index, type);
-      if (errorFound)
-        hasError = true;
+      if ((c.dirty && c.control.value === "") || (c.control.value)) {
+        const errorFound = this.setElementError(c, index, type);
+        if (errorFound)
+          hasError = true;
+      }
     });
 
     return hasError;
@@ -204,10 +242,13 @@ export class CaseStatementsComponent implements OnInit, OnChanges, AfterViewInit
    * @return true if the default case contains error.
    */
   checkAndUpdateDefaultCaseError(): boolean {
-    const result = this.composeErrorResultObject('default case', this.defaultCaseError);
+    let result = null;
+    if ((this.caseDefaultRef.dirty ) || (this.caseDefaultRef.control.value)) {
+      result = this.composeErrorResultObject('default case', this.defaultCaseError);
+    }
 
     setTimeout(()=> {
-      this.caseDefault.control.setErrors(result);
+      this.caseDefaultRef.control.setErrors(result);
     }, 0);
     return (result !== null);
   };
@@ -219,12 +260,12 @@ export class CaseStatementsComponent implements OnInit, OnChanges, AfterViewInit
    */
   updateCaseStatementsErrors(): void {
     const param = {
-      "section" : RuleEditorService.OUTPUT_EXPRESSION_SECTION,
-      "field": "case"
+      "section" : SectionTypes.OutputExpression,
+      "field": FieldTypes.Case
     };
 
-    const hasConditionErrors = this.checkAndUpdateCaseErrors(this.caseConditions, 'condition');
-    const hasOutputErrors = this.checkAndUpdateCaseErrors(this.caseOutputs, 'output');
+    const hasConditionErrors = this.checkAndUpdateCaseErrors(this.caseConditionRefs, 'condition');
+    const hasOutputErrors = this.checkAndUpdateCaseErrors(this.caseOutputRefs, 'output');
     const hasDefaultCaseError = this.checkAndUpdateDefaultCaseError();
 
     let result = null;
@@ -233,7 +274,7 @@ export class CaseStatementsComponent implements OnInit, OnChanges, AfterViewInit
       result = {
         "CaseStatementError": true,
         "message": "Case Statement error",
-        "errorMessage": "Case Statement error"
+        "ariaMessage": "Case Statement error"
       }
     } else 
       this.hasError = false;
@@ -387,7 +428,7 @@ export class CaseStatementsComponent implements OnInit, OnChanges, AfterViewInit
    * otherwise return the expression. Additionally if this is an output column
    * and output expressions are off surround with quotes.
    * @param expression - Easy Path or FHIRPath expression
-   * @param isOutput - True if processing an output or default value
+   * @param isOutput - True if processing the Case output or default case.
    * @return FHIRPath Expression
    */
   transformIfSimple(expression: string, isOutput: boolean): string {
@@ -401,11 +442,20 @@ export class CaseStatementsComponent implements OnInit, OnChanges, AfterViewInit
       processedExpression = `'${processedExpression}'`;  // TODO should we escape the expression?
     }
 
-    // Convert when syntax is simple but not in the output column is outputExpressions is disabled
     if (this.syntax === 'simple' && !(isOutput && !this.outputExpressions)) {
       return this.pipe.transform(processedExpression, this.ruleEditorService.variables.map(e => e.label));
     } else {
-      return processedExpression;
+      // Calling fhirpath.evaluate only on Case condition.
+      if (!isOutput) {
+        try {
+          const variableNames = this.ruleEditorService.getContextVariableNames();
+          const result = fhirpath.evaluate({}, processedExpression, variableNames);
+          return processedExpression;
+        } catch(e) {
+          return 'Not valid';
+        }
+      } else
+        return processedExpression;
     }
   }
 

@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output } from '@angular/core';
+import { ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
 
 import { RuleEditorService, SimpleStyle } from './rule-editor.service';
 import { LiveAnnouncer } from '@angular/cdk/a11y';
@@ -22,6 +22,8 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
   @Input() expressionUri = '';
   @Input() lhcStyle: SimpleStyle = {};
   @Output() save = new EventEmitter<object>();
+
+  @ViewChild('exp') expRef;
 
   errorLoading = 'Could not detect a FHIR Questionnaire; please try a different file.';
   expressionSyntax: string;
@@ -56,6 +58,7 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
   private uneditableVariablesSubscription;
   private disableAdvancedSubscription;
   private validationSubscription;
+  private performValidationSubscription;
 
   constructor(private variableService: RuleEditorService, private liveAnnouncer: LiveAnnouncer, private changeDetectorRef: ChangeDetectorRef) {}
 
@@ -77,13 +80,25 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
     });
     this.validationSubscription = this.variableService.validationChange.subscribe((validation: ValidationResult) => {
       this.validationError = validation.hasError;
-
       this.validationErrorMessage = (this.validationError) ? this.composeAriaValidationErrorMessage(validation) : "";
+    });
+
+    // performValidationSubscription is triggered when the 'Save' button is clicked, allowing each
+    // subscribed component to validate the expression data.
+    this.performValidationSubscription = this.variableService.performValidationChange.subscribe((validation) => {     
+      // By setting the setValue to blank on simple expression that is null, empty, or undefined,
+      // it would force the validation to occurs.
+      if (this.expressionSyntax === "fhirpath" && this.finalExpression === "") {
+        this.expRef.control.markAsTouched();
+        this.expRef.control.markAsDirty();
+        this.expRef.control.setValue("");
+      }
     });
   }
 
   /**
    * Compose the string message to be used as the aria-label to explain why the 'Save' button is disabled.
+   * @param validation - ValidationResult object which contains the validation results.
    * @return string to be used by the 'Save' button as the aria-label in the case of any validation error.
    */
   composeAriaValidationErrorMessage(validation: ValidationResult): string {
@@ -121,6 +136,7 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
     this.disableAdvancedSubscription.unsubscribe();
 
     this.validationSubscription.unsubscribe();
+    this.performValidationSubscription.unsubscribe();
   }
 
   /**
@@ -195,6 +211,7 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
    */
   export(): void {
     if (!this.validationError) {
+      this.variableService.notifyValidationCheck();
       const finalExpression = this.finalExpressionExtension;
       if (finalExpression?.valueExpression)
         finalExpression.valueExpression.expression = this.finalExpression;

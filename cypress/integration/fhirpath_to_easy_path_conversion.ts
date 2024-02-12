@@ -332,11 +332,11 @@ describe('Rule editor', () => {
         cy.get('#simple-expression-2')
         .should('exist')
         .should('be.visible')
-        .should('have.class', 'field-error');
-        cy.get('lhc-syntax-preview > div > div > pre').should('contain.text', 'Expression is required.');
+        .should('not.have.class', 'field-error');
 
-        // Type 'a' into the expression
-        cy.get('#simple-expression-2').type('a');
+        // Type 'a' into the expression, there should be no error
+        cy.get('#simple-expression-2').type('a')
+          .should('not.have.class', 'field-error');
 
         // The 'Save' button should be enabled.
         cy.get('#export').should('not.have.class', 'disabled');

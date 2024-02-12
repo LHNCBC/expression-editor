@@ -92,7 +92,22 @@
             [(ngModel)]="variable.expression"
             (change)="onExpressionChange($event, i)"
             [style]="lhcStyle.input"
-            aria-label="FHIRPath Expression" class="flex-item" />
+            aria-label="FHIRPath Expression" class="flex-item" 
+            
+            [class.field-error]="exp.errors"
+            #exp="ngModel"
+            lhcExpressionValidator
+            [lhcExpressionValidateInput]="'true'"
+            [lhcExpressionValidatorParams]="{'section': 'Item Variables',
+                                             'field': 'expression', 'type': 'fhirpath',
+                                             'id': 'variable-expression-' + i, 'index': i}"
+            
+            />
+          <div id="expression-error" role="alert" class="row error-span" *ngIf="exp.errors">
+            <p class="expression-error" >
+              {{exp.errors.message}}
+            </p>
+          </div>
         </div>
         <div class="form-inline" *ngSwitchCase="'query'">
           <input
@@ -101,8 +116,34 @@
             (change)="onExpressionChange($event, i)" 
             [style]="lhcStyle.input"
             aria-label="FHIR Query"
-            placeholder="x-fhir-query" />
+            placeholder="x-fhir-query"
+            
+            [class.field-error]="exp.errors"
+            #exp="ngModel"
+            lhcExpressionValidator
+            [lhcExpressionValidateInput]="'true'"
+            [lhcExpressionValidatorParams]="{'section': 'Item Variables',
+                                             'field': 'expression', 'type': 'query',
+                                             'id': 'variable-expression-' + i, 'name': variableName, 'index': i}"
+            />
+          <div id="expression-error" role="alert" class="row error-span" *ngIf="exp.errors">
+            <p class="expression-error" >
+              {{exp.errors.message}}
+            </p>
+          </div>
         </div>
+
+
+<!--         <div id="expression-error" *ngIf="variable.type === 'query' || variable.type === 'expression'" role="alert" class="row error-span">
+ -->          
+<!--         <div id="expression-error" role="alert" class="row error-span">
+
+          <p class="expression-error" *ngIf="exp.errors">
+            {{exp.errors.message}}
+          </p>
+        </div>
+ -->
+
       </div>
       <div class="variable-column-actions">
         <button

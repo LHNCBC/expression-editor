@@ -22,6 +22,11 @@ export class ExpressionValidatorDirective {
       return null;
     }
 
+    if (this.param.type === 'fhirpath' ) {
+      const variableNames = this.ruleEditorService.getContextVariableNames();
+      this.param['variableNames'] = JSON.stringify(variableNames);
+    }
+
     // the result is either null or error object
     const result = expressionValidator(this.param)(control);
 

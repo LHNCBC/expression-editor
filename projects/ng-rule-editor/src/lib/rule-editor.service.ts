@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Subject } from 'rxjs';
 import copy from 'fast-copy';
 
-import { CASE_REGEX, Question, UneditableVariable, ValidationError, ValidationParam, ValidationResult, Variable } from './variable';
+import { CASE_REGEX, Question, SectionTypes, UneditableVariable, ValidationError, ValidationParam, ValidationResult, Variable } from './variable';
 import { UNIT_CONVERSION } from './units';
 import { moveItemInArray } from '@angular/cdk/drag-drop';
 
@@ -34,10 +34,12 @@ interface Scoring {
 class ItemVariableError {
   name: boolean;
   expression: boolean;
+  timeInterval?: boolean;
 
-  constructor(name: boolean, expression: boolean) {
+  constructor(name: boolean, expression: boolean, timeInterval: boolean = false) {
     this.name = name;
     this.expression = expression;
+    this.timeInterval = timeInterval;
   }
 };
 
@@ -51,9 +53,6 @@ export class RuleEditorService {
   static SIMPLE_SYNTAX_EXTENSION = 'http://lhcforms.nlm.nih.gov/fhirExt/simple-syntax';
   static VARIABLE_TYPE = 'http://lhcforms.nlm.nih.gov/fhirExt/rule-editor-variable-type';
 
-  static ITEM_VARIABLES_SECTION = "Item Variables";
-  static OUTPUT_EXPRESSION_SECTION = "Output Expression";
-
   syntaxType = 'simple';
   linkIdContext: string;
   uneditableVariablesChange: Subject<UneditableVariable[]> =
@@ -64,6 +63,8 @@ export class RuleEditorService {
   finalExpressionChange: Subject<string> = new Subject<string>();
   disableAdvancedChange: Subject<boolean> = new Subject<boolean>();
   validationChange: Subject<object> = new Subject<object>();
+  performValidationChange: Subject<boolean> = new Subject<boolean>();
+
   uneditableVariables: UneditableVariable[];
   variables: Variable[];
   questions: Question[];
@@ -113,7 +114,7 @@ export class RuleEditorService {
     });
     this.variablesChange.next(this.variables);
 
-    this.itemVariablesErrors.push(new ItemVariableError(false, false));
+    this.itemVariablesErrors.push(new ItemVariableError(false, false, false));
   }
 
   /**
@@ -470,7 +471,7 @@ export class RuleEditorService {
           variable.expression = this.decodeQueryURIExpression(variable.expression);
         }
 
-        this.itemVariablesErrors.push(new ItemVariableError(false, false));
+        this.itemVariablesErrors.push(new ItemVariableError(false, false, false));
       });
 
       this.uneditableVariablesChange.next(this.uneditableVariables);
@@ -793,6 +794,11 @@ export class RuleEditorService {
    * @param finalExpression
    */
   export(url: string, finalExpression): object {
+    // Check to see if there are any errors from the validation
+    const validationResult = this.getValidationResult();
+    if (validationResult.hasError)
+      return;
+
     // Copy the fhir object, so we can export more than once
     // (if we add our data the second export will have duplicates)
     const fhir = copy(this.fhir);
@@ -1715,13 +1721,15 @@ export class RuleEditorService {
    *                 validation error, error message, and aria error message.
    */
   notifyValidationResult(param:ValidationParam, result: any ): void {
-    if (param.section === RuleEditorService.ITEM_VARIABLES_SECTION) {
+    if (param.section === SectionTypes.ItemVariables) {
       // In the Item Variables Section, there are 2 fields: name and expression
-      const tmpItemVariableError = this.itemVariablesErrors[param.index];
-      tmpItemVariableError[param.field] = (result) ? true : false;
-      this.itemVariablesErrors[param.index] = tmpItemVariableError;
+      if (this.itemVariablesErrors.length > 0) {
+        const tmpItemVariableError = this.itemVariablesErrors[param.index];
+        tmpItemVariableError[param.field] = (result) ? true : false;
+        this.itemVariablesErrors[param.index] = tmpItemVariableError;
+      }
         
-    } else if (param.section === RuleEditorService.OUTPUT_EXPRESSION_SECTION) {
+    } else if (param.section === SectionTypes.OutputExpression) {
       if (param.field === "expression") {
         this.outputExpressionError = (result) ? true : false;
         this.caseStatementError = false;
@@ -1737,15 +1745,23 @@ export class RuleEditorService {
   };
 
   /**
+   * Notifies all subscribed components to perform validation check.
+   */
+  notifyValidationCheck(): void {
+    this.performValidationChange.next(true);
+  }
+
+  /**
    * Check for validation errors in both the 'Item Variables' and the 'Output Expression' sections. The
    * validation errors include blank fields and invalid reference expressions.
    * @return true if any error occurs in either the 'Item Variables' section or the 'Output Expression' section
    */
   hasValidationErrors(): boolean {
     return (
-            this.itemVariablesErrors.some( item => (item.name === true || item.expression === true)) ||
-            this.outputExpressionError ||
-            this.caseStatementError
+      this.itemVariablesErrors.some( 
+        item => (item.name === true || item.expression === true || item.timeInterval === true)) ||
+      this.outputExpressionError ||
+      this.caseStatementError
     );
   };
 
@@ -1757,7 +1773,8 @@ export class RuleEditorService {
   getValidationResult(): ValidationResult {
     return {
       "hasError" : this.hasValidationErrors(),
-      "errorInItemVariables": this.itemVariablesErrors.some( item => (item.name === true || item.expression === true)),
+      "errorInItemVariables": this.itemVariablesErrors.some(
+        item => (item.name === true || item.expression === true || item.timeInterval === true)),
       "errorInOutputExpression": this.outputExpressionError,
       "errorInOutputCaseStatement": this.caseStatementError     
     };
@@ -1783,4 +1800,27 @@ export class RuleEditorService {
     moveItemInArray(this.itemVariablesErrors, previousIndex, currentIndex);
   };
 
+
+  /**
+   * Compose the object that contains context variable names and environment variable names
+   * as keys used by fhirpath.js to validate the expression.
+   * @return object with context variable names and environment variable names as keys
+   */
+  getContextVariableNames(): any {
+    const names = this.getVariableNames();
+
+    const newObj = {};
+    names.forEach(key => {
+      newObj[key] = 1;
+    });
+
+    // Adding environment variables
+    newObj['resource'] = 1;
+    newObj['rootResource'] = 1;
+    newObj['rootContext'] = 1;
+    newObj['sct'] = 1;
+    newObj['loinc'] = 1;
+
+    return newObj;
+  }
 }

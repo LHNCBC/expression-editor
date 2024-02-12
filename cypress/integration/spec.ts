@@ -114,9 +114,17 @@ describe('Rule editor', () => {
         cy.get('#variable-type-0').select('Easy Path Expression');
         cy.get('#simple-expression-0').type('1 + 1');
 
+        // The Output Expression should have no error, the Save button should be enabled
+        cy.get('#simple-expression-final').should('not.have.class', 'field-error');
+        cy.get('#expression-error > p').should('not.exist');
+        cy.get('#export').should('not.have.class', 'disabled');
+
+        // Save (Export) should output the questionnaire for the given Variable Type
+        cy.get('#export').click();
+
         // There is an error in the Output Expression
         cy.get('#simple-expression-final').should('have.class', 'field-error');
-        cy.get('lhc-syntax-preview > div > div > pre').should('contain.text', 'Expression is required.');
+        cy.get('#final-expression-section #expression-error > p').should('contain.text', 'Expression is required.');
         // As a result, the Save button is disabled
         cy.get('#export').should('have.class', 'disabled');
         
@@ -907,8 +915,8 @@ describe('Rule editor', () => {
         cy.get('#variables-section .variable-row').should('have.length', 2);
   
         // Confirm that variable b is no longer available for Output expression
-        cy.get('#final-expression-section lhc-syntax-preview > div > div > pre').should('contain.text', 'Invalid expression');
-  
+        cy.get('#final-expression-section #expression-error > p').should('contain.text', 'Invalid expression.');
+
         // Confirm that expression without variable b is valid
         cy.get('#simple-expression-final').clear().type('a + c');
         cy.get('#final-expression-section lhc-syntax-preview > div > div > pre').should('not.have.text', 'Not valid');
@@ -917,16 +925,20 @@ describe('Rule editor', () => {
     });
 
     describe('PHQ9 score calculation', () => {
-      beforeEach(() => {
-        cy.get('#questionnaire-select').select('PHQ9 (no FHIRPath)');
-      });
-
       it('should display the calculate sum prompt', () => {
+        cy.intercept('/phq9.json').as('phq9');
+        cy.get('select#questionnaire-select').select('PHQ9 (no FHIRPath)');
+        cy.wait('@phq9');
+
         // Only the prompt for score calculation should show up
         cy.get('.rule-editor').should('contain.text', 'Would you like to calculate the sum of scores?');
       });
 
       it('should hide the calculate sum prompt if click no', () => {
+        cy.intercept('/phq9.json').as('phq9');
+        cy.get('select#questionnaire-select').select('PHQ9 (no FHIRPath)');
+        cy.wait('@phq9');
+
         // Only the prompt for score calculation should show up
         cy.get('.rule-editor').should('contain.text', 'Would you like to calculate the sum of scores?');
         cy.get('#skip-score-items-selection').click();
@@ -945,6 +957,10 @@ describe('Rule editor', () => {
       });
 
       it('should display the scoring items selection', () => {
+        cy.intercept('/phq9.json').as('phq9');
+        cy.get('select#questionnaire-select').select('PHQ9 (no FHIRPath)');
+        cy.wait('@phq9');
+
         // Only the prompt for score calculation should show up
         cy.get('#score-items-selection').click();
         cy.get('div.scoring-items-selection-title').should('have.text', ' Select items to include in the score calculation: ');
@@ -960,6 +976,10 @@ describe('Rule editor', () => {
       });
 
       it('should be able to select/unselect all items', () => {
+        cy.intercept('/phq9.json').as('phq9');
+        cy.get('select#questionnaire-select').select('PHQ9 (no FHIRPath)');
+        cy.wait('@phq9');
+
         cy.get('#score-items-selection').click();
         cy.get('div.scoring-items-selection-body')
           .within(() => {
@@ -980,6 +1000,10 @@ describe('Rule editor', () => {
       });
 
       it('should not select items if the "Unselect All" button is clicked with zero selected items', () => {
+        cy.intercept('/phq9.json').as('phq9');
+        cy.get('select#questionnaire-select').select('PHQ9 (no FHIRPath)');
+        cy.wait('@phq9');
+
         cy.get('#score-items-selection').click();
         cy.get('div.scoring-items-selection-body')
           .within(() => {
@@ -1001,6 +1025,10 @@ describe('Rule editor', () => {
       });
 
       it('should be able to select/unselect individual item', () => {
+        cy.intercept('/phq9.json').as('phq9');
+        cy.get('select#questionnaire-select').select('PHQ9 (no FHIRPath)');
+        cy.wait('@phq9');
+
         cy.get('#score-items-selection').click();
         cy.get('div.scoring-items-selection-body')
           .within(() => {
@@ -1031,6 +1059,10 @@ describe('Rule editor', () => {
       });
 
       it('should hide the scoring items selection if click Cancel', () => {
+        cy.intercept('/phq9.json').as('phq9');
+        cy.get('select#questionnaire-select').select('PHQ9 (no FHIRPath)');
+        cy.wait('@phq9');
+
         cy.get('.rule-editor').should('contain.text', 'Would you like to calculate the sum of scores?');
         cy.get('#score-items-selection').click();
         cy.get('div.scoring-items-selection-title').should('have.text', ' Select items to include in the score calculation: ');
@@ -1059,6 +1091,10 @@ describe('Rule editor', () => {
       });
 
       it('should be able to export score with selected individual items', () => {
+        cy.intercept('/phq9.json').as('phq9');
+        cy.get('select#questionnaire-select').select('PHQ9 (no FHIRPath)');
+        cy.wait('@phq9');
+
         cy.get('#score-items-selection').click();
         cy.get('div.scoring-items-selection-body')
           .within(() => {
@@ -1088,6 +1124,10 @@ describe('Rule editor', () => {
       });
 
       it('should be able to export score with all items', () => {
+        cy.intercept('/phq9.json').as('phq9');
+        cy.get('select#questionnaire-select').select('PHQ9 (no FHIRPath)');
+        cy.wait('@phq9');
+
         cy.get('#score-items-selection').click();
         cy.get('div.scoring-items-selection-body')
           .within(() => {
@@ -1612,24 +1652,18 @@ describe('Rule editor', () => {
         // Uneditable variables section should be empty
         cy.get('#uneditable-variables-section .variable-row').should('have.length', 0);
 
-        // There is an error in the Output Expression
-        cy.get('#simple-expression-final').should('have.class', 'field-error');
-        cy.get('lhc-syntax-preview > div > div > pre').should('contain.text', 'Expression is required.');
-        // As a result, the Save button is disabled
-        cy.get('#export').should('have.class', 'disabled');
-
-        // Fix the expression in the Output Expression section
+        // Type in the Output Expression
         cy.get('#simple-expression-final').clear().type('1 + 1');
 
-        // The Output Expression should no longer have error, the Save button should be enabled
+        // The Output Expression should not have error, the Save button should be enabled
         cy.get('#simple-expression-final').should('not.have.class', 'field-error');
         cy.get('lhc-syntax-preview > div > div > pre').should('contain.text', '1 + 1');
         cy.get('#export').should('not.have.class', 'disabled');
 
-        // Click Save again
+        // Click Save
         cy.get('#export').click();
 
-        // Uneditable variables section should still only have one item
+        // Uneditable variables section should have one item
         cy.get('#uneditable-variables-section .variable-row').should('have.length', 1);
 
         // Enter the uneditable variable 'patient' to the Output Expression,
@@ -1755,14 +1789,13 @@ describe('Rule editor', () => {
         // Preview should not show up initially
         cy.get('lhc-case-statements lhc-syntax-preview').should('not.exist');
 
-        // The case condition, case output, and default case should be highlighted in red
-        // as they are now required fields.
-        cy.get('#case-condition-0').should('have.class', 'field-error');
-        cy.get('#case-output-0').should('have.class', 'field-error');
-        cy.get('.default').should('have.class', 'field-error');
+        // The case condition, case output, and default case should contain no errors
+        cy.get('#case-condition-0').should('not.have.class', 'field-error');
+        cy.get('#case-output-0').should('not.have.class', 'field-error');
+        cy.get('.default').should('not.have.class', 'field-error');
 
-        // the 'Save' button should be disabled
-        cy.get('#export').should('have.class', 'disabled');
+        // the 'Save' button should be enabled
+        cy.get('#export').should('not.have.class', 'disabled');
 
         // Add a conditions and outputs
         cy.get('#case-condition-0').type('bmi<18.5');
