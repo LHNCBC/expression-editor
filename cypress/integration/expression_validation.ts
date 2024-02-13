@@ -164,6 +164,26 @@ describe('Rule editor', () => {
         });
       });
 
+      it('should display error and disable "Save" button if clearing out the question autocomplete selection ', () => {
+        cy.get('select#questionnaire-select').select('BMI Calculation (Easy Path expression)');
+
+        // Should have two variables
+        cy.get('#variables-section .variable-row').should('have.length', 2);
+
+        cy.get('div#row-1').within(() => {
+          // Clear out the selection for variable 'b' and the error should display.
+          cy.get('#question-1').clear();
+       
+          // Need to click outside of the element.
+          cy.get('#variable-label-1').click();
+
+          // The error should show up.
+          cy.get('#question-1').should('have.class', 'field-error');
+          cy.get('#expression-error > p').should('contain.text', 'Expression is required.');
+
+        });
+      });
+
       it('should display error and disable "Save" button if expression is invalid', () => {
         cy.get('select#questionnaire-select').select('BMI Calculation (Easy Path expression)');
 
