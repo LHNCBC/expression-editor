@@ -1817,7 +1817,6 @@ export class RuleEditorService {
     // Adding environment variables
     newObj['resource'] = 1;
     newObj['rootResource'] = 1;
-    newObj['rootContext'] = 1;
     newObj['sct'] = 1;
     newObj['loinc'] = 1;
 
