@@ -214,8 +214,8 @@ export class VariablesComponent implements OnInit, OnChanges, OnDestroy {
    * @param expression - new expression to use
    */
   updateExpression(i: number, expression): void {
-    if (this.variables[i].expression !== expression && expression !== 'Not valid') {
-      this.variables[i].expression = expression;
+    if (this.variables[i].expression !== expression) {
+      this.variables[i].expression = (expression !== 'Not valid') ? expression : "";
     }
   }
 

@@ -213,6 +213,87 @@ describe('Rule editor', () => {
         // The 'Save' button should be enabled
         cy.get('#export').should('not.have.class', 'disabled');
       });
+
+      it('should display blank when convert from invalid Easy Path Expression to FHIRPath Expression', () => {
+        cy.get('select#questionnaire-select').select('BMI Calculation (Easy Path expression)');
+        
+        // Variables section
+        cy.get('lhc-variables > h2').should('contain', 'Item Variables');
+        cy.get('#variables-section .variable-row').should('have.length', 2);
+
+        // Check the Advanced Interface checkbox
+        cy.get('input#advanced-interface').check();
+        
+        // Add variable c
+        cy.get('#add-variable').click();
+        cy.get('#variables-section .variable-row').should('have.length', 3);
+        
+        // Select 'Easy Path Expression' variable type for the newly added variable
+        cy.get('div#row-2').within(() => {
+          cy.get('#variable-type-2').select('Easy Path Expression');
+          // Enter invalid expression
+          cy.get('#simple-expression-2').clear().type('asdf');
+
+          cy.get('#simple-expression-2').should('have.class', 'field-error');
+          cy.get('#expression-error > p').should('contain.text', 'Invalid expression.');
+
+          // Converting the invalid expression variable to variable type to 'FHIRPath Expression' 
+          // should result in the empty FHIRPath expression
+          cy.get('#variable-type-2').select('FHIRPath Expression');
+          // The expression should be empty and should not have an error
+          cy.get('#variable-expression-2')
+            .should('have.value', '')
+            .should('not.have.class', 'field-error');
+          cy.get('#expression-error').should('not.exist');
+        });
+      });
+
+      it('should display the output expression correctly when variable label is empty', () => {
+        cy.get('select#questionnaire-select').select('BMI Calculation (Easy Path expression)');
+        
+        // Variables section
+        cy.get('lhc-variables > h2').should('contain', 'Item Variables');
+        cy.get('#variables-section .variable-row').should('have.length', 2);
+
+        // Add variable c
+        cy.get('#add-variable').click();
+        cy.get('#variables-section .variable-row').should('have.length', 3);
+        
+        // Select 'Easy Path Expression' variable type for the newly added variable
+        cy.get('div#row-2').within(() => {
+          cy.get('#variable-type-2').select('Easy Path Expression');
+          // Enter 'b' for expression
+          cy.get('#simple-expression-2').clear().type('b');
+
+          cy.get('#simple-expression-2').should('have.value', 'b');
+          cy.get('lhc-syntax-preview pre').should('contain.text', '%b');
+
+          // Delete the variable label 'c'
+          cy.get('#variable-label-2').clear();
+          // Need to click outside of the text input for the changes to update
+          cy.get('#simple-expression-2').click();
+        });
+
+        // Output Expression section
+        cy.get('#final-expression-section').within(() => {
+          cy.get('#simple-expression-final').should('contain.value', 'a/b^2');
+          cy.get('lhc-syntax-preview pre').should('not.contain.text', '%a/%b.power(2)%');
+          cy.get('lhc-syntax-preview pre').should('contain.text', '%a/%b.power(2)');
+        });
+
+        // Set the output expression to 'a', it should convert to '%a' correctly
+        cy.get('#final-expression-section').within(() => {
+          cy.get('#simple-expression-final').clear().type('a');
+          cy.get('lhc-syntax-preview pre').should('not.contain.text', '%a%');
+          cy.get('lhc-syntax-preview pre').should('contain.text', '%a');
+        });
+
+        // Set the output expression to 'a + b', it should convert to '%a + %b' correctly
+        cy.get('#final-expression-section').within(() => {
+          cy.get('#simple-expression-final').clear().type('a + b');
+          cy.get('lhc-syntax-preview pre').should('contain.text', '%a + %b');
+        });
+      });
     });
 
     describe('Output Expression section', () => {
