@@ -1759,7 +1759,7 @@ describe('Rule editor', () => {
         cy.get('#case-output-2').should('have.value', "'overweight'");
                 
         // Change variable type to Easy Path Expression
-        cy.get('#variable-type-final').should('exist').select('simple');
+        cy.get('#output-expression-type').should('exist').select('simple');
 
         // Dialog should get displayed
         cy.get('lhc-yes-no-dialog').should('exist')

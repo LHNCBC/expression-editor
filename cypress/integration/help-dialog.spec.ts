@@ -214,7 +214,7 @@ describe('Rule editor', () => {
     describe('FHIRPath Expressions Help from the Output Expression section', () => {
       it('should be able to select the FHIRPath Expressions Help from the Output Expression section', () => {
         cy.get('select#questionnaire-select').select('BMI Calculation');
-        cy.get('#variable-type-final').find('option:selected').should('have.text', 'FHIRPath Expression');
+        cy.get('#output-expression-type').find('option:selected').should('have.text', 'FHIRPath Expression');
         cy.get('#exp-help-button-final').should('exist').click();
         cy.get('.modal-content').should('exist');
       });   
