@@ -27,8 +27,10 @@
 }
 
 .copy {
-  margin-top: 1em;
-  flex: 0 0 3em;
+  /* margin-top: 1em; */
+  margin: 1em 0px 0px 0px;
+  padding: 0px;
+  /* flex: 0 0 3em; */
   border: none;
   background: transparent;
 }

@@ -120,7 +120,7 @@ export class QuestionComponent implements OnInit, AfterViewInit, OnDestroy {
   onChange(isQuestion): void {
     if (isQuestion) {
       // Reset the conversion options when the question changes
-      this.toUnit = '';
+      this.toUnit = (this.variable.unit) ? this.variable.unit : '';
     }
 
     // If we already have a question selected (as opposed to the select... prompt)
@@ -140,7 +140,7 @@ export class QuestionComponent implements OnInit, AfterViewInit, OnDestroy {
       }
 
       this.variable.expression = this.variableService.valueOrScoreExpression(
-        this.linkId, this.itemHasScore, !this.isNonConvertibleUnit, this.unit, this.toUnit);
+        this.linkId, this.itemHasScore, !this.isNonConvertibleUnit, this.unit, this.toUnit, this.expression);
 
       this.expression = this.variable.expression;
 

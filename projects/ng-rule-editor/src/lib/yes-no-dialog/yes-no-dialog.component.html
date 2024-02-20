@@ -1,4 +1,5 @@
 <div 
+  cdkTrapFocusAutoCapture
   cdkTrapFocus
   role="dialog"
   aria-labelledby="dlg-title"
@@ -14,9 +15,8 @@
       <h2 id="dlg-title">{{title}}</h2>
     </div>
     <div class="yes-no-modal-body">
-      <label id="dlg-prompt1">{{prompt1}}</label>
-      <p></p>
-      <label id="dlg-prompt2">{{prompt2}}</label>
+      <p id="dlg-prompt1">{{prompt1}}</p>
+      <p id="dlg-prompt2">{{prompt2}}</p>
 
     </div>
     <div class="yes-no-modal-footer">

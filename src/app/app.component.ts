@@ -48,6 +48,8 @@ export class AppComponent implements OnInit, OnDestroy {
   fhirPreview: string;
   linkId = '';
   linkIds;
+  rootLevel = false;
+  defaultItemText;
   expressionUri = this.calculatedExpression;
   userExpressionChoices = null;
   customExpressionUri = false;
@@ -72,13 +74,16 @@ export class AppComponent implements OnInit, OnDestroy {
     this.fhirPreview = '';
     this.error = '';
     this.doNotAskToCalculateScore = false;
+    this.rootLevel = false;
 
     if (this.questionnaire === '' || this.questionnaire === 'upload') {
       this.liveAnnouncer.announce('Additional settings must be entered below to load the rule editor.');
       this.fhir = null;
       this.file = '';
       this.linkId = '';
+      this.rootLevel = true;
     } else {
+      this.liveAnnouncer.announce(this.formAppearedAnnouncement);
       this.linkId = this.originalLinkId;
       this.expressionUri = this.calculatedExpression;
 
@@ -86,8 +91,38 @@ export class AppComponent implements OnInit, OnDestroy {
         .subscribe(data => {
           this.fhir = data;
           this.liveAnnouncer.announce((reload) ? this.formReloadAnnouncement : this.formAppearedAnnouncement);
-        });
+
+          if (this.fhir && this.fhir.item instanceof Array) {
+            this.linkIds = this.getQuestionnaireLinkIds(this.fhir.item);
+
+            this.defaultItemText = this.linkIds.find((item) => {
+              return item.linkId === this.linkId;
+            }).text.trim();
+
+            this.composeAutocomplete();
+
+            this.autoComplete.setFieldToListValue(this.defaultItemText);
+          }
+
+      });
     }
+  }
+
+  /**
+   * Toggle between Root/Item section
+   */
+  toggleRootLevel(): void {
+    if (this.rootLevel) {
+      this.linkId = '';
+      this.autoComplete.setFieldToListValue('');
+    } else {
+      if (this.questionnaire !== '' && this.questionnaire !== 'upload') {
+        this.linkId = this.originalLinkId;
+        this.autoComplete.setFieldToListValue(this.defaultItemText);
+      }
+    }
+
+    this.changeDetectorRef.detectChanges();
   }
 
   /**
@@ -129,6 +164,11 @@ export class AppComponent implements OnInit, OnDestroy {
               this.composeAutocomplete();
             }
             this.liveAnnouncer.announce(this.formAppearedAnnouncement);
+
+            if (this.questionnaire === '' || this.questionnaire === 'upload') {
+              this.autoComplete.setFieldToListValue('');
+              this.rootLevel = true;
+            }
           } catch (e) {
             this.fhir = '';
             this.error = `Could not parse file: ${e}`;
@@ -165,6 +205,7 @@ export class AppComponent implements OnInit, OnDestroy {
     Def.Autocompleter.Event.observeListSelections('question', (res) => {
       if (res.val_typed_in !== res.final_val && res.item_code) {
         this.linkId = res.item_code;
+        this.rootLevel = false;
       }
     });
 

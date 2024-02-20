@@ -1,99 +1,130 @@
-<div *ngIf="loadError" class="error">{{errorLoading}}</div>
-<lhc-calculate-sum-prompt *ngIf="calculateSum && !loadError" (export)="addSumOfScores()" [lhcStyle]="lhcStyle"></lhc-calculate-sum-prompt>
-<div *ngIf="!calculateSum && !loadError">
-  <h1 [style]="lhcStyle.h1">{{titleName}}</h1>
+<div class="rule-editor" *ngIf="!hideRuleEditor">
+  <div *ngIf="loadError" class="error">{{errorLoading}}</div>
+  <lhc-calculate-sum-prompt
+    *ngIf="calculateSum && !loadError && !selectItems"
+    (selectItems)="selectItemsForSumOfScores()"
+    [lhcStyle]="lhcStyle">
+  </lhc-calculate-sum-prompt>
 
-  <span class="checkbox" matTooltip="When in the advanced interface you can edit FHIRPath and x-fhir-query directly. This mode is automatically enabled for complex Questionnaires.">
-    <input type="checkbox" id="advanced-interface" [disabled]="disableInterfaceToggle"
-           [(ngModel)]="advancedInterface">
-    <label for="advanced-interface">Advanced interface</label>
-  </span>
+  <lhc-select-scoring-items
+    *ngIf="calculateSum && !loadError && selectItems"
+    (export)="addSumOfScores()"
+    [items]="fhirQuestionnaire.item"
+    [lhcStyle]="lhcStyle">
+  </lhc-select-scoring-items>
 
-  <section id="uneditable-variables-section" class="mb-3">
-    <lhc-uneditable-variables></lhc-uneditable-variables>
-  </section>
+  <div *ngIf="!calculateSum && !loadError">
+    <h1 [style]="lhcStyle.h1">{{titleName}}</h1>
 
-  <section id="variables-section" class="mb-3">
-    <lhc-variables [lhcStyle]="lhcStyle" [advancedInterface]="advancedInterface"></lhc-variables>
-  </section>
+    <span
+      class="checkbox"
+      matTooltip="When in the advanced interface you can edit FHIRPath and x-fhir-query directly.  
+        This mode is automatically enabled for complex Questionnaires.">
+      <input type="checkbox" id="advanced-interface" [disabled]="disableInterfaceToggle"
+            [(ngModel)]="advancedInterface">
+      <label for="advanced-interface">Advanced interface</label>
+    </span>
 
-  <section id="final-expression-section" class="mb-3" *ngIf="expressionUri">
-    <h2 [style]="lhcStyle.h2">{{expressionLabel}}</h2>
+    <section id="uneditable-variables-section" class="mb-3">
+      <lhc-uneditable-variables></lhc-uneditable-variables>
+    </section>
 
-    <div class="expression-type flex-vertical" *ngIf="userExpressionChoices">
-      <label for="expression-type">Expression Type</label>
-      <select id="expression-type" class="form-control" aria-label="Expression type" [ngStyle]="lhcStyle.select" [(ngModel)]="finalExpressionExtension.url">
-        <option *ngFor="let choice of userExpressionChoices" [value]="choice.uri">{{choice.name}}</option>
-      </select>
-    </div>
+    <section id="variables-section" class="mb-3">
+      <lhc-variables [lhcStyle]="lhcStyle" [advancedInterface]="advancedInterface"></lhc-variables>
+    </section>
 
-    <div class="checkbox">
-      <input type="checkbox" id="case-statements" [(ngModel)]="caseStatements">
-      <label for="case-statements">Use case statements</label>
-    </div>
+    <section id="final-expression-section" class="mb-3" *ngIf="expressionUri && itemLinkId">
+      <h2 [style]="lhcStyle.h2">{{expressionLabel}}</h2>
 
-    <div class="flex-container">
-      <div class="expression-type" *ngIf="advancedInterface">
-        <select
-          id="variable-type-final"
-          class="form-control"
-          [(ngModel)]="expressionSyntax"
-          (change)="onTypeChange($event)"
-          aria-label="Expression syntax type"
-          [ngStyle]="lhcStyle.select">
-          <option value="simple">Easy Path Expression</option>
-          <option value="fhirpath">FHIRPath Expression</option>
+      <lhc-yes-no-dialog 
+        *ngIf="showConfirmDialog"
+        [title]="dialogTitle"
+        [prompt1]="dialogPrompt1"
+        [prompt2]="dialogPrompt2"
+        (yes)="convertFHIRPathToEasyPath()"
+        (no)="closeConvertDialog()"
+        [align]="'center'"
+        [lhcStyle]="lhcStyle">
+      </lhc-yes-no-dialog>
+
+      <div class="expression-type flex-vertical" *ngIf="userExpressionChoices">
+        <label for="expression-type">Expression Type</label>
+        <select id="expression-type" class="form-control" aria-label="Expression type" [ngStyle]="lhcStyle.select" [(ngModel)]="finalExpressionExtension.url">
+          <option *ngFor="let choice of userExpressionChoices" [value]="choice.uri">{{choice.name}}</option>
         </select>
       </div>
-      <div *ngIf="!caseStatements" class="expression" [ngSwitch]="expressionSyntax">
-        <lhc-syntax-converter
-          *ngSwitchCase="'simple'"
-          id="variable-expression-final"
-          [index]="'final'"
-          [simple]="simpleExpression"
-          [variables]="variables"
-          (expressionChange)="updateFinalExpression($event)"
-          (simpleChange)="updateSimpleExpression($event)"
-          [lhcStyle]="lhcStyle"></lhc-syntax-converter>
 
-        <div *ngSwitchCase="'fhirpath'" class="flex-container">
-          <lhc-helps  [type]="'expression'" [index]="'final'" class="flex-item"></lhc-helps>
-          <input
-            type="text"
-            aria-label="FHIRPath"
-            
-            id="final-expression"
-            class="form-control"
-            [(ngModel)]="finalExpression"
-            [ngStyle]="lhcStyle.input"
-            class="flex-item">
-        </div>
+      <div class="checkbox">
+        <input type="checkbox" id="case-statements" [(ngModel)]="caseStatements">
+        <label for="case-statements">Case Statements Helper</label>
       </div>
-      <lhc-case-statements
-        *ngIf="caseStatements"
-        [syntax]="expressionSyntax"
-        [simpleExpression]="simpleExpression"
-        [expression]="finalExpression"
-        [lhcStyle]="lhcStyle"
-        (expressionChange)="updateFinalExpression($event)"
-        (simpleChange)="updateSimpleExpression($event)">
-      </lhc-case-statements>
-    </div>
-  </section>
 
-  <lhc-yes-no-dialog 
-    *ngIf="showCancelConfirmationDialog"
-    [title]="'Cancel Changes'"
-    [prompt1]="'Are you sure you want to cancel?'"
-    [prompt2]="'Any unsaved changes will be lost.'"
-    (yes)="confirmCancel()"
-    (no)="discardCancel()"
-    [textAlign]="'center'"
-    [dialogWidth]="'400px'" 
-    [lhcStyle]="lhcStyle">
-  </lhc-yes-no-dialog>
+      <div class="flex-container">
+        <div class="expression-type" *ngIf="advancedInterface">
+          <select
+            id="output-expression-type"
+            class="form-control"
+            [ngModel]="expressionSyntax"
+            (change)="onTypeChange($event)"
+            aria-label="Expression syntax type"
+            [ngStyle]="lhcStyle.select">
+            <option value="simple">Easy Path Expression</option>
+            <option value="fhirpath">FHIRPath Expression</option>
+          </select>
+          <lhc-helps [type]="expressionSyntax" [index]="'final'" class="flex-item" ></lhc-helps>
+        </div>
 
-  <button class="primary" role="button" (click)="export()" [ngStyle]="lhcStyle.buttonPrimary" id="export">{{submitButtonName}}</button>
-  <button (click)="cancelRuleEditorChanges()" role="button" id="cancel-changes">Cancel</button>
+        <div *ngIf="!caseStatements" class="expression" [ngSwitch]="expressionSyntax">
+          <lhc-helps *ngIf="!advancedInterface" [type]="'simple'" [index]="'final'" class="flex-item help" ></lhc-helps>
+          <lhc-syntax-converter
+            *ngSwitchCase="'simple'"
+            id="variable-expression-final"
+            [index]="'final'"
+            [simple]="simpleExpression"
+            [variables]="variables"
+            (expressionChange)="updateFinalExpression($event)"
+            (simpleChange)="updateSimpleExpression($event)"
+            [lhcStyle]="lhcStyle"></lhc-syntax-converter>
 
+          <div *ngSwitchCase="'fhirpath'" class="flex-container">
+            <input
+              type="text"
+              aria-label="FHIRPath"
+              id="final-expression"
+              class="form-control"
+              [(ngModel)]="finalExpression"
+              [ngStyle]="lhcStyle.input"
+              class="flex-item">
+          </div>
+        </div>
+        <lhc-case-statements
+          *ngIf="caseStatements"
+          [syntax]="expressionSyntax"
+          [simpleExpression]="simpleExpression"
+          [expression]="finalExpression"
+          [lhcStyle]="lhcStyle"
+          (expressionChange)="updateFinalExpression($event)"
+          (simpleChange)="updateSimpleExpression($event)">
+        </lhc-case-statements>
+      </div>
+    </section>
+
+    <lhc-yes-no-dialog 
+      *ngIf="showCancelConfirmationDialog"
+      [title]="'Cancel Changes'"
+      [prompt1]="'Are you sure you want to cancel?'"
+      [prompt2]="'Any unsaved changes will be lost.'"
+      (yes)="confirmCancel()"
+      (no)="discardCancel()"
+      [textAlign]="'center'"
+      [dialogWidth]="'400px'" 
+      [lhcStyle]="lhcStyle">
+    </lhc-yes-no-dialog>
+
+    <button class="primary" [ngClass]="{'disabled': validationError}" role="button"
+            [attr.aria-label]="validationErrorMessage" (click)="export()"
+            [ngStyle]="lhcStyle.buttonPrimary" id="export">{{submitButtonName}}</button>
+    <button (click)="cancelRuleEditorChanges()" role="button" id="cancel-changes">Cancel</button>
+
+  </div>
 </div>

@@ -19,13 +19,26 @@ export interface SimpleStyle {
   description?: object;
 }
 
+interface WhereConditionExpression {
+  itemQuery: string;
+  answerOptionQuery: string;
+}
+
+interface Scoring {
+  foundLinkId : boolean;
+  // array of scoring items
+  scoreItems: any[];   
+}
+
 @Injectable({
   providedIn: 'root'
 })
 export class RuleEditorService {
-  static SCORE_VARIABLE_EXTENSION = 'http://lhcforms.nlm.nih.gov/fhir/ext/rule-editor-score-variable';
-  static SCORE_EXPRESSION_EXTENSION = 'http://lhcforms.nlm.nih.gov/fhir/ext/rule-editor-score-expression';
-  static SIMPLE_SYNTAX_EXTENSION = 'http://lhcforms.nlm.nih.gov/fhir/ext/simple-syntax';
+  static SCORE_VARIABLE_EXTENSION = 'http://lhcforms.nlm.nih.gov/fhirExt/rule-editor-score-variable';
+  static SCORE_EXPRESSION_EXTENSION = 'http://lhcforms.nlm.nih.gov/fhirExt/rule-editor-score-expression';
+  static SCORE_EXPRESSION_EXTENSION_LINKIDS = 'http://lhcforms.nlm.nih.gov/fhirExt/rule-editor-score-expression-linkids';
+  static SIMPLE_SYNTAX_EXTENSION = 'http://lhcforms.nlm.nih.gov/fhirExt/simple-syntax';
+  static VARIABLE_TYPE = 'http://lhcforms.nlm.nih.gov/fhirExt/rule-editor-variable-type';
 
   syntaxType = 'simple';
   linkIdContext: string;
@@ -33,9 +46,10 @@ export class RuleEditorService {
     new Subject<UneditableVariable[]>();
   variablesChange: Subject<Variable[]> = new Subject<Variable[]>();
   questionsChange: Subject<Question[]> = new Subject<Question[]>();
-  mightBeScoreChange: Subject<boolean> = new Subject<boolean>();
+  scoreCalculationChange: Subject<boolean> = new Subject<boolean>();
   finalExpressionChange: Subject<string> = new Subject<string>();
   disableAdvancedChange: Subject<boolean> = new Subject<boolean>();
+  validationChange: Subject<object> = new Subject<object>();
   uneditableVariables: UneditableVariable[];
   variables: Variable[];
   questions: Question[];
@@ -45,6 +59,8 @@ export class RuleEditorService {
   caseStatements: boolean;
   needsAdvancedInterface = false;
   doNotAskToCalculateScore = false;
+
+  itemLinkIdsForCalculation: string[];
 
   private LANGUAGE_FHIRPATH = 'text/fhirpath';
   private LANGUAGE_FHIR_QUERY = 'application/x-fhir-query';
@@ -56,7 +72,7 @@ export class RuleEditorService {
 
   private linkIdToQuestion = {};
   private fhir;
-  mightBeScore = false;
+  scoreCalculation = false;
 
   constructor() {
     this.variables = [];
@@ -100,7 +116,7 @@ export class RuleEditorService {
    * queries are present
    * @param toggleOn - Set the advanced interface on (without having to run checks)
    */
-  checkAdvancedInterface(toggleOn?: boolean): void {
+  seeIfAdvancedInterfaceIsNeeded(toggleOn?: boolean): void {
     if (toggleOn) {
       this.needsAdvancedInterface = true;
     } else {
@@ -242,6 +258,38 @@ export class RuleEditorService {
   }
 
   /**
+   * Returns custom extension variable type for the given item extension
+   * @param extension - FHIR extension
+   * @return variable type defined in valueString or null
+   * @private
+   */
+  private getVariableTypeFromExtension(extension): string {
+    if (extension?.valueExpression?.extension) {
+      const variableType = extension.valueExpression.extension.find(e => e.url === RuleEditorService.VARIABLE_TYPE);
+
+      if (variableType?.valueString)
+        return variableType.valueString;
+    }
+
+    return null;
+  };
+
+  /**
+   * Returns expression language based on the variableType if available; 
+   * otherwise, returns from the extension valueExpression language
+   * @param extension - FHIR extension
+   * @param variableType - Custom extension variable type
+   * @return expression language ('text/fhirpath' or 'application/x-fhir-query')
+   * @private
+   */
+  private getExtensionLanguage(extension, variableType) {
+    if (variableType !== null) {
+      return (variableType.indexOf('query') > -1) ? this.LANGUAGE_FHIR_QUERY : this.LANGUAGE_FHIRPATH;
+    }
+    return extension.valueExpression.language;
+  }
+
+  /**
    * Get and remove the variables from an item or FHIR questionnaire
    * @param item - FHIR Questionnaire or item
    * @return Array of variables
@@ -257,13 +305,18 @@ export class RuleEditorService {
 
     item.extension.forEach((extension) => {
       if (extension.url === this.VARIABLE_EXTENSION && extension.valueExpression) {
-        switch (extension.valueExpression.language) {
+
+        const extensionVariableType = this.getVariableTypeFromExtension(extension);
+        const extensionLanguage = this.getExtensionLanguage(extension, extensionVariableType);
+
+        switch(extensionLanguage) {
           case this.LANGUAGE_FHIRPATH:
             const fhirPathVarToAdd = this.processVariable(
               extension.valueExpression.name,
               extension.valueExpression.expression,
               extension.__$index,
-              extension.valueExpression.extension);
+              extension.valueExpression.extension,
+              extensionVariableType);
             if (fhirPathVarToAdd.type === 'expression') {
               this.needsAdvancedInterface = true;
             }
@@ -273,7 +326,8 @@ export class RuleEditorService {
             const queryVarToAdd = this.processQueryVariable(
               extension.valueExpression.name,
               extension.valueExpression.expression,
-              extension.__$index);
+              extension.__$index,
+              extensionVariableType);
             if (queryVarToAdd.type === 'query') {
               this.needsAdvancedInterface = true;
             }
@@ -329,18 +383,19 @@ export class RuleEditorService {
   getScoreQuestionCount(item, linkIdContext): number {
     let scoreQuestions = 0;
 
-    item.item.forEach((currentItem) => {
-      if (!currentItem.repeats && this.itemHasScore(currentItem)) {
-        scoreQuestions++;
-      }
+    if (item.item) {
+      item.item.forEach((currentItem) => {
+        if (!currentItem.repeats && this.itemHasScore(currentItem)) {
+          scoreQuestions++;
+        }
 
-      if (currentItem.item instanceof Array) {
-        const nestedScoreQuestionCount = this.getScoreQuestionCount(currentItem, linkIdContext);
+        if (currentItem.item instanceof Array) {
+          const nestedScoreQuestionCount = this.getScoreQuestionCount(currentItem, linkIdContext);
 
-        scoreQuestions += nestedScoreQuestionCount;
-      }
-    });
-
+          scoreQuestions += nestedScoreQuestionCount;
+        }
+      });
+    }
     return scoreQuestions;
   }
 
@@ -361,9 +416,11 @@ export class RuleEditorService {
       if (!this.doNotAskToCalculateScore) {
         // If there is at least one score question we will ask the user if they
         // want to calculate the score
-        const SCORE_MIN_QUESTIONS = 1;
-        this.mightBeScore = this.getScoreQuestionCount(this.fhir, linkIdContext) > SCORE_MIN_QUESTIONS;
-        this.mightBeScoreChange.next(this.mightBeScore);
+        const scoreMinQuestions = 1;
+        this.scoreCalculation = this.getScoreQuestionCount(this.fhir, linkIdContext) >= scoreMinQuestions;
+        this.scoreCalculationChange.next(this.scoreCalculation);
+      } else {
+        this.scoreCalculation = false;
       }
 
       this.linkIdToQuestion = {};
@@ -371,7 +428,7 @@ export class RuleEditorService {
       this.caseStatements = false;
       this.processItem(this.fhir.item);
 
-      if (linkIdContext !== undefined && linkIdContext !== '') {
+      if (linkIdContext) {
         this.uneditableVariables = this.getUneditableVariables(this.fhir, linkIdContext);
         this.variables = this.extractVariablesFromItems(this.fhir.item, linkIdContext);
       } else {
@@ -429,6 +486,7 @@ export class RuleEditorService {
           if (simpleSyntax === null && this.finalExpression !== '') {
             this.syntaxType = 'fhirpath';
             this.needsAdvancedInterface = true;
+            this.simpleExpression = '';
           } else {
             this.syntaxType = 'simple';
             this.simpleExpression = simpleSyntax;
@@ -500,7 +558,6 @@ export class RuleEditorService {
           return e.url === expressionUri && e.valueExpression.language === this.LANGUAGE_FHIRPATH &&
             e.valueExpression.expression;
         });
-
         if (extensionIndex !== -1) {
           const finalExpression = item.extension[extensionIndex];
           item.extension.splice(extensionIndex, 1);
@@ -508,7 +565,9 @@ export class RuleEditorService {
           return finalExpression;
         }
       } else if (item.item) {
-        return this.extractExpression(expressionUri, item.item, linkId);
+        const expression = this.extractExpression(expressionUri, item.item, linkId);
+        if (expression !== null)
+          return expression;
       }
     }
 
@@ -527,14 +586,21 @@ export class RuleEditorService {
    * question, expression etc
    * @private
    */
-  private processVariable(name, expression, index?: number, extensions?): Variable {
+  private processVariable(name, expression, index?: number, extensions?, variableType?: string): Variable {
     const matches = expression.match(this.QUESTION_REGEX);
 
     const simpleExtension = extensions && extensions.find(e => e.url === RuleEditorService.SIMPLE_SYNTAX_EXTENSION);
 
-    if (matches !== null) {
-      const linkId = matches[1];
-      const factor = matches[2];
+    if ((variableType === 'question' && (matches !== null || expression === '')) ||
+       (!variableType && matches !== null)) {
+
+      let linkId: string;
+      let factor: string;
+      
+      if (matches) {
+        linkId = matches[1];
+        factor = matches[2];
+      }
 
       const variable: Variable = {
         __$index: index,
@@ -554,10 +620,18 @@ export class RuleEditorService {
             return e.factor.toString() === factor;
           });
 
-          variable.unit = conversion.unit;
+          if (conversion && conversion.unit)
+            variable.unit = conversion.unit;
+          else {
+            return {
+              __$index: index,
+              label: name,
+              type: 'expression',
+              expression
+            };
+          }
         }
       }
-
       return variable;
     } else if (simpleExtension !== undefined) {
       return {
@@ -586,7 +660,7 @@ export class RuleEditorService {
    */
   getQueryObservationFromExpression(name, expression, index?:number) : Variable {
     const queryObservation = this.processQueryVariable(name, expression, index);
-    return (queryObservation.type === "queryObservation")?queryObservation:null;
+    return (queryObservation.type === "queryObservation") ? queryObservation : null;
   }
 
   /**
@@ -600,10 +674,9 @@ export class RuleEditorService {
    * question, expression etc
    * @private
    */
-  private processQueryVariable(name, expression, index?: number): Variable {
+  private processQueryVariable(name, expression, index?: number, variableType?: string): Variable {
     let matches = this.decodeQueryURIExpression(expression).match(this.QUERY_REGEX);
-
-    if (matches !== null) {
+    if ((variableType === "queryObservation") || (!variableType && matches !== null)) {
       const codes = matches[1].split(',');
       const timeInterval = parseInt(matches[2], 10);
       const timeIntervalUnits = matches[3];
@@ -679,11 +752,11 @@ export class RuleEditorService {
   }
 
   /**
-   * Toggle the mightBeScore
+   * Toggle the Score Calculation
    */
-  toggleMightBeScore(): void {
-    this.mightBeScore = !this.mightBeScore;
-    this.mightBeScoreChange.next(this.mightBeScore);
+  toggleScoreCalculation(): void {
+    this.scoreCalculation = !this.scoreCalculation;
+    this.scoreCalculationChange.next(this.scoreCalculation);
   }
 
   /**
@@ -702,18 +775,22 @@ export class RuleEditorService {
         url: this.VARIABLE_EXTENSION,
         valueExpression: {
           name: e.label,
-          language: e.type === 'query' ? this.LANGUAGE_FHIR_QUERY : this.LANGUAGE_FHIRPATH,
+          language: (e.type.indexOf('query') > -1 )? this.LANGUAGE_FHIR_QUERY : this.LANGUAGE_FHIRPATH,
           expression: (e.type === 'expression' || e.type === 'query' || e.type === 'queryObservation') ? 
-            this.encodeQueryURIExpression(e.expression) : e.expression
+            this.encodeQueryURIExpression(e.expression) : e.expression,
+          extension: [{
+            "url": "http://lhcforms.nlm.nih.gov/fhirExt/rule-editor-variable-type",
+            "valueString": e.type
+          }] 
         }
       };
 
       if (e.type === 'simple') {
         // @ts-ignore
-        variable.valueExpression.extension = [{
-          url: RuleEditorService.SIMPLE_SYNTAX_EXTENSION,
-          valueString: e.simple
-        }];
+        variable.valueExpression.extension.push({
+            url: RuleEditorService.SIMPLE_SYNTAX_EXTENSION,
+            valueString: e.simple
+        });
       }
 
       return variable;
@@ -735,7 +812,8 @@ export class RuleEditorService {
     });
 
     if (this.syntaxType === 'simple') {
-      this.findOrAddExtension(finalExpression.valueExpression.extension, RuleEditorService.SIMPLE_SYNTAX_EXTENSION, 'String', this.simpleExpression);
+      if (finalExpression && finalExpression.hasOwnProperty('valueExpression') && finalExpression.valueExpression) 
+        this.findOrAddExtension(finalExpression.valueExpression.extension, RuleEditorService.SIMPLE_SYNTAX_EXTENSION, 'String', this.simpleExpression);
     }
 
     if (this.linkIdContext !== undefined && this.linkIdContext !== null && this.linkIdContext !== '') {
@@ -754,7 +832,7 @@ export class RuleEditorService {
     if (hasQueryObservations !== undefined) {
       let patientLaunchContext;
 
-      if (fhir.extension && fhir.hasOwnProperty('extension')) {
+      if (fhir?.extension) {
         patientLaunchContext = fhir.extension.find((extension) => {
           if (extension.url === this.LAUNCH_CONTEXT_URI &&
               Array.isArray(extension.extension)) {
@@ -848,8 +926,9 @@ export class RuleEditorService {
 
   /**
    * Get a list of item ids based on the logic for `addSumOfScores()`
-   * @param items - FHIR item array
-   * @param linkId - Link ID context
+   * @param items - Questionnaire items
+   * @param linkId - link id of the total score item
+   * @return Array of score item link ids
    */
   getScoreItemIds(items, linkId: string): Array<string> {
     let scoreItemIds = [];
@@ -879,8 +958,81 @@ export class RuleEditorService {
           this.getScoreItemIds(item.item, linkId));
       }
     }
-
     return scoreItemIds;
+  }
+
+  /**
+   * Build up the item where condition expressions to be used in the scoring expression. One noticable 
+   * difference between items not in a group and items in a group is the generated expression.
+   * In the case of items in a group, the where condition starts from the top node item and
+   * works its way down the tree to the destination node.
+   * An alternative approach is to use "repeat(item).where(linkId = 'xxx')" syntax. However, it may
+   * lead to a potential performance impact when searching through a large number of items. 
+   * @param items - Questionnaire items
+   * @param linkId - link id of the total score item
+   * @return Array of WhereConditionExpression object(s) which consist of
+   *         - itemQuery - query to select the item
+   *         - answerOptionQuery - query to select a sub-item answer from the answer of the main item. 
+   */
+  composeItemsWhereConditionExpressions(items, linkId: string): Array<WhereConditionExpression> {
+    const expressions = [];
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+
+      if (item.linkId === linkId) {
+        // Do not consider items at or below the linkId context required
+        break;
+      } else if (this.itemHasScore(item)) {
+        if (this.itemLinkIdsForCalculation && this.itemLinkIdsForCalculation.length > 0 &&
+            this.itemLinkIdsForCalculation.includes(item.linkId)) {
+
+          const expression = {
+            "itemQuery": ".item.where(linkId = '" + item.linkId + "')",
+            "answerOptionQuery": ".item.where(linkId = '" + item.linkId + "')"
+          }
+          expressions.push(expression);
+        }
+      }
+
+      if (item.item) {
+        const childExpressions = this.composeItemsWhereConditionExpressions(item.item, linkId);
+        if (childExpressions.length > 0) {
+          childExpressions.forEach((childExpression) => {
+            const typeChoice = (item.type !== "group") ? ".answer" : "";
+            const expression = {
+              "itemQuery": ".item.where(linkId = '" + item.linkId + "')" + childExpression.itemQuery,
+              "answerOptionQuery": ".item.where(linkId = '" + item.linkId + "')" + typeChoice + childExpression.answerOptionQuery
+            }
+            expressions.push(expression);
+          });
+        }
+      }
+      // Repeating items are currently not supported
+      if (item.repeats) {
+        continue;
+      }
+    }
+
+    return expressions;
+  }
+
+  /**
+   * Construct scoring expressions for variables to be used in the scoring calculation. The
+   * scoring expression is used to retrieve the "score" (valueDecimal) for the given item. 
+   * @param items - Questionnaire items
+   * @param linkId - link id of the total score item
+   * @return Array of scoring expressions 
+   */
+  composeScoringItemsExpressions(items, linkId: string): Array<string> {
+    // Retrieve itmes where expressions
+    const itemExpressions = this.composeItemsWhereConditionExpressions(items, linkId);
+    const scoreExpressions = itemExpressions.map((e, i) => {
+      return `%questionnaire${e.itemQuery}.answerOption` +
+        `.where(valueCoding.code=%resource${e.answerOptionQuery}.answer.valueCoding.code).extension` +
+        `.where(url='http://hl7.org/fhir/StructureDefinition/ordinalValue').valueDecimal`;
+    });
+
+    return scoreExpressions;
   }
 
   /**
@@ -895,25 +1047,23 @@ export class RuleEditorService {
     const linkIdContext = this.linkIdContext;
 
     const variableNames = [];
-    // Get an array of linkIds for score questions
-    const scoreQuestionLinkIds = this.getScoreItemIds(fhir.item, linkIdContext);
+    const scoreExpressions = this.composeScoringItemsExpressions(fhir.item, linkIdContext);
 
     // Get as many short suggested variable names as we have score questions
-    scoreQuestionLinkIds.forEach(() => {
+    scoreExpressions.forEach(() => {
       variableNames.push(this.getNewLabelName(variableNames));
     });
 
-    const scoreQuestions = scoreQuestionLinkIds.map((e, i) => {
+    const scoreQuestions = scoreExpressions.map((e, i) => {
       return {
         url: this.VARIABLE_EXTENSION,
         valueExpression: {
           name: variableNames[i],
           language: this.LANGUAGE_FHIRPATH,
-          expression: `%questionnaire.item.where(linkId = '${e}').answerOption` +
-            `.where(valueCoding.code=%resource.item.where(linkId = '${e}').answer.valueCoding.code).extension` +
-            `.where(url='http://hl7.org/fhir/StructureDefinition/ordinalValue').valueDecimal`,
+          expression: e,
           extension: [{
-            url: RuleEditorService.SCORE_VARIABLE_EXTENSION
+            url: RuleEditorService.SCORE_VARIABLE_EXTENSION,
+            valueBoolean: true
           }]
         }
       };
@@ -926,13 +1076,13 @@ export class RuleEditorService {
         language: this.LANGUAGE_FHIRPATH,
         expression: variableNames.map((e) => `%${e}.exists()`).join(' or '),
         extension: [{
-          url: RuleEditorService.SCORE_VARIABLE_EXTENSION
+          url: RuleEditorService.SCORE_VARIABLE_EXTENSION,
+          valueBoolean: true
         }]
       }
     };
 
     const sumString = variableNames.map((e) => `iif(%${e}.exists(), %${e}, 0)`).join(' + ');
-
     const totalCalculation = {
       url: this.CALCULATED_EXPRESSION,
       valueExpression: {
@@ -940,7 +1090,8 @@ export class RuleEditorService {
         language: this.LANGUAGE_FHIRPATH,
         expression: `iif(%any_questions_answered, ${sumString}, {})`,
         extension: [{
-          url: RuleEditorService.SCORE_EXPRESSION_EXTENSION
+          url: RuleEditorService.SCORE_EXPRESSION_EXTENSION_LINKIDS,
+          valueString: JSON.stringify(this.itemLinkIdsForCalculation)
         }]
       }
     };
@@ -955,19 +1106,78 @@ export class RuleEditorService {
   }
 
   /**
+   * Returns extension that contain a score expression
+   * @param extension - array of valueExpression extensions
+   * @return score expression extension 
+   */
+  private getScoreExpressionExtension(extension): any {
+    return extension.find((e) =>   
+      e.url === RuleEditorService.SCORE_EXPRESSION_EXTENSION_LINKIDS);
+  }
+
+  /**
+   * Get selected item link ids for scoring calculation
+   * @param items - Questionnaire item array
+   * @param linkId - link id of the total score item
+   * @return Array of selected items link ids or empty array
+   */
+  private getSelectedLinkIdsForScoring(items, linkId): any {
+    let resultLinkIds = [];
+    if (linkId === undefined || linkId === null || linkId === '') {
+      return resultLinkIds;
+    } else {
+      // loop through each items to look for matching linkId item.
+      for (const item of items) {
+        if (item.linkId === linkId) {
+          if (item.extension) {
+            for (const extension of item.extension) {
+              if (extension.valueExpression && extension.valueExpression.extension &&
+                extension.valueExpression.extension.length > 0) {
+                const tmp = this.getScoreExpressionExtension(extension.valueExpression.extension);
+                if (tmp && tmp !== undefined && tmp.hasOwnProperty('valueString')) {
+                  resultLinkIds = JSON.parse(tmp.valueString);
+                  break;
+                }
+              }
+            };
+          }
+        // if item contains sub-items
+        } else if (item.item) {
+          const ext = this.getSelectedLinkIdsForScoring(item.item, linkId);
+          if (Array.isArray(ext) && ext.length > 0) {
+            resultLinkIds = ext;
+            break;
+          }
+        }
+      };
+
+      return resultLinkIds;
+    }
+  }
+
+  /**
+   * Returns linkIds of selected items for scoring calculation
+   * @param items - Questionnaire items
+   * @param linkId - link id of the total score item
+   * @return Array of selected items link ids or empty array
+   */
+  getSelectedScoringLinkIds(items, linkId: string = this.linkIdContext): any {
+    return this.getSelectedLinkIdsForScoring(items, linkId);
+  }
+
+  /**
    * Checks if the referenced Questionnaire item is a score calculation added by
    * the Rule Editor
    * @param questionnaire - FHIR Questionnaire
    * @param linkId - Questionnaire item Link ID to check, if not provided check
    * all items on the questionnaire
-   * @return True if the question at linkId is a score calculation created by
+   * @return True if the question at link id is a score calculation created by
    * the Rule Editor, false otherwise
    */
   isScoreCalculation(questionnaire, linkId?): boolean {
     const checkForScore = (item) => {
       if (linkId === undefined || linkId === item.linkId) {
         const isScore = this.hasRuleEditorExtension(item);
-
         if (isScore) {
           return true;
         }
@@ -975,7 +1185,6 @@ export class RuleEditorService {
 
       if (item.item) {
         const subItemHasScore = item.item.find((subItem) => checkForScore(subItem));
-
         if (subItemHasScore) {
           return true;
         }
@@ -988,9 +1197,10 @@ export class RuleEditorService {
   }
 
   /**
-   * Returns true if the current item has a custom Rule Editor score extension
+   * Validate if the current item has a custom Rule Editor score extension
    * (indicating it was previously modified by the Rule Editor)
    * @param item
+   * @return Returns true if the current item has a custom Rule Editor score extension
    * @private
    */
   private hasRuleEditorExtension(item): boolean {
@@ -1003,7 +1213,7 @@ export class RuleEditorService {
 
   /**
    * Updates a FHIR questionnaire score calculation on the item identified by
-   * the linkId
+   * the link id
    * @param questionnaire - FHIR Questionnaire
    * @param linkId - Questionnaire item Link ID to update
    * @return Questionnaire with updated calculation
@@ -1040,8 +1250,9 @@ export class RuleEditorService {
   }
 
   /**
-   * Returns true if the extension has an extension for calculating score false otherwise
+   * Validate if the extension has an extension for calculating score
    * @param extension - FHIR Extension object
+   * @return True if the extension has an extension for calculating score false otherwise
    * @private
    */
   private isRuleEditorExtension(extension): boolean {
@@ -1049,7 +1260,8 @@ export class RuleEditorService {
       extension.valueExpression.extension.length) {
       return !!extension.valueExpression.extension.find(e => e &&
         (e.url === RuleEditorService.SCORE_VARIABLE_EXTENSION ||
-          e.url === RuleEditorService.SCORE_EXPRESSION_EXTENSION));
+          e.url === RuleEditorService.SCORE_EXPRESSION_EXTENSION ||
+          e.url === RuleEditorService.SCORE_EXPRESSION_EXTENSION_LINKIDS));
     } else {
       return false;
     }
@@ -1094,8 +1306,10 @@ export class RuleEditorService {
    * @param convertible - Units can be converted
    * @param unit - Base units
    * @param toUnit - Destination units
+   * @param expression - question expression
+   * @return expression based on matching criteria
    */
-  valueOrScoreExpression(linkId: string, itemHasScore: boolean, convertible: boolean, unit: string, toUnit: string): string {
+  valueOrScoreExpression(linkId: string, itemHasScore: boolean, convertible: boolean, unit: string, toUnit: string, expression: string): string {
     if (itemHasScore) {
       return `%questionnaire.item.where(linkId = '${linkId}').answerOption` +
         `.where(valueCoding.code=%resource.item.where(linkId = '${linkId}').answer.valueCoding.code).extension` +
@@ -1104,11 +1318,205 @@ export class RuleEditorService {
       const factor = UNIT_CONVERSION[unit].find((e) => e.unit === toUnit).factor;
       return `%resource.item.where(linkId='${linkId}').answer.value*${factor}`;
     } else {
-      return `%resource.item.where(linkId='${linkId}').answer.value`;
+      const matches = expression.match(this.QUESTION_REGEX);
+      if(matches && matches[2])
+        return `%resource.item.where(linkId='${linkId}').answer.value*${matches[2]}`;
+      else
+        return `%resource.item.where(linkId='${linkId}').answer.value`;
     }
   }
 
   /**
+   * Obtain a list of items containing answers with the ordinal value (score/itemWeight)
+   * extension that can be used for scoring calculation
+   * @param items - Questionnaire item array
+   * @param linkId - link id of the total score item
+   * @param level - item hierarchy level
+   * @return Scoring object which consist of
+   *         - foundLinkId : a flag to indicate whether the given linkId has been found
+   *         - scoreItems : array of scoring items
+   */
+  getScoreItems(items, linkId: string = this.linkIdContext, level: number = 0 ): Scoring {
+    const sItems = copy(items);
+    let foundLinkId = false;
+    let scoreItems = [];
+
+    for (let i = 0; i < sItems.length; i++) {
+      const item = sItems[i];
+      // Repeating items are currently not supported
+      if (item.repeats) {
+        continue;
+      }
+
+      if (item.linkId === linkId) {
+        // Do not consider items at or below the linkId context required
+        foundLinkId = true;
+        break;
+      } else if (this.hasRuleEditorExtension(item)) {
+        // If the current item is already a score calculation or this is
+        // repeating we should not consider it or any items above
+        scoreItems = [];
+      }
+
+      // Work with nested items
+      if (item.item) {
+        let childScoreItem = this.getScoreItems(item.item, linkId, level+1);
+
+        foundLinkId = childScoreItem.foundLinkId;
+        const childScoreItems = childScoreItem.scoreItems;
+
+        if (childScoreItems && childScoreItems.length > 0) {
+          let childHasScore = childScoreItems.length > 0;
+          item.item = childScoreItems;
+
+          let parentHasScore = false;
+
+          if (item.type === 'choice' && this.itemHasScore(item)) {
+            parentHasScore = true;
+            item['hasScore'] = true;
+          }
+
+          if (parentHasScore || childHasScore)
+            scoreItems.push(item);
+
+        } else {
+          item.item = [];
+          if (this.itemHasScore(item)) {
+            item['hasScore'] = true;
+            scoreItems.push(item);
+          }
+        }
+        
+        if (foundLinkId)
+          break;
+      } else if (this.itemHasScore(item)) {
+        item['hasScore'] = true;
+        scoreItems.push(item);
+      }
+    }
+
+    return {foundLinkId, scoreItems};
+  }
+
+  /**
+   * Set selected item link ids for Scoring Calculation
+   * @param linkIds - array of selected scoring item link ids
+   */
+  setItemLinkIdsForTotalCalculation(linkIds: string[]): void {
+    this.itemLinkIdsForCalculation = linkIds;
+  }
+
+  /**
+   * Determine whether the expression uri is a calculated expression
+   * @param expressionUri - URI of expression extension on linkIdContext question
+   *  to extract and modify
+   * @return true if the expression is a calculated expression
+   */
+  isCalculatedExpression(expressionUri: string): boolean {
+    return (expressionUri === this.CALCULATED_EXPRESSION);
+  }
+
+  /**
+   * Determine if the given item has a calculated expression that is not extended with
+   * our custom total score extension. 
+   * @param item - FHIR Item
+   * @return true if the calculated expression is found and does not contain the new 
+   * scoring extension
+   */ 
+  hasStandardCalculatedExpressionForItem = (item) => {
+    const scoreExtension = item.extension.find((extension) => extension.url === this.CALCULATED_EXPRESSION);
+    if (scoreExtension && scoreExtension.valueExpression) {
+      const newScoringExtension = (scoreExtension.valueExpression.extension &&
+                  scoreExtension.valueExpression.extension.some((ext) => 
+                    ext.url === RuleEditorService.SCORE_EXPRESSION_EXTENSION_LINKIDS
+                  )
+                );
+      return !newScoringExtension;
+    }
+
+    return false;
+  };
+
+  /**
+   * Find an item from the Questionnaire items array by the linkId
+   * @param items - Questionnaire item array
+   * @param linkIdContext - link id of the selected item
+   * @return the item if found; otherwise, undefined
+   */
+  findItemById(items, linkIdContext: string): any {
+    let result = undefined;
+
+    for (const item of items) {
+      if (linkIdContext === undefined || linkIdContext === item.linkId) {
+        result = item;
+        break;
+      }
+      if (item.item) {
+        const subItem = this.findItemById(item.item, linkIdContext);
+        if (subItem) {
+          result = subItem;
+          break;
+        }
+      }
+
+    }
+    return result;
+  };
+
+  /**
+   * Determine if the selected question has a calculated expression that does not have
+   * our custom extension.
+   * @param questionnaire - FHIR Questionnaire
+   * @param linkIdContext - link id of the selected item
+   * @return true if the calculated expression does not contain the new scoring extension.
+   * The prompt for calculating the sum of scores will not be displayed as a result.
+   */
+  hasStandardCalculatedExpression(questionnaire, linkIdContext: string): boolean {
+    const item = this.findItemById(questionnaire.item, linkIdContext);
+    const res = (item) ? this.hasStandardCalculatedExpressionForItem(item) : false;
+    return res;
+  }
+
+  /**
+   * Determine if the selected item contains scoring items
+   * @param items - Questionnaire item array
+   * @param linkIdContext - link id of the selected item
+   * @return true if has scoring items
+   */
+  hasCalculatedScoringItems(items, linkIdContext: string): boolean {
+    const scoreItemResult = this.getScoreItems(items, linkIdContext);
+    return (scoreItemResult.scoreItems.length > 0);
+  }
+
+  /**
+   * Determine whether the scoring calculation should be prompted/calculated for the selected item.
+   * - The selected item expressionUri must be of type calculatedExpression.
+   * - The selected item must have scoring items for the calculation. The scoring items are determined
+   *   from items prior to the selected item.  So if the first question is selected, then it will not
+   *   get a prompt for score calculation.
+   * - The selected item must not contain the standard implementation of the pre-selected scoring items
+   *   (missing the new scoring extension). 
+   * @param questionnaire - FHIR Questionnaire
+   * @param linkIdContext - link id of the selected item
+   * @param expressionUri - Expression to process
+   * @return true if the scoring calculation prompt should not be displayed
+   */
+  shouldCalculateScoreForItem(questionnaire, linkIdContext:string, expressionUri: string): boolean {
+    // Should only calculate if the Output Expression is calculatedExpression
+    const hasCalculatedOutputExpression = this.isCalculatedExpression(expressionUri);
+
+    let shouldCalculateScore = false;
+
+    if (hasCalculatedOutputExpression &&
+        this.hasCalculatedScoringItems(questionnaire.item, linkIdContext) &&
+        !this.hasStandardCalculatedExpression(questionnaire, linkIdContext))
+      shouldCalculateScore = true;
+
+    this.doNotAskToCalculateScore = !shouldCalculateScore;
+    return shouldCalculateScore;
+  }
+
+  /** 
    * Performs URL decode.  Returns input str as is if URL decode failed.
    * @param str - input url string
    * @private
@@ -1261,7 +1669,7 @@ export class RuleEditorService {
 
     }
     return queryString;
-  }
+  };
   
   /**
    * Get uneditable and editable variable names
@@ -1269,5 +1677,24 @@ export class RuleEditorService {
   getVariableNames(): string[] {
     return this.uneditableVariables.map(e => e.name).concat(
       this.variables.map(e => e.label));
-  }
+  };
+
+  /**
+   * Generate a validation event to notify subscribers. If the result is null, the 'Save' button
+   * is enabled; othewise, the 'Save' button is disabled.
+   * @param errorType - validation error type 
+   * @param section - section where the error occurs
+   * @param name - name of the variable or field that contains the error
+   */
+  notifyValidationResult(errorType: string, section: string, name: string): void {
+    let result = null;
+
+    if (errorType && section) {
+      result = { 'error': errorType, 'section': section, 'name': name};
+    }
+
+    setTimeout(() => {
+      this.validationChange.next(result);
+    }, 100);
+  };
 }

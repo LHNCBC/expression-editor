@@ -1,0 +1,97 @@
+<div role="dialog" aria-modal="true">
+
+  <div class="scoring-items-selection-modal">
+
+    <div class="modal-header"  >
+       <h2>Scoring Items Selection</h2>
+    </div>
+  
+    <div class="scoring-items-selection-title">
+      Select items to include in the score calculation:
+    </div>
+
+    <div class="scoring-items-selection-body">
+      <div class="button-container">
+        <div class="checkbox-button-group">
+          <button
+            class="btn btn-secondary mt-2"
+            (click)="setSelectAllState(true)"
+            [ngStyle]="lhcStyle.buttonSecondary"
+            id="selectAll" [disabled]="scoringItems.length === 0">Select All
+          </button>
+          <button
+            class="btn btn-secondary mt-2"
+            (click)="setSelectAllState(false)"
+            [ngStyle]="lhcStyle.buttonSecondary"
+            id="unselectAll" [disabled]="scoringItems.length === 0">Unselect All
+          </button>
+        </div>
+      </div>
+      <div class="button-container">  
+        <div *ngIf="hasChildren" class="tree-button-group">
+          <button
+            class="btn btn-secondary mt-2"
+            (click)="setExpandAllState(true)"
+            [ngStyle]="lhcStyle.buttonSecondary"
+            id="expandAll">Expand All
+          </button>
+          <button
+            class="btn btn-secondary mt-2"
+            (click)="setExpandAllState(false)"
+            [ngStyle]="lhcStyle.buttonSecondary"
+            id="collapseAll">Collapse All
+          </button>
+        </div>
+      </div>
+
+      <div class="items-tree">
+        <tree-root #itemTree id="tree2" [focused]="true" 
+          [nodes]="scoringItems"
+          [options]="options"
+          (initialized)="onTreeLoad($event)"
+          role="tree">
+
+          <ng-template #treeNodeFullTemplate
+            let-node
+            let-index="index"
+            let-templates="templates">
+            <div
+              class="tree-node tree-node-level-{{ node.level }}"
+              [class]="node.getClass()"
+              [class.tree-node-expanded]="node.isExpanded && node.hasChildren"
+              [class.tree-node-collapsed]="node.isCollapsed && node.hasChildren"
+              [class.tree-node-leaf]="node.isLeaf"
+              [class.tree-node-active]="node.isActive"
+              [class.tree-node-focused]="node.isFocused">
+
+              <div class="node-wrapper" [style.padding-left]="node.getNodePadding()">
+                <input type="checkbox" style="margin-top:6px;" 
+                  *ngIf="node.data.type =='choice' && node.data.hasScore" class="tree-node-checkbox"
+                  [checked]="node.isActive"
+                  (change)="onScoringItemCheckboxClick(node);" />
+                <span  style="margin: 10px;"></span>
+                <tree-node-expander [node]="node"></tree-node-expander>
+                <div
+                  class="node-content-wrapper"
+                  [class.node-content-wrapper-active]="node.isActive"
+                  [class.node-content-wrapper-focused]="node.isFocused"
+                  (click)="onScoringItemCheckboxClick(node);">
+                  <span [class]="node.data.className" [class.title]="true">{{ node.data.text }} ({{ node.data.linkId}})</span>
+                </div>
+              </div>
+
+              <div>
+                <tree-node-children [node]="node"  [templates]="templates"></tree-node-children>
+              </div>
+            </div>
+          </ng-template>
+        </tree-root>
+      </div>
+    </div>
+    <div class="scoring-items-selection-footer button-div">
+      <button class="primary" [disabled]="!hasScoreSelected" (click)="onExportClick()" [style]="lhcStyle.buttonPrimary" id="export-score">Done</button>
+      <button (click)="onCloseClick()" id="skip-export-score">Cancel</button>
+    </div>
+  </div>
+
+</div>

@@ -1,9 +1,40 @@
 # Change log
 
 This project follows [Semantic Versioning](http://semver.org/).
+
+## [3.1.15] 2024-01-16
+### Changed
+- Renamed variable-type-final to output-expression-type
+- Added a cancel button to discard changes for the Rule Editor
+
+## [3.1.14] 2024-01-09
+### Added
+- Added the ability to select items for scoring calculation
+
+## [3.1.13] 2024-01-04
+### Changed
+- Added prompt when switching from FHIRPath Expression to Easy Path Expression
+
+## [3.1.12] 2023-12-22
+### Added
+- Added a custom extension to store the variable type for each variable in the Questionnaire
+
 ## [3.1.11] 2023-12-20
 ### Added
-- Added a cancel button to discard changes for the Rule Editor
+- Added support for setting variables on the Questionnaire root
+
+## [3.1.10] 2023-12-13
+### Changed
+- Fixed issue with case statements not updating when switching to another case statement questonnaire.
+
+## [3.1.9] 2023-12-05
+### Added
+- Added source map
+
+## [3.1.8] 2023-11-21
+### Changed
+- Updated label for Case Statement
+- Fixed the css issue
 
 ## [3.1.7] 2023-11-09
 ### Added

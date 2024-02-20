@@ -1,3 +1,10 @@
+.rule-editor {
+  border: 1px solid #ccc;
+  padding: 1em;
+  margin: 1em 0;
+  box-shadow: 10px 10px 10px #ccc;
+}
+
 .toolbar-button {
   height: 2.7rem;
 }
@@ -100,4 +107,26 @@ lhc-case-statements {
 
 button#cancel-changes {
   margin-left: 10px;
+}
+
+button-div {
+  text-align: center;
+}
+
+.help {
+  padding-right: 15px;
+}
+
+button.disabled {
+  background-color: gray !important;
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+input.field-error {
+  border: 4px solid red !important;
+}
+
+.fhirpath-error {
+  color: red !important;
 }
