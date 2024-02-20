@@ -5,6 +5,7 @@ This project follows [Semantic Versioning](http://semver.org/).
 ## [3.1.15] 2024-01-16
 ### Changed
 - Renamed variable-type-final to output-expression-type
+- Added a cancel button to discard changes for the Rule Editor
 
 ## [3.1.14] 2024-01-09
 ### Added

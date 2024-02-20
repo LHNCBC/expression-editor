@@ -90,6 +90,8 @@ describe('Rule editor', () => {
       });
 
       it('should be able to select a different question in the questionnaire and add a variable', () => {
+        cy.get('#questionnaire-select').select('BMI Calculation (Easy Path expression)');
+
         cy.title().should('eq', 'Rule Editor');
 
         // By default, the selected item is BMI
@@ -119,7 +121,7 @@ describe('Rule editor', () => {
 
         // Checking the output, it should have the new variable created under the 
         // "Clothing worn during measure" item extension
-        cy.get('pre#output').invoke('text').then((jsonData) => {
+        cy.get('pre#output').should('not.be.empty').invoke('text').then((jsonData) => {
             // Parse the JSON data
             const parsedData = JSON.parse(jsonData);
 
@@ -133,6 +135,8 @@ describe('Rule editor', () => {
       });
 
       it('should be able to select and add a variable to root level', () => {
+        cy.get('#questionnaire-select').select('BMI Calculation (Easy Path expression)');
+
         cy.title().should('eq', 'Rule Editor');
 
         // By default, the selected item is BMI
@@ -159,7 +163,7 @@ describe('Rule editor', () => {
         cy.get('#export').click();
         
         // Checking the output, it should have the new variable created under the root extension
-        cy.get('pre#output').invoke('text').then((jsonData) => {
+        cy.get('pre#output').should('not.be.empty').invoke('text').then((jsonData) => {
             // Parse the JSON data
             const parsedData = JSON.parse(jsonData);
 
@@ -669,9 +673,8 @@ describe('Rule editor', () => {
             // Select question Weight again
             cy.get('#question-0').clear().type('weight');
           });
-
-        cy.get('#completionOptions').contains('29463-7').click();
-
+        cy.get('span#completionOptions > ul > li').contains('29463-7').click();
+        
         cy.get('div#row-0')
           .within(() => {
             // Now select Easy Path Expression variable type
@@ -757,8 +760,8 @@ describe('Rule editor', () => {
             cy.get('#question-1').clear().type('weight');
           });
 
-        cy.get('#completionOptions').contains('29463-7').click();
-
+        cy.get('span#completionOptions > ul > li').contains('29463-7').click();
+        
         cy.get('div#row-1')
           .within(() => {
             // Switch back to Easy Path Expression variable type.  The expression should get cleared out
@@ -882,8 +885,8 @@ describe('Rule editor', () => {
         cy.get('#add-variable').click();
         cy.get('#variables-section .variable-row').should('have.length', 3);
         cy.get('#question-2').clear().type('BMI (/39156-5)');
-        cy.contains('39156-5').click();
-  
+        cy.get('span#completionOptions > ul > li').contains('39156-5').click();
+
         // Confirm that variable c is available for Output expression 
         cy.get('#simple-expression-final').clear().type('a + b + c');
         cy.get('lhc-syntax-preview>div>div>pre').should('not.have.text', 'Not valid');
@@ -899,6 +902,64 @@ describe('Rule editor', () => {
         cy.get('#simple-expression-final').clear().type('a + c');
         cy.get('lhc-syntax-preview>div>div>pre').should('not.have.text', 'Not valid');
   
+      });
+
+      it('should get confirmation dialog when click Cancel', () => {
+        cy.get('select#questionnaire-select').select('BMI Calculation (Easy Path expression)');
+        
+        // Variables section
+        cy.get('lhc-variables > h2').should('contain', 'Item Variables');
+        cy.get('#variables-section .variable-row').should('have.length', 2);
+        
+        // The confirmation dialog should not exist
+        cy.get('div.rule-editor lhc-yes-no-dialog').should('not.exist');
+
+        // Cancel button
+        cy.get('#cancel-changes').should('exist').click();
+
+        // The dialog to confirm cancel should be displayed
+        cy.get('div.rule-editor lhc-yes-no-dialog').should('exist');
+
+        // The dialog should contains two buttons: Yes and No.
+        cy.get('#yes-button').should('exist');
+        cy.get('#no-button').should('exist');
+
+        // Click 'No' should cancel the Cancel request and hide the dialog
+        cy.get('#no-button').click();
+
+        // The confirmation dialog should not exist
+        cy.get('div.rule-editor lhc-yes-no-dialog').should('not.exist');
+      });
+
+      it('should be able to cancel changes to the Rule Editor', () => {
+        cy.get('select#questionnaire-select').select('BMI Calculation (Easy Path expression)');
+        
+        // Variables section
+        cy.get('lhc-variables > h2').should('contain', 'Item Variables');
+        cy.get('#variables-section .variable-row').should('have.length', 2);
+        
+        // Add variable c
+        cy.get('#add-variable').click();
+        cy.get('#variables-section .variable-row').should('have.length', 3);
+        cy.get('#question-2').clear().type('BMI (/39156-5)');
+        cy.get('span#completionOptions > ul > li').contains('39156-5').click();
+        
+        // Cancel button
+        cy.get('#cancel-changes').should('exist').click();
+
+        // The dialog to confirm cancel should be displayed
+        cy.get('div.rule-editor lhc-yes-no-dialog').should('exist');
+
+        // Click 'Yes' to confirm cancelling
+        cy.get('#yes-button').click();
+
+        // This should reset back to the 'BMI Calculation (Easy Path Expression)' questionnaire
+        // The confirmation dialog should be hidden
+        cy.get('div.rule-editor lhc-yes-no-dialog').should('not.exist');
+
+        // Variables section should revert back to 2 variables.
+        cy.get('lhc-variables > h2').should('contain', 'Item Variables');
+        cy.get('#variables-section .variable-row').should('have.length', 2);
       });
     });
 
@@ -1066,7 +1127,7 @@ describe('Rule editor', () => {
           cy.get('#export-score').click();
 
           // the Rule-Editor div panel should be hidden
-          cy.get('div.rule-editor').should('not.exist');
+          cy.get('div.rule-editor > lhc-select-scoring-items').should('not.exist');
           
           cy.get('#output')
           .should('contain.text', '"expression": "iif(%any_questions_answered, iif(%a.exists(), %a, 0) ' +
@@ -1088,7 +1149,7 @@ describe('Rule editor', () => {
           cy.get('#export-score').click();
 
           // the Rule-Editor div panel should be hidden
-          cy.get('div.rule-editor').should('not.exist');
+          cy.get('div.rule-editor > lhc-select-scoring-items').should('not.exist');
 
           cy.get('#output')
             .should('contain.text', '"expression": "iif(%any_questions_answered, iif(%a.exists(), %a, 0) ' +
@@ -1766,7 +1827,7 @@ describe('Rule editor', () => {
           .should('be.visible')
           .within( ()=> {
             // Select 'Yes' to convert from 'FHIRPath Expression' to 'Easy Path Expression'
-            cy.get('#yes').should('exist').click();
+            cy.get('#yes-button').should('exist').click();
           });
 
         // There should still be 3 case statements. But the cases/expressions might be blank.

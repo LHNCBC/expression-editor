@@ -21,6 +21,7 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
   @Input() expressionUri = '';
   @Input() lhcStyle: SimpleStyle = {};
   @Output() save = new EventEmitter<object>();
+  @Output() cancel = new EventEmitter();
 
   errorLoading = 'Could not detect a FHIR Questionnaire; please try a different file.';
   expressionSyntax: string;
@@ -34,6 +35,7 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
   caseStatements: boolean;
   disableInterfaceToggle = false;
   loadError = false;
+  showCancelConfirmationDialog = false;
   selectItems: boolean;
   hideRuleEditor = false;
   validationError = false;
@@ -191,6 +193,37 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
    */
   selectItemsForSumOfScores(): void {
     this.selectItems = true;
+  }
+
+  /**
+   * Cancelling changes to the Rule Editor
+   * 
+   */
+  cancelRuleEditorChanges(): void {
+    this.showCancelConfirmationDialog = true;
+  }
+
+  /**
+   * Confirm to cancel change
+   */
+  confirmCancel(): void {
+    this.liveAnnouncer.announce("'yes' was selected. Changes were canceled.");
+
+    setTimeout(() => {
+      this.cancel.emit();
+      this.showCancelConfirmationDialog = false;
+    }, 500);
+  }
+
+  /**
+   * Discard the cancel request
+   */
+  discardCancel(): void {
+    this.liveAnnouncer.announce("'no' was selected. Changes were not canceled");
+
+    setTimeout(() => {
+      this.showCancelConfirmationDialog = false;
+    }, 100);
   }
 
   /**

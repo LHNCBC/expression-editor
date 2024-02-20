@@ -105,13 +105,17 @@ lhc-case-statements {
   }
 }
 
+button#cancel-changes {
+  margin-left: 10px;
+}
+
 button-div {
   text-align: center;
 }
+
 .help {
   padding-right: 15px;
 }
-
 
 button.disabled {
   background-color: gray !important;

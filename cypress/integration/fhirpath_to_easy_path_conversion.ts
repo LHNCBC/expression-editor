@@ -158,7 +158,7 @@ describe('Rule editor', () => {
           .should('be.visible')
           .within( ()=> {
             // Select 'No' to not convert from 'FHIRPath Expression' to 'Easy Path Expression'
-            cy.get('#no').should('exist').click();
+            cy.get('#no-button').should('exist').click();
           });
   
         // The dialog should now disappeared
@@ -200,7 +200,7 @@ describe('Rule editor', () => {
           .should('be.visible')
           .within( ()=> {
             // Select 'Yes' to convert from 'FHIRPath Expression' to 'Easy Path Expression'
-            cy.get('#yes').should('exist').click();
+            cy.get('#yes-button').should('exist').click();
           });
   
         // The dialog should now disappeared
@@ -303,7 +303,7 @@ describe('Rule editor', () => {
           .should('be.visible')
           .within( ()=> {
             // Select 'Yes' to convert from 'FHIRPath Expression' to 'Easy Path Expression'
-            cy.get('#yes').should('exist').click();
+            cy.get('#yes-button').should('exist').click();
           });
 
         cy.get('#variable-type-2').should('have.value', 'simple');
@@ -403,7 +403,7 @@ describe('Rule editor', () => {
             .should('be.visible')
             .within( ()=> {
               // Select 'No' to not convert from 'FHIRPath Expression' to 'Easy Path Expression'
-              cy.get('#no').should('exist').click();
+              cy.get('#no-button').should('exist').click();
             });
   
           // The dialog should now disappeared
@@ -444,7 +444,7 @@ describe('Rule editor', () => {
             .should('be.visible')
             .within( ()=> {
               // Select 'Yes' to convert from 'FHIRPath Expression' to 'Easy Path Expression'
-              cy.get('#yes').should('exist').click();
+              cy.get('#yes-button').should('exist').click();
             });
   
           // The dialog should now disappeared
@@ -493,7 +493,7 @@ describe('Rule editor', () => {
             .should('be.visible')
             .within( ()=> {
               // Select 'Yes' to convert from 'FHIRPath Expression' to 'Easy Path Expression'
-              cy.get('#yes').should('exist').click();
+              cy.get('#yes-button').should('exist').click();
             });
 
           // Easy Path Expression help should exist
@@ -624,7 +624,7 @@ describe('Rule editor', () => {
             .should('be.visible')
             .within( ()=> {
               // Select 'No' to not convert from 'FHIRPath Expression' to 'Easy Path Expression'
-              cy.get('#no').should('exist').click();
+              cy.get('#no-button').should('exist').click();
             });
   
           // The dialog should now disappeared
@@ -704,7 +704,7 @@ describe('Rule editor', () => {
             .should('be.visible')
             .within( ()=> {
               // Select 'Yes' to convert from 'FHIRPath Expression' to 'Easy Path Expression'
-              cy.get('#yes').should('exist').click();
+              cy.get('#yes-button').should('exist').click();
             });
   
           // The dialog should now disappeared

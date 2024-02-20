@@ -12,18 +12,19 @@ export class YesNoDialogComponent {
   @Input() prompt1: string;
   @Input() prompt2: string;
   @Input() textAlign = "left";
+  @Input() dialogWidth = "50%";
   @Output() yes: EventEmitter<any> = new EventEmitter<any>();
   @Output() no: EventEmitter<any> = new EventEmitter<any>();
 
   /**
-   * Close the dialog, cancelling the change from FHIRPath Expression to Easy Path Expression
+   * Emits the 'yes' event
    */
   onYes(): void {
     this.yes.emit();
   }
 
   /**
-   * Proceed with changing from FHIRPath Expression to Easy Path Expression
+   * Emits the 'no' event
    */
   onNo(): void {
     this.no.emit();

@@ -9,7 +9,7 @@
 
 <label>
   Questionnaire:
-  <select [(ngModel)]="formType" (change)="onChange()" id="questionnaire-select">
+  <select [(ngModel)]="questionnaire" (change)="onChange()" id="questionnaire-select">
     <option value="upload">Upload your own questionnaire</option>
     <option value="bmi">BMI Calculation</option>
     <option value="bmisimple">BMI Calculation (Easy Path expression)</option>
@@ -23,17 +23,17 @@
   </select>
 </label>
 
-<label *ngIf="formType != 'upload'" [hidden]="rootLevel">
+<label *ngIf="questionnaire != 'upload'" [hidden]="rootLevel">
   Question:
   <input placeholder="Please select" class="query-autocomplete" #autoComplete id="question" />
 </label>
 
-<span *ngIf="formType != 'upload'" class="checkbox">
+<span *ngIf="questionnaire != 'upload'" class="checkbox">
   <input type="checkbox" id="useRootLevel" [(ngModel)]="rootLevel" (change)="toggleRootLevel($event)">
   <label>Root level</label>
 </span>
 
-<div *ngIf="formType == 'upload'" id="upload">
+<div *ngIf="questionnaire == 'upload'" id="upload">
   <p>Please specify the questionnaire, item Link ID, and the corresponding Expression URI where the output should be placed:</p>
   <label>Questionnaire:
     <input type="file" id="file-upload" [(ngModel)]="file" accept=".json" (change)="prepareForImport($event)">
@@ -68,24 +68,25 @@
   {{error}}
 </div>
 <div *ngIf="fhir">
-  <lhc-rule-editor
-    [fhirQuestionnaire]="fhir"
-    [itemLinkId]="linkId"
-
-    [submitButtonName]="'Save'"
-    [expressionLabel]="'Output Expression'"
-    [expressionUri]="linkId ? expressionUri : ''"
-    [userExpressionChoices]=userExpressionChoices
-    [lhcStyle]="{
-      buttonPrimary: { backgroundColor: 'navy', color: 'white' },
-      buttonSecondary: { backgroundColor: 'darkgreen', color: 'white' },
-      input: { backgroundColor: '#ffe' },
-      select: { backgroundColor: '#ffe' }
-    }"
-    [doNotAskToCalculateScore]="doNotAskToCalculateScore"
-    (save)="onSave($event)">
-  </lhc-rule-editor>
-
+  <div class="rule-editor">
+    <lhc-rule-editor
+      [fhirQuestionnaire]="fhir"
+      [itemLinkId]="linkId"
+      [submitButtonName]="'Save'"
+      [expressionLabel]="'Output Expression'"
+      [expressionUri]="linkId ? expressionUri : ''"
+      [userExpressionChoices]=userExpressionChoices
+      [lhcStyle]="{
+        buttonPrimary: { backgroundColor: 'navy', color: 'white' },
+        buttonSecondary: { backgroundColor: 'darkgreen', color: 'white' },
+        input: { backgroundColor: '#ffe' },
+        select: { backgroundColor: '#ffe' }
+      }"
+      [doNotAskToCalculateScore]="doNotAskToCalculateScore"
+      (save)="onSave($event)"
+      (cancel)="onCancel()">
+    </lhc-rule-editor>
+  </div>
 
   <button *ngIf="fhirPreview" (click)="downloadJson(fhirPreview)" class="download">
     Download Questionnaire
