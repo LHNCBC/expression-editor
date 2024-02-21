@@ -193,12 +193,14 @@ export class AppComponent implements OnInit, OnDestroy {
       this.autoCompleteElement.nativeElement, keys, opts);
 
     Def.Autocompleter.Event.observeListSelections('question', (res) => {
-      if (res.val_typed_in !== res.final_val && res.item_code) {
+      if ((res.input_method === "clicked" && res.val_typed_in !== res.final_val && res?.item_code) ||
+          (res.input_method === "typed")) {
         this.linkId = res.item_code;
-        this.rootLevel = false;
+
+        if (res.item_code && this.rootLevel === true)
+          this.rootLevel = false;
       }
     });
-
   }
 
 
