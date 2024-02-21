@@ -27,7 +27,7 @@
   <input type="checkbox" id="useRootLevel"
          aria-labelledby="rootLevelCheckboxLabel"
          [(ngModel)]="rootLevel" (change)="toggleRootLevel($event)">
-  <label id="rootLevelCheckboxLabel">Root level</label>
+  <label id="rootLevelCheckboxLabel" for="useRootLevel">Root level</label>
 </span>
 
 <label *ngIf="formType != 'upload'" >
