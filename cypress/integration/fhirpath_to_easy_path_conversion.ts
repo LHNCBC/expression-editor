@@ -10,7 +10,14 @@ describe('Rule editor', () => {
         cy.intercept('/bmi.json').as('bmi');
         cy.get('select#questionnaire-select').select('BMI Calculation');
         cy.wait('@bmi');
-     
+
+        // The demo has 'BMI (/39156-5) selected by default
+        cy.get('#question').should('have.value', 'BMI (/39156-5)');
+        // Click the button to edit the expression
+        cy.get('button#openRuleEditor').should('exist').click();
+        // The Rule Editor dialog should now appear
+        cy.get('#rule-editor-dialog').should('exist');
+
         cy.title().should('eq', 'Rule Editor');
 
         // Variables section
@@ -18,7 +25,7 @@ describe('Rule editor', () => {
         cy.get('#variables-section .variable-row').should('have.length', 2);
 
         // Add a variable
-        cy.get('#add-variable').should('exist').should('be.visible').click();
+        cy.get('#add-variable').should('exist').scrollIntoView().should('be.visible').click();
         cy.get('#variables-section .variable-row').should('have.length', 3);
 
         // Set to 'FHIRPath Expression' variable type
@@ -32,14 +39,21 @@ describe('Rule editor', () => {
         cy.get('#variable-type-2').select('simple');
 
         // Dialog should get displayed
-        cy.get('lhc-yes-no-dialog').should('exist').should('be.visible');
+        cy.get('#yes-no-dialog').should('exist').scrollIntoView().should('be.visible');
       });
 
       it('should not display the dialog when switching from FHIRPath Expression to Easy Path Expression and expression is blank', () => {
         cy.intercept('/bmi.json').as('bmi');
         cy.get('select#questionnaire-select').select('BMI Calculation');
         cy.wait('@bmi');
-     
+
+        // The demo has 'BMI (/39156-5) selected by default
+        cy.get('#question').should('have.value', 'BMI (/39156-5)');
+        // Click the button to edit the expression
+        cy.get('button#openRuleEditor').should('exist').click();
+        // The Rule Editor dialog should now appear
+        cy.get('#rule-editor-dialog').should('exist');
+
         cy.title().should('eq', 'Rule Editor');
 
         // Variables section
@@ -47,7 +61,7 @@ describe('Rule editor', () => {
         cy.get('#variables-section .variable-row').should('have.length', 2);
 
         // Add a variable
-        cy.get('#add-variable').should('exist').should('be.visible').click();
+        cy.get('#add-variable').should('exist').scrollIntoView().should('be.visible').click();
         cy.get('#variables-section .variable-row').should('have.length', 3);
 
         // Set to 'FHIRPath Expression' variable type
@@ -60,14 +74,21 @@ describe('Rule editor', () => {
         cy.get('#variable-type-2').select('simple');
 
         // Dialog should get displayed
-        cy.get('lhc-yes-no-dialog').should('not.exist');
+        cy.get('#yes-no-dialog').should('not.exist');
       });
 
       it('should not display the dialog when switching from FHIRPath Expression to other variable type', () => {
         cy.intercept('/bmi.json').as('bmi');
         cy.get('select#questionnaire-select').select('BMI Calculation');
         cy.wait('@bmi');
-     
+
+        // The demo has 'BMI (/39156-5) selected by default
+        cy.get('#question').should('have.value', 'BMI (/39156-5)');
+        // Click the button to edit the expression
+        cy.get('button#openRuleEditor').should('exist').click();
+        // The Rule Editor dialog should now appear
+        cy.get('#rule-editor-dialog').should('exist');
+
         cy.title().should('eq', 'Rule Editor');
 
         // Variables section
@@ -75,7 +96,7 @@ describe('Rule editor', () => {
         cy.get('#variables-section .variable-row').should('have.length', 2);
 
         // Add a variable
-        cy.get('#add-variable').should('exist').should('be.visible').click();
+        cy.get('#add-variable').should('exist').scrollIntoView().should('be.visible').click();
         cy.get('#variables-section .variable-row').should('have.length', 3);
 
         // Set to 'FHIRPath Expression' variable type
@@ -89,50 +110,57 @@ describe('Rule editor', () => {
         cy.get('#variable-type-2').select('query');
 
         // Dialog should not be displayed
-        cy.get('lhc-yes-no-dialog').should('not.exist');
+        cy.get('#yes-no-dialog').should('not.exist');
 
         // Switch back to 'FHIRPath Expression'
         cy.get('#variable-type-2').select('expression');
 
         // Dialog should not be displayed
-        cy.get('lhc-yes-no-dialog').should('not.exist');
+        cy.get('#yes-no-dialog').should('not.exist');
 
         // Change to FHIR Query (Observation) variable type
         cy.get('#variable-type-2').select('queryObservation');
 
         // Dialog should not be displayed
-        cy.get('lhc-yes-no-dialog').should('not.exist');
+        cy.get('#yes-no-dialog').should('not.exist');
 
         // Switch back to 'FHIRPath Expression'
         cy.get('#variable-type-2').select('expression');
 
         // Dialog should not be displayed
-        cy.get('lhc-yes-no-dialog').should('not.exist');
+        cy.get('#yes-no-dialog').should('not.exist');
 
         // Change to FHIR Query (Observation) variable type
         cy.get('#variable-type-2').select('queryObservation');
 
         // Dialog should not be displayed
-        cy.get('lhc-yes-no-dialog').should('not.exist');
+        cy.get('#yes-no-dialog').should('not.exist');
 
         // Switch back to 'FHIRPath Expression'
         cy.get('#variable-type-2').select('expression');
 
         // Dialog should not be displayed
-        cy.get('lhc-yes-no-dialog').should('not.exist');
+        cy.get('#yes-no-dialog').should('not.exist');
 
         // Change to Question variable type
         cy.get('#variable-type-2').select('question');
 
         // Dialog should not be displayed
-        cy.get('lhc-yes-no-dialog').should('not.exist');
+        cy.get('#yes-no-dialog').should('not.exist');
       });
 
       it('should be able to cancel switching from FHIRPath Expression to Easy Path Expression', () => {
         cy.intercept('/bmi.json').as('bmi');
         cy.get('select#questionnaire-select').select('BMI Calculation');
         cy.wait('@bmi');
-     
+
+        // The demo has 'BMI (/39156-5) selected by default
+        cy.get('#question').should('have.value', 'BMI (/39156-5)');
+        // Click the button to edit the expression
+        cy.get('button#openRuleEditor').should('exist').click();
+        // The Rule Editor dialog should now appear
+        cy.get('#rule-editor-dialog').should('exist');
+
         cy.title().should('eq', 'Rule Editor');
 
         // Variables section
@@ -140,7 +168,7 @@ describe('Rule editor', () => {
         cy.get('#variables-section .variable-row').should('have.length', 2);
 
         // Add a variable
-        cy.get('#add-variable').should('exist').should('be.visible').click();
+        cy.get('#add-variable').should('exist').scrollIntoView().should('be.visible').click();
         cy.get('#variables-section .variable-row').should('have.length', 3);
 
         // Set to 'FHIRPath Expression' variable type
@@ -154,7 +182,8 @@ describe('Rule editor', () => {
         cy.get('#variable-type-2').select('simple');
 
         // Dialog should get displayed
-        cy.get('lhc-yes-no-dialog').should('exist')
+        cy.get('#yes-no-dialog').should('exist')
+          .scrollIntoView()
           .should('be.visible')
           .within( ()=> {
             // Select 'No' to not convert from 'FHIRPath Expression' to 'Easy Path Expression'
@@ -162,7 +191,7 @@ describe('Rule editor', () => {
           });
   
         // The dialog should now disappeared
-        cy.get('lhc-yes-no-dialog').should('not.exist');
+        cy.get('#yes-no-dialog').should('not.exist');
 
         // B/c the change in variable type is cancelled.  The variable type should
         // revert back to 'expression'.  And the expression should be %a
@@ -174,7 +203,14 @@ describe('Rule editor', () => {
         cy.intercept('/bmi.json').as('bmi');
         cy.get('select#questionnaire-select').select('BMI Calculation');
         cy.wait('@bmi');
-     
+
+        // The demo has 'BMI (/39156-5) selected by default
+        cy.get('#question').should('have.value', 'BMI (/39156-5)');
+        // Click the button to edit the expression
+        cy.get('button#openRuleEditor').should('exist').click();
+        // The Rule Editor dialog should now appear
+        cy.get('#rule-editor-dialog').should('exist');
+
         cy.title().should('eq', 'Rule Editor');
 
         // Variables section
@@ -182,7 +218,7 @@ describe('Rule editor', () => {
         cy.get('#variables-section .variable-row').should('have.length', 2);
 
         // Add a variable
-        cy.get('#add-variable').should('exist').should('be.visible').click();
+        cy.get('#add-variable').should('exist').scrollIntoView().should('be.visible').click();
         cy.get('#variables-section .variable-row').should('have.length', 3);
 
         // Set to 'FHIRPath Expression' variable type
@@ -196,7 +232,8 @@ describe('Rule editor', () => {
         cy.get('#variable-type-2').select('simple');
 
         // Dialog should get displayed
-        cy.get('lhc-yes-no-dialog').should('exist')
+        cy.get('#yes-no-dialog').should('exist')
+          .scrollIntoView()
           .should('be.visible')
           .within( ()=> {
             // Select 'Yes' to convert from 'FHIRPath Expression' to 'Easy Path Expression'
@@ -204,7 +241,7 @@ describe('Rule editor', () => {
           });
   
         // The dialog should now disappeared
-        cy.get('lhc-yes-no-dialog').should('not.exist');
+        cy.get('#yes-no-dialog').should('not.exist');
 
         // B/c the change in variable type is commited.  The variable type should
         // change to 'simple'.  And the expression should be blank
@@ -216,7 +253,14 @@ describe('Rule editor', () => {
         cy.intercept('/bmi.json').as('bmi');
         cy.get('select#questionnaire-select').select('BMI Calculation');
         cy.wait('@bmi');
-     
+
+        // The demo has 'BMI (/39156-5) selected by default
+        cy.get('#question').should('have.value', 'BMI (/39156-5)');
+        // Click the button to edit the expression
+        cy.get('button#openRuleEditor').should('exist').click();
+        // The Rule Editor dialog should now appear
+        cy.get('#rule-editor-dialog').should('exist');
+
         cy.title().should('eq', 'Rule Editor');
 
         // Variables section
@@ -224,7 +268,7 @@ describe('Rule editor', () => {
         cy.get('#variables-section .variable-row').should('have.length', 2);
 
         // Add a variable
-        cy.get('#add-variable').should('exist').should('be.visible').click();
+        cy.get('#add-variable').should('exist').scrollIntoView().should('be.visible').click();
         cy.get('#variables-section .variable-row').should('have.length', 3);
 
         // Set to 'Easy Path Expression' variable type
@@ -238,7 +282,7 @@ describe('Rule editor', () => {
         cy.get('#variable-type-2').select('expression');
   
         // The dialog should not show
-        cy.get('lhc-yes-no-dialog').should('not.exist');
+        cy.get('#yes-no-dialog').should('not.exist');
         
         // B/c the change in variable type is commited.  The variable type should
         // change to 'expression'.  And the expression should get converted to
@@ -250,7 +294,7 @@ describe('Rule editor', () => {
         cy.get('#variable-type-2').select('simple');
 
         // The dialog should not show
-        cy.get('lhc-yes-no-dialog').should('not.exist');
+        cy.get('#yes-no-dialog').should('not.exist');
 
         // In this scenario, the Easy Path expression was available, and there was no
         // change, so the expression is showing 'a'
@@ -262,7 +306,14 @@ describe('Rule editor', () => {
         cy.intercept('/bmi.json').as('bmi');
         cy.get('select#questionnaire-select').select('BMI Calculation');
         cy.wait('@bmi');
-     
+
+        // The demo has 'BMI (/39156-5) selected by default
+        cy.get('#question').should('have.value', 'BMI (/39156-5)');
+        // Click the button to edit the expression
+        cy.get('button#openRuleEditor').should('exist').click();
+        // The Rule Editor dialog should now appear
+        cy.get('#rule-editor-dialog').should('exist');
+
         cy.title().should('eq', 'Rule Editor');
 
         // Variables section
@@ -270,7 +321,7 @@ describe('Rule editor', () => {
         cy.get('#variables-section .variable-row').should('have.length', 2);
 
         // Add a variable
-        cy.get('#add-variable').should('exist').should('be.visible').click();
+        cy.get('#add-variable').should('exist').scrollIntoView().should('be.visible').click();
         cy.get('#variables-section .variable-row').should('have.length', 3);
 
         // Set to 'Easy Path Expression' variable type
@@ -284,7 +335,7 @@ describe('Rule editor', () => {
         cy.get('#variable-type-2').select('expression');
   
         // The dialog should not show
-        cy.get('lhc-yes-no-dialog').should('not.exist');
+        cy.get('#yes-no-dialog').should('not.exist');
 
         // B/c the change in variable type is commited.  The variable type should
         // change to 'expression'.  And the expression should get converted to
@@ -299,7 +350,8 @@ describe('Rule editor', () => {
         cy.get('#variable-type-2').select('simple');
 
         // Dialog should get displayed
-        cy.get('lhc-yes-no-dialog').should('exist')
+        cy.get('#yes-no-dialog').should('exist')
+          .scrollIntoView()
           .should('be.visible')
           .within( ()=> {
             // Select 'Yes' to convert from 'FHIRPath Expression' to 'Easy Path Expression'
@@ -314,7 +366,14 @@ describe('Rule editor', () => {
         cy.intercept('/bmi.json').as('bmi');
         cy.get('select#questionnaire-select').select('BMI Calculation');
         cy.wait('@bmi');
-     
+
+        // The demo has 'BMI (/39156-5) selected by default
+        cy.get('#question').should('have.value', 'BMI (/39156-5)');
+        // Click the button to edit the expression
+        cy.get('button#openRuleEditor').should('exist').click();
+        // The Rule Editor dialog should now appear
+        cy.get('#rule-editor-dialog').should('exist');
+
         cy.title().should('eq', 'Rule Editor');
 
         // Variables section
@@ -322,7 +381,7 @@ describe('Rule editor', () => {
         cy.get('#variables-section .variable-row').should('have.length', 2);
 
         // Add a variable
-        cy.get('#add-variable').should('exist').should('be.visible').click();
+        cy.get('#add-variable').should('exist').scrollIntoView().should('be.visible').click();
         cy.get('#variables-section .variable-row').should('have.length', 3);
 
         // Set to 'Easy Path Expression' variable type
@@ -353,7 +412,14 @@ describe('Rule editor', () => {
         cy.intercept('/bmicase.json').as('bmicase');
         cy.get('select#questionnaire-select').select('BMI Calculation (with cases)');
         cy.wait('@bmicase');
-     
+
+        // The demo has 'BMI (/39156-5) selected by default
+        cy.get('#question').should('have.value', 'BMI (/39156-5)');
+        // Click the button to edit the expression
+        cy.get('button#openRuleEditor').should('exist').click();
+        // The Rule Editor dialog should now appear
+        cy.get('#rule-editor-dialog').should('exist');
+
         cy.title().should('eq', 'Rule Editor');
 
         // Output Expression section
@@ -382,7 +448,7 @@ describe('Rule editor', () => {
           cy.get('#output-expression-type').select('simple');
         
           // Dialog should get displayed
-          cy.get('lhc-yes-no-dialog').should('exist').should('be.visible');   
+          cy.get('#yes-no-dialog').should('exist').scrollIntoView().should('be.visible');   
         });
       });
 
@@ -390,7 +456,14 @@ describe('Rule editor', () => {
         cy.intercept('/bmicase.json').as('bmicase');
         cy.get('select#questionnaire-select').select('BMI Calculation (with cases)');
         cy.wait('@bmicase');
-     
+
+        // The demo has 'BMI (/39156-5) selected by default
+        cy.get('#question').should('have.value', 'BMI (/39156-5)');
+        // Click the button to edit the expression
+        cy.get('button#openRuleEditor').should('exist').click();
+        // The Rule Editor dialog should now appear
+        cy.get('#rule-editor-dialog').should('exist');
+
         cy.title().should('eq', 'Rule Editor');
 
         // Output Expression section
@@ -399,7 +472,8 @@ describe('Rule editor', () => {
           cy.get('#output-expression-type').select('simple');
         
           // Dialog should get displayed
-          cy.get('lhc-yes-no-dialog').should('exist')
+          cy.get('#yes-no-dialog').should('exist')
+            .scrollIntoView()
             .should('be.visible')
             .within( ()=> {
               // Select 'No' to not convert from 'FHIRPath Expression' to 'Easy Path Expression'
@@ -407,7 +481,7 @@ describe('Rule editor', () => {
             });
   
           // The dialog should now disappeared
-          cy.get('lhc-yes-no-dialog').should('not.exist');
+          cy.get('#yes-no-dialog').should('not.exist');
 
           // B/c the change in variable type is cancelled.  The variable type should
           // revert back to 'expression'.  And the expression should be %a
@@ -431,7 +505,14 @@ describe('Rule editor', () => {
         cy.intercept('/bmicase.json').as('bmicase');
         cy.get('select#questionnaire-select').select('BMI Calculation (with cases)');
         cy.wait('@bmicase');
-     
+
+        // The demo has 'BMI (/39156-5) selected by default
+        cy.get('#question').should('have.value', 'BMI (/39156-5)');
+        // Click the button to edit the expression
+        cy.get('button#openRuleEditor').should('exist').click();
+        // The Rule Editor dialog should now appear
+        cy.get('#rule-editor-dialog').should('exist');
+
         cy.title().should('eq', 'Rule Editor');
 
         // Output Expression section
@@ -440,7 +521,8 @@ describe('Rule editor', () => {
           cy.get('#output-expression-type').select('simple');
 
           // Dialog should get displayed
-          cy.get('lhc-yes-no-dialog').should('exist')
+          cy.get('#yes-no-dialog').should('exist')
+            .scrollIntoView()
             .should('be.visible')
             .within( ()=> {
               // Select 'Yes' to convert from 'FHIRPath Expression' to 'Easy Path Expression'
@@ -448,7 +530,7 @@ describe('Rule editor', () => {
             });
   
           // The dialog should now disappeared
-          cy.get('lhc-yes-no-dialog').should('not.exist');
+          cy.get('#yes-no-dialog').should('not.exist');
 
           // B/c the change in variable type is commited.  The variable type should
           // change to 'simple'.  And the expression should be blank
@@ -472,7 +554,14 @@ describe('Rule editor', () => {
         cy.intercept('/bmicase.json').as('bmicase');
         cy.get('select#questionnaire-select').select('BMI Calculation (with cases)');
         cy.wait('@bmicase');
-     
+
+        // The demo has 'BMI (/39156-5) selected by default
+        cy.get('#question').should('have.value', 'BMI (/39156-5)');
+        // Click the button to edit the expression
+        cy.get('button#openRuleEditor').should('exist').click();
+        // The Rule Editor dialog should now appear
+        cy.get('#rule-editor-dialog').should('exist');
+
         cy.title().should('eq', 'Rule Editor');
 
         // Output Expression section
@@ -489,7 +578,8 @@ describe('Rule editor', () => {
           cy.get('#output-expression-type').select('simple');
 
           // Dialog should get displayed
-          cy.get('lhc-yes-no-dialog').should('exist')
+          cy.get('#yes-no-dialog').should('exist')
+            .scrollIntoView()
             .should('be.visible')
             .within( ()=> {
               // Select 'Yes' to convert from 'FHIRPath Expression' to 'Easy Path Expression'
@@ -507,6 +597,13 @@ describe('Rule editor', () => {
         cy.intercept('/bmicasesimple.json').as('bmicasesimple');
         cy.get('#questionnaire-select').select('BMI Calculation (Easy Path expression with cases)');
         cy.wait('@bmicasesimple');
+
+        // The demo has 'BMI (/39156-5) selected by default
+        cy.get('#question').should('have.value', 'BMI (/39156-5)');
+        // Click the button to edit the expression
+        cy.get('button#openRuleEditor').should('exist').click();
+        // The Rule Editor dialog should now appear
+        cy.get('#rule-editor-dialog').should('exist');
 
         cy.title().should('eq', 'Rule Editor');
 
@@ -571,7 +668,14 @@ describe('Rule editor', () => {
         cy.intercept('/bmicasesimple.json').as('bmicasesimple');
         cy.get('select#questionnaire-select').select('BMI Calculation (Easy Path expression with cases)');
         cy.wait('@bmicasesimple');
-     
+
+        // The demo has 'BMI (/39156-5) selected by default
+        cy.get('#question').should('have.value', 'BMI (/39156-5)');
+        // Click the button to edit the expression
+        cy.get('button#openRuleEditor').should('exist').click();
+        // The Rule Editor dialog should now appear
+        cy.get('#rule-editor-dialog').should('exist');
+
         cy.title().should('eq', 'Rule Editor');
 
         // Check the Advanced Interface checkbox
@@ -620,7 +724,8 @@ describe('Rule editor', () => {
           cy.get('#output-expression-type').select('simple', {'force': true});
 
           // Dialog should get displayed
-          cy.get('lhc-yes-no-dialog').should('exist')
+          cy.get('#yes-no-dialog').should('exist')
+            .scrollIntoView()
             .should('be.visible')
             .within( ()=> {
               // Select 'No' to not convert from 'FHIRPath Expression' to 'Easy Path Expression'
@@ -628,7 +733,7 @@ describe('Rule editor', () => {
             });
   
           // The dialog should now disappeared
-          cy.get('lhc-yes-no-dialog').should('not.exist');
+          cy.get('#yes-no-dialog').should('not.exist');
 
           // The variable type should stayed as 'FHIRPath Expression'
           cy.get('#output-expression-type').should('have.value', 'fhirpath', {'force': true});
@@ -650,7 +755,14 @@ describe('Rule editor', () => {
         cy.intercept('/bmicasesimple.json').as('bmicasesimple');
         cy.get('select#questionnaire-select').select('BMI Calculation (Easy Path expression with cases)');
         cy.wait('@bmicasesimple');
-     
+
+        // The demo has 'BMI (/39156-5) selected by default
+        cy.get('#question').should('have.value', 'BMI (/39156-5)');
+        // Click the button to edit the expression
+        cy.get('button#openRuleEditor').should('exist').click();
+        // The Rule Editor dialog should now appear
+        cy.get('#rule-editor-dialog').should('exist');
+
         cy.title().should('eq', 'Rule Editor');
 
         // Check the Advanced Interface checkbox
@@ -700,7 +812,8 @@ describe('Rule editor', () => {
           cy.get('#output-expression-type').select('simple', {'force': true});
 
           // Dialog should get displayed
-          cy.get('lhc-yes-no-dialog').should('exist')
+          cy.get('#yes-no-dialog').should('exist')
+            .scrollIntoView()
             .should('be.visible')
             .within( ()=> {
               // Select 'Yes' to convert from 'FHIRPath Expression' to 'Easy Path Expression'
@@ -708,7 +821,7 @@ describe('Rule editor', () => {
             });
   
           // The dialog should now disappeared
-          cy.get('lhc-yes-no-dialog').should('not.exist');
+          cy.get('#yes-no-dialog').should('not.exist');
 
           // The variable type should stayed as Easy Path Expression
           cy.get('#output-expression-type').should('have.value', 'simple');
@@ -731,7 +844,14 @@ describe('Rule editor', () => {
         cy.intercept('/bmicasesimple.json').as('bmicasesimple');
         cy.get('select#questionnaire-select').select('BMI Calculation (Easy Path expression with cases)');
         cy.wait('@bmicasesimple');
-     
+
+        // The demo has 'BMI (/39156-5) selected by default
+        cy.get('#question').should('have.value', 'BMI (/39156-5)');
+        // Click the button to edit the expression
+        cy.get('button#openRuleEditor').should('exist').click();
+        // The Rule Editor dialog should now appear
+        cy.get('#rule-editor-dialog').should('exist');
+
         cy.title().should('eq', 'Rule Editor');
 
         // Output Expression section
@@ -798,7 +918,14 @@ describe('Rule editor', () => {
         cy.intercept('/bmicasesimple.json').as('bmicasesimple');
         cy.get('select#questionnaire-select').select('BMI Calculation (Easy Path expression with cases)');
         cy.wait('@bmicasesimple');
-     
+
+        // The demo has 'BMI (/39156-5) selected by default
+        cy.get('#question').should('have.value', 'BMI (/39156-5)');
+        // Click the button to edit the expression
+        cy.get('button#openRuleEditor').should('exist').click();
+        // The Rule Editor dialog should now appear
+        cy.get('#rule-editor-dialog').should('exist');
+
         cy.title().should('eq', 'Rule Editor');
 
         // Output Expression section
@@ -875,7 +1002,14 @@ describe('Rule editor', () => {
         cy.intercept('/bmicasesimple.json').as('bmicasesimple');
         cy.get('select#questionnaire-select').select('BMI Calculation (Easy Path expression with cases)');
         cy.wait('@bmicasesimple');
-     
+
+        // The demo has 'BMI (/39156-5) selected by default
+        cy.get('#question').should('have.value', 'BMI (/39156-5)');
+        // Click the button to edit the expression
+        cy.get('button#openRuleEditor').should('exist').click();
+        // The Rule Editor dialog should now appear
+        cy.get('#rule-editor-dialog').should('exist');
+
         cy.title().should('eq', 'Rule Editor');
 
         // Output Expression section
@@ -931,7 +1065,7 @@ describe('Rule editor', () => {
         // Fix the issue by adding 4 variables to hold the text, this is not neccessary a 
         // better solution than solution 1, but to show that it can be done this way as well.
         // Add a variable with value text 'underweight'
-        cy.get('#add-variable').should('exist').should('be.visible').click();
+        cy.get('#add-variable').should('exist').scrollIntoView().should('be.visible').click();
         cy.get('#variables-section .variable-row').should('have.length', 4);
 
         // Set to 'Easy Path Expression' variable type
@@ -1001,6 +1135,13 @@ describe('Rule editor', () => {
         cy.intercept('/bmicasesimple.json').as('bmicasesimple');
         cy.get('select#questionnaire-select').select('BMI Calculation (Easy Path expression with cases)');
         cy.wait('@bmicasesimple');
+
+        // The demo has 'BMI (/39156-5) selected by default
+        cy.get('#question').should('have.value', 'BMI (/39156-5)');
+        // Click the button to edit the expression
+        cy.get('button#openRuleEditor').should('exist').click();
+        // The Rule Editor dialog should now appear
+        cy.get('#rule-editor-dialog').should('exist');
 
         cy.title().should('eq', 'Rule Editor');
 

@@ -59,6 +59,9 @@ export class AppComponent implements OnInit, OnDestroy {
   error = '';
   doNotAskToCalculateScore = false;
 
+  displayRuleEditor = false;
+  displayRuleEditorResult = false;
+
   constructor(private http: HttpClient, private liveAnnouncer: LiveAnnouncer, private changeDetectorRef: ChangeDetectorRef) {}
 
   ngOnInit(): void {
@@ -103,7 +106,6 @@ export class AppComponent implements OnInit, OnDestroy {
 
             this.autoComplete.setFieldToListValue(this.defaultItemText);
           }
-
       });
     }
   }
@@ -130,6 +132,8 @@ export class AppComponent implements OnInit, OnDestroy {
    * @param fhirResult - questionnaire JSON structure
    */
   onSave(fhirResult): void {
+    this.displayRuleEditor = false;
+    this.displayRuleEditorResult = true;
     this.fhirPreview = JSON.stringify(fhirResult, null, 2);
   }
 
@@ -203,12 +207,14 @@ export class AppComponent implements OnInit, OnDestroy {
       this.autoCompleteElement.nativeElement, keys, opts);
 
     Def.Autocompleter.Event.observeListSelections('question', (res) => {
-      if (res.val_typed_in !== res.final_val && res.item_code) {
+      if ((res.input_method === "clicked" && res.val_typed_in !== res.final_val && res?.item_code) ||
+          (res.input_method === "typed")) {
         this.linkId = res.item_code;
-        this.rootLevel = false;
+
+        if (res.item_code && this.rootLevel === true)
+          this.rootLevel = false;
       }
     });
-
   }
 
 
@@ -296,4 +302,44 @@ export class AppComponent implements OnInit, OnDestroy {
     }
   }
 
+  /**
+   * Close the Rule Editor dialog
+   */
+  closeRuleEditorDialog(): void {
+    this.displayRuleEditor = false;
+  }
+
+  /**
+   * Open the Rule Editor dialog to edit the expression for the
+   * selected item/question
+   */
+  openRuleEditorDialog(): void {
+    this.displayRuleEditor = true;
+    this.displayRuleEditorResult = false;
+
+    // The lhc-rule-editor component is not presented before the
+    // 'Open Rule Editor' button is clicked due to the use of *ngIf.
+    // The attributes for the lhc-rule-editor component are not 
+    // getting updated as a result. The below steps are used to 
+    // trigger changes to those attributes. 
+    const tmpUserExpressionChoices = this.userExpressionChoices;
+    const tmpCustomExpressionUri = this.customExpressionUri;
+ 
+    this.userExpressionChoices = null;
+    this.customExpressionUri = null;
+
+    this.changeDetectorRef.detectChanges();
+
+    this.userExpressionChoices = tmpUserExpressionChoices;
+    this.customExpressionUri = tmpCustomExpressionUri;
+  }
+
+  /**
+   * Check if the Rule Editor can be opened to edit the expression.
+   * @return true if one of the root level checkbox is checked or there is 
+   * a question selected.
+   */
+  canOpenRuleEditor(): boolean {
+    return (this.rootLevel || this.linkId !== null); 
+  }
 }

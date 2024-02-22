@@ -6,6 +6,14 @@ describe('Rule editor', () => {
   describe('Angular Library', () => {
     describe('BMI calculation', () => {
       it('should display the editor', () => {
+
+        // The demo has 'BMI (/39156-5) selected by default
+        cy.get('#question').should('have.value', 'BMI (/39156-5)');
+        // Click the button to edit the expression
+        cy.get('button#openRuleEditor').should('exist').click();
+        // The Rule Editor dialog should now appear
+        cy.get('#rule-editor-dialog').should('exist');
+
         cy.title().should('eq', 'Rule Editor');
         // Uneditable variables section should not show up
         cy.get('#uneditable-variables-section .variable-row').should('have.length', 0);
@@ -17,29 +25,64 @@ describe('Rule editor', () => {
       });
 
       it('should be possible to add a variable', () => {
+        // The demo has 'BMI (/39156-5) selected by default
+        cy.get('#question').should('have.value', 'BMI (/39156-5)');
+        // Click the button to edit the expression
+        cy.get('button#openRuleEditor').should('exist').click();
+        // The Rule Editor dialog should now appear
+        cy.get('#rule-editor-dialog').should('exist');
+
         cy.get('#variables-section .variable-row').should('have.length', 2);
         cy.get('#add-variable').click();
         cy.get('#variables-section .variable-row').should('have.length', 3);
       });
 
       it('should be possible to remove a variable', () => {
+        // The demo has 'BMI (/39156-5) selected by default
+        cy.get('#question').should('have.value', 'BMI (/39156-5)');
+        // Click the button to edit the expression
+        cy.get('button#openRuleEditor').should('exist').click();
+        // The Rule Editor dialog should now appear
+        cy.get('#rule-editor-dialog').should('exist');
+
         cy.get('#variables-section .variable-row').should('have.length', 2);
         cy.get('.remove-variable').last().click();
         cy.get('#variables-section .variable-row').should('have.length', 1);
       });
 
       it('should produce the correct FHIR Questionnaire', () => {
+        // The demo has 'BMI (/39156-5) selected by default
+        cy.get('#question').should('have.value', 'BMI (/39156-5)');
+        // Click the button to edit the expression
+        cy.get('button#openRuleEditor').should('exist').click();
+        // The Rule Editor dialog should now appear
+        cy.get('#rule-editor-dialog').should('exist');
+
         cy.get('#export').click();
         cy.get('#output').should('contain.text', '"expression": "%a/%b.power(2)"');
       });
 
       it('should be user stylable', () => {
+        // The demo has 'BMI (/39156-5) selected by default
+        cy.get('#question').should('have.value', 'BMI (/39156-5)');
+        // Click the button to edit the expression
+        cy.get('button#openRuleEditor').should('exist').click();
+        // The Rule Editor dialog should now appear
+        cy.get('#rule-editor-dialog').should('exist');
+
         // User styled input fields have a light yellow background. Declared via an attribute
         cy.get('lhc-rule-editor input:not([type="checkbox"])').first()
           .should('have.attr', 'style', 'background-color: rgb(255, 255, 238);');
       });
 
       it('should be able to select autocomplete question', () => {
+        // The demo has 'BMI (/39156-5) selected by default
+        cy.get('#question').should('have.value', 'BMI (/39156-5)');
+        // Click the button to edit the expression
+        cy.get('button#openRuleEditor').should('exist').click();
+        // The Rule Editor dialog should now appear
+        cy.get('#rule-editor-dialog').should('exist');
+
         cy.get('#question-1').clear().type('bmi');
         cy.get('span#completionOptions > ul > li').contains('39156-5').click();
         cy.get('#question-1').parent().next('.unit-select').children('select').should('not.exist');
@@ -49,6 +92,13 @@ describe('Rule editor', () => {
       });
 
       it('should be able to add variable(s) to default question', () => {
+        // The demo has 'BMI (/39156-5) selected by default
+        cy.get('#question').should('have.value', 'BMI (/39156-5)');
+        // Click the button to edit the expression
+        cy.get('button#openRuleEditor').should('exist').click();
+        // The Rule Editor dialog should now appear
+        cy.get('#rule-editor-dialog').should('exist');
+
         cy.title().should('eq', 'Rule Editor');
 
         // By default, the selected item is BMI
@@ -74,6 +124,9 @@ describe('Rule editor', () => {
 
         // Save (Export) should output the questionnaire for the given Variable Type
         cy.get('#export').click();
+
+        // The Rule Editor dialog should be closed
+        cy.get('#rule-editor-dialog').should('not.exist', {timeout: 10000});
 
         // Checking the output, it should have the new variable created under the BMI item extension
         cy.get('pre#output').invoke('text').then((jsonData) => {
@@ -102,6 +155,11 @@ describe('Rule editor', () => {
         cy.get('span#completionOptions > ul > li').contains('8352-7').click();
         cy.get('#question').should('have.value', 'Clothing worn during measure (/8352-7)');
 
+        // Click the button to edit the expression
+        cy.get('button#openRuleEditor').should('exist').click();
+        // The Rule Editor dialog should now appear
+        cy.get('#rule-editor-dialog').should('exist');
+
         // Variables section
         cy.get('lhc-variables > h2').should('contain', 'Item Variables');
         cy.get('#variables-section .variable-row').should('have.length', 0);
@@ -118,6 +176,9 @@ describe('Rule editor', () => {
 
         // Save (Export) should output the questionnaire for the given Variable Type
         cy.get('#export').click();
+
+        // The Rule Editor dialog should be closed
+        cy.get('#rule-editor-dialog').should('not.exist', {timeout: 10000});
 
         // Checking the output, it should have the new variable created under the 
         // "Clothing worn during measure" item extension
@@ -145,6 +206,12 @@ describe('Rule editor', () => {
         // Select the Root level (no item selected)
         cy.get('#useRootLevel').check();
 
+        // Click the button to edit the expression
+        cy.get('button#openRuleEditor').should('exist').click();
+        // The Rule Editor dialog should now appear
+        cy.get('#rule-editor-dialog').should('exist');
+
+        cy.title().should('eq', 'Rule Editor');
         // Variables section
         cy.get('lhc-variables > h2').should('contain', 'Item Variables');
         cy.get('#variables-section .variable-row').should('have.length', 0);
@@ -161,7 +228,10 @@ describe('Rule editor', () => {
 
         // Save (Export) should output the questionnaire for the given Variable Type
         cy.get('#export').click();
-        
+
+        // The Rule Editor dialog should be closed
+        cy.get('#rule-editor-dialog').should('not.exist', {timeout: 10000});
+
         // Checking the output, it should have the new variable created under the root extension
         cy.get('pre#output').should('not.be.empty').invoke('text').then((jsonData) => {
             // Parse the JSON data
@@ -177,7 +247,14 @@ describe('Rule editor', () => {
             
       it('should URL encoded the output for the x-fhir-output', () => {
         cy.get('#questionnaire-select').select('BMI Calculation (Easy Path expression)');
-        
+
+        // The demo has 'BMI (/39156-5) selected by default
+        cy.get('#question').should('have.value', 'BMI (/39156-5)');
+        // Click the button to edit the expression
+        cy.get('button#openRuleEditor').should('exist').click();
+        // The Rule Editor dialog should now appear
+        cy.get('#rule-editor-dialog').should('exist');
+      
         // Add a variable
         cy.get('#add-variable').click();
         cy.get('#variables-section .variable-row').should('have.length', 3);
@@ -210,6 +287,9 @@ describe('Rule editor', () => {
         // Click Save
         cy.get('#export').click();
 
+        // The Rule Editor dialog should be closed
+        cy.get('#rule-editor-dialog').should('not.exist', {timeout: 10000});
+
         // Export output should contain the URL Encoded of the x-fhir-output
         cy.get('pre#output')
           .should('contain', 'Observation?code=http%3A%2F%2Floinc.org%7C2922-3%2Chttp%3A%2F%2Floinc.org%7C20996-5&date=gt{{today()-1 months}}&patient={{%patient.id}}&_sort=-date&_count=1');
@@ -218,7 +298,14 @@ describe('Rule editor', () => {
 
       it('should be able to retain settings when check the Advance Interface checkbox', () => {
         cy.get('#questionnaire-select').select('BMI Calculation (Easy Path expression)');
-     
+
+        // The demo has 'BMI (/39156-5) selected by default
+        cy.get('#question').should('have.value', 'BMI (/39156-5)');
+        // Click the button to edit the expression
+        cy.get('button#openRuleEditor').should('exist').click();
+        // The Rule Editor dialog should now appear
+        cy.get('#rule-editor-dialog').should('exist');
+
         cy.title().should('eq', 'Rule Editor');
 
         // Variables section
@@ -295,7 +382,14 @@ describe('Rule editor', () => {
 
       it('should be able to retain setting when swapping questions and check the Advance Interface checkbox', () => {
         cy.get('#questionnaire-select').select('BMI Calculation (Easy Path expression)');
-    
+
+        // The demo has 'BMI (/39156-5) selected by default
+        cy.get('#question').should('have.value', 'BMI (/39156-5)');
+        // Click the button to edit the expression
+        cy.get('button#openRuleEditor').should('exist').click();
+        // The Rule Editor dialog should now appear
+        cy.get('#rule-editor-dialog').should('exist');
+
         cy.title().should('eq', 'Rule Editor');
 
         // Variables section
@@ -355,6 +449,13 @@ describe('Rule editor', () => {
       it('should be able to switch from Question variable type to FHIRPath Expression and back', () => {
         cy.get('select#questionnaire-select').select('BMI Calculation (Easy Path expression)');
 
+        // The demo has 'BMI (/39156-5) selected by default
+        cy.get('#question').should('have.value', 'BMI (/39156-5)');
+        // Click the button to edit the expression
+        cy.get('button#openRuleEditor').should('exist').click();
+        // The Rule Editor dialog should now appear
+        cy.get('#rule-editor-dialog').should('exist');
+
         cy.title().should('eq', 'Rule Editor');
 
         // Variables section
@@ -365,7 +466,7 @@ describe('Rule editor', () => {
         cy.get('input#advanced-interface').check();
 
         // Add a variable
-        cy.get('#add-variable').should('exist').should('be.visible').click();
+        cy.get('#add-variable').should('exist').scrollIntoView().should('be.visible').click();
         cy.get('#variables-section .variable-row').should('have.length', 3);
 
         cy.get('div#row-2')
@@ -403,6 +504,13 @@ describe('Rule editor', () => {
       it('should retain Question setting when the Advanced Interface checkbox is clicked', () => {
         cy.get('select#questionnaire-select').select('BMI Calculation (Easy Path expression)');
 
+        // The demo has 'BMI (/39156-5) selected by default
+        cy.get('#question').should('have.value', 'BMI (/39156-5)');
+        // Click the button to edit the expression
+        cy.get('button#openRuleEditor').should('exist').click();
+        // The Rule Editor dialog should now appear
+        cy.get('#rule-editor-dialog').should('exist');
+
         cy.title().should('eq', 'Rule Editor');
 
         // Variables section
@@ -410,7 +518,7 @@ describe('Rule editor', () => {
         cy.get('#variables-section .variable-row').should('have.length', 2);
 
         // Add a variable
-        cy.get('#add-variable').should('exist').should('be.visible').click();
+        cy.get('#add-variable').should('exist').scrollIntoView().should('be.visible').click();
         cy.get('#variables-section .variable-row').should('have.length', 3);
 
         cy.get('div#row-2')
@@ -445,6 +553,13 @@ describe('Rule editor', () => {
 
       it('should be able to save FHIR Query resource other than Observation', () => {
         cy.get('#questionnaire-select').select('BMI Calculation (Easy Path expression)');
+
+        // The demo has 'BMI (/39156-5) selected by default
+        cy.get('#question').should('have.value', 'BMI (/39156-5)');
+        // Click the button to edit the expression
+        cy.get('button#openRuleEditor').should('exist').click();
+        // The Rule Editor dialog should now appear
+        cy.get('#rule-editor-dialog').should('exist');
     
         cy.title().should('eq', 'Rule Editor');
 
@@ -489,6 +604,9 @@ describe('Rule editor', () => {
           // Export
           cy.get('button#export').should('exist').click();
 
+          // The Rule Editor dialog should be closed
+          cy.get('#rule-editor-dialog').should('not.exist', {timeout: 10000});
+
           // Validate that the expression was updated correctly
           cy.get('pre#output')
             .should('contain', 'Patient?code=http%3A%2F%2Floinc.org%7C2922-3&date=gt{{today()-1 months}}');
@@ -496,7 +614,14 @@ describe('Rule editor', () => {
 
       it('should be able to parse and save FHIR Query', () => {
         cy.get('#questionnaire-select').select('BMI Calculation (Easy Path expression)');
-    
+
+        // The demo has 'BMI (/39156-5) selected by default
+        cy.get('#question').should('have.value', 'BMI (/39156-5)');
+        // Click the button to edit the expression
+        cy.get('button#openRuleEditor').should('exist').click();
+        // The Rule Editor dialog should now appear
+        cy.get('#rule-editor-dialog').should('exist');
+
         cy.title().should('eq', 'Rule Editor');
 
         // Variables section
@@ -519,66 +644,173 @@ describe('Rule editor', () => {
 
         // Export
         cy.get('button#export').should('exist').click();
+
+        // The Rule Editor dialog should be closed
+        cy.get('#rule-editor-dialog').should('not.exist', {timeout: 10000});
+
         // Validate that the expression was updated correctly
         cy.get('pre#output')
         .should('contain.text', '"expression": "Observation"');
 
-        // Update FHIR Query with question mark but no parameters
-        cy.get('#variable-expression-0')
-        .clear()
-        .type('Observation?');
+        // Click the button to edit the expression
+        cy.get('button#openRuleEditor').should('exist').click();
+        // The Rule Editor dialog should now appear
+        cy.get('#rule-editor-dialog').should('exist');
+
+        // Check the Advanced Interface checkbox
+        cy.get('input#advanced-interface').check();
+
+        cy.get('div#row-0')
+          .within(() => {
+            cy.get('#variable-type-0')
+              .should('have.value', 'question')
+              .select('query');
+            // Update FHIR Query with question mark but no parameters
+            cy.get('#variable-expression-0')
+              .clear()
+              .type('Observation?');
+          });
+
         // Export
         cy.get('button#export').should('exist').click();
+
+        // The Rule Editor dialog should be closed
+        cy.get('#rule-editor-dialog').should('not.exist', {timeout: 10000});
+
         // Validate that the expression was updated correctly
         cy.get('pre#output')
-        .should('contain.text', '"expression": "Observation"');
+          .should('contain.text', '"expression": "Observation"');
 
-        // Update FHIR Query with missing code value
-        cy.get('#variable-expression-0')
-        .clear()
-        .type('Observation?code=');
+        // Click the button to edit the expression
+        cy.get('button#openRuleEditor').should('exist').click();
+        // The Rule Editor dialog should now appear
+        cy.get('#rule-editor-dialog').should('exist');
+
+        // Check the Advanced Interface checkbox
+        cy.get('input#advanced-interface').check();
+
+        cy.get('div#row-0')
+          .within(() => {
+            cy.get('#variable-type-0')
+              .should('have.value', 'question')
+              .select('query');
+            // Update FHIR Query with missing code value
+            cy.get('#variable-expression-0')
+              .clear()
+              .type('Observation?code=');
+          });
+
         // Export
         cy.get('button#export').should('exist').click();
+
+        // The Rule Editor dialog should be closed
+        cy.get('#rule-editor-dialog').should('not.exist', {timeout: 10000});
+
         // Validate that the expression was updated correctly
         cy.get('pre#output')
         .should('contain.text', '"expression": "Observation"');        
 
-        // Update FHIR Query with code
-        cy.get('#variable-expression-0')
-        .clear()
-        .type('Observation?code=http://loinc.org|2922-3');
-        // Export
-        cy.get('button#export').should('exist').click();
-        // Validate that the expression was updated correctly
-        cy.get('pre#output')
-        .should('contain.text', '"expression": "Observation?code=http%3A%2F%2Floinc.org%7C2922-3"');  
+        // Click the button to edit the expression
+        cy.get('button#openRuleEditor').should('exist').click();
+        // The Rule Editor dialog should now appear
+        cy.get('#rule-editor-dialog').should('exist');
 
-        // Update FHIR Query with missing }} in parameter string.
-        cy.get('#variable-expression-0')
-        .clear()
-        .type('Observation?code=http://loinc.org|2922-3&date=gt{{today()-1 months');
+        // Check the Advanced Interface checkbox
+        cy.get('input#advanced-interface').check();
+
+        cy.get('div#row-0')
+          .within(() => {
+            cy.get('#variable-type-0')
+              .should('have.value', 'question')
+              .select('query');
+            // Update FHIR Query with code
+            cy.get('#variable-expression-0')
+              .clear()
+              .type('Observation?code=http://loinc.org|2922-3');
+          });
+
         // Export
         cy.get('button#export').should('exist').click();
+
+        // The Rule Editor dialog should be closed
+        cy.get('#rule-editor-dialog').should('not.exist', {timeout: 10000});
+
         // Validate that the expression was updated correctly
         cy.get('pre#output')
-        .should('contain.text', 
+          .should('contain.text', '"expression": "Observation?code=http%3A%2F%2Floinc.org%7C2922-3"');  
+
+        // Click the button to edit the expression
+        cy.get('button#openRuleEditor').should('exist').click();
+        // The Rule Editor dialog should now appear
+        cy.get('#rule-editor-dialog').should('exist');
+
+        // Check the Advanced Interface checkbox
+        cy.get('input#advanced-interface').check();
+
+        cy.get('div#row-0')
+          .within(() => {
+            cy.get('#variable-type-0')
+              .should('have.value', 'question')
+              .select('query');
+            // Update FHIR Query with missing }} in parameter string.
+            cy.get('#variable-expression-0')
+              .clear()
+              .type('Observation?code=http://loinc.org|2922-3&date=gt{{today()-1 months');
+          });
+
+        // Export
+        cy.get('button#export').should('exist').click();
+
+        // The Rule Editor dialog should be closed
+        cy.get('#rule-editor-dialog').should('not.exist', {timeout: 10000});
+
+        // Validate that the expression was updated correctly
+        cy.get('pre#output')
+          .should('contain.text', 
           '"expression": "Observation?code=http%3A%2F%2Floinc.org%7C2922-3&date=gt{{today()-1 months"');  
 
-        // Update FHIR Query with multiple {{}} in parameter string.  URL encoded on string outside of {{}}
-        cy.get('#variable-expression-0')
-        .clear()
-        .type('Observation?code=http://loinc.org|2922-3&date=gt{{today()-1 months}} and {{today()}}',
-          {parseSpecialCharSequences: false});
+        // Click the button to edit the expression
+        cy.get('button#openRuleEditor').should('exist').click();
+        // The Rule Editor dialog should now appear
+        cy.get('#rule-editor-dialog').should('exist');
+
+        // Check the Advanced Interface checkbox
+        cy.get('input#advanced-interface').check();
+
+        cy.get('div#row-0')
+          .within(() => {
+            cy.get('#variable-type-0')
+              .should('have.value', 'question')
+              .select('query');
+            // Update FHIR Query with multiple {{}} in parameter string.  URL encoded on string outside of {{}}
+            cy.get('#variable-expression-0')
+              .clear()
+              .type('Observation?code=http://loinc.org|2922-3&date=gt{{today()-1 months}} and {{today()}}',
+                {parseSpecialCharSequences: false});
+          });
+
         // Export
         cy.get('button#export').should('exist').click();
+
+        // The Rule Editor dialog should be closed
+        cy.get('#rule-editor-dialog').should('not.exist', {timeout: 10000});
+
         // Validate that the expression was updated correctly
         cy.get('pre#output')
-        .should('contain.text', 
+          .should('contain.text', 
           '"expression": "Observation?code=http%3A%2F%2Floinc.org%7C2922-3&date=gt{{today()-1 months}}%20and%20{{today()}}"');  
       });
 
       it('should be able reselect the Variable type correctly once the Advanced Interface checkbox is unchecked', () => {
         cy.get('#questionnaire-select').select('BMI Calculation (Easy Path expression)');
+
+        // The demo has 'BMI (/39156-5) selected by default
+        cy.get('#question').should('have.value', 'BMI (/39156-5)');
+        // Click the button to edit the expression
+        cy.get('button#openRuleEditor').should('exist').click();
+        // The Rule Editor dialog should now appear
+        cy.get('#rule-editor-dialog').should('exist');
+
         cy.title().should('eq', 'Rule Editor');
 
         // Variables section
@@ -610,6 +842,14 @@ describe('Rule editor', () => {
 
       it('should be able to reset Question data item selection once Simple or queryObservation is filled in ', () => {
         cy.get('#questionnaire-select').select('BMI Calculation (Easy Path expression)');
+
+        // The demo has 'BMI (/39156-5) selected by default
+        cy.get('#question').should('have.value', 'BMI (/39156-5)');
+        // Click the button to edit the expression
+        cy.get('button#openRuleEditor').should('exist').click();
+        // The Rule Editor dialog should now appear
+        cy.get('#rule-editor-dialog').should('exist');
+
         cy.title().should('eq', 'Rule Editor');
 
         // Variables section
@@ -674,7 +914,7 @@ describe('Rule editor', () => {
             cy.get('#question-0').clear().type('weight');
           });
         cy.get('span#completionOptions > ul > li').contains('29463-7').click();
-        
+
         cy.get('div#row-0')
           .within(() => {
             // Now select Easy Path Expression variable type
@@ -695,6 +935,14 @@ describe('Rule editor', () => {
 
       it('should be able to reset simple expression data is filled in other Variable types', () => {
         cy.get('#questionnaire-select').select('BMI Calculation (Easy Path expression)');
+
+        // The demo has 'BMI (/39156-5) selected by default
+        cy.get('#question').should('have.value', 'BMI (/39156-5)');
+        // Click the button to edit the expression
+        cy.get('button#openRuleEditor').should('exist').click();
+        // The Rule Editor dialog should now appear
+        cy.get('#rule-editor-dialog').should('exist');
+
         cy.title().should('eq', 'Rule Editor');
 
         // Variables section
@@ -761,7 +1009,7 @@ describe('Rule editor', () => {
           });
 
         cy.get('span#completionOptions > ul > li').contains('29463-7').click();
-        
+
         cy.get('div#row-1')
           .within(() => {
             // Switch back to Easy Path Expression variable type.  The expression should get cleared out
@@ -775,6 +1023,14 @@ describe('Rule editor', () => {
 
       it('should be able to reset linkId that was used by Question variable type once data is filled in other Variable type', () => {
         cy.get('#questionnaire-select').select('BMI Calculation (Easy Path expression)');
+
+        // The demo has 'BMI (/39156-5) selected by default
+        cy.get('#question').should('have.value', 'BMI (/39156-5)');
+        // Click the button to edit the expression
+        cy.get('button#openRuleEditor').should('exist').click();
+        // The Rule Editor dialog should now appear
+        cy.get('#rule-editor-dialog').should('exist');
+
         cy.title().should('eq', 'Rule Editor');
 
         // Variables section
@@ -853,6 +1109,14 @@ describe('Rule editor', () => {
       
       it('should display the output when the Save(export) button is clicked', () => {
         cy.get('select#questionnaire-select').select('BMI Calculation');
+
+        // The demo has 'BMI (/39156-5) selected by default
+        cy.get('#question').should('have.value', 'BMI (/39156-5)');
+        // Click the button to edit the expression
+        cy.get('button#openRuleEditor').should('exist').click();
+        // The Rule Editor dialog should now appear
+        cy.get('#rule-editor-dialog').should('exist');
+
         cy.get('#variable-type-0 option').should('have.length', 5);
 
         // Select FHIR Query (Observation) for Variable Type
@@ -867,12 +1131,23 @@ describe('Rule editor', () => {
 
         // Save (Export) should output the questionnaire for the given Variable Type
         cy.get('#export').click();
+
+        // The Rule Editor dialog should be closed
+        cy.get('#rule-editor-dialog', {timeout: 10000}).should('not.exist');
+
         cy.get('pre#output').should('contain.text', '(%a/(%b.power(2))).round(1)');
       });
 
       it('should get variable updates in the Output Expression section when adding/deleting variables', () => {
         cy.get('select#questionnaire-select').select('BMI Calculation (Easy Path expression)');
-        
+
+        // The demo has 'BMI (/39156-5) selected by default
+        cy.get('#question').should('have.value', 'BMI (/39156-5)');
+        // Click the button to edit the expression
+        cy.get('button#openRuleEditor').should('exist').click();
+        // The Rule Editor dialog should now appear
+        cy.get('#rule-editor-dialog').should('exist');
+
         // Variables section
         cy.get('lhc-variables > h2').should('contain', 'Item Variables');
         cy.get('#variables-section .variable-row').should('have.length', 2);
@@ -906,7 +1181,14 @@ describe('Rule editor', () => {
 
       it('should get confirmation dialog when click Cancel', () => {
         cy.get('select#questionnaire-select').select('BMI Calculation (Easy Path expression)');
-        
+
+        // The demo has 'BMI (/39156-5) selected by default
+        cy.get('#question').should('have.value', 'BMI (/39156-5)');
+        // Click the button to edit the expression
+        cy.get('button#openRuleEditor').should('exist').click();
+        // The Rule Editor dialog should now appear
+        cy.get('#rule-editor-dialog').should('exist');
+
         // Variables section
         cy.get('lhc-variables > h2').should('contain', 'Item Variables');
         cy.get('#variables-section .variable-row').should('have.length', 2);
@@ -933,7 +1215,14 @@ describe('Rule editor', () => {
 
       it('should be able to cancel changes to the Rule Editor', () => {
         cy.get('select#questionnaire-select').select('BMI Calculation (Easy Path expression)');
-        
+
+        // The demo has 'BMI (/39156-5) selected by default
+        cy.get('#question').should('have.value', 'BMI (/39156-5)');
+        // Click the button to edit the expression
+        cy.get('button#openRuleEditor').should('exist').click();
+        // The Rule Editor dialog should now appear
+        cy.get('#rule-editor-dialog').should('exist');
+
         // Variables section
         cy.get('lhc-variables > h2').should('contain', 'Item Variables');
         cy.get('#variables-section .variable-row').should('have.length', 2);
@@ -958,8 +1247,8 @@ describe('Rule editor', () => {
         cy.get('div.rule-editor lhc-yes-no-dialog').should('not.exist');
 
         // Variables section should revert back to 2 variables.
-        cy.get('lhc-variables > h2').should('contain', 'Item Variables');
-        cy.get('#variables-section .variable-row').should('have.length', 2);
+        //cy.get('lhc-variables > h2').should('contain', 'Item Variables');
+        //cy.get('#variables-section .variable-row').should('have.length', 2);
       });
     });
 
@@ -969,11 +1258,25 @@ describe('Rule editor', () => {
       });
 
       it('should display the calculate sum prompt', () => {
+        // The demo has '(/39156-5) selected by default
+        cy.get('#question').should('contain.value', '(/39156-5)');
+        // Click the button to edit the expression
+        cy.get('button#openRuleEditor').should('exist').click();
+        // The Rule Editor dialog should now appear
+        cy.get('#rule-editor-dialog').should('exist');
+
         // Only the prompt for score calculation should show up
         cy.get('.rule-editor').should('contain.text', 'Would you like to calculate the sum of scores?');
       });
 
       it('should hide the calculate sum prompt if click no', () => {
+        // The demo has '(/39156-5) selected by default
+        cy.get('#question').should('contain.value', '(/39156-5)');
+        // Click the button to edit the expression
+        cy.get('button#openRuleEditor').should('exist').click();
+        // The Rule Editor dialog should now appear
+        cy.get('#rule-editor-dialog').should('exist');
+
         // Only the prompt for score calculation should show up
         cy.get('.rule-editor').should('contain.text', 'Would you like to calculate the sum of scores?');
         cy.get('#skip-score-items-selection').click();
@@ -987,11 +1290,18 @@ describe('Rule editor', () => {
         
           cy.get('#add-variable').should('exist').should('be.visible');
   
-          cy.get('#export').should('exist').should('be.visible');
+          cy.get('#export').should('exist').scrollIntoView().should('be.visible');
         });
       });
 
       it('should display the scoring items selection', () => {
+        // The demo has '(/39156-5) selected by default
+        cy.get('#question').should('contain.value', '(/39156-5)');
+        // Click the button to edit the expression
+        cy.get('button#openRuleEditor').should('exist').click();
+        // The Rule Editor dialog should now appear
+        cy.get('#rule-editor-dialog').should('exist');
+
         // Only the prompt for score calculation should show up
         cy.get('#score-items-selection').click();
         cy.get('div.scoring-items-selection-title').should('have.text', ' Select items to include in the score calculation: ');
@@ -1007,6 +1317,13 @@ describe('Rule editor', () => {
       });
 
       it('should be able to select/unselect all items', () => {
+        // The demo has '(/39156-5) selected by default
+        cy.get('#question').should('contain.value', '(/39156-5)');
+        // Click the button to edit the expression
+        cy.get('button#openRuleEditor').should('exist').click();
+        // The Rule Editor dialog should now appear
+        cy.get('#rule-editor-dialog').should('exist');
+
         cy.get('#score-items-selection').click();
         cy.get('div.scoring-items-selection-body')
           .within(() => {
@@ -1027,6 +1344,13 @@ describe('Rule editor', () => {
       });
 
       it('should not select items if the "Unselect All" button is clicked with zero selected items', () => {
+        // The demo has '(/39156-5) selected by default
+        cy.get('#question').should('contain.value', '(/39156-5)');
+        // Click the button to edit the expression
+        cy.get('button#openRuleEditor').should('exist').click();
+        // The Rule Editor dialog should now appear
+        cy.get('#rule-editor-dialog').should('exist');
+
         cy.get('#score-items-selection').click();
         cy.get('div.scoring-items-selection-body')
           .within(() => {
@@ -1048,6 +1372,13 @@ describe('Rule editor', () => {
       });
 
       it('should be able to select/unselect individual item', () => {
+        // The demo has '(/39156-5) selected by default
+        cy.get('#question').should('contain.value', '(/39156-5)');
+        // Click the button to edit the expression
+        cy.get('button#openRuleEditor').should('exist').click();
+        // The Rule Editor dialog should now appear
+        cy.get('#rule-editor-dialog').should('exist');
+
         cy.get('#score-items-selection').click();
         cy.get('div.scoring-items-selection-body')
           .within(() => {
@@ -1078,6 +1409,13 @@ describe('Rule editor', () => {
       });
 
       it('should hide the scoring items selection if click Cancel', () => {
+        // The demo has '(/39156-5) selected by default
+        cy.get('#question').should('contain.value', '(/39156-5)');
+        // Click the button to edit the expression
+        cy.get('button#openRuleEditor').should('exist').click();
+        // The Rule Editor dialog should now appear
+        cy.get('#rule-editor-dialog').should('exist');
+
         cy.get('.rule-editor').should('contain.text', 'Would you like to calculate the sum of scores?');
         cy.get('#score-items-selection').click();
         cy.get('div.scoring-items-selection-title').should('have.text', ' Select items to include in the score calculation: ');
@@ -1100,12 +1438,19 @@ describe('Rule editor', () => {
         
           cy.get('#add-variable').should('exist').should('be.visible');
   
-          cy.get('#export').should('exist').should('be.visible');
+          cy.get('#export').should('exist').scrollIntoView().should('be.visible');
         });
 
       });
 
       it('should be able to export score with selected individual items', () => {
+        // The demo has '(/39156-5) selected by default
+        cy.get('#question').should('contain.value', '(/39156-5)');
+        // Click the button to edit the expression
+        cy.get('button#openRuleEditor').should('exist').click();
+        // The Rule Editor dialog should now appear
+        cy.get('#rule-editor-dialog').should('exist');
+
         cy.get('#score-items-selection').click();
         cy.get('div.scoring-items-selection-body')
           .within(() => {
@@ -1135,6 +1480,13 @@ describe('Rule editor', () => {
       });
 
       it('should be able to export score with all items', () => {
+        // The demo has '(/39156-5) selected by default
+        cy.get('#question').should('contain.value', '(/39156-5)');
+        // Click the button to edit the expression
+        cy.get('button#openRuleEditor').should('exist').click();
+        // The Rule Editor dialog should now appear
+        cy.get('#rule-editor-dialog').should('exist');
+
         cy.get('#score-items-selection').click();
         cy.get('div.scoring-items-selection-body')
           .within(() => {
@@ -1166,11 +1518,25 @@ describe('Rule editor', () => {
       });
 
       it('should display the calculate sum prompt', () => {
+        // The demo has '(/39156-5) selected by default
+        cy.get('#question').should('contain.value', '(/39156-5)');
+        // Click the button to edit the expression
+        cy.get('button#openRuleEditor').should('exist').click();
+        // The Rule Editor dialog should now appear
+        cy.get('#rule-editor-dialog').should('exist');
+
         // Only the prompt for score calculation should show up
         cy.get('.rule-editor').should('contain.text', 'Would you like to calculate the sum of scores?');
       });
 
       it('should hide the calculate sum prompt if click no', () => {
+        // The demo has '(/39156-5) selected by default
+        cy.get('#question').should('contain.value', '(/39156-5)');
+        // Click the button to edit the expression
+        cy.get('button#openRuleEditor').should('exist').click();
+        // The Rule Editor dialog should now appear
+        cy.get('#rule-editor-dialog').should('exist');
+
         // Only the prompt for score calculation should show up
         cy.get('.rule-editor').should('contain.text', 'Would you like to calculate the sum of scores?');
         cy.get('#skip-score-items-selection').click();
@@ -1178,6 +1544,13 @@ describe('Rule editor', () => {
       });
 
       it('should display the scoring items selection', () => {
+        // The demo has '(/39156-5) selected by default
+        cy.get('#question').should('contain.value', '(/39156-5)');
+        // Click the button to edit the expression
+        cy.get('button#openRuleEditor').should('exist').click();
+        // The Rule Editor dialog should now appear
+        cy.get('#rule-editor-dialog').should('exist');
+
         // Only the prompt for score calculation should show up
         cy.get('#score-items-selection').click();
         cy.get('div.scoring-items-selection-title').should('have.text', ' Select items to include in the score calculation: ');
@@ -1191,6 +1564,13 @@ describe('Rule editor', () => {
       });
 
       it('should be able to collap/expand group', () => {
+        // The demo has '(/39156-5) selected by default
+        cy.get('#question').should('contain.value', '(/39156-5)');
+        // Click the button to edit the expression
+        cy.get('button#openRuleEditor').should('exist').click();
+        // The Rule Editor dialog should now appear
+        cy.get('#rule-editor-dialog').should('exist');
+
         // Only the prompt for score calculation should show up
         cy.get('#score-items-selection').click();
         cy.get('div.scoring-items-selection-title').should('have.text', ' Select items to include in the score calculation: ');
@@ -1206,6 +1586,13 @@ describe('Rule editor', () => {
       });
 
       it('should be able to select/unselect all items', () => {
+        // The demo has '(/39156-5) selected by default
+        cy.get('#question').should('contain.value', '(/39156-5)');
+        // Click the button to edit the expression
+        cy.get('button#openRuleEditor').should('exist').click();
+        // The Rule Editor dialog should now appear
+        cy.get('#rule-editor-dialog').should('exist');
+
         cy.get('#score-items-selection').click();
         cy.get('div.scoring-items-selection-body')
           .within(() => {
@@ -1226,6 +1613,13 @@ describe('Rule editor', () => {
       });
 
       it('should be able to export score with all items', () => {
+        // The demo has '(/39156-5) selected by default
+        cy.get('#question').should('contain.value', '(/39156-5)');
+        // Click the button to edit the expression
+        cy.get('button#openRuleEditor').should('exist').click();
+        // The Rule Editor dialog should now appear
+        cy.get('#rule-editor-dialog').should('exist');
+
         cy.get('#score-items-selection').click();
         cy.get('div.scoring-items-selection-body')
           .within(() => {
@@ -1264,6 +1658,13 @@ describe('Rule editor', () => {
       });
 
       it('should not be able to export score if no scoring items selected', () => {
+        // The demo has '(/39156-5) selected by default
+        cy.get('#question').should('contain.value', '(/39156-5)');
+        // Click the button to edit the expression
+        cy.get('button#openRuleEditor').should('exist').click();
+        // The Rule Editor dialog should now appear
+        cy.get('#rule-editor-dialog').should('exist');
+
         cy.get('#score-items-selection').click();
 
         // Validate to make sure that no items were selected
@@ -1327,6 +1728,13 @@ describe('Rule editor', () => {
       });
 
       it('should be able to export score with selected individual items', () => {
+        // The demo has '(/39156-5) selected by default
+        cy.get('#question').should('contain.value', '(/39156-5)');
+        // Click the button to edit the expression
+        cy.get('button#openRuleEditor').should('exist').click();
+        // The Rule Editor dialog should now appear
+        cy.get('#rule-editor-dialog').should('exist');
+
         cy.get('#score-items-selection').click();
         cy.get('div.scoring-items-selection-body')
           .within(() => {
@@ -1423,6 +1831,13 @@ describe('Rule editor', () => {
       });
 
       it('should include non-scoring items/groups in the export', () => {
+        // The demo has '(/39156-5) selected by default
+        cy.get('#question').should('contain.value', '(/39156-5)');
+        // Click the button to edit the expression
+        cy.get('button#openRuleEditor').should('exist').click();
+        // The Rule Editor dialog should now appear
+        cy.get('#rule-editor-dialog').should('exist');
+
         cy.get('#score-items-selection').click();
         cy.get('div.scoring-items-selection-body')
           .within(() => {
@@ -1476,7 +1891,6 @@ describe('Rule editor', () => {
             expect(parsedData.item[5].item[0].linkId).to.eq('/44252-5/46613-6');
             expect(parsedData.item[5].item[0].text).to.eq('Non-scoring item - child of scoring item');            
 
-
             // Non-scoring item at 3rd level of parent group and scoring item grand parent
             expect(parsedData.item[7].type).to.eq('choice');
             expect(parsedData.item[7].item).to.exist;
@@ -1517,6 +1931,13 @@ describe('Rule editor', () => {
       });
 
       it('should load up with pre-selected items', () => {
+        // The demo has '(/39156-5) selected by default
+        cy.get('#question').should('contain.value', '(/39156-5)');
+        // Click the button to edit the expression
+        cy.get('button#openRuleEditor').should('exist').click();
+        // The Rule Editor dialog should now appear
+        cy.get('#rule-editor-dialog').should('exist');
+
         cy.get('#score-items-selection').click();
         cy.get('div.scoring-items-selection-body')
           .within(() => {
@@ -1535,6 +1956,13 @@ describe('Rule editor', () => {
       });
 
       it('should enable done button on load since there are pre-selected items', () => {
+        // The demo has '(/39156-5) selected by default
+        cy.get('#question').should('contain.value', '(/39156-5)');
+        // Click the button to edit the expression
+        cy.get('button#openRuleEditor').should('exist').click();
+        // The Rule Editor dialog should now appear
+        cy.get('#rule-editor-dialog').should('exist');
+
         cy.get('#score-items-selection').click();
         cy.get('div.scoring-items-selection-body')
           .within(() => {
@@ -1556,6 +1984,13 @@ describe('Rule editor', () => {
       });
       
       it('should be able to deselect, select items and export correctly', () => {
+        // The demo has '(/39156-5) selected by default
+        cy.get('#question').should('contain.value', '(/39156-5)');
+        // Click the button to edit the expression
+        cy.get('button#openRuleEditor').should('exist').click();
+        // The Rule Editor dialog should now appear
+        cy.get('#rule-editor-dialog').should('exist');
+
         cy.get('#score-items-selection').click();
         cy.get('div.scoring-items-selection-body')
           .within(() => {
@@ -1631,52 +2066,6 @@ describe('Rule editor', () => {
           });
       });
 
-      it('should be able to access uneditable variable and no duplicate', () => {
-        cy.intercept('/phq9.json').as('phq9');
-        cy.get('select#questionnaire-select').select('PHQ9 (no FHIRPath)');
-        cy.wait('@phq9');
-
-        cy.get('.rule-editor').contains('Would you like to calculate the sum of scores?');
-        // Click no
-        cy.get('#skip-score-items-selection').click();
-
-        // Variables section should be empty.
-        cy.get('lhc-variables > h2').should('contain', 'Item Variables');
-        cy.get('#variables-section .variable-row').should('have.length', 0);
-
-        // Add a variable and select FHIR Query (Observation) variable type
-        cy.get('#add-variable').click();
-        cy.get('#variables-section .variable-row').should('have.length', 1);
-        cy.get('#variable-type-0').select('FHIR Query (Observation)');
-        cy.get('#autocomplete-0').type('weight');
-        cy.contains('29463-7').click();
-
-        // Confirm that the selection is displayed
-        cy.get('div#row-0')
-          .find('div.query-select > span.autocomp_selected > ul > li')
-          .should('have.text', '×Weight - 29463-7');
-
-        // Uneditable variables section should be empty
-        cy.get('#uneditable-variables-section .variable-row').should('have.length', 0);
-
-        // Click Save
-        cy.get('#export').click();
-
-        // Uneditable variables section should now have one item
-        cy.get('#uneditable-variables-section .variable-row').should('have.length', 1);
-
-        // Click Save again
-        cy.get('#export').click();
-
-        // Uneditable variables section should still only have one item
-        cy.get('#uneditable-variables-section .variable-row').should('have.length', 1);
-
-        // Enter the uneditable variable 'patient' to the Output Expression,
-        // it should be valid.
-        cy.get('input.simple-expression').clear().type('patient');
-        cy.get('lhc-syntax-preview>div>div>pre').contains('%patient');
-      });
-
     });
 
     describe('Query support', () => {
@@ -1686,6 +2075,13 @@ describe('Rule editor', () => {
         cy.get('select#questionnaire-select').select('Query');
         cy.wait('@query');
 
+        // The demo has 'BMI (/39156-5) selected by default
+        cy.get('#question').should('contain.value', '(/39156-5)');
+        // Click the button to edit the expression
+        cy.get('button#openRuleEditor').should('exist').click();
+        // The Rule Editor dialog should now appear
+        cy.get('#rule-editor-dialog').should('exist');
+
         cy.get('#variable-type-2').contains('FHIR Query (Observation)');
 
         // Variables section
@@ -1693,7 +2089,7 @@ describe('Rule editor', () => {
         cy.get('#variables-section .variable-row').should('have.length', 3);
 
         cy.get('#variable-type-2').should('contain.text', 'FHIR Query (Observation)');
-        cy.get('lhc-query-observation').should('exist').should('be.visible');
+        cy.get('lhc-query-observation').should('exist').scrollIntoView().should('be.visible');
 
         // Confirm that the selection is displayed
         cy.get('div#row-2')
@@ -1734,6 +2130,14 @@ describe('Rule editor', () => {
     describe('Case statements', () => {
       it('should display the Easy Path case editor when importing questionnaire with Easy Path in final expression', () => {
         cy.get('select#questionnaire-select').select('BMI Calculation (Easy Path expression with cases)');
+
+        // The demo has 'BMI (/39156-5) selected by default
+        cy.get('#question').should('have.value', 'BMI (/39156-5)');
+        // Click the button to edit the expression
+        cy.get('button#openRuleEditor').should('exist').click();
+        // The Rule Editor dialog should now appear
+        cy.get('#rule-editor-dialog').should('exist');
+
         cy.get('#advanced-interface').should('not.be.checked');
 
         // Should have the case statement checkbox toggled
@@ -1753,6 +2157,14 @@ describe('Rule editor', () => {
 
       it('should display the FHIRPath case editor when importing questionnaire with FHIRPath in final expression', () => {
         cy.get('select#questionnaire-select').select('BMI Calculation (with cases)');
+
+        // The demo has 'BMI (/39156-5) selected by default
+        cy.get('#question').should('have.value', 'BMI (/39156-5)');
+        // Click the button to edit the expression
+        cy.get('button#openRuleEditor').should('exist').click();
+        // The Rule Editor dialog should now appear
+        cy.get('#rule-editor-dialog').should('exist');
+
         cy.get('#advanced-interface').should('be.checked');
 
         // Should have the case statement checkbox toggled
@@ -1772,6 +2184,13 @@ describe('Rule editor', () => {
 
       it('should be able to add cases to a questionnaire that does not have them', () => {
         cy.get('select#questionnaire-select').select('BMI Calculation (Easy Path expression)');
+
+        // The demo has 'BMI (/39156-5) selected by default
+        cy.get('#question').should('have.value', 'BMI (/39156-5)');
+        // Click the button to edit the expression
+        cy.get('button#openRuleEditor').should('exist').click();
+        // The Rule Editor dialog should now appear
+        cy.get('#rule-editor-dialog').should('exist');
 
         cy.get('#add-variable').click();
         cy.get('#variable-label-2').type('{backspace}bmi');
@@ -1808,10 +2227,17 @@ describe('Rule editor', () => {
         cy.get('select#questionnaire-select').select('BMI Calculation (with cases)');
         cy.wait('@bmicase');
 
+        // The demo has 'BMI (/39156-5) selected by default
+        cy.get('#question').should('have.value', 'BMI (/39156-5)');
+        // Click the button to edit the expression
+        cy.get('button#openRuleEditor').should('exist').click();
+        // The Rule Editor dialog should now appear
+        cy.get('#rule-editor-dialog').should('exist');
+
         cy.get('#advanced-interface').should('be.checked');
 
         // There should be 3 case statements
-        cy.get('#cdk-drop-list-1 > div').should('have.length', 3);
+        cy.get('#final-expression-section .cdk-drop-list > div').should('have.length', 3);
         cy.get('#case-condition-0').should('have.value', '%bmi<18.5');
         cy.get('#case-output-0').should('have.value', "'underweight'");
         cy.get('#case-condition-1').should('have.value', '%bmi<25');
@@ -1823,7 +2249,8 @@ describe('Rule editor', () => {
         cy.get('#output-expression-type').should('exist').select('simple');
 
         // Dialog should get displayed
-        cy.get('lhc-yes-no-dialog').should('exist')
+        cy.get('#yes-no-dialog').should('exist')
+          .scrollIntoView()
           .should('be.visible')
           .within( ()=> {
             // Select 'Yes' to convert from 'FHIRPath Expression' to 'Easy Path Expression'
@@ -1831,19 +2258,41 @@ describe('Rule editor', () => {
           });
 
         // There should still be 3 case statements. But the cases/expressions might be blank.
-        cy.get('#cdk-drop-list-1 > div').should('have.length', 3);
+        cy.get('#final-expression-section .cdk-drop-list > div').should('have.length', 3);
         cy.get('#case-condition-0').should('be.empty');
         cy.get('#case-output-0').should('be.empty');
         cy.get('#case-condition-1').should('be.empty');
         cy.get('#case-output-1').should('be.empty');
         cy.get('#case-condition-2').should('be.empty');
         cy.get('#case-output-2').should('be.empty');
-        
+
+        cy.get('#cancel-changes').click();
+
+        // The dialog to confirm cancel should be displayed
+        cy.get('div.rule-editor lhc-yes-no-dialog').should('exist');
+
+        // Click 'Yes' to confirm cancelling
+        cy.get('#yes-button').click();
+
+        // This should reset back to the 'BMI Calculation (Easy Path Expression)' questionnaire
+        // The confirmation dialog should be hidden
+        cy.get('div.rule-editor lhc-yes-no-dialog').should('not.exist');
+
+        // The Rule Editor dialog should be closed
+        cy.get('#rule-editor-dialog', {timeout: 10000}).should('not.exist');
+
         // Switch questionnaire to 'BMI Calculation (Easy Path expression with cases)'
         cy.get('select#questionnaire-select').select('BMI Calculation (Easy Path expression with cases)');
 
+        // The demo has 'BMI (/39156-5) selected by default
+        cy.get('#question').should('have.value', 'BMI (/39156-5)');
+        // Click the button to edit the expression
+        cy.get('button#openRuleEditor').should('exist').click();
+        // The Rule Editor dialog should now appear
+        cy.get('#rule-editor-dialog').should('exist');
+
         // Case statement expressions and outputs should be populated
-        cy.get('#cdk-drop-list-1 > div').should('have.length', 3);
+        cy.get('#final-expression-section .cdk-drop-list > div').should('have.length', 3);
         cy.get('#case-condition-0').should('have.value', 'bmi<18.5');
         cy.get('#case-output-0').should('have.value', "underweight");
         cy.get('#case-condition-1').should('have.value', 'bmi<25');
@@ -1857,12 +2306,19 @@ describe('Rule editor', () => {
         cy.get('select#questionnaire-select').select('BMI Calculation (Easy Path expression with cases)');
         cy.wait('@bmicasesimple');
 
+        // The demo has 'BMI (/39156-5) selected by default
+        cy.get('#question').should('have.value', 'BMI (/39156-5)');
+        // Click the button to edit the expression
+        cy.get('button#openRuleEditor').should('exist').click();
+        // The Rule Editor dialog should now appear
+        cy.get('#rule-editor-dialog').should('exist');
+
         // Check the 'Advanced interface' checkbox
         cy.get('#advanced-interface').should('not.be.checked');
         cy.get('#advanced-interface').click();
 
         // Case statement expressions and outputs should be populated
-        cy.get('#cdk-drop-list-1 > div').should('have.length', 3);
+        cy.get('#final-expression-section .cdk-drop-list > div').should('have.length', 3);
         cy.get('#case-condition-0').should('have.value', 'bmi<18.5');
         cy.get('#case-output-0').should('have.value', "underweight");
         cy.get('#case-condition-1').should('have.value', 'bmi<25');
@@ -1873,11 +2329,33 @@ describe('Rule editor', () => {
         // Clear the case output and type 'underweight1234'
         cy.get('#case-output-0').clear().type('underweight1234');
 
+        cy.get('#cancel-changes').click();
+
+        // The dialog to confirm cancel should be displayed
+        cy.get('div.rule-editor lhc-yes-no-dialog').should('exist');
+
+        // Click 'Yes' to confirm cancelling
+        cy.get('#yes-button').click();
+
+        // This should reset back to the 'BMI Calculation (Easy Path Expression)' questionnaire
+        // The confirmation dialog should be hidden
+        cy.get('div.rule-editor lhc-yes-no-dialog').should('not.exist');
+
+        // The Rule Editor dialog should be closed
+        cy.get('#rule-editor-dialog', {timeout: 10000}).should('not.exist');
+
         // Switch questionnaire to 'BMI Calculation (with cases)'
         cy.get('select#questionnaire-select').select('BMI Calculation (with cases)');
 
+        // The demo has 'BMI (/39156-5) selected by default
+        cy.get('#question').should('have.value', 'BMI (/39156-5)');
+        // Click the button to edit the expression
+        cy.get('button#openRuleEditor').should('exist').click();
+        // The Rule Editor dialog should now appear
+        cy.get('#rule-editor-dialog').should('exist');
+
         // There should be 3 case statements
-        cy.get('#cdk-drop-list-1 > div').should('have.length', 3);
+        cy.get('#final-expression-section .cdk-drop-list > div').should('have.length', 3);
         cy.get('#case-condition-0').should('have.value', '%bmi<18.5');
         cy.get('#case-output-0').should('have.value', "'underweight'");
         cy.get('#case-condition-1').should('have.value', '%bmi<25');

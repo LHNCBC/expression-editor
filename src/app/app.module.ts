@@ -6,6 +6,7 @@ import { RuleEditorModule } from 'ng-rule-editor';
 import { AppComponent } from './app.component';
 import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
+import { A11yModule } from '@angular/cdk/a11y';
 
 @NgModule({
   declarations: [
@@ -15,7 +16,8 @@ import { HttpClientModule } from '@angular/common/http';
     BrowserModule,
     FormsModule,
     RuleEditorModule,
-    HttpClientModule
+    HttpClientModule,
+    A11yModule
   ],
   providers: [],
   bootstrap: [

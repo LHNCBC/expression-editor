@@ -21,7 +21,7 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
   @Input() expressionUri = '';
   @Input() lhcStyle: SimpleStyle = {};
   @Output() save = new EventEmitter<object>();
-  @Output() cancel = new EventEmitter();
+  @Output() cancel = new EventEmitter<object>();
 
   errorLoading = 'Could not detect a FHIR Questionnaire; please try a different file.';
   expressionSyntax: string;

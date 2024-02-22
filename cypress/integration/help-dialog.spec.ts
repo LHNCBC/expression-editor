@@ -7,6 +7,14 @@ describe('Rule editor', () => {
     describe('Easy Path Expressions Help from the Item Variables section', () => {
       it('should be able to select the Easy Path Expressions Help if the Easy Path Expression Var Type is selected', () => {
         cy.get('select#questionnaire-select').select('BMI Calculation (Easy Path expression)');
+
+        // The demo has 'BMI (/39156-5) selected by default
+        cy.get('#question').should('have.value', 'BMI (/39156-5)');
+        // Click the button to edit the expression
+        cy.get('button#openRuleEditor').should('exist').click();
+        // The Rule Editor dialog should now appear
+        cy.get('#rule-editor-dialog').should('exist');
+
         cy.title().should('eq', 'Rule Editor');
 
         // Variables section
@@ -19,6 +27,13 @@ describe('Rule editor', () => {
       });
 
       it('should be able to browse through the Usable Operators section', () => {
+        // The demo has 'BMI (/39156-5) selected by default
+        cy.get('#question').should('have.value', 'BMI (/39156-5)');
+        // Click the button to edit the expression
+        cy.get('button#openRuleEditor').should('exist').click();
+        // The Rule Editor dialog should now appear
+        cy.get('#rule-editor-dialog').should('exist');
+
         cy.title().should('eq', 'Rule Editor');
 
         // Variables section
@@ -68,6 +83,13 @@ describe('Rule editor', () => {
       });
 
       it('should be able to browse through the Usable Functions section', () => {
+        // The demo has 'BMI (/39156-5) selected by default
+        cy.get('#question').should('have.value', 'BMI (/39156-5)');
+        // Click the button to edit the expression
+        cy.get('button#openRuleEditor').should('exist').click();
+        // The Rule Editor dialog should now appear
+        cy.get('#rule-editor-dialog').should('exist');
+
         cy.title().should('eq', 'Rule Editor');
 
         // Variables section
@@ -119,6 +141,13 @@ describe('Rule editor', () => {
       });
 
       it('should be able to close the modal dialog', () => {
+        // The demo has 'BMI (/39156-5) selected by default
+        cy.get('#question').should('have.value', 'BMI (/39156-5)');
+        // Click the button to edit the expression
+        cy.get('button#openRuleEditor').should('exist').click();
+        // The Rule Editor dialog should now appear
+        cy.get('#rule-editor-dialog').should('exist');
+
         cy.title().should('eq', 'Rule Editor');
         // Variables section
         cy.get('lhc-variables > h2').should('contain', 'Item Variables');
@@ -131,6 +160,13 @@ describe('Rule editor', () => {
       });
 
       it('should be able to close the modal dialog from the overlay', () => {
+        // The demo has 'BMI (/39156-5) selected by default
+        cy.get('#question').should('have.value', 'BMI (/39156-5)');
+        // Click the button to edit the expression
+        cy.get('button#openRuleEditor').should('exist').click();
+        // The Rule Editor dialog should now appear
+        cy.get('#rule-editor-dialog').should('exist');
+
         cy.title().should('eq', 'Rule Editor');
 
         // Variables section
@@ -147,6 +183,14 @@ describe('Rule editor', () => {
     describe('Easy Path Expressions Help from the Output Expression section', () => {
       it('should be able to select the Easy Path Expressions Help from the Output Expression section', () => {
         cy.get('select#questionnaire-select').select('BMI Calculation (Easy Path expression)');
+
+        // The demo has 'BMI (/39156-5) selected by default
+        cy.get('#question').should('have.value', 'BMI (/39156-5)');
+        // Click the button to edit the expression
+        cy.get('button#openRuleEditor').should('exist').click();
+        // The Rule Editor dialog should now appear
+        cy.get('#rule-editor-dialog').should('exist');
+
         cy.get('#exp-help-button-final').should('exist').click();
         cy.get('.modal-content').should('exist');
       });   
@@ -157,6 +201,14 @@ describe('Rule editor', () => {
     describe('FHIRPath Expressions Help from the Item Variables section', () => {
       it('should be able to select the FHIRPath Expressions Help if the FHIRPath Expression Var Type is selected', () => {
         cy.get('select#questionnaire-select').select('BMI Calculation');
+
+        // The demo has 'BMI (/39156-5) selected by default
+        cy.get('#question').should('have.value', 'BMI (/39156-5)');
+        // Click the button to edit the expression
+        cy.get('button#openRuleEditor').should('exist').click();
+        // The Rule Editor dialog should now appear
+        cy.get('#rule-editor-dialog').should('exist');
+
         cy.title().should('eq', 'Rule Editor');
 
         // Variables section
@@ -170,6 +222,14 @@ describe('Rule editor', () => {
 
       it('should be able to browse through the Dialog content', () => {
         cy.get('select#questionnaire-select').select('BMI Calculation');
+
+        // The demo has 'BMI (/39156-5) selected by default
+        cy.get('#question').should('have.value', 'BMI (/39156-5)');
+        // Click the button to edit the expression
+        cy.get('button#openRuleEditor').should('exist').click();
+        // The Rule Editor dialog should now appear
+        cy.get('#rule-editor-dialog').should('exist');
+
         cy.title().should('eq', 'Rule Editor');
 
         // Variables section
@@ -185,6 +245,14 @@ describe('Rule editor', () => {
       
       it('should be able to close the modal dialog', () => {
         cy.get('select#questionnaire-select').select('BMI Calculation');
+
+        // The demo has 'BMI (/39156-5) selected by default
+        cy.get('#question').should('have.value', 'BMI (/39156-5)');
+        // Click the button to edit the expression
+        cy.get('button#openRuleEditor').should('exist').click();
+        // The Rule Editor dialog should now appear
+        cy.get('#rule-editor-dialog').should('exist');
+
         cy.title().should('eq', 'Rule Editor');
 
         // Variables section
@@ -199,6 +267,14 @@ describe('Rule editor', () => {
 
       it('should be able to close the modal dialog from the overlay', () => {
         cy.get('select#questionnaire-select').select('BMI Calculation');
+
+        // The demo has 'BMI (/39156-5) selected by default
+        cy.get('#question').should('have.value', 'BMI (/39156-5)');
+        // Click the button to edit the expression
+        cy.get('button#openRuleEditor').should('exist').click();
+        // The Rule Editor dialog should now appear
+        cy.get('#rule-editor-dialog').should('exist');
+
         cy.title().should('eq', 'Rule Editor');
 
         // Variables section
@@ -214,6 +290,14 @@ describe('Rule editor', () => {
     describe('FHIRPath Expressions Help from the Output Expression section', () => {
       it('should be able to select the FHIRPath Expressions Help from the Output Expression section', () => {
         cy.get('select#questionnaire-select').select('BMI Calculation');
+
+        // The demo has 'BMI (/39156-5) selected by default
+        cy.get('#question').should('have.value', 'BMI (/39156-5)');
+        // Click the button to edit the expression
+        cy.get('button#openRuleEditor').should('exist').click();
+        // The Rule Editor dialog should now appear
+        cy.get('#rule-editor-dialog').should('exist');
+
         cy.get('#output-expression-type').find('option:selected').should('have.text', 'FHIRPath Expression');
         cy.get('#exp-help-button-final').should('exist').click();
         cy.get('.modal-content').should('exist');
