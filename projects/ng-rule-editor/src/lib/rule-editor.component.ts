@@ -35,6 +35,7 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
   caseStatements: boolean;
   disableInterfaceToggle = false;
   loadError = false;
+  showCancelConfirmationDialog = false;
   selectItems: boolean;
   hideRuleEditor = false;
   validationError = false;
@@ -195,6 +196,37 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   /**
+   * Cancelling changes to the Rule Editor
+   * 
+   */
+  cancelRuleEditorChanges(): void {
+    this.showCancelConfirmationDialog = true;
+  }
+
+  /**
+   * Confirm to cancel change
+   */
+  confirmCancel(): void {
+    this.liveAnnouncer.announce("'yes' was selected. Changes were canceled.");
+
+    setTimeout(() => {
+      this.cancel.emit();
+      this.showCancelConfirmationDialog = false;
+    }, 500);
+  }
+
+  /**
+   * Discard the cancel request
+   */
+  discardCancel(): void {
+    this.liveAnnouncer.announce("'no' was selected. Changes were not canceled");
+
+    setTimeout(() => {
+      this.showCancelConfirmationDialog = false;
+    }, 100);
+  }
+
+  /**
    * Create a new instance of a FHIR questionnaire file by summing all ordinal
    * values
    */
@@ -288,14 +320,5 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
     setTimeout(() => {
       this.expressionSyntax = 'fhirpath';
     }, 10);
-  }
-
-  /**
-   * Cancel changes to the Rule Editor expression
-   */
-  cancelRuleEditorChanges(): void {
-    this.calculateSum = false;
-    this.selectItems = false;
-    this.cancel.emit();
   }
 }

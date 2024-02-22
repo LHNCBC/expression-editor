@@ -13,7 +13,8 @@ export class AppComponent implements OnInit, OnDestroy {
   @ViewChild('autoComplete', {static: false}) autoCompleteElement: ElementRef;
   autoComplete;
 
-  formAppearedAnnouncement = 'The rule editor for the selected form has appeared below the current field.';
+  formAppearedAnnouncement = "The Rule Editor questionnaire has been loaded";
+  formReloadAnnouncement = "The Rule Editor questionnaire has been reloaded";
   calculatedExpression = 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression';
   originalLinkId = '/39156-5';
   expressionTypes = [
@@ -53,7 +54,7 @@ export class AppComponent implements OnInit, OnDestroy {
   userExpressionChoices = null;
   customExpressionUri = false;
   fhir = null;
-  formType = 'bmisimple';
+  questionnaire = 'bmisimple';
   file = '';
   error = '';
   doNotAskToCalculateScore = false;
@@ -64,20 +65,21 @@ export class AppComponent implements OnInit, OnDestroy {
   constructor(private http: HttpClient, private liveAnnouncer: LiveAnnouncer, private changeDetectorRef: ChangeDetectorRef) {}
 
   ngOnInit(): void {
-    this.onChange();
+    this.onChange(false);
   }
 
   /**
    * Used when changing the questionnaire dropdown
+   * @param reload - reload the questionnaire
    */
-  onChange(): void {
+  onChange(reload=false): void {
     // Clear out preview when changing forms
     this.fhirPreview = '';
     this.error = '';
     this.doNotAskToCalculateScore = false;
     this.rootLevel = false;
 
-    if (this.formType === '' || this.formType === 'upload') {
+    if (this.questionnaire === '' || this.questionnaire === 'upload') {
       this.liveAnnouncer.announce('Additional settings must be entered below to load the rule editor.');
       this.fhir = null;
       this.file = '';
@@ -88,9 +90,10 @@ export class AppComponent implements OnInit, OnDestroy {
       this.linkId = this.originalLinkId;
       this.expressionUri = this.calculatedExpression;
 
-      this.http.get(`./${this.formType}.json`)
+      this.http.get(`./${this.questionnaire}.json`)
         .subscribe(data => {
           this.fhir = data;
+          this.liveAnnouncer.announce((reload) ? this.formReloadAnnouncement : this.formAppearedAnnouncement);
 
           if (this.fhir && this.fhir.item instanceof Array) {
             this.linkIds = this.getQuestionnaireLinkIds(this.fhir.item);
@@ -115,7 +118,7 @@ export class AppComponent implements OnInit, OnDestroy {
       this.linkId = '';
       this.autoComplete.setFieldToListValue('');
     } else {
-      if (this.formType !== '' && this.formType !== 'upload') {
+      if (this.questionnaire !== '' && this.questionnaire !== 'upload') {
         this.linkId = this.originalLinkId;
         this.autoComplete.setFieldToListValue(this.defaultItemText);
       }
@@ -126,12 +129,23 @@ export class AppComponent implements OnInit, OnDestroy {
 
   /**
    * Show a preview of the output questionnaire under the rule editor
+   * @param fhirResult - questionnaire JSON structure
    */
   onSave(fhirResult): void {
     this.displayRuleEditor = false;
     this.displayRuleEditorResult = true;
     this.fhirPreview = JSON.stringify(fhirResult, null, 2);
   }
+
+  /**
+   * Cancel changes made to the Rule Editor.
+   */
+  onCancel(): void {
+    // Reset it back to the 'bmisimple' questionnaire
+    this.questionnaire = 'bmisimple';
+    this.onChange(true);
+  }
+
 
   /**
    * Import a questionnaire from a file using the linkId and expression URI
@@ -155,7 +169,7 @@ export class AppComponent implements OnInit, OnDestroy {
             }
             this.liveAnnouncer.announce(this.formAppearedAnnouncement);
 
-            if (this.formType === '' || this.formType === 'upload') {
+            if (this.questionnaire === '' || this.questionnaire === 'upload') {
               this.autoComplete.setFieldToListValue('');
               this.rootLevel = true;
             }

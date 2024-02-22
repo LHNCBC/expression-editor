@@ -298,7 +298,7 @@ describe('Rule editor', () => {
         // The Rule Editor dialog should now appear
         cy.get('#rule-editor-dialog').should('exist');
 
-        cy.get('#variable-type-final').find('option:selected').should('have.text', 'FHIRPath Expression');
+        cy.get('#output-expression-type').find('option:selected').should('have.text', 'FHIRPath Expression');
         cy.get('#exp-help-button-final').should('exist').click();
         cy.get('.modal-content').should('exist');
       });   

@@ -62,7 +62,7 @@
       <div class="flex-container">
         <div class="expression-type" *ngIf="advancedInterface">
           <select
-            id="variable-type-final"
+            id="output-expression-type"
             class="form-control"
             [ngModel]="expressionSyntax"
             (change)="onTypeChange($event)"
@@ -73,7 +73,6 @@
           </select>
           <lhc-helps [type]="expressionSyntax" [index]="'final'" class="flex-item" ></lhc-helps>
         </div>
-
 
         <div *ngIf="!caseStatements" class="expression" [ngSwitch]="expressionSyntax">
           <lhc-helps *ngIf="!advancedInterface" [type]="'simple'" [index]="'final'" class="flex-item help" ></lhc-helps>
@@ -110,8 +109,22 @@
       </div>
     </section>
  
-    <button class="primary" [ngClass]="{'disabled': validationError}" [attr.aria-label]="validationErrorMessage"  (click)="export()" [ngStyle]="lhcStyle.buttonPrimary" id="export">{{submitButtonName}}</button>
-    <button type="button" id="cancel" class="btn btn-primary" (click)="cancelRuleEditorChanges()" >Cancel</button>
+    <lhc-yes-no-dialog 
+      *ngIf="showCancelConfirmationDialog"
+      [title]="'Cancel Changes'"
+      [prompt1]="'Are you sure you want to cancel?'"
+      [prompt2]="'Any unsaved changes will be lost.'"
+      (yes)="confirmCancel()"
+      (no)="discardCancel()"
+      [textAlign]="'center'"
+      [dialogWidth]="'400px'" 
+      [lhcStyle]="lhcStyle">
+    </lhc-yes-no-dialog>
+
+    <button class="primary" [ngClass]="{'disabled': validationError}" role="button"
+            [attr.aria-label]="validationErrorMessage" (click)="export()"
+            [ngStyle]="lhcStyle.buttonPrimary" id="export">{{submitButtonName}}</button>
+    <button (click)="cancelRuleEditorChanges()" role="button" id="cancel-changes">Cancel</button>
 
   </div>
 </div>

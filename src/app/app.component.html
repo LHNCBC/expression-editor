@@ -9,7 +9,7 @@
 
 <label>
   Questionnaire:
-  <select [(ngModel)]="formType" (change)="onChange()" id="questionnaire-select">
+  <select [(ngModel)]="questionnaire" (change)="onChange()" id="questionnaire-select">
     <option value="upload">Upload your own questionnaire</option>
     <option value="bmi">BMI Calculation</option>
     <option value="bmisimple">BMI Calculation (Easy Path expression)</option>
@@ -23,19 +23,19 @@
   </select>
 </label>
 
-<span *ngIf="formType != 'upload'" class="checkbox">
+<span *ngIf="questionnaire != 'upload'" class="checkbox">
   <input type="checkbox" id="useRootLevel"
          aria-labelledby="rootLevelCheckboxLabel"
          [(ngModel)]="rootLevel" (change)="toggleRootLevel($event)">
   <label id="rootLevelCheckboxLabel" for="useRootLevel">Root level</label>
 </span>
 
-<label *ngIf="formType != 'upload'" >
+<label *ngIf="questionnaire != 'upload'" >
   Question:
   <input placeholder="Please select" class="query-autocomplete" #autoComplete id="question" />
 </label>
 
-<div *ngIf="formType == 'upload'" id="upload">
+<div *ngIf="questionnaire == 'upload'" id="upload">
   <p>Please specify the questionnaire, item Link ID, and the corresponding Expression URI where the output should be placed:</p>
   <label>Questionnaire:
     <input type="file" id="file-upload" [(ngModel)]="file" accept=".json" (change)="prepareForImport($event)">

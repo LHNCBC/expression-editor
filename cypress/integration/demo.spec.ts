@@ -306,7 +306,13 @@ describe('Rule editor demo', () => {
       // The prompt should not be displayed.
       cy.get('lhc-calculate-sum-prompt').should('not.exist');
 
-      cy.get('#cancel').click();
+      cy.get('#cancel-changes').click();
+
+      // The dialog to confirm cancel should be displayed
+      cy.get('div.rule-editor lhc-yes-no-dialog').should('exist');
+
+      // Click 'Yes' to confirm cancelling
+      cy.get('#yes-button').click();
 
       // Selecting a different question that does not have predefined scoring
       // items should still get prompt
