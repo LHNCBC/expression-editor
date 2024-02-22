@@ -2,7 +2,7 @@
 
 This project follows [Semantic Versioning](http://semver.org/).
 
-## [3.1.16] 2024-01-16
+## [3.1.16] 2024-01-17
 ### Changed
 - Converted the Rule Editor demo to display in a dialog
 
