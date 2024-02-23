@@ -388,7 +388,7 @@ describe('Rule editor', () => {
         });
 
         cy.get('div#row-24').within(() => {
-          cy.get('#variable-label-24').should('have.value', 'question_invalid_expression');
+          cy.get('#variable-label-24').should('have.value', 'not_question_type_expression');
           cy.get('#variable-type-24').should('have.value', 'expression');
           cy.get('#variable-expression-24').should('have.value', 
             "Observation.component.where(code.memberOf(%'vs-observation-vitalsignresult'))");
@@ -401,7 +401,7 @@ describe('Rule editor', () => {
         });
 
         cy.get('div#row-26').within(() => {
-          cy.get('#variable-label-26').should('have.value', 'question_invalid_expression_and_no_extension');
+          cy.get('#variable-label-26').should('have.value', 'not_question_type_expression_and_no_extension');
           cy.get('#variable-type-26').should('have.value', 'expression');
           cy.get('#variable-expression-26').should('have.value', 
             "Observation.component.where(code.memberOf(%'vs-observation-vitalsignresult'))");
