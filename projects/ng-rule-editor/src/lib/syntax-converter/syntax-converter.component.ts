@@ -46,7 +46,14 @@ export class SyntaxConverterComponent implements OnChanges {
     this.expressionChange.emit(fhirPath);
 
     const section = (this.variableName) ? 'Item Variables' : 'Output Expression';
-    const errorFieldName = (this.variableName) ? this.variableName : "output expression";
-    this.ruleEditorService.notifyValidationResult((this.hasError) ? 'expressionError' : null, section, errorFieldName );
+
+    const param = {
+      "section": section,
+      "field": "expression",
+      "index": this.index
+    };
+    const result = (this.hasError) ? {} : null;
+
+    this.ruleEditorService.notifyValidationResult(param, result);
   }
 }

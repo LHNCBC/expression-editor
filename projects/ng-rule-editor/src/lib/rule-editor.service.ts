@@ -2,8 +2,9 @@ import { Injectable } from '@angular/core';
 import { Subject } from 'rxjs';
 import copy from 'fast-copy';
 
-import { CASE_REGEX, Question, UneditableVariable, Variable } from './variable';
+import { CASE_REGEX, Question, SectionTypes, UneditableVariable, ValidationParam, ValidationResult, Variable } from './variable';
 import { UNIT_CONVERSION } from './units';
+import { moveItemInArray } from '@angular/cdk/drag-drop';
 
 export interface SimpleStyle {
   h1?: object;
@@ -30,6 +31,18 @@ interface Scoring {
   scoreItems: any[];   
 }
 
+class ItemVariableError {
+  name: boolean;
+  expression: boolean;
+  timeInterval?: boolean;
+
+  constructor(name: boolean, expression: boolean, timeInterval: boolean = false) {
+    this.name = name;
+    this.expression = expression;
+    this.timeInterval = timeInterval;
+  }
+};
+
 @Injectable({
   providedIn: 'root'
 })
@@ -50,6 +63,8 @@ export class RuleEditorService {
   finalExpressionChange: Subject<string> = new Subject<string>();
   disableAdvancedChange: Subject<boolean> = new Subject<boolean>();
   validationChange: Subject<object> = new Subject<object>();
+  performValidationChange: Subject<boolean> = new Subject<boolean>();
+
   uneditableVariables: UneditableVariable[];
   variables: Variable[];
   questions: Question[];
@@ -74,6 +89,10 @@ export class RuleEditorService {
   private fhir;
   scoreCalculation = false;
 
+  private itemVariablesErrors: ItemVariableError[] = [];
+  private outputExpressionError = false;
+  private caseStatementError = false;
+
   constructor() {
     this.variables = [];
     this.uneditableVariables = [];
@@ -93,6 +112,8 @@ export class RuleEditorService {
       expression: ''
     });
     this.variablesChange.next(this.variables);
+
+    this.itemVariablesErrors.push(new ItemVariableError(false, false, false));
   }
 
   /**
@@ -102,6 +123,9 @@ export class RuleEditorService {
   remove(i: number): void {
     this.variables.splice(i, 1);
     this.variablesChange.next(this.variables);
+
+    this.itemVariablesErrors.splice(i, 1);
+    this.validationChange.next(this.getValidationResult());
   }
 
   /**
@@ -443,6 +467,8 @@ export class RuleEditorService {
         if (variable.type === "expression" || variable.type === "query" || variable.type === "queryObservation") {
           variable.expression = this.decodeQueryURIExpression(variable.expression);
         }
+
+        this.itemVariablesErrors.push(new ItemVariableError(false, false, false));
       });
 
       this.uneditableVariablesChange.next(this.uneditableVariables);
@@ -1680,21 +1706,86 @@ export class RuleEditorService {
   };
 
   /**
-   * Generate a validation event to notify subscribers. If the result is null, the 'Save' button
+   * Generate a validation result to notify subscribers. If the result.hasError is false, the 'Save' button
    * is enabled; othewise, the 'Save' button is disabled.
-   * @param errorType - validation error type 
-   * @param section - section where the error occurs
-   * @param name - name of the variable or field that contains the error
+   * @param param - contains the section, field information along with any other optional fields  
+   * @param result - result of the validation.  Null if there is no error or object containing the
+   *                 validation error, error message, and aria error message.
    */
-  notifyValidationResult(errorType: string, section: string, name: string): void {
-    let result = null;
-
-    if (errorType && section) {
-      result = { 'error': errorType, 'section': section, 'name': name};
+  notifyValidationResult(param:ValidationParam, result: any ): void {
+    if (param.section === SectionTypes.ItemVariables) {
+      // In the Item Variables Section, there are 2 fields: name and expression
+      if (this.itemVariablesErrors.length > 0) {
+        let tmpItemVariableError = this.itemVariablesErrors[param.index];
+        tmpItemVariableError[param.field] = (result) ? true : false;
+        this.itemVariablesErrors[param.index] = tmpItemVariableError;
+      }
+    } else if (param.section === SectionTypes.OutputExpression) {
+      if (param.field === "expression") {
+        this.outputExpressionError = (result) ? true : false;
+        this.caseStatementError = false;
+      } else if (param.field === "case") {
+        this.outputExpressionError = false;
+        this.caseStatementError = (result) ? true : false;
+      }
     }
 
     setTimeout(() => {
-      this.validationChange.next(result);
+      this.validationChange.next(this.getValidationResult());
     }, 100);
   };
+
+  /**
+   * Check for validation errors in both the 'Item Variables' and the 'Output Expression' sections. The
+   * validation errors include blank fields and invalid reference expressions.
+   * @return true if any error occurs in either the 'Item Variables' section or the 'Output Expression' section
+   */
+  hasValidationErrors(): boolean {
+    return (
+      this.itemVariablesErrors.some( 
+        item => (item.name === true || item.expression === true || item.timeInterval === true)) ||
+      this.outputExpressionError ||
+      this.caseStatementError
+    );
+  };
+
+  /**
+   * Get the validation result based on the validation in both the 'Item Variables' and the 'Output Expression'
+   * sections. 
+   * @return ValidationResult object containing result from the validation
+   */
+  getValidationResult(): ValidationResult {
+    return {
+      "hasError" : this.hasValidationErrors(),
+      "errorInItemVariables": this.itemVariablesErrors.some(
+        item => (item?.name === true || item?.expression === true || item?.timeInterval === true)),
+      "errorInOutputExpression": this.outputExpressionError,
+      "errorInOutputCaseStatement": this.caseStatementError     
+    };
+  };
+
+  /**
+   * Handles the validation error list for variables when a variable is being moved.
+   * @param previousIndex - current index
+   * @param currentIndex- new index
+   */
+  moveItemInVariableItemsErrors(previousIndex: number, currentIndex: number): void {
+    moveItemInArray(this.itemVariablesErrors, previousIndex, currentIndex);
+  };
+
+  /**
+   * Get uneditable variable names
+   * @return Array of uneditable variable names
+   */
+  getCurrentContextUneditableVariableNames(): string[] {
+    return this.uneditableVariables.map(e => e.name)
+  }
+
+  /**
+   * Get editable variable names
+   * @return Array of variable names
+   */
+  getCurrentContextVariableNames(): string[] {
+    return this.variables.map(e => e.label)
+  }
 }

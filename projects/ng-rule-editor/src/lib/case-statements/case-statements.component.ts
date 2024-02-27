@@ -232,7 +232,13 @@ export class CaseStatementsComponent implements OnInit, OnChanges {
       errorFieldName = "case condition or output";
     }
 
-    this.ruleEditorService.notifyValidationResult((this.hasError) ? 'caseConversionError' : null, 'Output Expression', errorFieldName);
+    const param = {
+      "section": "Output Expression",
+      "field": "case"
+    };
+    const result = (this.hasError) ? {} : null;
+
+    this.ruleEditorService.notifyValidationResult(param, result);
 
     if (level === 0) {
       const previousValue = this.hidePreview;

@@ -538,6 +538,13 @@ describe('Rule editor', () => {
             cy.get('#variable-type-14').select('FHIRPath Expression');
           });
 
+        // The output expression is invalid since 'a' and 'b' do not exist.
+        cy.get('#simple-expression-final').should('have.class', 'field-error');
+        cy.get('#export').should('have.class', 'disabled');
+        // Fix the output expression
+        cy.get('#simple-expression-final').clear().type('2');
+        cy.get('#export').should('not.have.class', 'disabled');
+
         // Click Save
         cy.get('#export').click();
 

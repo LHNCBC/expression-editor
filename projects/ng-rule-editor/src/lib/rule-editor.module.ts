@@ -24,6 +24,7 @@ import { EasyPathExpressionHelpComponent } from './helps/easy-path-expression-he
 import { FhirpathExpressionHelpComponent } from './helps/fhirpath-expression-help/fhirpath-expression-help.component';
 import { HelpsComponent } from './helps/helps.component';
 import { YesNoDialogComponent } from './yes-no-dialog/yes-no-dialog.component';
+import { VariableNameValidatorDirective } from '../directives/variable-name/variable-name-validator.directive';
 
 @NgModule({
   declarations: [
@@ -41,7 +42,8 @@ import { YesNoDialogComponent } from './yes-no-dialog/yes-no-dialog.component';
     EasyPathExpressionHelpComponent,
     FhirpathExpressionHelpComponent,
     HelpsComponent,
-    YesNoDialogComponent
+    YesNoDialogComponent,
+    VariableNameValidatorDirective
   ],
   imports: [
     FormsModule,

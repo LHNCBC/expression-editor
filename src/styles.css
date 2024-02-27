@@ -121,3 +121,27 @@ button:disabled {
 .flex-item:nth-child(2) {
   flex: 1;
 }
+
+input {
+  margin-bottom: 0.5rem !important;
+}
+
+input.field-error {
+  margin-bottom: 0.5rem !important;
+  border: 4px solid red !important;
+}
+
+.name-error {
+  padding-left: 25px;
+  padding-right: 5px;
+}
+
+.expression-error {
+  color: red !important;
+  margin-top: 0px;
+  font-size: 0.8rem;
+}
+
+.fhirpath-error {
+color: red !important;
+}
