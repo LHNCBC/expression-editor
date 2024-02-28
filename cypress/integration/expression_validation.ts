@@ -78,16 +78,16 @@ describe('Rule editor', () => {
         });
         cy.get('div#row-3').within(() => {
           cy.get('#variable-expression-3').should('have.class', 'field-error');
-          cy.get('#expression-error > p').should('contain.text', 'Expression is required.');
+          cy.get('#expression-error > p').should('contain.text', 'FHIR Query is required.');
         });
         cy.get('div#row-4').within(() => {
           cy.get('#autocomplete-4').should('have.class', 'field-error');
           cy.get('#expression-error > p')
-            .should('contain.text', 'Expression is required.');
+            .should('contain.text', 'FHIR Query (Observation) is required.');
         });
         cy.get('div#row-5').within(() => {
           cy.get('#question-5').should('have.class', 'field-error');
-          cy.get('#expression-error > p').should('contain.text', 'Expression is required.');
+          cy.get('#expression-error > p').should('contain.text', 'Question is required.');
         });
         cy.get('div#row-6').within(() => {
           cy.get('#simple-expression-6').should('have.class', 'field-error');
@@ -179,7 +179,7 @@ describe('Rule editor', () => {
 
           // The error should show up.
           cy.get('#question-1').should('have.class', 'field-error');
-          cy.get('#expression-error > p').should('contain.text', 'Expression is required.');
+          cy.get('#expression-error > p').should('contain.text', 'Question is required.');
 
         });
       });

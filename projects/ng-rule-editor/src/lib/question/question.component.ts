@@ -111,7 +111,7 @@ export class QuestionComponent implements OnInit, AfterViewInit, OnDestroy {
         // When the res.input_method is 'clicked', the res.val_typed_in contains the previous value while the
         // res.final_val contains the new value. However, if the input_method is 'typed', both the res.val_type_in
         // and the res.final_val will have the same value.
-        if ((res.input_method === "clicked" && res.val_typed_in !== res.final_val && res?.item_code) ||
+        if ((res.input_method === "clicked" && res?.item_code) ||
             (res.input_method === "typed")) {
 
           if (res.item_code)

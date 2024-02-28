@@ -2,7 +2,11 @@
 
 This project follows [Semantic Versioning](http://semver.org/).
 
-## [3.1.14] 2023-01-09
+## [3.1.15] 2024-02-21
+### Changed
+- Updated autocomplete fields to accept blank as an input
+
+## [3.1.14] 2024-01-09
 ### Added
 - Added the ability to select items for scoring calculation
 
