@@ -336,10 +336,10 @@ export class AppComponent implements OnInit, OnDestroy {
 
   /**
    * Check if the Rule Editor can be opened to edit the expression.
-   * @return true if one of the root level checkbox is checked or there is 
-   * a question selected.
+   * @return true if the questionnaire is selected and either the
+   * 'Root level' checkbox or a question is selected.
    */
   canOpenRuleEditor(): boolean {
-    return (this.rootLevel || this.linkId !== null); 
+    return this.fhir && (this.rootLevel || this.linkId !== null);
   }
 }
