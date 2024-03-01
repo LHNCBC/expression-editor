@@ -201,7 +201,7 @@ describe('Rule editor', () => {
           // The FHIRPath expression is now being validated using fhirpath.js. So this will
           // result in the "Invalid expression." error.
           cy.get('#variable-expression-19').should('have.class', 'field-error');
-          cy.get('#expression-error').should('contain.text', 'Invalid expression.');
+          cy.get('#expression-error').should('contain.text', Cypress.env('invalid_expression'));
         });
 
         // Variable type "Question" is displayed correctly
@@ -452,7 +452,7 @@ describe('Rule editor', () => {
 
         // There is an error in the Output Expression
         cy.get('#simple-expression-final').should('have.class', 'field-error');
-        cy.get('#final-expression-section #expression-error > p').should('contain.text', 'Invalid expression.');
+        cy.get('#final-expression-section #expression-error > p').should('contain.text', Cypress.env('invalid_expression'));
 
         // As a result, the Save button is disabled
         cy.get('#export').should('have.class', 'disabled');
@@ -485,23 +485,23 @@ describe('Rule editor', () => {
         // should throw "Expression is required." b/c they are empty.
         cy.get('div#row-0').within(() => {
           cy.get('#simple-expression-0').should('have.class', 'field-error');
-          cy.get('#expression-error > p').should('contain.text', 'Expression is required.');
+          cy.get('#expression-error > p').should('contain.text', Cypress.env('expression_required'));
         });
         cy.get('div#row-8').within(() => {
           cy.get('#autocomplete-8').should('have.class', 'field-error');
-          cy.get('#expression-error > p').should('contain.text', 'FHIR Query (Observation) is required.');
+          cy.get('#expression-error > p').should('contain.text', Cypress.env('fhir_query_observation_required'));
         });
         cy.get('div#row-10').within(() => {
           cy.get('#question-10').should('have.class', 'field-error');
-          cy.get('#expression-error > p').should('contain.text', 'Question is required.');
+          cy.get('#expression-error > p').should('contain.text', Cypress.env('question_required'));
         });
         cy.get('div#row-23').within(() => {
           cy.get('#question-23').should('have.class', 'field-error');
-          cy.get('#expression-error > p').should('contain.text', 'Question is required.');
+          cy.get('#expression-error > p').should('contain.text', Cypress.env('question_required'));
         });
         cy.get('div#row-25').within(() => {
           cy.get('#variable-expression-25').should('have.class', 'field-error');
-          cy.get('#expression-error > p').should('contain.text', 'Expression is required.');
+          cy.get('#expression-error > p').should('contain.text', Cypress.env('expression_required'));
         });
 
         // Fix the errors by entering data

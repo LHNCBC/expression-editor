@@ -16,7 +16,7 @@ function getRequiredErrorMessage(type, field): string {
     return "FHIR Query is required.";
   else if (type === "queryObservation") {
     if (field !== FieldTypes.TimeInterval)
-      return "FHIR Query (Observation) is required.";
+      return "Code for FHIR query is required.";
     else
       return "Time interval is required."
   }

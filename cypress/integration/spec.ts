@@ -124,7 +124,7 @@ describe('Rule editor', () => {
 
         // There is an error in the Output Expression
         cy.get('#simple-expression-final').should('have.class', 'field-error');
-        cy.get('#final-expression-section #expression-error > p').should('contain.text', 'Expression is required.');
+        cy.get('#final-expression-section #expression-error > p').should('contain.text', Cypress.env('expression_required'));
         // As a result, the Save button is disabled
         cy.get('#export').should('have.class', 'disabled');
         
@@ -915,7 +915,7 @@ describe('Rule editor', () => {
         cy.get('#variables-section .variable-row').should('have.length', 2);
   
         // Confirm that variable b is no longer available for Output expression
-        cy.get('#final-expression-section #expression-error > p').should('contain.text', 'Invalid expression.');
+        cy.get('#final-expression-section #expression-error > p').should('contain.text', Cypress.env('invalid_expression'));
 
         // Confirm that expression without variable b is valid
         cy.get('#simple-expression-final').clear().type('a + c');
