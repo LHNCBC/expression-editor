@@ -2,6 +2,7 @@ import { AbstractControl, ValidatorFn } from '@angular/forms';
 import { ValidationError, ValidationParam, FieldTypes } from '../lib/variable';
 import * as fhirpath from 'fhirpath';
 import { EasyPathExpressionsPipe } from '../lib/easy-path-expressions.pipe';
+import * as constants from "../lib/validation";
 
 /**
  * Get the error message for the given type and field.
@@ -11,17 +12,17 @@ import { EasyPathExpressionsPipe } from '../lib/easy-path-expressions.pipe';
  */
 function getRequiredErrorMessage(type, field): string {
   if (type === "question")
-    return "Question is required.";
+    return constants.QUESTION_REQUIRED;
   else if (type === "query")
-    return "FHIR Query is required.";
+    return constants.FHIR_QUERY_REQUIRED;
   else if (type === "queryObservation") {
     if (field !== FieldTypes.TimeInterval)
-      return "Code for FHIR query is required.";
+      return constants.FHIR_QUERY_OBSERVATION_REQUIRED;
     else
-      return "Time interval is required."
+      return constants.TIME_INTERVAL_REQUIRED;
   }
   else
-    return "Expression is required.";
+    return constants.EXPRESSION_REQUIRED;
 }
 
 /**
@@ -54,8 +55,8 @@ function getRequiredErrorObject(type, field): ValidationError {
 function getInvalidExpressionErrorObject(): ValidationError {
   return {
     'invalidExpressionError': true,
-    'message': 'Invalid expression.',
-    'ariaMessage': 'Invalid expression.'
+    'message': constants.INVALID_EXPRESSION,
+    'ariaMessage': constants.INVALID_EXPRESSION
   }
 }
 
