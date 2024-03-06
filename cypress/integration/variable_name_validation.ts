@@ -1,3 +1,5 @@
+import * as constants from "../../projects/ng-rule-editor/src/lib/validation";
+
 describe('Rule editor', () => {
   beforeEach(() => {
     cy.visit('/');
@@ -94,7 +96,7 @@ describe('Rule editor', () => {
             cy.get('#variable-label-2').should('not.have.class', 'field-error');
             cy.get('#variable-label-2').clear();
             cy.get('#variable-label-2').should('have.class', 'field-error');
-            cy.get('div#variable-name-error > p').should('contain.text', 'Variable name is required.');
+            cy.get('div#variable-name-error > p').should('contain.text', constants.VARIABLE_NAME_REQUIRED);
           });
       });
 
@@ -119,7 +121,7 @@ describe('Rule editor', () => {
             cy.get('#variable-label-2').should('have.class', 'field-error');
 
             cy.get('div#variable-name-error > p')
-              .should('contain.text', "Variable name already exists in the context.");
+              .should('contain.text', constants.VARIABLE_NAME_EXISTS);
           });
       });
 
@@ -184,7 +186,7 @@ describe('Rule editor', () => {
             cy.get('#variable-label-2').clear().type('resource');
             cy.get('#variable-label-2').should('have.class', 'field-error');
             cy.get('div#variable-name-error > p')
-              .should('contain.text', "Variable name matches the FHIRPath Context.");
+              .should('contain.text', constants.VARIABLE_NAME_MATCHES_FHIRPATH_CONTEXT);
 
             // reset variable name back to 'c'
             cy.get('#variable-label-2').clear().type('c');
@@ -195,7 +197,7 @@ describe('Rule editor', () => {
             cy.get('#variable-label-2').clear().type('context');
             cy.get('#variable-label-2').should('have.class', 'field-error');
             cy.get('div#variable-name-error > p')
-              .should('contain.text', "Variable name matches the FHIRPath Context.");
+              .should('contain.text', constants.VARIABLE_NAME_MATCHES_FHIRPATH_CONTEXT);
 
             // change variable name back to 'c'
             cy.get('#variable-label-2').clear().type('c');
@@ -206,7 +208,7 @@ describe('Rule editor', () => {
             cy.get('#variable-label-2').clear().type('score');
             cy.get('#variable-label-2').should('have.class', 'field-error');
             cy.get('div#variable-name-error > p')
-              .should('contain.text', "Variable name matches the FHIRPath Context.");
+              .should('contain.text', constants.VARIABLE_NAME_MATCHES_FHIRPATH_CONTEXT);
 
             // reset variable name back to 'c'
             cy.get('#variable-label-2').clear().type('c');
@@ -217,7 +219,7 @@ describe('Rule editor', () => {
             cy.get('#variable-label-2').clear().type('questionnaire');
             cy.get('#variable-label-2').should('have.class', 'field-error');
             cy.get('div#variable-name-error > p')
-              .should('contain.text', "Variable name matches the FHIRPath Context.");      
+              .should('contain.text', constants.VARIABLE_NAME_MATCHES_FHIRPATH_CONTEXT);
 
             // reset variable name back to 'c'
             cy.get('#variable-label-2').clear().type('c');
@@ -228,7 +230,7 @@ describe('Rule editor', () => {
             cy.get('#variable-label-2').clear().type('qitem');
             cy.get('#variable-label-2').should('have.class', 'field-error');
             cy.get('div#variable-name-error > p')
-              .should('contain.text', "Variable name matches the FHIRPath Context.");
+              .should('contain.text', constants.VARIABLE_NAME_MATCHES_FHIRPATH_CONTEXT);
 
             // reset variable name back to 'c'
             cy.get('#variable-label-2').clear().type('c');
@@ -270,7 +272,7 @@ describe('Rule editor', () => {
             cy.get('#variable-label-2').clear().type('sct');
             cy.get('#variable-label-2').should('have.class', 'field-error');
             cy.get('div#variable-name-error > p')
-              .should('contain.text', "Variable name matches the Environment variables.");
+              .should('contain.text', constants.VARIABLE_NAME_MATCHES_ENVIRONMENT_VARIABLES);
 
             // reset variable name back to 'c'
             cy.get('#variable-label-2').clear().type('c');
@@ -281,7 +283,7 @@ describe('Rule editor', () => {
             cy.get('#variable-label-2').clear().type('loinc');
             cy.get('#variable-label-2').should('have.class', 'field-error');
             cy.get('div#variable-name-error > p')
-              .should('contain.text', "Variable name matches the Environment variables.");
+              .should('contain.text', constants.VARIABLE_NAME_MATCHES_ENVIRONMENT_VARIABLES);
 
             // reset variable name back to 'c'
             cy.get('#variable-label-2').clear().type('c');
@@ -297,13 +299,13 @@ describe('Rule editor', () => {
             cy.get('#variable-label-2').clear().type('vs-a');
             cy.get('#variable-label-2').should('have.class', 'field-error');
             cy.get('div#variable-name-error > p')
-              .should('contain.text', "Variable name matches the Environment variables.");
+              .should('contain.text', constants.VARIABLE_NAME_MATCHES_ENVIRONMENT_VARIABLES);
 
             // type variable name 'vs-*-*'
             cy.get('#variable-label-2').clear().type('vs-a-2');
             cy.get('#variable-label-2').should('have.class', 'field-error');
             cy.get('div#variable-name-error > p')
-              .should('contain.text', "Variable name matches the Environment variables.");
+              .should('contain.text', constants.VARIABLE_NAME_MATCHES_ENVIRONMENT_VARIABLES);
 
             // reset variable name back to 'c'
             cy.get('#variable-label-2').clear().type('c');
@@ -319,13 +321,13 @@ describe('Rule editor', () => {
             cy.get('#variable-label-2').clear().type('ext-a');
             cy.get('#variable-label-2').should('have.class', 'field-error');
             cy.get('div#variable-name-error > p')
-              .should('contain.text', "Variable name matches the Environment variables.");
+              .should('contain.text', constants.VARIABLE_NAME_MATCHES_ENVIRONMENT_VARIABLES);
 
             // type variable name 'ext-*-*'
             cy.get('#variable-label-2').clear().type('ext-a-2');
             cy.get('#variable-label-2').should('have.class', 'field-error');
             cy.get('div#variable-name-error > p')
-              .should('contain.text', "Variable name matches the Environment variables.");
+              .should('contain.text', constants.VARIABLE_NAME_MATCHES_ENVIRONMENT_VARIABLES);
           });
       });
     });
@@ -355,7 +357,7 @@ describe('Rule editor', () => {
             cy.get('#variable-label-3').clear().type('patient');
             cy.get('#variable-label-3').should('have.class', 'field-error');
             cy.get('div#variable-name-error > p')
-              .should('contain.text', "Variable name matches the Launch Context.");
+              .should('contain.text', constants.VARIABLE_NAME_MATCHES_LAUNCH_CONTEXT);
           });
       });
     });

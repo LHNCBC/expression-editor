@@ -69,8 +69,9 @@
 
 <div class="btn">
   <button class="primary btn" (click)="openRuleEditorDialog()" 
-          aria-label="Open Rule Editor button. "
-          id="openRuleEditor" [disabled]="!canOpenRuleEditor()">Open Rule Editor</button>
+    aria-label="Open Rule Editor button." matTooltip="Open the Rule Editor"
+    id="openRuleEditor" [ngClass]="{'disabled': !canOpenRuleEditor()}"
+    role="button">Open Rule Editor</button>
 </div>
 
 <div class="error" *ngIf="error">

@@ -52,6 +52,8 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
                   "output expression would result in the expression becoming blank.";
   dialogPrompt2 = "Proceed?";
 
+  matToolTip = "Save the Rule Editor";
+
   private calculateSumSubscription;
   private finalExpressionSubscription;
   private variablesSubscription;
@@ -82,6 +84,8 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
         this.validationError = validation.hasError;
   
         this.validationErrorMessage = (this.validationError) ? this.composeAriaValidationErrorMessage(validation) : "";
+      
+        this.matToolTip = (this.validationErrorMessage) ? this.validationErrorMessage : "Save the Rule Editor";
       }
     });
   }
@@ -111,7 +115,7 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     message += itemVariablesMessage + outputExpressionMessage;
-    
+
     return message;
   };
 

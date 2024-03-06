@@ -122,9 +122,10 @@
     </lhc-yes-no-dialog>
 
     <button class="primary" [ngClass]="{'disabled': validationError}" role="button"
-            [attr.aria-label]="validationErrorMessage" (click)="export()"
+            [attr.aria-label]="validationErrorMessage" (click)="export()" [matTooltip]="matToolTip" 
             [ngStyle]="lhcStyle.buttonPrimary" id="export">{{submitButtonName}}</button>
-    <button (click)="cancelRuleEditorChanges()" role="button" id="cancel-changes">Cancel</button>
+    <button (click)="cancelRuleEditorChanges()" role="button" id="cancel-changes"
+            matTooltip="Cancel the Rule Editor">Cancel</button>
 
   </div>
 </div>

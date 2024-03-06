@@ -1,6 +1,7 @@
 import { AbstractControl, ValidatorFn } from '@angular/forms';
 import { RuleEditorService } from '../lib/rule-editor.service';
 import { FhirPathContexts, EnvironmentVariables } from '../lib/reserved-variable-names';
+import * as constants from "../lib/validation";
 
 export function variableNameValidator(ruleEditorService: RuleEditorService, param: any): ValidatorFn {
   
@@ -17,32 +18,32 @@ export function variableNameValidator(ruleEditorService: RuleEditorService, para
     if (!control.value) {
       return { 
         'variableNameRequiredError': true,
-        'message': 'Variable name is required.',
-        'ariaMessage': 'Variable name is required.'
+        'message': constants.VARIABLE_NAME_REQUIRED,
+        'ariaMessage': constants.VARIABLE_NAME_REQUIRED
       };
     } else if (contextVariableNames.includes(control.value)) {
       return { 
         'duplicateVariableNameError': true,
-        'message': 'Variable name already exists in the context.',
-        'ariaMessage': 'Variable name already exists in the context.'
+        'message': constants.VARIABLE_NAME_EXISTS,
+        'ariaMessage': constants.VARIABLE_NAME_EXISTS
       };
     } else if (FhirPathContexts.includes(control.value)) {
       return { 
         'fhirPathContextNameError': true,
-        'message': 'Variable name matches the FHIRPath Context.',
-        'ariaMessage': 'Variable name matches the FHIRPath Context.'
+        'message': constants.VARIABLE_NAME_MATCHES_FHIRPATH_CONTEXT,
+        'ariaMessage': constants.VARIABLE_NAME_MATCHES_FHIRPATH_CONTEXT
       };    
     } else if (regexPattern.test(control.value)) {
       return { 
         'environmentVariableNameError': true,
-        'message': 'Variable name matches the Environment variables.',
-        'ariaMessage': 'Variable name matches Environment variables.'
+        'message': constants.VARIABLE_NAME_MATCHES_ENVIRONMENT_VARIABLES,
+        'ariaMessage': constants.VARIABLE_NAME_MATCHES_ENVIRONMENT_VARIABLES
       };
     } else if (launchContextVariableNames.includes(control.value)) {
       return { 
         'launchContextNameError': true,
-        'message': 'Variable name matches the Launch Context.',
-        'ariaMessage': 'Variable name matches the Launch Context.'
+        'message': constants.VARIABLE_NAME_MATCHES_LAUNCH_CONTEXT,
+        'ariaMessage': constants.VARIABLE_NAME_MATCHES_LAUNCH_CONTEXT
       };
     } else
       return null;

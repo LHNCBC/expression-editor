@@ -46,14 +46,14 @@
             (change)="onNameChange()"
             [style]="lhcStyle.input"
             class="label"
-            aria-label="Variable label" 
-            
+            [attr.aria-label]="nameRef.errors ? nameRef.errors.message : 'Variable label'"
+            [attr.aria-invalid]="nameRef.errors"
             [class.field-error]="nameRef.errors"
             #nameRef="ngModel"
             lhcVariableNameValidator
             [lhcVariableNameValidatorParams]="{'section': 'Item Variables',
-                                            'field': 'name',
-                                            'name': variable.label, 'index': i}"
+                                               'field': 'name',
+                                               'name': variable.label, 'index': i}"
           />
         </div>
         <div id="variable-name-error" role="alert" class="row error-span name-error" *ngIf="nameRef.errors">
@@ -123,6 +123,7 @@
           aria-label="Remove variable"
           title="Remove variable"
           [style]="lhcStyle.buttonDanger"
+          matTooltip="Remove variable"
           (click)="onRemove(i)">x
         </button>
       </div>
@@ -139,5 +140,6 @@
   id="add-variable"
   class="btn btn-secondary mt-2"
   (click)="onAdd()"
+  matTooltip="Add variable"
   [ngStyle]="lhcStyle.buttonSecondary">Add variable
 </button>
