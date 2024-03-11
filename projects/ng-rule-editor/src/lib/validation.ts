@@ -8,6 +8,11 @@ export const INVALID_EXPRESSION = "Invalid expression.";
 
 export const VARIABLE_NAME_REQUIRED = "Variable name is required.";
 export const VARIABLE_NAME_EXISTS = "Variable name already exists in the context.";
-export const VARIABLE_NAME_MATCHES_FHIRPATH_CONTEXT = "Variable name matches the FHIRPath Context.";
-export const VARIABLE_NAME_MATCHES_ENVIRONMENT_VARIABLES = "Variable name matches the Environment variables.";
 export const VARIABLE_NAME_MATCHES_LAUNCH_CONTEXT = "Variable name matches the Launch Context.";
+export const VARIABLE_NAME_MATCHES_RESERVED_WORD = "Variable name matches a reserved word.";
+export const VARIABLE_NAME_STARTINGWITH_ARE_RESERVED = "Variable names starting with ";
+
+export function getStartWithsErrorMessage(val:string): string {
+  const testStrArr = val.split('-');
+  return `Variable names starting with '${testStrArr[0]}-' are reserved.`;
+}

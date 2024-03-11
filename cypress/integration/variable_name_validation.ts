@@ -127,7 +127,7 @@ describe('Rule editor', () => {
 
       /**
        * FHIRPath supplements
-       * Reference: http://hl7.org/fhir/R4/fhirpath.html#vars
+       * Reference: https://build.fhir.org/ig/HL7/sdc/expressions.html#fhirpath-supplements
        * 
        * The FHIRPath language defines a set of contexts that get passed into expressions
        * and also allows the definition of additional contexts and functions. SDC provides
@@ -186,7 +186,7 @@ describe('Rule editor', () => {
             cy.get('#variable-label-2').clear().type('resource');
             cy.get('#variable-label-2').should('have.class', 'field-error');
             cy.get('div#variable-name-error > p')
-              .should('contain.text', constants.VARIABLE_NAME_MATCHES_FHIRPATH_CONTEXT);
+              .should('contain.text', constants.VARIABLE_NAME_MATCHES_RESERVED_WORD);
 
             // reset variable name back to 'c'
             cy.get('#variable-label-2').clear().type('c');
@@ -197,18 +197,7 @@ describe('Rule editor', () => {
             cy.get('#variable-label-2').clear().type('context');
             cy.get('#variable-label-2').should('have.class', 'field-error');
             cy.get('div#variable-name-error > p')
-              .should('contain.text', constants.VARIABLE_NAME_MATCHES_FHIRPATH_CONTEXT);
-
-            // change variable name back to 'c'
-            cy.get('#variable-label-2').clear().type('c');
-            cy.get('#variable-label-2').should('not.have.class', 'field-error');
-            cy.get('div#variable-name-error > p').should('not.exist');
-
-            // type variable name 'score'
-            cy.get('#variable-label-2').clear().type('score');
-            cy.get('#variable-label-2').should('have.class', 'field-error');
-            cy.get('div#variable-name-error > p')
-              .should('contain.text', constants.VARIABLE_NAME_MATCHES_FHIRPATH_CONTEXT);
+              .should('contain.text', constants.VARIABLE_NAME_MATCHES_RESERVED_WORD);
 
             // reset variable name back to 'c'
             cy.get('#variable-label-2').clear().type('c');
@@ -219,7 +208,7 @@ describe('Rule editor', () => {
             cy.get('#variable-label-2').clear().type('questionnaire');
             cy.get('#variable-label-2').should('have.class', 'field-error');
             cy.get('div#variable-name-error > p')
-              .should('contain.text', constants.VARIABLE_NAME_MATCHES_FHIRPATH_CONTEXT);
+              .should('contain.text', constants.VARIABLE_NAME_MATCHES_RESERVED_WORD);
 
             // reset variable name back to 'c'
             cy.get('#variable-label-2').clear().type('c');
@@ -230,7 +219,7 @@ describe('Rule editor', () => {
             cy.get('#variable-label-2').clear().type('qitem');
             cy.get('#variable-label-2').should('have.class', 'field-error');
             cy.get('div#variable-name-error > p')
-              .should('contain.text', constants.VARIABLE_NAME_MATCHES_FHIRPATH_CONTEXT);
+              .should('contain.text', constants.VARIABLE_NAME_MATCHES_RESERVED_WORD);
 
             // reset variable name back to 'c'
             cy.get('#variable-label-2').clear().type('c');
@@ -242,14 +231,18 @@ describe('Rule editor', () => {
       /**
        * Environment Variables
        * Reference: http://hl7.org/fhir/R4/fhirpath.html#vars
-       * 
-       * %sct - (string) url for snomed ct
-       * %loinc - (string) url for loinc
-       * %"vs-[name]" - (string) full url for the provided HL7 value set with id [name]
-       * %"ext-[name]" - (string) full url for the provided HL7 extension with id [name]
-       * %resource - The original resource current context is part of. When evaluating a
-       *             datatype, this would be the resource the element is part of. Do not
-       *             go past a root resource into a bundle, if it is contained in a bundle.
+       *            https://www.hl7.org/fhirpath/#environment-variables
+       * %sct          - (string) url for snomed ct.
+       * %loinc        - (string) url for loinc.
+       * %"vs-[name]"  - (string) full url for the provided HL7 value set with id [name].
+       * %"ext-[name]" - (string) full url for the provided HL7 extension with id [name].
+       * %resource     - The original resource current context is part of. When evaluating a
+       *                 datatype, this would be the resource the element is part of. Do not
+       *                 go past a root resource into a bundle, if it is contained in a bundle.
+       * %ucum         - (string) url for UCUM (http://unitsofmeasure.org,
+       *                 per http://hl7.org/fhir/ucum.html).
+       * %context      - The original node that was passed to the evaluation engine before
+       *                 starting evaluation.
        */
       it('should display error if the entered variable name matches with the Environment variable name', () => {
         cy.get('select#questionnaire-select').select('BMI Calculation (Easy Path expression)');
@@ -272,7 +265,7 @@ describe('Rule editor', () => {
             cy.get('#variable-label-2').clear().type('sct');
             cy.get('#variable-label-2').should('have.class', 'field-error');
             cy.get('div#variable-name-error > p')
-              .should('contain.text', constants.VARIABLE_NAME_MATCHES_ENVIRONMENT_VARIABLES);
+              .should('contain.text', constants.VARIABLE_NAME_MATCHES_RESERVED_WORD);
 
             // reset variable name back to 'c'
             cy.get('#variable-label-2').clear().type('c');
@@ -283,7 +276,7 @@ describe('Rule editor', () => {
             cy.get('#variable-label-2').clear().type('loinc');
             cy.get('#variable-label-2').should('have.class', 'field-error');
             cy.get('div#variable-name-error > p')
-              .should('contain.text', constants.VARIABLE_NAME_MATCHES_ENVIRONMENT_VARIABLES);
+              .should('contain.text', constants.VARIABLE_NAME_MATCHES_RESERVED_WORD);
 
             // reset variable name back to 'c'
             cy.get('#variable-label-2').clear().type('c');
@@ -299,13 +292,18 @@ describe('Rule editor', () => {
             cy.get('#variable-label-2').clear().type('vs-a');
             cy.get('#variable-label-2').should('have.class', 'field-error');
             cy.get('div#variable-name-error > p')
-              .should('contain.text', constants.VARIABLE_NAME_MATCHES_ENVIRONMENT_VARIABLES);
+              .should('contain.text', constants.getStartWithsErrorMessage('vs-a'));
+
+            // type variable name 'avs-*'
+            cy.get('#variable-label-2').clear().type('avs-a');
+            cy.get('#variable-label-2').should('not.have.class', 'field-error');
+            cy.get('div#variable-name-error > p').should('not.exist');
 
             // type variable name 'vs-*-*'
             cy.get('#variable-label-2').clear().type('vs-a-2');
             cy.get('#variable-label-2').should('have.class', 'field-error');
             cy.get('div#variable-name-error > p')
-              .should('contain.text', constants.VARIABLE_NAME_MATCHES_ENVIRONMENT_VARIABLES);
+              .should('contain.text', constants.getStartWithsErrorMessage('vs-a-2'));
 
             // reset variable name back to 'c'
             cy.get('#variable-label-2').clear().type('c');
@@ -321,13 +319,24 @@ describe('Rule editor', () => {
             cy.get('#variable-label-2').clear().type('ext-a');
             cy.get('#variable-label-2').should('have.class', 'field-error');
             cy.get('div#variable-name-error > p')
-              .should('contain.text', constants.VARIABLE_NAME_MATCHES_ENVIRONMENT_VARIABLES);
+              .should('contain.text', constants.getStartWithsErrorMessage('ext-a'));
 
+            // type variable name 'aext-*'
+            cy.get('#variable-label-2').clear().type('aext-a');
+            cy.get('#variable-label-2').should('not.have.class', 'field-error');
+            cy.get('div#variable-name-error > p').should('not.exist');
+            
             // type variable name 'ext-*-*'
             cy.get('#variable-label-2').clear().type('ext-a-2');
             cy.get('#variable-label-2').should('have.class', 'field-error');
             cy.get('div#variable-name-error > p')
-              .should('contain.text', constants.VARIABLE_NAME_MATCHES_ENVIRONMENT_VARIABLES);
+              .should('contain.text', constants.getStartWithsErrorMessage('ext-a-2'));
+
+            // type variable name 'ucum'
+            cy.get('#variable-label-2').clear().type('ucum');
+            cy.get('#variable-label-2').should('have.class', 'field-error');
+            cy.get('div#variable-name-error > p')
+              .should('contain.text', constants.VARIABLE_NAME_MATCHES_RESERVED_WORD);
           });
       });
     });

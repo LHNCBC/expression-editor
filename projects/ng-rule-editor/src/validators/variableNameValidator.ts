@@ -1,6 +1,6 @@
 import { AbstractControl, ValidatorFn } from '@angular/forms';
 import { RuleEditorService } from '../lib/rule-editor.service';
-import { FhirPathContexts, EnvironmentVariables } from '../lib/reserved-variable-names';
+import { ReservedWords, StartsWithReservedWords } from '../lib/reserved-variable-names';
 import * as constants from "../lib/validation";
 
 export function variableNameValidator(ruleEditorService: RuleEditorService, param: any): ValidatorFn {
@@ -13,7 +13,9 @@ export function variableNameValidator(ruleEditorService: RuleEditorService, para
     const contextVariableNames = ruleEditorService.getCurrentContextVariableNames();
 
     contextVariableNames.splice(param.index, 1);
-    const regexPattern = new RegExp(EnvironmentVariables.join("|"), "i");
+
+    const startWithReservedWordsPattern = new RegExp(StartsWithReservedWords.join("|"), "i");
+    const reservedWordsPattern = new RegExp(ReservedWords.join("|"), "i");
 
     if (!control.value) {
       return { 
@@ -27,18 +29,19 @@ export function variableNameValidator(ruleEditorService: RuleEditorService, para
         'message': constants.VARIABLE_NAME_EXISTS,
         'ariaMessage': constants.VARIABLE_NAME_EXISTS
       };
-    } else if (FhirPathContexts.includes(control.value)) {
+    } else if (startWithReservedWordsPattern.test(control.value)) {
+      const msg = constants.getStartWithsErrorMessage(control.value);
       return { 
-        'fhirPathContextNameError': true,
-        'message': constants.VARIABLE_NAME_MATCHES_FHIRPATH_CONTEXT,
-        'ariaMessage': constants.VARIABLE_NAME_MATCHES_FHIRPATH_CONTEXT
-      };    
-    } else if (regexPattern.test(control.value)) {
+        'reservedWordsNameError': true,
+        'message': msg,
+        'ariaMessage': msg
+      };  
+    } else if (reservedWordsPattern.test(control.value)) {
       return { 
-        'environmentVariableNameError': true,
-        'message': constants.VARIABLE_NAME_MATCHES_ENVIRONMENT_VARIABLES,
-        'ariaMessage': constants.VARIABLE_NAME_MATCHES_ENVIRONMENT_VARIABLES
-      };
+        'reservedWordsNameError': true,
+        'message': constants.VARIABLE_NAME_MATCHES_RESERVED_WORD,
+        'ariaMessage': constants.VARIABLE_NAME_MATCHES_RESERVED_WORD
+      };  
     } else if (launchContextVariableNames.includes(control.value)) {
       return { 
         'launchContextNameError': true,
