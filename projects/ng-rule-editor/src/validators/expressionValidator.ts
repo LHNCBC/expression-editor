@@ -7,10 +7,10 @@ import { EasyPathExpressionsPipe } from '../lib/easy-path-expressions.pipe';
  * Validates the expression for empty or invalid expression.
  * @param param - ValidationParam object that contains must contain at least the section and field
  *                information.
- * @return error object if validation failed, otherwise returns null
+ * @return A validation function that returns an error object if the validation fails, or null otherwise.
  */
 export function expressionValidator(param: ValidationParam): ValidatorFn {
-  return (control:AbstractControl) : ValidationError | null => { //{[key: string]: any} | null => {
+  return (control:AbstractControl) : ValidationError | null => {
     if (!control.value && control.dirty) {
       if (param.type === "queryObservation" && param.field === FieldTypes.TimeInterval) {
         return { 
