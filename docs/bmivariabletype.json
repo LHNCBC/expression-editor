@@ -312,7 +312,7 @@
           "valueExpression": {
             "name": "fhirpath_exp2",
             "language": "text/fhirpath",
-            "expression": "Observation?code=http://loinc.org|2922-3&date=gt{{today()-1 months}}&patient={{%patient.id}}&_sort=-date&_count=1",
+            "expression": "Observation.component.where(code.memberOf(%'vs-observation-vitalsignresult'))",
             "extension": [
               {
                 "url": "http://lhcforms.nlm.nih.gov/fhirExt/rule-editor-variable-type",
@@ -437,7 +437,7 @@
           "valueExpression": {
             "name": "fhirpath_exp_var_type_not_defined2",
             "language": "text/fhirpath",
-            "expression": "Observation?code=http://loinc.org|2922-3&date=gt{{today()-1 months}}&patient={{%patient.id}}&_sort=-date&_count=1"
+            "expression": "Observation.component.where(code.memberOf(%'vs-observation-vitalsignresult'))"
           }
         },
         {
@@ -525,9 +525,9 @@
         {
           "url": "http://hl7.org/fhir/StructureDefinition/variable",
           "valueExpression": {
-            "name": "question_invalid_expression",
+            "name": "not_question_type_expression",
             "language": "text/fhirpath",
-            "expression": "Observation?code=http://loinc.org|2922-3&date=gt{{today()-1 months}}&patient={{%patient.id}}&_sort=-date&_count=1",
+            "expression": "Observation.component.where(code.memberOf(%'vs-observation-vitalsignresult'))",
             "extension": [
               {
                 "url": "http://lhcforms.nlm.nih.gov/fhirExt/rule-editor-variable-type",
@@ -547,9 +547,9 @@
         {
           "url": "http://hl7.org/fhir/StructureDefinition/variable",
           "valueExpression": {
-            "name": "question_invalid_expression_and_no_extension",
+            "name": "not_question_type_expression_and_no_extension",
             "language": "text/fhirpath",
-            "expression": "Observation?code=http://loinc.org|2922-3&date=gt{{today()-1 months}}&patient={{%patient.id}}&_sort=-date&_count=1"
+            "expression": "Observation.component.where(code.memberOf(%'vs-observation-vitalsignresult'))"
           }
         }
       ],
