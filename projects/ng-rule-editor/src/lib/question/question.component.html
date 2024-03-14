@@ -3,6 +3,8 @@
     <input [style]="lhcStyle.input" placeholder="Select" class="query-autocomplete"
            #autoComplete id="question-{{index}}"
 
+           [attr.aria-invalid]="question.invalid"
+           [attr.aria-label]="question?.errors?.ariaMessage"
            [class.field-error]="question.errors"
            (ngModel)="variable.expression"
            #question="ngModel"
@@ -26,8 +28,8 @@
   </div>
 </div>
 <lhc-syntax-preview [syntax]="expression" [lhcStyle]="lhcStyle" *ngIf="!question.errors"></lhc-syntax-preview>
-<div id="expression-error" role="alert" class="row error-span" *ngIf="question.errors">
-  <p class="expression-error" >
+<div id="expression-error" role="alert" class="row error-span">
+  <p class="expression-error" *ngIf="question.errors">
     {{question.errors.message}}
   </p>
 </div>

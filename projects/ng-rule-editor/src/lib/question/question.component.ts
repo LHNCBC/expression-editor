@@ -69,6 +69,22 @@ export class QuestionComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   /**
+   * Reset the Variable properties.
+   */
+  resetVariableProperties(): void {
+    this.linkId = '';
+    this.expression = '';
+    this.toUnit = '';
+    this.unit = '';
+
+    this.variable.linkId = '';
+    this.variable.expression = '';
+    this.variable.unit = '';
+    this.conversionOptions = this.getConversionOptions(this.unit);
+    this.isNonConvertibleUnit = this.unit && !this.conversionOptions;
+  }
+
+  /**
    * After the autocompleter is ready to be interacted with fetch the name for
    * any codes already in the query search.
    */
@@ -91,12 +107,17 @@ export class QuestionComponent implements OnInit, AfterViewInit, OnDestroy {
     if (question && this.linkId)
       this.autoComplete.setFieldToListValue(this.getQuestionFieldItem(question.text, this.linkId));
 
-    Def.Autocompleter.Event.observeListSelections(`question-${this.index}`, (res) => {
-      if (res.val_typed_in !== res.final_val && res.hasOwnProperty('item_code') && res.item_code) {
-        this.linkId = res.item_code;
-        this.onChange(true);
-      }
-    });
+      Def.Autocompleter.Event.observeListSelections(`question-${this.index}`, (res) => {
+        if ((res.input_method === "clicked" && res?.item_code) ||
+            (res.input_method === "typed")) {
+
+          if (res.item_code)
+            this.linkId = res.item_code;
+          else
+            this.resetVariableProperties();
+          this.onChange(true);
+        }
+      });
   }
 
   /**

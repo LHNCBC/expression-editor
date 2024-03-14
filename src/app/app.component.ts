@@ -213,7 +213,9 @@ export class AppComponent implements OnInit, OnDestroy {
           (res.input_method === "typed")) {
         this.linkId = res.item_code;
 
-        if (res.item_code && this.rootLevel === true)
+        if (res.input_method === "typed" && !res.item_code)
+          this.rootLevel = true;
+        else
           this.rootLevel = false;
       }
     });

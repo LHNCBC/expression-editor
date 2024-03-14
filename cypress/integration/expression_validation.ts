@@ -1,3 +1,5 @@
+import * as constants from "../../projects/ng-rule-editor/src/lib/validation";
+
 describe('Rule editor', () => {
   beforeEach(() => {
     cy.visit('/');
@@ -48,7 +50,7 @@ describe('Rule editor', () => {
           cy.get('div.time-input input').clear().should('have.class', 'field-error');
           // And the error message
           cy.get('#expression-error > p')
-            .should('contain.text', 'Time interval is required.');
+            .should('contain.text', constants.TIME_INTERVAL_REQUIRED);
         });
         // The 'Save' button should be disabled
         cy.get('#export').should('have.class', 'disabled');
@@ -81,24 +83,24 @@ describe('Rule editor', () => {
         // All newly added variables should failed
         cy.get('div#row-2').within(() => {
           cy.get('#variable-expression-2').should('have.class', 'field-error');
-          cy.get('#expression-error > p').should('contain.text', 'Expression is required.');
+          cy.get('#expression-error > p').should('contain.text', constants.EXPRESSION_REQUIRED);
         });
         cy.get('div#row-3').within(() => {
           cy.get('#variable-expression-3').should('have.class', 'field-error');
-          cy.get('#expression-error > p').should('contain.text', 'Expression is required.');
+          cy.get('#expression-error > p').should('contain.text', constants.FHIR_QUERY_REQUIRED);
         });
         cy.get('div#row-4').within(() => {
           cy.get('#autocomplete-4').should('have.class', 'field-error');
           cy.get('#expression-error > p')
-            .should('contain.text', 'Expression is required.');
+            .should('contain.text', constants.FHIR_QUERY_OBSERVATION_REQUIRED);
         });
         cy.get('div#row-5').within(() => {
           cy.get('#question-5').should('have.class', 'field-error');
-          cy.get('#expression-error > p').should('contain.text', 'Expression is required.');
+          cy.get('#expression-error > p').should('contain.text', constants.QUESTION_REQUIRED);
         });
         cy.get('div#row-6').within(() => {
           cy.get('#simple-expression-6').should('have.class', 'field-error');
-          cy.get('#expression-error > p').should('contain.text', 'Expression is required.');
+          cy.get('#expression-error > p').should('contain.text', constants.EXPRESSION_REQUIRED);
         });
 
         // Enter expressions for each of the newly added variables
@@ -171,6 +173,33 @@ describe('Rule editor', () => {
         });
       });
 
+      it('should display error and disable "Save" button if clearing out the question autocomplete selection ', () => {
+        cy.get('select#questionnaire-select').select('BMI Calculation (Easy Path expression)');
+
+        // The demo has '(/39156-5) selected by default
+        cy.get('#question').should('contain.value', '(/39156-5)');
+        // Click the button to edit the expression
+        cy.get('button#openRuleEditor').should('exist').click();
+        // The Rule Editor dialog should now appear
+        cy.get('#rule-editor-dialog').should('exist');
+
+        // Should have two variables
+        cy.get('#variables-section .variable-row').should('have.length', 2);
+
+        cy.get('div#row-1').within(() => {
+          // Clear out the selection for variable 'b' and the error should display.
+          cy.get('#question-1').clear();
+       
+          // Need to click outside of the element.
+          cy.get('#variable-label-1').click();
+
+          // The error should show up.
+          cy.get('#question-1').should('have.class', 'field-error');
+          cy.get('#expression-error > p').should('contain.text', constants.QUESTION_REQUIRED);
+
+        });
+      });
+
       it('should display error and disable "Save" button if expression is invalid', () => {
         cy.get('select#questionnaire-select').select('BMI Calculation (Easy Path expression)');
 
@@ -195,8 +224,7 @@ describe('Rule editor', () => {
           // Enter invalid variable name
           cy.get('#variable-expression-2').clear().type("%zzz");
           cy.get('#variable-expression-2').should('have.class', 'field-error');
-          cy.get('#expression-error > p').should('contain.text', 'Invalid expression.');
-          //cy.get('#variable-expression-2').clear().type("%resource.item.where(linkId='/8302-2').answer.value");
+          cy.get('#expression-error > p').should('contain.text', constants.INVALID_EXPRESSION);
         });
 
         // Add variable of variable type "Easy Path Expression"
@@ -208,7 +236,7 @@ describe('Rule editor', () => {
           // Enter invalid variable name
           cy.get('#simple-expression-3').type('zzz');
           cy.get('#simple-expression-3').should('have.class', 'field-error');
-          cy.get('#expression-error > p').should('contain.text', 'Invalid expression.');
+          cy.get('#expression-error > p').should('contain.text', constants.INVALID_EXPRESSION);
         });      
 
         // The 'Save' button should be disabled
@@ -351,7 +379,7 @@ describe('Rule editor', () => {
         // and the error message should displayed below the textbox
         cy.get('#simple-expression-final').should('have.class', 'field-error');
         cy.get('#final-expression-section #expression-error > p')
-          .should('contain.text', 'Expression is required.');
+          .should('contain.text', constants.EXPRESSION_REQUIRED);
 
         // The 'Save' button should be disabled
         cy.get('#export').should('exist').should('have.class', 'disabled');
@@ -367,7 +395,7 @@ describe('Rule editor', () => {
 
         cy.get('#simple-expression-final').should('have.class', 'field-error');
         cy.get('#final-expression-section #expression-error > p')
-          .should('contain.text', 'Invalid expression.');        
+          .should('contain.text', constants.INVALID_EXPRESSION);
         // The 'Save' button should be disabled
         cy.get('#export').should('exist').should('have.class', 'disabled');
       });
@@ -401,7 +429,7 @@ describe('Rule editor', () => {
         // and the error message should displayed below the textbox
         cy.get('#final-expression').should('have.class', 'field-error');
         cy.get('#final-expression-section #expression-error > p')
-          .should('contain.text', 'Expression is required.');
+          .should('contain.text', constants.EXPRESSION_REQUIRED);
 
         // The 'Save' button should be disabled
         cy.get('#export').should('exist').should('have.class', 'disabled');
@@ -417,7 +445,7 @@ describe('Rule editor', () => {
 
         cy.get('#final-expression').should('have.class', 'field-error');
         cy.get('#final-expression-section #expression-error > p')
-          .should('contain.text', 'Invalid expression.');        
+          .should('contain.text', constants.INVALID_EXPRESSION);
         // The 'Save' button should be disabled
         cy.get('#export').should('exist').should('have.class', 'disabled');
       });
