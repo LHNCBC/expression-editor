@@ -525,7 +525,7 @@
         {
           "url": "http://hl7.org/fhir/StructureDefinition/variable",
           "valueExpression": {
-            "name": "question_invalid_expression",
+            "name": "not_question_type_expression",
             "language": "text/fhirpath",
             "expression": "Observation.component.where(code.memberOf(%'vs-observation-vitalsignresult'))",
             "extension": [
@@ -547,7 +547,7 @@
         {
           "url": "http://hl7.org/fhir/StructureDefinition/variable",
           "valueExpression": {
-            "name": "question_invalid_expression_and_no_extension",
+            "name": "not_question_type_expression_and_no_extension",
             "language": "text/fhirpath",
             "expression": "Observation.component.where(code.memberOf(%'vs-observation-vitalsignresult'))"
           }

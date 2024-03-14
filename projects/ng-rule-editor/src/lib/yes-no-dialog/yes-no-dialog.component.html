@@ -1,27 +1,27 @@
 <div 
-  cdkTrapFocus
   cdkTrapFocusAutoCapture
+  cdkTrapFocus
   role="dialog"
   aria-labelledby="dlg-title"
-  aria-describedby="dlg-content1 dlg-content2"
+  aria-describedby="dlg-prompt1 dlg-prompt2"
+  [cdkTrapFocusAutoCapture]="true"
   cdkFocusInitial
   aria-modal="true"
   id="yes-no-dialog"
   [style.text-align]="textAlign"
   class="yes-no-modal">
-
-  <div class="yes-no-modal-content yes-no-content" #modal aria-modal="true">
+  <div class="yes-no-modal-content yes-no-content" #modal aria-modal="true" [style.width]="dialogWidth">
     <div class="yes-no-modal-header">
       <h2 id="dlg-title">{{title}}</h2>
     </div>
     <div class="yes-no-modal-body">
-      <p id="dlg-content1">{{prompt1}}</p>
-      <p id="dlg-content2">{{prompt2}}</p>
+      <p id="dlg-prompt1">{{prompt1}}</p>
+      <p id="dlg-prompt2">{{prompt2}}</p>
 
     </div>
     <div class="yes-no-modal-footer">
-      <button id="yes" class="primary" [style]="lhcStyle.buttonPrimary" (click)="onYes()" >Yes</button>
-      <button id="no" (click)="onNo()">No</button>
+      <button id="yes-button" role="button" class="primary" [style]="lhcStyle.buttonPrimary" (click)="onYes()" >Yes</button>
+      <button id="no-button" role="button" (click)="onNo()">No</button>
     </div>
   </div>
 </div>

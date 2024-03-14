@@ -1,8 +1,8 @@
 import { Directive, Input } from '@angular/core';
-import { AbstractControl, Validator, NG_VALIDATORS } from '@angular/forms';
+import { AbstractControl, NG_VALIDATORS } from '@angular/forms';
 import { RuleEditorService } from '../../lib/rule-editor.service';
 import { expressionValidator } from '../../validators/expressionValidator';
-import { ValidationError, ValidationParam } from '../../lib/variable';
+import { ValidationParam } from '../../lib/variable';
 @Directive({
   selector: '[lhcExpressionValidator]',
   providers: [{

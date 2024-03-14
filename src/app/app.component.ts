@@ -13,7 +13,8 @@ export class AppComponent implements OnInit, OnDestroy {
   @ViewChild('autoComplete', {static: false}) autoCompleteElement: ElementRef;
   autoComplete;
 
-  formAppearedAnnouncement = 'The rule editor for the selected form has appeared below the current field.';
+  formAppearedAnnouncement = "The Rule Editor questionnaire has been loaded";
+  formReloadAnnouncement = "The Rule Editor questionnaire has been reloaded";
   calculatedExpression = 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression';
   originalLinkId = '/39156-5';
   expressionTypes = [
@@ -53,28 +54,32 @@ export class AppComponent implements OnInit, OnDestroy {
   userExpressionChoices = null;
   customExpressionUri = false;
   fhir = null;
-  formType = 'bmisimple';
+  questionnaire = 'bmisimple';
   file = '';
   error = '';
   doNotAskToCalculateScore = false;
 
+  displayRuleEditor = false;
+  displayRuleEditorResult = false;
+
   constructor(private http: HttpClient, private liveAnnouncer: LiveAnnouncer, private changeDetectorRef: ChangeDetectorRef) {}
 
   ngOnInit(): void {
-    this.onChange();
+    this.onChange(false);
   }
 
   /**
    * Used when changing the questionnaire dropdown
+   * @param reload - reload the questionnaire
    */
-  onChange(): void {
+  onChange(reload=false): void {
     // Clear out preview when changing forms
     this.fhirPreview = '';
     this.error = '';
     this.doNotAskToCalculateScore = false;
     this.rootLevel = false;
 
-    if (this.formType === '' || this.formType === 'upload') {
+    if (this.questionnaire === '' || this.questionnaire === 'upload') {
       this.liveAnnouncer.announce('Additional settings must be entered below to load the rule editor.');
       this.fhir = null;
       this.file = '';
@@ -85,9 +90,10 @@ export class AppComponent implements OnInit, OnDestroy {
       this.linkId = this.originalLinkId;
       this.expressionUri = this.calculatedExpression;
 
-      this.http.get(`./${this.formType}.json`)
+      this.http.get(`./${this.questionnaire}.json`)
         .subscribe(data => {
           this.fhir = data;
+          this.liveAnnouncer.announce((reload) ? this.formReloadAnnouncement : this.formAppearedAnnouncement);
 
           if (this.fhir && this.fhir.item instanceof Array) {
             this.linkIds = this.getQuestionnaireLinkIds(this.fhir.item);
@@ -112,7 +118,7 @@ export class AppComponent implements OnInit, OnDestroy {
       this.linkId = '';
       this.autoComplete.setFieldToListValue('');
     } else {
-      if (this.formType !== '' && this.formType !== 'upload') {
+      if (this.questionnaire !== '' && this.questionnaire !== 'upload') {
         this.linkId = this.originalLinkId;
         this.autoComplete.setFieldToListValue(this.defaultItemText);
       }
@@ -123,10 +129,25 @@ export class AppComponent implements OnInit, OnDestroy {
 
   /**
    * Show a preview of the output questionnaire under the rule editor
+   * @param fhirResult - questionnaire JSON structure
    */
   onSave(fhirResult): void {
-    this.fhirPreview = JSON.stringify(fhirResult, null, 2);
+    if (fhirResult) {
+      this.displayRuleEditor = false;
+      this.displayRuleEditorResult = true;
+      this.fhirPreview = JSON.stringify(fhirResult, null, 2);
+    }
   }
+
+  /**
+   * Cancel changes made to the Rule Editor.
+   */
+  onCancel(): void {
+    // Reset it back to the 'bmisimple' questionnaire
+    this.questionnaire = 'bmisimple';
+    this.onChange(true);
+  }
+
 
   /**
    * Import a questionnaire from a file using the linkId and expression URI
@@ -150,7 +171,7 @@ export class AppComponent implements OnInit, OnDestroy {
             }
             this.liveAnnouncer.announce(this.formAppearedAnnouncement);
 
-            if (this.formType === '' || this.formType === 'upload') {
+            if (this.questionnaire === '' || this.questionnaire === 'upload') {
               this.autoComplete.setFieldToListValue('');
               this.rootLevel = true;
             }
@@ -198,7 +219,6 @@ export class AppComponent implements OnInit, OnDestroy {
           this.rootLevel = false;
       }
     });
-
   }
 
 
@@ -286,4 +306,44 @@ export class AppComponent implements OnInit, OnDestroy {
     }
   }
 
+  /**
+   * Close the Rule Editor dialog
+   */
+  closeRuleEditorDialog(): void {
+    this.displayRuleEditor = false;
+  }
+
+  /**
+   * Open the Rule Editor dialog to edit the expression for the
+   * selected item/question
+   */
+  openRuleEditorDialog(): void {
+    this.displayRuleEditor = true;
+    this.displayRuleEditorResult = false;
+
+    // The lhc-rule-editor component is not presented before the
+    // 'Open Rule Editor' button is clicked due to the use of *ngIf.
+    // The attributes for the lhc-rule-editor component are not 
+    // getting updated as a result. The below steps are used to 
+    // trigger changes to those attributes. 
+    const tmpUserExpressionChoices = this.userExpressionChoices;
+    const tmpCustomExpressionUri = this.customExpressionUri;
+ 
+    this.userExpressionChoices = null;
+    this.customExpressionUri = null;
+
+    this.changeDetectorRef.detectChanges();
+
+    this.userExpressionChoices = tmpUserExpressionChoices;
+    this.customExpressionUri = tmpCustomExpressionUri;
+  }
+
+  /**
+   * Check if the Rule Editor can be opened to edit the expression.
+   * @return true if one of the root level checkbox is checked or there is 
+   * a question selected.
+   */
+  canOpenRuleEditor(): boolean {
+    return (this.rootLevel || this.linkId !== null); 
+  }
 }

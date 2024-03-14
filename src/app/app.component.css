@@ -43,3 +43,104 @@ input.query-autocomplete {
   padding: 0 0.5em;
   width: 250px;
 }
+
+
+.re-modal {
+  display: block; /* Hidden by default */
+  position: fixed; /* Stay in place */
+  z-index: 1; /* Sit on top */
+  left: 0;
+  top: 0;
+  width: 100%; /* Full width */
+  height: 100%; /* Full height */
+  overflow: auto; /* Enable scroll if needed */
+  background-color: rgb(0,0,0); /* Fallback color */
+  background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+}
+
+/* Modal Content */
+.re-modal-content {
+  background-color: #fefefe;
+  margin: auto;
+  border: 1px solid #888;
+  width: 90%;
+  max-height:90%;
+  border-radius: 10px;
+}
+
+.re-modal-footer {
+  margin-top: 20px;
+}
+
+.re-content {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  -webkit-transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%);
+}
+
+.re-modal-header {
+  background-color: #3166e3;
+  height: 6vh;
+  border-radius: 10px 10px 0px 0px;
+  padding: 0px 20px 0px 20px;
+  display: flex;
+  align-items: center;
+  color: #ffffff;
+}
+
+.re-modal-body {
+  padding: 20px;
+  max-height: 75vh;
+  overflow-y: auto;
+}
+
+.bg-primary {
+  background-color: rgba(13,110,253, 1) !important;
+}
+
+.text-white {
+  color: rbga(256, 256, 256, 1) !important;
+  font-size: 1.5rem !important;
+  width: 100%;
+}
+
+button.btn {
+  height: 2.5rem;
+  border: none;
+  border-radius: 4px;
+  padding: 0 2em;
+  font-size: 1rem;
+  background-color: navy;
+  color: white;
+}
+
+div.btn {
+  margin: 20px 0px 20px 0px;
+}
+
+svg {
+  width: 24px;
+  height: 24px;
+  fill: rgba(13,110,253, 1);
+  stroke: white;
+  stroke-width: 2;
+  cursor: pointer;
+}
+
+button.svg {
+  display: flex;
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+button.btn-close {
+  padding: 0;
+  margin: 0;
+}
+
+button.btn-close.svg {
+  display: initial;
+}
