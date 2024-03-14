@@ -9,7 +9,7 @@
 
 <label>
   Questionnaire:
-  <select [(ngModel)]="formType" (change)="onChange()" id="questionnaire-select">
+  <select [(ngModel)]="questionnaire" (change)="onChange()" id="questionnaire-select">
     <option value="upload">Upload your own questionnaire</option>
     <option value="bmi">BMI Calculation</option>
     <option value="bmisimple">BMI Calculation (Easy Path expression)</option>
@@ -23,17 +23,19 @@
   </select>
 </label>
 
-<label *ngIf="formType != 'upload'" [hidden]="rootLevel">
+<span *ngIf="questionnaire != 'upload'" class="checkbox">
+  <input type="checkbox" id="useRootLevel"
+         aria-labelledby="rootLevelCheckboxLabel"
+         [(ngModel)]="rootLevel" (change)="toggleRootLevel($event)">
+  <label id="rootLevelCheckboxLabel" for="useRootLevel">Root level</label>
+</span>
+
+<label *ngIf="questionnaire != 'upload'" >
   Question:
   <input placeholder="Please select" class="query-autocomplete" #autoComplete id="question" />
 </label>
 
-<span *ngIf="formType != 'upload'" class="checkbox">
-  <input type="checkbox" id="useRootLevel" [(ngModel)]="rootLevel" (change)="toggleRootLevel($event)">
-  <label>Root level</label>
-</span>
-
-<div *ngIf="formType == 'upload'" id="upload">
+<div *ngIf="questionnaire == 'upload'" id="upload">
   <p>Please specify the questionnaire, item Link ID, and the corresponding Expression URI where the output should be placed:</p>
   <label>Questionnaire:
     <input type="file" id="file-upload" [(ngModel)]="file" accept=".json" (change)="prepareForImport($event)">
@@ -64,29 +66,64 @@
     </label>
   </span>
 </div>
+
+<div class="btn">
+  <button class="primary btn" (click)="openRuleEditorDialog()" 
+          aria-label="Open Rule Editor button. "
+          id="openRuleEditor" [disabled]="!canOpenRuleEditor()">Open Rule Editor</button>
+</div>
+
 <div class="error" *ngIf="error">
   {{error}}
 </div>
-<div *ngIf="fhir">
-  <lhc-rule-editor
-    [fhirQuestionnaire]="fhir"
-    [itemLinkId]="linkId"
+  <div *ngIf="displayRuleEditor"
+    cdkTrapFocus
+    [cdkTrapFocusAutoCapture]="true"
+    role="dialog"
+    [attr.aria-hidden]="!displayRuleEditor"
+    aria-label="Rule Editor"
+    cdkFocusInitial
+    aria-modal="true"
+    id="rule-editor-dialog"
+    class="re-modal"> 
 
-    [submitButtonName]="'Save'"
-    [expressionLabel]="'Output Expression'"
-    [expressionUri]="linkId ? expressionUri : ''"
-    [userExpressionChoices]=userExpressionChoices
-    [lhcStyle]="{
-      buttonPrimary: { backgroundColor: 'navy', color: 'white' },
-      buttonSecondary: { backgroundColor: 'darkgreen', color: 'white' },
-      input: { backgroundColor: '#ffe' },
-      select: { backgroundColor: '#ffe' }
-    }"
-    [doNotAskToCalculateScore]="doNotAskToCalculateScore"
-    (save)="onSave($event)">
-  </lhc-rule-editor>
+    <div class="re-modal-content re-content" #modal aria-modal="true">
+      <div class="re-modal-header">
+        <h4 id="ruleEditorDlgTitle" class="modal-title text-white" role="document">Rule Editor</h4>
+        <button type="button" class="btn-close btn-close-white svg" aria-label="Close" (click)="closeRuleEditorDialog()" style="float:right;">
+          <svg viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="15" y1="9" x2="9" y2="15"></line>
+            <line x1="9" y1="9" x2="15" y2="15"></line> 
+          </svg>
+        </button>
+      </div>
+      <div class="re-modal-body">
+        <lhc-rule-editor
+          [fhirQuestionnaire]="fhir"
+          [itemLinkId]="linkId"
 
+          [submitButtonName]="'Save'"
+          [expressionLabel]="'Output Expression'"
+          [expressionUri]="linkId ? expressionUri : ''"
+          [userExpressionChoices]=userExpressionChoices
+          [lhcStyle]="{
+            buttonPrimary: { backgroundColor: 'navy', color: 'white' },
+            buttonSecondary: { backgroundColor: 'darkgreen', color: 'white' },
+            input: { backgroundColor: '#ffe' },
+            select: { backgroundColor: '#ffe' }
+          }"
+          [doNotAskToCalculateScore]="doNotAskToCalculateScore"
+          (save)="onSave($event)"
+          (cancel)="closeRuleEditorDialog()">
+        </lhc-rule-editor>
+      </div>
+      <div class="re-modal-footer"></div>
+    </div>
+  </div>
 
+<div *ngIf="displayRuleEditorResult">
+  <hr>
   <button *ngIf="fhirPreview" (click)="downloadJson(fhirPreview)" class="download">
     Download Questionnaire
   </button>

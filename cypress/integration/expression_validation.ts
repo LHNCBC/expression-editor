@@ -8,6 +8,13 @@ describe('Rule editor', () => {
       it('should display error and disable "Save" button if expression is empty', () => {
         cy.get('select#questionnaire-select').select('BMI Calculation (Easy Path expression)');
 
+        // The demo has '(/39156-5) selected by default
+        cy.get('#question').should('contain.value', '(/39156-5)');
+        // Click the button to edit the expression
+        cy.get('button#openRuleEditor').should('exist').click();
+        // The Rule Editor dialog should now appear
+        cy.get('#rule-editor-dialog').should('exist');
+
         // Check the Advanced Interface checkbox
         cy.get('input#advanced-interface').check();
 
@@ -167,6 +174,13 @@ describe('Rule editor', () => {
       it('should display error and disable "Save" button if expression is invalid', () => {
         cy.get('select#questionnaire-select').select('BMI Calculation (Easy Path expression)');
 
+        // The demo has '(/39156-5) selected by default
+        cy.get('#question').should('contain.value', '(/39156-5)');
+        // Click the button to edit the expression
+        cy.get('button#openRuleEditor').should('exist').click();
+        // The Rule Editor dialog should now appear
+        cy.get('#rule-editor-dialog').should('exist');
+
         // Check the Advanced Interface checkbox
         cy.get('input#advanced-interface').check();
 
@@ -216,7 +230,14 @@ describe('Rule editor', () => {
 
       it('should display blank when convert from invalid Easy Path Expression to FHIRPath Expression', () => {
         cy.get('select#questionnaire-select').select('BMI Calculation (Easy Path expression)');
-        
+
+        // The demo has '(/39156-5) selected by default
+        cy.get('#question').should('contain.value', '(/39156-5)');
+        // Click the button to edit the expression
+        cy.get('button#openRuleEditor').should('exist').click();
+        // The Rule Editor dialog should now appear
+        cy.get('#rule-editor-dialog').should('exist');
+
         // Variables section
         cy.get('lhc-variables > h2').should('contain', 'Item Variables');
         cy.get('#variables-section .variable-row').should('have.length', 2);
@@ -250,7 +271,14 @@ describe('Rule editor', () => {
 
       it('should display the output expression correctly when variable label is empty', () => {
         cy.get('select#questionnaire-select').select('BMI Calculation (Easy Path expression)');
-        
+
+        // The demo has '(/39156-5) selected by default
+        cy.get('#question').should('contain.value', '(/39156-5)');
+        // Click the button to edit the expression
+        cy.get('button#openRuleEditor').should('exist').click();
+        // The Rule Editor dialog should now appear
+        cy.get('#rule-editor-dialog').should('exist');
+      
         // Variables section
         cy.get('lhc-variables > h2').should('contain', 'Item Variables');
         cy.get('#variables-section .variable-row').should('have.length', 2);
@@ -300,8 +328,16 @@ describe('Rule editor', () => {
       it('should display error and disable "Save" button if failed Easy Path Expression validation', () => {
         cy.get('select#questionnaire-select').select('BMI Calculation (Easy Path expression)');
 
+        // The demo has '(/39156-5) selected by default
+        cy.get('#question').should('contain.value', '(/39156-5)');
+        // Click the button to edit the expression
+        cy.get('button#openRuleEditor').should('exist').click();
+        // The Rule Editor dialog should now appear
+        cy.get('#rule-editor-dialog').should('exist');
+
         // The 'Output Expression' section should be visible
-        cy.get('#final-expression-section').should('exist').should('be.visible');
+        cy.get('#final-expression-section').should('exist')
+          .scrollIntoView().should('be.visible');
 
         // By default, the Output Expression Type is set to 'Easy Path Expression' and the expression has value
         cy.get('#simple-expression-final').should('have.value', 'a/b^2');
@@ -341,11 +377,19 @@ describe('Rule editor', () => {
         cy.get('select#questionnaire-select').select('BMI Calculation');
         cy.wait('@bmi');
 
+        // The demo has '(/39156-5) selected by default
+        cy.get('#question').should('contain.value', '(/39156-5)');
+        // Click the button to edit the expression
+        cy.get('button#openRuleEditor').should('exist').click();
+        // The Rule Editor dialog should now appear
+        cy.get('#rule-editor-dialog').should('exist');
+
         // The 'Output Expression' section should be visible
-        cy.get('#final-expression-section').should('exist').should('be.visible');
+        cy.get('#final-expression-section').should('exist')
+          .scrollIntoView().should('be.visible');
 
         // By default, the Output Expression Type is set to 'FHIRPath Expression' and the expression has value
-        cy.get('#variable-type-final').find('option:selected').should('have.text', 'FHIRPath Expression');
+        cy.get('#output-expression-type').find('option:selected').should('have.text', 'FHIRPath Expression');
         cy.get('#final-expression').should('have.value', '(%a/(%b.power(2))).round(1)');
 
         // The 'Save' button should be enabled
@@ -387,11 +431,17 @@ describe('Rule editor', () => {
         cy.get('#question').type('bmi');
         cy.get('span#completionOptions > ul > li').contains('39156-5').click();
 
+        // Click the button to edit the expression
+        cy.get('button#openRuleEditor').should('exist').click();
+        // The Rule Editor dialog should now appear
+        cy.get('#rule-editor-dialog').should('exist');
+
         // The 'Output Expression' should be default to 'Calculated Expression' 
         cy.get('#expression-entry > select').should('have.value', '1');
 
         // The 'Output Expression' section should be visible
-        cy.get('#final-expression-section').should('exist').should('be.visible');
+        cy.get('#final-expression-section').should('exist')
+          .scrollIntoView().should('be.visible');
 
         // The 'Save' button should be enabled since the Output Expression is populate
         cy.get('#export').should('not.have.class', 'disabled');
@@ -469,6 +519,13 @@ describe('Rule editor', () => {
         cy.intercept('/phq9.json').as('phq9');
         cy.get('select#questionnaire-select').select('PHQ9 (no FHIRPath)');
         cy.wait('@phq9');
+
+        // The demo has '(/39156-5) selected by default
+        cy.get('#question').should('contain.value', '(/39156-5)');
+        // Click the button to edit the expression
+        cy.get('button#openRuleEditor').should('exist').click();
+        // The Rule Editor dialog should now appear
+        cy.get('#rule-editor-dialog').should('exist');
 
         cy.get('.rule-editor').contains('Would you like to calculate the sum of scores?');
         // Click no

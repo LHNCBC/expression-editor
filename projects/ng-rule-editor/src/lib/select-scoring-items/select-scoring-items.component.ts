@@ -162,7 +162,7 @@ export class SelectScoringItemsComponent implements OnInit {
    * This gets called when the angular-tree-model tree model is created. Check for
    * pre-selected items and expand the tree if it contains grandchildren nodes. 
    * @param tree - tree model
-   */  
+   */
   onTreeLoad(tree): void {
     // On initial tree load, node isActive status is undefined. This initializes
     // all nodes isActive status to false.
