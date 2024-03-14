@@ -24,10 +24,41 @@ export interface Question {
   unit?: string;
 }
 
+export enum SectionTypes {
+  ItemVariables = "Item Variables",
+  OutputExpression =  "Output Expression"
+}
+
+export enum FieldTypes {
+  Case = "case",
+  Expression = "expression",
+  Name = "name",
+  TimeInterval = "timeInterval"
+}
+
+export interface ValidationParam {
+  section: SectionTypes,
+  field: FieldTypes,
+  [others: string]: string;
+}
+
+export interface ValidationError {
+  [errorKey: string]: boolean | string;
+  message: string;
+  ariaMessage: string;
+}
+
+export interface ValidationResult {
+  hasError: boolean;
+  errorInItemVariables?: boolean;
+  errorInOutputExpression?: boolean;
+  errorInOutputCaseStatement?: boolean;
+}
+
 export interface CaseStatementError {
-  case?: boolean;
-  condition?: boolean;
-  output?: boolean;
+  case?: string;
+  condition?: string;
+  output?: string;
 }
 
 export interface CaseStatement {

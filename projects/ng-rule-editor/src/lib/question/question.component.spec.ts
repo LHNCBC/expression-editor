@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { QuestionComponent } from './question.component';
 import { SyntaxPreviewComponent } from '../syntax-preview/syntax-preview.component';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { ExpressionValidatorDirective } from '../../directives/expression/expression-validator.directive';
 
 describe('QuestionComponent', () => {
   let component: QuestionComponent;
@@ -11,7 +12,7 @@ describe('QuestionComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ QuestionComponent, SyntaxPreviewComponent ],
+      declarations: [ QuestionComponent, SyntaxPreviewComponent, ExpressionValidatorDirective ],
       imports: [ FormsModule, MatSnackBarModule ]
     })
     .compileComponents();

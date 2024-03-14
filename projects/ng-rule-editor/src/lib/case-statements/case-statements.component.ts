@@ -1,16 +1,19 @@
-import { Component, EventEmitter, Input, OnChanges, OnInit, Output } from '@angular/core';
+import { ChangeDetectorRef,  Component, EventEmitter, Input, OnChanges, OnInit, Output, ViewChild,
+         ViewChildren, QueryList, AfterViewInit, OnDestroy } from '@angular/core';
 import { RuleEditorService, SimpleStyle } from '../rule-editor.service';
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
-import { CASE_REGEX, CaseStatement, Variable } from '../variable';
+import { CASE_REGEX, CaseStatement, ValidationError, Variable, FieldTypes, SectionTypes } from '../variable';
 import { EasyPathExpressionsPipe } from '../easy-path-expressions.pipe';
 import { LiveAnnouncer } from '@angular/cdk/a11y';
+import { NgModel } from '@angular/forms';
+import * as fhirpath from 'fhirpath';
 
 @Component({
   selector: 'lhc-case-statements',
   templateUrl: './case-statements.component.html',
   styleUrls: ['../rule-editor.component.css', './case-statements.component.css']
 })
-export class CaseStatementsComponent implements OnInit, OnChanges {
+export class CaseStatementsComponent implements OnInit, OnChanges, OnDestroy, AfterViewInit {
   @Input() lhcStyle: SimpleStyle = {};
   @Input() syntax: string;
   @Input() simpleExpression: string;
@@ -19,6 +22,10 @@ export class CaseStatementsComponent implements OnInit, OnChanges {
   @Output() expressionChange = new EventEmitter<string>();
   @Output() simpleChange = new EventEmitter<string>();
 
+  @ViewChildren('caseConditionRef') caseConditionRefs: QueryList<NgModel>;
+  @ViewChildren('caseOutputRef') caseOutputRefs: QueryList<NgModel>;
+  @ViewChild('caseDefaultRef') caseDefaultRef:NgModel;
+ 
   STRING_REGEX = /^'(.*)'$/;
   pipe = new EasyPathExpressionsPipe();
   outputExpressions = true;
@@ -30,10 +37,12 @@ export class CaseStatementsComponent implements OnInit, OnChanges {
   hidePreview = false;
 
   hasError = false;
-  defaultCaseError = false;
+  defaultCaseError = '';
+  performValidationSubscription;
 
   constructor(private ruleEditorService: RuleEditorService,
-              private liveAnnouncer: LiveAnnouncer) {}
+              private liveAnnouncer: LiveAnnouncer,
+              private changeDetectorRef: ChangeDetectorRef) {}
 
   /**
    * Angular lifecycle hook for initialization
@@ -46,6 +55,44 @@ export class CaseStatementsComponent implements OnInit, OnChanges {
     }
 
     this.output = this.getIif(0);
+
+    // performValidationSubscription is triggered when the 'Save' button is clicked, allowing each
+    // subscribed component to validate the expression data.
+    this.performValidationSubscription = this.ruleEditorService.performValidationChange.subscribe((validation) => {
+      this.caseConditionRefs.forEach((cc, index) => {
+        if (!cc.control.value || cc.control.value === "") {
+          cc.control.markAsTouched();
+          cc.control.markAsDirty();
+        }
+      });
+      this.caseOutputRefs.forEach((co, index) => {
+        if (!co.control.value || co.control.value === "") {
+          co.control.markAsTouched();
+          co.control.markAsDirty();
+        }
+      });
+
+      if (!this.caseDefaultRef.control.value || this.caseDefaultRef.control.value === "") {
+        this.caseDefaultRef.control.markAsTouched();
+        this.caseDefaultRef.control.markAsDirty();
+      }
+      this.onChange();
+    });
+  }
+
+  /**
+   * Angular lifecycle hook called before the component is destroyed
+   */
+  ngOnDestroy(): void {
+    this.performValidationSubscription.unsubscribe();
+  }
+
+  /**
+   * Perform check on any Case statement errors 
+   */
+  ngAfterViewInit() {
+    this.changeDetectorRef.detectChanges();
+    this.updateCaseStatementsErrors();
   }
 
   /**
@@ -122,7 +169,118 @@ export class CaseStatementsComponent implements OnInit, OnChanges {
     this.output = this.getIif(0);
     this.expressionChange.emit(this.output);
     this.simpleChange.emit(this.simpleExpression);
+
+    this.changeDetectorRef.detectChanges();
+    this.updateCaseStatementsErrors();
   }
+
+  /**
+   * Compose the error result object based on the results: 'Not Valid', 'Required' or null
+   * @param key - Section of the case statement: 'condition' or 'output'
+   * @param result - 'Not Valid' or 'Required'
+   * @return ValidationError object or null if there is no error
+   */
+  composeErrorResultObject(key: string, result: string): ValidationError {
+    let errorObj = null;
+    if (result === 'Not valid') {
+      errorObj = {
+        "invalidCaseStatementError": true,
+        "message": "The " + key + " is invalid.",
+        "ariaMessage": "The " + key + " is invalid."
+      };
+    } else if (result ===  'Required') {
+      errorObj = {
+        "invalidCaseStatementError": true,
+        "message": "The " + key + " is required.",
+        "ariaMessage": "The " + key + " is required."
+      };
+    }
+    return errorObj;
+  };
+
+  /**
+   * Set error or null (no error) for the given element.  
+   * @param element - the case element
+   * @param index - case statement index
+   * @param type - case element type: 'condition' or 'output'
+   * @return true if element contains error, false otherwise
+   */
+  setElementError(element:any, index:number, type: string): boolean {
+    let hasError = false;
+    let result = null;
+    if (type in this.cases[index].error) {
+      hasError = true;
+      result = this.composeErrorResultObject('case ' + type, this.cases[index].error[type]);
+    }
+    setTimeout(()=> {
+      element.control.setErrors(result);
+    }, 0);
+    return hasError;
+  }
+
+  /**
+   * Loop through case statement elements of the given type and check for validation errors.
+   * @param caseElements - QueryList of elements to check for validation errors
+   * @param type - case element type: 'condition' or 'output'
+   * @return true if the selected 'type' contains error.
+   */
+  checkAndUpdateCaseErrors(caseElements: any, type: string): boolean {
+    let hasError = false;
+    caseElements.forEach((c, index) => {
+      if ((c.dirty && c.control.value === "") || (c.control.value)) {
+        const errorFound = this.setElementError(c, index, type);
+        if (errorFound)
+          hasError = true;
+      }
+    });
+
+    return hasError;
+  };
+
+  /**
+   * Check for validation errors on the default case
+   * @return true if the default case contains error.
+   */
+  checkAndUpdateDefaultCaseError(): boolean {
+    let result = null;
+    if ((this.caseDefaultRef.dirty ) || (this.caseDefaultRef.control.value)) {
+      result = this.composeErrorResultObject('default case', this.defaultCaseError);
+    }
+
+    setTimeout(()=> {
+      this.caseDefaultRef.control.setErrors(result);
+    }, 0);
+    return (result !== null);
+  };
+
+  /**
+   * Based on the validation result on the Case Statements, updates error status
+   * for each of the elements in the Case Statements (case conditions, case outputs,
+   * and default case) and notify the Rule Editor component on the status.
+   */
+  updateCaseStatementsErrors(): void {
+    const param = {
+      "section" : SectionTypes.OutputExpression,
+      "field": FieldTypes.Case
+    };
+
+    const hasConditionErrors = this.checkAndUpdateCaseErrors(this.caseConditionRefs, 'condition');
+    const hasOutputErrors = this.checkAndUpdateCaseErrors(this.caseOutputRefs, 'output');
+    const hasDefaultCaseError = this.checkAndUpdateDefaultCaseError();
+
+    let result = null;
+    if (hasConditionErrors || hasOutputErrors || hasDefaultCaseError) {
+      this.hasError = true;
+      result = {
+        "CaseStatementError": true,
+        "message": "Case Statement error",
+        "ariaMessage": "Case Statement error"
+      }
+    } else 
+      this.hasError = false;
+    this.ruleEditorService.notifyValidationResult(param, result);
+
+  };
 
   /**
    * Parse iif expression at specified level. Top level is 0
@@ -202,6 +360,36 @@ export class CaseStatementsComponent implements OnInit, OnChanges {
   }
 
   /**
+   * Check results from calling transformIfSimple() on case statement condition, output, and default case
+   * and set the error if any. If the result from the transformation is blank, then the error is now set 
+   * to 'Required'.
+   * @param level - case statement index row
+   * @param condition - transformation result for the case statement condition 
+   * @param output - transformation result for the case statement output
+   * @param defaultCase - transformation result for the case statement default case
+   */
+  setCaseStatementsErrors(level: number, condition: string, output: string, defaultCase: string): void {
+    this.cases[level].error = {};
+
+    if (condition === 'Not valid')
+      this.cases[level].error['condition'] = condition;
+    else if (condition === '')
+      this.cases[level].error['condition'] = 'Required';
+
+    if (output === 'Not valid')
+      this.cases[level].error['output'] = output;
+    else if (output === '' || output === "''")
+      this.cases[level].error['output'] = 'Required';
+
+    if (defaultCase === 'Not valid')
+      this.defaultCaseError = defaultCase;
+    else if (defaultCase === '')
+      this.defaultCaseError = 'Required';
+    else
+      this.defaultCaseError = '';
+  }
+
+  /**
    * Get an iif expression given a nesting level
    * @param level - nesting level
    */
@@ -217,22 +405,7 @@ export class CaseStatementsComponent implements OnInit, OnChanges {
     const defaultCase = this.transformIfSimple(isSimple ?
       this.simpleDefaultCase : this.defaultCase, true);
 
-    this.cases[level].error = {};
-    this.cases[level].error['output'] = (output === 'Not valid') ? true : false;
-    this.cases[level].error['condition'] = (condition === 'Not valid') ? true : false;
-    this.defaultCaseError = (defaultCase === 'Not valid') ? true : false;
-
-    this.hasError = false;
-    let errorFieldName;
-    if (this.defaultCaseError) {
-      this.hasError = true;
-      errorFieldName = "default case";
-    } else {
-      this.hasError = (this.cases || []).some((c) => (c?.error && (c.error['condition'] || c.error['output'])));
-      errorFieldName = "case condition or output";
-    }
-
-    this.ruleEditorService.notifyValidationResult((this.hasError) ? 'caseConversionError' : null, 'Output Expression', errorFieldName);
+    this.setCaseStatementsErrors(level, condition, output, defaultCase);
 
     if (level === 0) {
       const previousValue = this.hidePreview;
@@ -255,7 +428,7 @@ export class CaseStatementsComponent implements OnInit, OnChanges {
    * otherwise return the expression. Additionally if this is an output column
    * and output expressions are off surround with quotes.
    * @param expression - Easy Path or FHIRPath expression
-   * @param isOutput - True if processing an output or default value
+   * @param isOutput - True if processing the Case output or default case.
    * @return FHIRPath Expression
    */
   transformIfSimple(expression: string, isOutput: boolean): string {
@@ -269,11 +442,20 @@ export class CaseStatementsComponent implements OnInit, OnChanges {
       processedExpression = `'${processedExpression}'`;  // TODO should we escape the expression?
     }
 
-    // Convert when syntax is simple but not in the output column is outputExpressions is disabled
     if (this.syntax === 'simple' && !(isOutput && !this.outputExpressions)) {
       return this.pipe.transform(processedExpression, this.ruleEditorService.variables.map(e => e.label));
     } else {
-      return processedExpression;
+      // Calling fhirpath.evaluate only on Case condition.
+      if (!isOutput) {
+        try {
+          const variableNames = this.ruleEditorService.getContextVariableNames();
+          const result = fhirpath.evaluate({}, processedExpression, variableNames);
+          return processedExpression;
+        } catch(e) {
+          return 'Not valid';
+        }
+      } else
+        return processedExpression;
     }
   }
 

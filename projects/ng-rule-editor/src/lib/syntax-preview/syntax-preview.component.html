@@ -1,4 +1,4 @@
-<div class="text-muted syntax-preview" [ngStyle]="lhcStyle" *ngIf="syntax || showWhenEmpty">
+<div class="text-muted syntax-preview" [ngStyle]="lhcStyle" *ngIf="(syntax || showWhenEmpty)">
   <div class="fhirpath" [ngClass]="{'fhirpath-error': hasError}">
     FHIRPath:
     <pre class="d-inline text-muted syntax" matTooltip="{{syntax}}" [ngClass]="{'fhirpath-error': hasError}">

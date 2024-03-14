@@ -132,9 +132,11 @@ export class AppComponent implements OnInit, OnDestroy {
    * @param fhirResult - questionnaire JSON structure
    */
   onSave(fhirResult): void {
-    this.displayRuleEditor = false;
-    this.displayRuleEditorResult = true;
-    this.fhirPreview = JSON.stringify(fhirResult, null, 2);
+    if (fhirResult) {
+      this.displayRuleEditor = false;
+      this.displayRuleEditorResult = true;
+      this.fhirPreview = JSON.stringify(fhirResult, null, 2);
+    }
   }
 
   /**
