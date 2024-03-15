@@ -121,7 +121,7 @@ describe('Rule editor', () => {
             cy.get('#variable-label-2').should('have.class', 'field-error');
 
             cy.get('div#variable-name-error > p')
-              .should('contain.text', constants.VARIABLE_NAME_EXISTS);
+              .should('contain.text', constants.VARIABLE_NAME_EXISTS_IN_ITEM);
           });
       });
 
@@ -366,7 +366,7 @@ describe('Rule editor', () => {
             cy.get('#variable-label-3').clear().type('patient');
             cy.get('#variable-label-3').should('have.class', 'field-error');
             cy.get('div#variable-name-error > p')
-              .should('contain.text', constants.VARIABLE_NAME_MATCHES_LAUNCH_CONTEXT);
+              .should('contain.text', constants.VARIABLE_NAME_EXISTS_IN_ITEM);
           });
       });
     });

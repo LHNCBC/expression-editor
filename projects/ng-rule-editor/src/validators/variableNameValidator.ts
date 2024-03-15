@@ -26,8 +26,8 @@ export function variableNameValidator(ruleEditorService: RuleEditorService, para
     } else if (contextVariableNames.includes(control.value)) {
       return { 
         'duplicateVariableNameError': true,
-        'message': constants.VARIABLE_NAME_EXISTS,
-        'ariaMessage': constants.VARIABLE_NAME_EXISTS
+        'message': constants.VARIABLE_NAME_EXISTS_IN_ITEM,
+        'ariaMessage': constants.VARIABLE_NAME_EXISTS_IN_ITEM
       };
     } else if (startWithReservedWordsPattern.test(control.value)) {
       const msg = constants.getStartWithsErrorMessage(control.value);
@@ -45,8 +45,8 @@ export function variableNameValidator(ruleEditorService: RuleEditorService, para
     } else if (launchContextVariableNames.includes(control.value)) {
       return { 
         'launchContextNameError': true,
-        'message': constants.VARIABLE_NAME_MATCHES_LAUNCH_CONTEXT,
-        'ariaMessage': constants.VARIABLE_NAME_MATCHES_LAUNCH_CONTEXT
+        'message': constants.VARIABLE_NAME_EXISTS_IN_ITEM,
+        'ariaMessage': constants.VARIABLE_NAME_EXISTS_IN_ITEM
       };
     } else
       return null;
