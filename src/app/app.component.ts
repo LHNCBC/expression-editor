@@ -64,6 +64,9 @@ export class AppComponent implements OnInit, OnDestroy {
 
   constructor(private http: HttpClient, private liveAnnouncer: LiveAnnouncer, private changeDetectorRef: ChangeDetectorRef) {}
 
+  /**
+   * Angular lifecycle hook called when the component is initialized
+   */
   ngOnInit(): void {
     this.onChange(false);
   }

@@ -1,15 +1,11 @@
 <h2 [style]="lhcStyle.h2">Item Variables</h2>
 
-<lhc-yes-no-dialog 
+<lhc-fhirpath-easypath-conversion-confirmation-dialog
   *ngIf="showConfirmDialog"
-  [title]="dialogTitle"
-  [prompt1]="dialogPrompt1"
-  [prompt2]="dialogPrompt2"
-  (yes)="convertFHIRPathToEasyPath($event)"
-  (no)="closeConvertDialog()"
-  [align]="'center'"
+  (confirmationYes)="convertFHIRPathToEasyPath($event)"
+  (confirmationNo)="closeConvertDialog()"
   [lhcStyle]="lhcStyle">
-</lhc-yes-no-dialog>
+</lhc-fhirpath-easypath-conversion-confirmation-dialog>
 
 <div class="container">
   <div class="variable-header" [style]="lhcStyle.variableHeader" aria-hidden="true">
@@ -56,7 +52,11 @@
           aria-label="Variable type">
           <option *ngFor="let type of variableType | keyvalue" value="{{type.key}}">{{type.value}}</option>
         </select>
-        <lhc-helps  [type]="variable.type" [index]="i" class="flex-item"></lhc-helps>
+        <lhc-helps
+          [type]="variable.type"
+          [index]="i"
+          class="flex-item">
+        </lhc-helps>
       </div>
       <div class="variable-column-details" [ngSwitch]="variable.type">
         <lhc-question
@@ -132,18 +132,6 @@
             </p>
           </div>
         </div>
-
-
-<!--         <div id="expression-error" *ngIf="variable.type === 'query' || variable.type === 'expression'" role="alert" class="row error-span">
- -->          
-<!--         <div id="expression-error" role="alert" class="row error-span">
-
-          <p class="expression-error" *ngIf="exp.errors">
-            {{exp.errors.message}}
-          </p>
-        </div>
- -->
-
       </div>
       <div class="variable-column-actions">
         <button

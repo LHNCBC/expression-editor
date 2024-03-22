@@ -17,7 +17,7 @@ describe('Rule editor', () => {
         // Click the button to edit the expression
         cy.get('button#openRuleEditor').should('exist').click();
         // The Rule Editor dialog should now appear
-        cy.get('#rule-editor-dialog').should('exist');
+        cy.get('lhc-rule-editor #base-dialog').should('exist');
 
         // Variables section
         cy.get('lhc-variables > h2').should('contain', 'Item Variables');
@@ -125,7 +125,7 @@ describe('Rule editor', () => {
         // Click the button to edit the expression
         cy.get('button#openRuleEditor').should('exist').click();
         // The Rule Editor dialog should now appear
-        cy.get('#rule-editor-dialog').should('exist');
+        cy.get('lhc-rule-editor #base-dialog').should('exist');
 
         // Variables section
         cy.get('lhc-variables > h2').should('contain', 'Item Variables');
@@ -180,7 +180,7 @@ describe('Rule editor', () => {
         // Click the button to edit the expression
         cy.get('button#openRuleEditor').should('exist').click();
         // The Rule Editor dialog should now appear
-        cy.get('#rule-editor-dialog').should('exist');
+        cy.get('lhc-rule-editor #base-dialog').should('exist');
 
         cy.title().should('eq', 'Rule Editor');
 
@@ -250,7 +250,7 @@ describe('Rule editor', () => {
         // Click the button to edit the expression
         cy.get('button#openRuleEditor').should('exist').click();
         // The Rule Editor dialog should now appear
-        cy.get('#rule-editor-dialog').should('exist');
+        cy.get('lhc-rule-editor #base-dialog').should('exist');
 
         cy.title().should('eq', 'Rule Editor');
 
@@ -331,7 +331,7 @@ describe('Rule editor', () => {
         // Click the button to edit the expression
         cy.get('button#openRuleEditor').should('exist').click();
         // The Rule Editor dialog should now appear
-        cy.get('#rule-editor-dialog').should('exist');
+        cy.get('lhc-rule-editor #base-dialog').should('exist');
 
         cy.title().should('eq', 'Rule Editor');
 
@@ -403,7 +403,7 @@ describe('Rule editor', () => {
         // Click the button to edit the expression
         cy.get('button#openRuleEditor').should('exist').click();
         // The Rule Editor dialog should now appear
-        cy.get('#rule-editor-dialog').should('exist');
+        cy.get('lhc-rule-editor #base-dialog').should('exist');
 
         cy.title().should('eq', 'Rule Editor');
 
@@ -424,7 +424,7 @@ describe('Rule editor', () => {
         // Click the button to edit the expression
         cy.get('button#openRuleEditor').should('exist').click();
         // The Rule Editor dialog should now appear
-        cy.get('#rule-editor-dialog').should('exist');
+        cy.get('lhc-rule-editor #base-dialog').should('exist');
 
         cy.title().should('eq', 'Rule Editor');
 
@@ -469,7 +469,7 @@ describe('Rule editor', () => {
         // Click the button to edit the expression
         cy.get('button#openRuleEditor').should('exist').click();
         // The Rule Editor dialog should now appear
-        cy.get('#rule-editor-dialog').should('exist');
+        cy.get('lhc-rule-editor #base-dialog').should('exist');
 
         cy.title().should('eq', 'Rule Editor');
 
@@ -646,7 +646,7 @@ describe('Rule editor', () => {
         // Click the button to edit the expression
         cy.get('button#openRuleEditor').should('exist').click();
         // The Rule Editor dialog should now appear
-        cy.get('#rule-editor-dialog').should('exist');
+        cy.get('lhc-rule-editor #base-dialog').should('exist');
 
         cy.title().should('eq', 'Rule Editor');
 

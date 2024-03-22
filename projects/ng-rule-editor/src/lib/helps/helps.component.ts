@@ -1,5 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { LiveAnnouncer } from '@angular/cdk/a11y';
+import { RuleEditorService } from '../rule-editor.service';
 
 @Component({
   selector: 'lhc-helps',
@@ -10,17 +11,16 @@ export class HelpsComponent implements OnInit {
 
   @Input() type: string;
   @Input() index;
-
+  
   showHelp = false;
   matToolTip = "Easy Path Expression Help";
 
-  constructor(private liveAnnouncer: LiveAnnouncer) {}
+  constructor(private liveAnnouncer: LiveAnnouncer, private ruleEditorService: RuleEditorService) {}
 
   /**
    * Angular lifecycle hook for initialization
    */
-  ngOnInit(): void {
-  }
+  ngOnInit(): void {}
 
   /**
    * Angular lifecycle hook called on input changes
@@ -39,6 +39,7 @@ export class HelpsComponent implements OnInit {
    */
   openHelp(): void {
     this.showHelp = true;
+    this.ruleEditorService.helpChange.next(this.showHelp);
   }
 
   /**

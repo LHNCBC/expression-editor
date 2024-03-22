@@ -1,21 +1,43 @@
-import { Component, Input, Output, EventEmitter, ViewChild, ElementRef } from '@angular/core';
+//import { Component } from '@angular/core';
+import { Component, EventEmitter, Input, Output, OnInit } from '@angular/core';
+import { BaseDialogComponent } from '../base-dialog/base-dialog.component';
+import { SimpleStyle, DialogStyle } from '../../rule-editor.service';
 import { LiveAnnouncer } from '@angular/cdk/a11y';
 
 @Component({
-  selector: 'lhc-easy-path-expression-help',
-  templateUrl: './easy-path-expression-help.component.html',
-  styleUrls: ['./easy-path-expression-help.component.css']
+  selector: 'lhc-easy-path-expression-help-dialog',
+  templateUrl: './easy-path-expression-help-dialog.component.html',
+  styleUrls: ['./easy-path-expression-help-dialog.component.css']
 })
-export class EasyPathExpressionHelpComponent {
-  @Input() display = false;
-  //@Input() variables;
-  @Output() onCloseModal = new EventEmitter();
-  @ViewChild('modal') modal: ElementRef;
+export class EasyPathExpressionHelpDialogComponent extends BaseDialogComponent {
+  @Output() onCloseHelp: EventEmitter<any> = new EventEmitter<any>();
 
-  constructor(private liveAnnouncer: LiveAnnouncer) {}
+  dialogStyle: DialogStyle = {
+    dialogContentDiv: {
+      'padding': '0px 0px 20px 0px',
+      'width': '70%',
+      'border-radius': '10px',
+      'max-height': '90%'
+    },
+    dialogTitleBar: {
+      'padding': '10px 20px 10px 20px',
+      'height': '20px',
+      'background-color': '#3166e3',
+      'color': 'white',
+      'vertical-align': 'middle'
+    },
+    dialogHeaderDiv: {
+      'text-align': 'left'
+    },
+    dialogBodyDiv: {
+      'margin': '20px',
+      'text-align': 'left',
+      'max-height': '60vh',
+      'overflow-y': 'auto'
+    }
+  };
 
   arrow_arr = ["arrow right", "arrow down"];
-  //help_arrow_vars = this.arrow_arr[0];
   help_arrow_ops = this.arrow_arr[0];
   help_arrow_funcs = this.arrow_arr[0];
 
@@ -347,28 +369,22 @@ export class EasyPathExpressionHelpComponent {
   functionItemsReadOnly = true;
 
   currentActiveOpenedItem = '';
+  
+  constructor(private liveAnnouncer: LiveAnnouncer) { 
+    super();
+  }
 
   /**
-   * Close Help Modal from the Overlay - allowed the modal to be closed
-   * if clicking outside of the modal
+   * Emits the 'onCloseHelp' event
    */
-  overlayCloseHelp(event) {
-    if (event.path) {
-      if (event.path.indexOf(this.modal.nativeElement) === -1) {
-        this.closeHelp();
-      }
-    } else if (event.target) {
-      if (event.target instanceof HTMLDivElement) {
-        this.closeHelp();
-      }
-    }
-  }
-  
+  onNo(): void {
+    this.onCloseHelp.emit();
+  };
+
   /**
    * Close Help Modal
    */
-  closeHelp() {
-    //this.liveAnnouncer.announce('Closing Help Dialog.  Returning to the Rule Editor screen');
+/*   closeHelp() {
     this.showHideSection(false, false);
 
     this.operatorItemsReadOnly = true;
@@ -381,48 +397,23 @@ export class EasyPathExpressionHelpComponent {
         this.usableOperators2[this.currentActiveOpenedItem].display = false;
     }
 
-    this.onCloseModal.emit();
-  }
+    //this.onCloseModal.emit();
+  } */
 
   /**
    * Function to handle show/hide of all three help sections 
    */
   showHideSection(usableOperatorsFlag, usableFunctionsFlag) {
-    //this.sectionArr[0] = variablesFlag;
     this.sectionArr[0] = usableOperatorsFlag;
     this.sectionArr[1] = usableFunctionsFlag;
 
-    //this.help_arrow_vars = this.arrow_arr[variablesFlag?1:0];
     this.help_arrow_ops = this.arrow_arr[usableOperatorsFlag?1:0];
     this.help_arrow_funcs = this.arrow_arr[usableFunctionsFlag?1:0];
   }
  
   /**
-   * Show the Variables section and invoke the live announcer 
+   * Invoke the live announcer 
    */
-/*  
-  toggleVariablesSection() {
-    this.showHideSection(true, false, false);
-
-    this.operatorItemsReadOnly = true;
-
-    let helpText = '';
-    if (this.variables.length === 0)
-      this.liveAnnouncer.announce("There is no variable available for this section");
-    else {
-      if (this.variables.length === 1)
-        helpText += "There is one variable available.  The variable is " + this.variables[0];
-      else {
-        helpText += "There are " + this.variables.length + " variables available." ;
-        for (let i = 0; i < this.variables.length; i++) {
-          helpText += "  " + this.variables[i] + ",  ";          
-        }
-      }
-   
-      this.liveAnnouncer.announce(helpText);
-    }
-  }
-*/
   getLiveAnncounementForSection(item) {
     let announceText = 'Use the ENTER key to enter this section.';
 
@@ -489,7 +480,7 @@ export class EasyPathExpressionHelpComponent {
   /**
    * Show the Usable Functions section and invoke the live announcer
    */
-  toggleUsableFunctionsSection(action) {
+  toggleUsableFunctionsSection() {
     this.liveAnnouncer.announce('Entering the Usable Functions Items section. Use the tab button to move to each function.');
 
     this.showHideSection(false, true);
@@ -515,4 +506,3 @@ export class EasyPathExpressionHelpComponent {
   }
 
 }
-

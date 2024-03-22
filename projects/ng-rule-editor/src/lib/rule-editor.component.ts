@@ -1,6 +1,6 @@
 import { ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
 
-import { RuleEditorService, SimpleStyle } from './rule-editor.service';
+import { DialogStyle, RuleEditorService, SimpleStyle } from './rule-editor.service';
 import { LiveAnnouncer } from '@angular/cdk/a11y';
 import { ValidationResult } from './variable';
 
@@ -47,6 +47,7 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
   previousExpressionSyntax;
   previousFinalExpression;
   showConfirmDialog = false;
+  displayHelpDialog = false;
 
   dialogTitle = "Converting FHIRPath Expression to Easy Path Expression";
   dialogPrompt1 = "The Rule Editor does not support conversion from FHIRPath Expression " +
@@ -61,9 +62,37 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
   private disableAdvancedSubscription;
   private validationSubscription;
   private performValidationSubscription;
+  private helpSubscription;
 
+  dialogStyle: DialogStyle = {
+    dialogContentDiv: { 
+      'width': '90%',
+      'border-radius': '10px',
+      'max-height': '85vh'
+    },
+    dialogTitleBar: {
+      'padding': '10px 20px 10px 20px',
+      'height': '20px',
+      'background-color': '#3166e3',
+      'color': 'white',
+      'vertical-align': 'middle'
+    },
+    dialogHeaderDiv: {
+      'margin': '30px 20px 0px 20px',
+      'font-size': '24px',
+      'text-align': 'left'},
+    dialogBodyDiv: {
+      'text-align': 'left',
+      'max-height': '75vh',
+      'overflow-y': 'auto'
+    }
+  };
+  
   constructor(private variableService: RuleEditorService, private liveAnnouncer: LiveAnnouncer, private changeDetectorRef: ChangeDetectorRef) {}
 
+  /**
+   * Angular lifecycle hook called when the component is initialized
+   */
   ngOnInit(): void {
     this.calculateSumSubscription = this.variableService.scoreCalculationChange.subscribe((scoreCalculation) => {
       this.calculateSum = (scoreCalculation && !this.doNotAskToCalculateScore);
@@ -95,6 +124,10 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
         this.expRef.control.markAsDirty();
         this.expRef.control.setValue("");
       }
+    });
+
+    this.helpSubscription = this.variableService.helpChange.subscribe((help) => {
+      this.displayHelpDialog = help;
     });
   }
 
@@ -235,6 +268,26 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
    */
   cancelRuleEditorChanges(): void {
     this.showCancelConfirmationDialog = true;
+    this.displayHelpDialog = false;
+  }
+
+  /**
+   * Close the dialog. This function is called when the close dialog
+   * button or the overlay is clicked on the Rule Editor, Calculate
+   * Sum Prompt, Scoring Items Selection, or Helps dialogs. Each
+   * results in a different beahvior.
+   */
+  closeDialog(): void {
+    if (this.calculateSum && !this.loadError ) {
+      // Calculate Sum or Scoring Items Selection dialog.
+      this.variableService.toggleScoreCalculation();
+    } else if (this.displayHelpDialog) {
+      // Help dialogs
+      this.displayHelpDialog = !this.displayHelpDialog;
+    } else {
+      // Rule Editor dialog
+      this.showCancelConfirmationDialog = !this.displayHelpDialog;
+    } 
   }
 
   /**

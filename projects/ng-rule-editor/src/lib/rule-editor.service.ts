@@ -20,6 +20,16 @@ export interface SimpleStyle {
   description?: object;
 }
 
+export interface DialogStyle {
+  dialogTitleBar?: object;
+  dialogContentDiv?: object;
+  dialogHeaderDiv?: object;
+  dialogBodyDiv?: object;
+  dialogFooterDiv?: object;
+  buttonPrimary?: object;
+  buttonSecondary?: object;
+}
+
 interface WhereConditionExpression {
   itemQuery: string;
   answerOptionQuery: string;
@@ -64,7 +74,8 @@ export class RuleEditorService {
   disableAdvancedChange: Subject<boolean> = new Subject<boolean>();
   validationChange: Subject<object> = new Subject<object>();
   performValidationChange: Subject<boolean> = new Subject<boolean>();
-
+  helpChange: Subject<boolean> = new Subject<boolean>();
+  
   uneditableVariables: UneditableVariable[];
   variables: Variable[];
   questions: Question[];
@@ -393,7 +404,7 @@ export class RuleEditorService {
       item = this.linkIdToQuestion[item];
     }
 
-    return (item.answerOption || []).some((answerOption) => {
+    return (item?.answerOption || []).some((answerOption) => {
       return (answerOption.extension || []).some((extension) => {
         return extension.url === 'http://hl7.org/fhir/StructureDefinition/ordinalValue';
       });

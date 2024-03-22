@@ -15,7 +15,7 @@ describe('Rule editor', () => {
         // Click the button to edit the expression
         cy.get('button#openRuleEditor').should('exist').click();
         // The Rule Editor dialog should now appear
-        cy.get('#rule-editor-dialog').should('exist');
+        cy.get('lhc-rule-editor #base-dialog').should('exist');
 
         // Check the Advanced Interface checkbox
         cy.get('input#advanced-interface').check();
@@ -181,7 +181,7 @@ describe('Rule editor', () => {
         // Click the button to edit the expression
         cy.get('button#openRuleEditor').should('exist').click();
         // The Rule Editor dialog should now appear
-        cy.get('#rule-editor-dialog').should('exist');
+        cy.get('lhc-rule-editor #base-dialog').should('exist');
 
         // Should have two variables
         cy.get('#variables-section .variable-row').should('have.length', 2);
@@ -208,7 +208,7 @@ describe('Rule editor', () => {
         // Click the button to edit the expression
         cy.get('button#openRuleEditor').should('exist').click();
         // The Rule Editor dialog should now appear
-        cy.get('#rule-editor-dialog').should('exist');
+        cy.get('lhc-rule-editor #base-dialog').should('exist');
 
         // Check the Advanced Interface checkbox
         cy.get('input#advanced-interface').check();
@@ -264,7 +264,7 @@ describe('Rule editor', () => {
         // Click the button to edit the expression
         cy.get('button#openRuleEditor').should('exist').click();
         // The Rule Editor dialog should now appear
-        cy.get('#rule-editor-dialog').should('exist');
+        cy.get('lhc-rule-editor #base-dialog').should('exist');
 
         // Variables section
         cy.get('lhc-variables > h2').should('contain', 'Item Variables');
@@ -305,7 +305,7 @@ describe('Rule editor', () => {
         // Click the button to edit the expression
         cy.get('button#openRuleEditor').should('exist').click();
         // The Rule Editor dialog should now appear
-        cy.get('#rule-editor-dialog').should('exist');
+        cy.get('lhc-rule-editor #base-dialog').should('exist');
       
         // Variables section
         cy.get('lhc-variables > h2').should('contain', 'Item Variables');
@@ -361,7 +361,7 @@ describe('Rule editor', () => {
         // Click the button to edit the expression
         cy.get('button#openRuleEditor').should('exist').click();
         // The Rule Editor dialog should now appear
-        cy.get('#rule-editor-dialog').should('exist');
+        cy.get('lhc-rule-editor #base-dialog').should('exist');
 
         // The 'Output Expression' section should be visible
         cy.get('#final-expression-section').should('exist')
@@ -410,7 +410,7 @@ describe('Rule editor', () => {
         // Click the button to edit the expression
         cy.get('button#openRuleEditor').should('exist').click();
         // The Rule Editor dialog should now appear
-        cy.get('#rule-editor-dialog').should('exist');
+        cy.get('lhc-rule-editor #base-dialog').should('exist');
 
         // The 'Output Expression' section should be visible
         cy.get('#final-expression-section').should('exist')
@@ -462,7 +462,7 @@ describe('Rule editor', () => {
         // Click the button to edit the expression
         cy.get('button#openRuleEditor').should('exist').click();
         // The Rule Editor dialog should now appear
-        cy.get('#rule-editor-dialog').should('exist');
+        cy.get('lhc-rule-editor #base-dialog').should('exist');
 
         // The 'Output Expression' should be default to 'Calculated Expression' 
         cy.get('#expression-entry > select').should('have.value', '1');
@@ -553,7 +553,7 @@ describe('Rule editor', () => {
         // Click the button to edit the expression
         cy.get('button#openRuleEditor').should('exist').click();
         // The Rule Editor dialog should now appear
-        cy.get('#rule-editor-dialog').should('exist');
+        cy.get('lhc-rule-editor #base-dialog').should('exist');
 
         cy.get('.rule-editor').contains('Would you like to calculate the sum of scores?');
         // Click no

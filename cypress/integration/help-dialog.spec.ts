@@ -13,7 +13,7 @@ describe('Rule editor', () => {
         // Click the button to edit the expression
         cy.get('button#openRuleEditor').should('exist').click();
         // The Rule Editor dialog should now appear
-        cy.get('#rule-editor-dialog').should('exist');
+        cy.get('lhc-rule-editor #base-dialog').should('exist');
 
         cy.title().should('eq', 'Rule Editor');
 
@@ -23,7 +23,8 @@ describe('Rule editor', () => {
         cy.get('#variable-type-1 > option').should('have.length', 3);
         cy.get('#variable-type-1').select('simple').should('have.value', 'simple');
         cy.get('#exp-help-button-1').should('exist').click();
-        cy.get('.modal-content').should('exist');
+        //cy.get('.modal-content').should('exist');
+        cy.get('lhc-easy-path-expression-help-dialog #base-dialog').should('exist');
       });
 
       it('should be able to browse through the Usable Operators section', () => {
@@ -32,7 +33,7 @@ describe('Rule editor', () => {
         // Click the button to edit the expression
         cy.get('button#openRuleEditor').should('exist').click();
         // The Rule Editor dialog should now appear
-        cy.get('#rule-editor-dialog').should('exist');
+        cy.get('lhc-rule-editor #base-dialog').should('exist');
 
         cy.title().should('eq', 'Rule Editor');
 
@@ -88,7 +89,7 @@ describe('Rule editor', () => {
         // Click the button to edit the expression
         cy.get('button#openRuleEditor').should('exist').click();
         // The Rule Editor dialog should now appear
-        cy.get('#rule-editor-dialog').should('exist');
+        cy.get('lhc-rule-editor #base-dialog').should('exist');
 
         cy.title().should('eq', 'Rule Editor');
 
@@ -146,7 +147,7 @@ describe('Rule editor', () => {
         // Click the button to edit the expression
         cy.get('button#openRuleEditor').should('exist').click();
         // The Rule Editor dialog should now appear
-        cy.get('#rule-editor-dialog').should('exist');
+        cy.get('lhc-rule-editor #base-dialog').should('exist');
 
         cy.title().should('eq', 'Rule Editor');
         // Variables section
@@ -155,8 +156,8 @@ describe('Rule editor', () => {
         cy.get('#variable-type-1 > option').should('have.length', 3);
         cy.get('#variable-type-1').select('simple').should('have.value', 'simple');
         cy.get('#exp-help-button-1').should('exist').click();
-        cy.get('.close').should('exist').click();
-        cy.get('.modal-content').should('not.exist');
+        cy.get('lhc-easy-path-expression-help-dialog .btn-close').should('exist').click();
+        cy.get('lhc-easy-path-expression-help-dialog #base-dialog').should('not.exist');
       });
 
       it('should be able to close the modal dialog from the overlay', () => {
@@ -165,7 +166,7 @@ describe('Rule editor', () => {
         // Click the button to edit the expression
         cy.get('button#openRuleEditor').should('exist').click();
         // The Rule Editor dialog should now appear
-        cy.get('#rule-editor-dialog').should('exist');
+        cy.get('lhc-rule-editor #base-dialog').should('exist');
 
         cy.title().should('eq', 'Rule Editor');
 
@@ -175,8 +176,11 @@ describe('Rule editor', () => {
         cy.get('#variable-type-1 > option').should('have.length', 3);
         cy.get('#variable-type-1').select('simple').should('have.value', 'simple');
         cy.get('#exp-help-button-1').should('exist').click();
-        cy.get('#easy-path-exp-help-overlay').click(50, 50);
-        cy.get('.modal-content').should('not.exist');
+        //cy.get('#easy-path-exp-help-overlay').click(50, 50);
+        cy.get('lhc-easy-path-expression-help-dialog #base-dialog').click(50, 50);
+
+        //cy.get('.modal-content').should('not.exist');
+        cy.get('lhc-easy-path-expression-help-dialog #base-dialog').should('not.exist');
       });
     });
 
@@ -189,10 +193,10 @@ describe('Rule editor', () => {
         // Click the button to edit the expression
         cy.get('button#openRuleEditor').should('exist').click();
         // The Rule Editor dialog should now appear
-        cy.get('#rule-editor-dialog').should('exist');
+        cy.get('lhc-rule-editor #base-dialog').should('exist');
 
         cy.get('#exp-help-button-final').should('exist').click();
-        cy.get('.modal-content').should('exist');
+        cy.get('lhc-easy-path-expression-help-dialog #base-dialog').should('exist');
       });   
     });
   });
@@ -207,7 +211,7 @@ describe('Rule editor', () => {
         // Click the button to edit the expression
         cy.get('button#openRuleEditor').should('exist').click();
         // The Rule Editor dialog should now appear
-        cy.get('#rule-editor-dialog').should('exist');
+        cy.get('lhc-rule-editor #base-dialog').should('exist');
 
         cy.title().should('eq', 'Rule Editor');
 
@@ -217,7 +221,7 @@ describe('Rule editor', () => {
         cy.get('#variable-type-1 > option').should('have.length', 5);
         cy.get('#variable-type-1').select('expression').should('have.value', 'expression');
         cy.get('#exp-help-button-1').should('exist').click();
-        cy.get('.modal-content').should('exist');
+        cy.get('lhc-fhirpath-expression-help-dialog #base-dialog').should('exist');
       });
 
       it('should be able to browse through the Dialog content', () => {
@@ -228,7 +232,7 @@ describe('Rule editor', () => {
         // Click the button to edit the expression
         cy.get('button#openRuleEditor').should('exist').click();
         // The Rule Editor dialog should now appear
-        cy.get('#rule-editor-dialog').should('exist');
+        cy.get('lhc-rule-editor #base-dialog').should('exist');
 
         cy.title().should('eq', 'Rule Editor');
 
@@ -251,7 +255,7 @@ describe('Rule editor', () => {
         // Click the button to edit the expression
         cy.get('button#openRuleEditor').should('exist').click();
         // The Rule Editor dialog should now appear
-        cy.get('#rule-editor-dialog').should('exist');
+        cy.get('lhc-rule-editor #base-dialog').should('exist');
 
         cy.title().should('eq', 'Rule Editor');
 
@@ -261,8 +265,8 @@ describe('Rule editor', () => {
         cy.get('#variable-type-1 > option').should('have.length', 5);
         cy.get('#variable-type-1').select('expression').should('have.value', 'expression');
         cy.get('#exp-help-button-1').should('exist').click();
-        cy.get('.close').should('exist').click();
-        cy.get('.modal-content').should('not.exist');
+        cy.get('lhc-fhirpath-expression-help-dialog .btn-close').should('exist').click();
+        cy.get('lhc-fhirpath-expression-help-dialog #base-dialog').should('not.exist');
       });
 
       it('should be able to close the modal dialog from the overlay', () => {
@@ -273,7 +277,7 @@ describe('Rule editor', () => {
         // Click the button to edit the expression
         cy.get('button#openRuleEditor').should('exist').click();
         // The Rule Editor dialog should now appear
-        cy.get('#rule-editor-dialog').should('exist');
+        cy.get('lhc-rule-editor #base-dialog').should('exist');
 
         cy.title().should('eq', 'Rule Editor');
 
@@ -283,8 +287,8 @@ describe('Rule editor', () => {
         cy.get('#variable-type-1 > option').should('have.length', 5);
         cy.get('#variable-type-1').select('expression').should('have.value', 'expression');
         cy.get('#exp-help-button-1').should('exist').click();
-        cy.get('#easy-path-exp-help-overlay').click(50, 50);
-        cy.get('.modal-content').should('not.exist');
+        cy.get('lhc-fhirpath-expression-help-dialog #base-dialog').click(50, 50);
+        cy.get('lhc-easy-path-expression-help-dialog #base-dialog').should('not.exist');
       });
     });
     describe('FHIRPath Expressions Help from the Output Expression section', () => {
@@ -296,11 +300,11 @@ describe('Rule editor', () => {
         // Click the button to edit the expression
         cy.get('button#openRuleEditor').should('exist').click();
         // The Rule Editor dialog should now appear
-        cy.get('#rule-editor-dialog').should('exist');
+        cy.get('lhc-rule-editor #base-dialog').should('exist');
 
         cy.get('#output-expression-type').find('option:selected').should('have.text', 'FHIRPath Expression');
         cy.get('#exp-help-button-final').should('exist').click();
-        cy.get('.modal-content').should('exist');
+        cy.get('lhc-fhirpath-expression-help-dialog #base-dialog').should('exist');
       });   
     });    
   });

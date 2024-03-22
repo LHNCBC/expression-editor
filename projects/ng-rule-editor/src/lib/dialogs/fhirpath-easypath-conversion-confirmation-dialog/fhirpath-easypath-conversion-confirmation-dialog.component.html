@@ -1,0 +1,11 @@
+<lhc-base-dialog
+  [displayTitleBar]=false
+  [headerLabel]="'Expression Conversion'"
+  [yesButtonLabel] = "'Yes'"
+  [noButtonLabel] = "'No'"
+  (yes)="onYes()"
+  (no)="onNo()"
+  [dialogStyle]="dialogStyle">
+  <p id="confirmation-prompt1">{{confirmationPrompt1}}</p>
+  <p id="confirmation-prompt2">{{confirmationPrompt2}}</p>
+</lhc-base-dialog>

@@ -16,7 +16,7 @@ describe('Rule editor', () => {
         // Click the button to edit the expression
         cy.get('button#openRuleEditor').should('exist').click();
         // The Rule Editor dialog should now appear
-        cy.get('#rule-editor-dialog').should('exist');
+        cy.get('lhc-rule-editor #base-dialog').should('exist');
 
         cy.title().should('eq', 'Rule Editor');
 
@@ -39,7 +39,7 @@ describe('Rule editor', () => {
         cy.get('#variable-type-2').select('simple');
 
         // Dialog should get displayed
-        cy.get('#yes-no-dialog').should('exist').scrollIntoView().should('be.visible');
+        cy.get('lhc-fhirpath-easypath-conversion-confirmation-dialog').should('exist').scrollIntoView().should('be.visible');
       });
 
       it('should not display the dialog when switching from FHIRPath Expression to Easy Path Expression and expression is blank', () => {
@@ -52,7 +52,7 @@ describe('Rule editor', () => {
         // Click the button to edit the expression
         cy.get('button#openRuleEditor').should('exist').click();
         // The Rule Editor dialog should now appear
-        cy.get('#rule-editor-dialog').should('exist');
+        cy.get('lhc-rule-editor #base-dialog').should('exist');
 
         cy.title().should('eq', 'Rule Editor');
 
@@ -74,7 +74,7 @@ describe('Rule editor', () => {
         cy.get('#variable-type-2').select('simple');
 
         // Dialog should get displayed
-        cy.get('#yes-no-dialog').should('not.exist');
+        cy.get('lhc-fhirpath-easypath-conversion-confirmation-dialog').should('not.exist');
       });
 
       it('should not display the dialog when switching from FHIRPath Expression to other variable type', () => {
@@ -87,7 +87,7 @@ describe('Rule editor', () => {
         // Click the button to edit the expression
         cy.get('button#openRuleEditor').should('exist').click();
         // The Rule Editor dialog should now appear
-        cy.get('#rule-editor-dialog').should('exist');
+        cy.get('lhc-rule-editor #base-dialog').should('exist');
 
         cy.title().should('eq', 'Rule Editor');
 
@@ -110,43 +110,43 @@ describe('Rule editor', () => {
         cy.get('#variable-type-2').select('query');
 
         // Dialog should not be displayed
-        cy.get('#yes-no-dialog').should('not.exist');
+        cy.get('lhc-fhirpath-easypath-conversion-confirmation-dialog').should('not.exist');
 
         // Switch back to 'FHIRPath Expression'
         cy.get('#variable-type-2').select('expression');
 
         // Dialog should not be displayed
-        cy.get('#yes-no-dialog').should('not.exist');
+        cy.get('lhc-fhirpath-easypath-conversion-confirmation-dialog').should('not.exist');
 
         // Change to FHIR Query (Observation) variable type
         cy.get('#variable-type-2').select('queryObservation');
 
         // Dialog should not be displayed
-        cy.get('#yes-no-dialog').should('not.exist');
+        cy.get('lhc-fhirpath-easypath-conversion-confirmation-dialog').should('not.exist');
 
         // Switch back to 'FHIRPath Expression'
         cy.get('#variable-type-2').select('expression');
 
         // Dialog should not be displayed
-        cy.get('#yes-no-dialog').should('not.exist');
+        cy.get('lhc-fhirpath-easypath-conversion-confirmation-dialog').should('not.exist');
 
         // Change to FHIR Query (Observation) variable type
         cy.get('#variable-type-2').select('queryObservation');
 
         // Dialog should not be displayed
-        cy.get('#yes-no-dialog').should('not.exist');
+        cy.get('lhc-fhirpath-easypath-conversion-confirmation-dialog').should('not.exist');
 
         // Switch back to 'FHIRPath Expression'
         cy.get('#variable-type-2').select('expression');
 
         // Dialog should not be displayed
-        cy.get('#yes-no-dialog').should('not.exist');
+        cy.get('lhc-fhirpath-easypath-conversion-confirmation-dialog').should('not.exist');
 
         // Change to Question variable type
         cy.get('#variable-type-2').select('question');
 
         // Dialog should not be displayed
-        cy.get('#yes-no-dialog').should('not.exist');
+        cy.get('lhc-fhirpath-easypath-conversion-confirmation-dialog').should('not.exist');
       });
 
       it('should be able to cancel switching from FHIRPath Expression to Easy Path Expression', () => {
@@ -159,7 +159,7 @@ describe('Rule editor', () => {
         // Click the button to edit the expression
         cy.get('button#openRuleEditor').should('exist').click();
         // The Rule Editor dialog should now appear
-        cy.get('#rule-editor-dialog').should('exist');
+        cy.get('lhc-rule-editor #base-dialog').should('exist');
 
         cy.title().should('eq', 'Rule Editor');
 
@@ -182,7 +182,7 @@ describe('Rule editor', () => {
         cy.get('#variable-type-2').select('simple');
 
         // Dialog should get displayed
-        cy.get('#yes-no-dialog').should('exist')
+        cy.get('lhc-fhirpath-easypath-conversion-confirmation-dialog').should('exist')
           .scrollIntoView()
           .should('be.visible')
           .within( ()=> {
@@ -191,7 +191,7 @@ describe('Rule editor', () => {
           });
   
         // The dialog should now disappeared
-        cy.get('#yes-no-dialog').should('not.exist');
+        cy.get('lhc-fhirpath-easypath-conversion-confirmation-dialog').should('not.exist');
 
         // B/c the change in variable type is cancelled.  The variable type should
         // revert back to 'expression'.  And the expression should be %a
@@ -209,7 +209,7 @@ describe('Rule editor', () => {
         // Click the button to edit the expression
         cy.get('button#openRuleEditor').should('exist').click();
         // The Rule Editor dialog should now appear
-        cy.get('#rule-editor-dialog').should('exist');
+        cy.get('lhc-rule-editor #base-dialog').should('exist');
 
         cy.title().should('eq', 'Rule Editor');
 
@@ -232,7 +232,7 @@ describe('Rule editor', () => {
         cy.get('#variable-type-2').select('simple');
 
         // Dialog should get displayed
-        cy.get('#yes-no-dialog').should('exist')
+        cy.get('lhc-fhirpath-easypath-conversion-confirmation-dialog').should('exist')
           .scrollIntoView()
           .should('be.visible')
           .within( ()=> {
@@ -241,7 +241,7 @@ describe('Rule editor', () => {
           });
   
         // The dialog should now disappeared
-        cy.get('#yes-no-dialog').should('not.exist');
+        cy.get('lhc-fhirpath-easypath-conversion-confirmation-dialog').should('not.exist');
 
         // B/c the change in variable type is commited.  The variable type should
         // change to 'simple'.  And the expression should be blank
@@ -259,7 +259,7 @@ describe('Rule editor', () => {
         // Click the button to edit the expression
         cy.get('button#openRuleEditor').should('exist').click();
         // The Rule Editor dialog should now appear
-        cy.get('#rule-editor-dialog').should('exist');
+        cy.get('lhc-rule-editor #base-dialog').should('exist');
 
         cy.title().should('eq', 'Rule Editor');
 
@@ -282,7 +282,7 @@ describe('Rule editor', () => {
         cy.get('#variable-type-2').select('expression');
   
         // The dialog should not show
-        cy.get('#yes-no-dialog').should('not.exist');
+        cy.get('lhc-fhirpath-easypath-conversion-confirmation-dialog').should('not.exist');
         
         // B/c the change in variable type is commited.  The variable type should
         // change to 'expression'.  And the expression should get converted to
@@ -294,7 +294,7 @@ describe('Rule editor', () => {
         cy.get('#variable-type-2').select('simple');
 
         // The dialog should not show
-        cy.get('#yes-no-dialog').should('not.exist');
+        cy.get('lhc-fhirpath-easypath-conversion-confirmation-dialog').should('not.exist');
 
         // In this scenario, the Easy Path expression was available, and there was no
         // change, so the expression is showing 'a'
@@ -312,7 +312,7 @@ describe('Rule editor', () => {
         // Click the button to edit the expression
         cy.get('button#openRuleEditor').should('exist').click();
         // The Rule Editor dialog should now appear
-        cy.get('#rule-editor-dialog').should('exist');
+        cy.get('lhc-rule-editor #base-dialog').should('exist');
 
         cy.title().should('eq', 'Rule Editor');
 
@@ -335,7 +335,7 @@ describe('Rule editor', () => {
         cy.get('#variable-type-2').select('expression');
   
         // The dialog should not show
-        cy.get('#yes-no-dialog').should('not.exist');
+        cy.get('lhc-fhirpath-easypath-conversion-confirmation-dialog').should('not.exist');
 
         // B/c the change in variable type is commited.  The variable type should
         // change to 'expression'.  And the expression should get converted to
@@ -350,7 +350,7 @@ describe('Rule editor', () => {
         cy.get('#variable-type-2').select('simple');
 
         // Dialog should get displayed
-        cy.get('#yes-no-dialog').should('exist')
+        cy.get('lhc-fhirpath-easypath-conversion-confirmation-dialog').should('exist')
           .scrollIntoView()
           .should('be.visible')
           .within( ()=> {
@@ -372,7 +372,7 @@ describe('Rule editor', () => {
         // Click the button to edit the expression
         cy.get('button#openRuleEditor').should('exist').click();
         // The Rule Editor dialog should now appear
-        cy.get('#rule-editor-dialog').should('exist');
+        cy.get('lhc-rule-editor #base-dialog').should('exist');
 
         cy.title().should('eq', 'Rule Editor');
 
@@ -419,7 +419,7 @@ describe('Rule editor', () => {
         // Click the button to edit the expression
         cy.get('button#openRuleEditor').should('exist').click();
         // The Rule Editor dialog should now appear
-        cy.get('#rule-editor-dialog').should('exist');
+        cy.get('lhc-rule-editor #base-dialog').should('exist');
 
         cy.title().should('eq', 'Rule Editor');
 
@@ -447,9 +447,9 @@ describe('Rule editor', () => {
 
           // Select 'Easy Path Expression' option
           cy.get('#output-expression-type').select('simple');
-        
+
           // Dialog should get displayed
-          cy.get('#yes-no-dialog').should('exist').scrollIntoView().should('be.visible');   
+          cy.get('lhc-fhirpath-easypath-conversion-confirmation-dialog #base-dialog').should('exist').scrollIntoView().should('be.visible');   
         });
       });
 
@@ -463,7 +463,7 @@ describe('Rule editor', () => {
         // Click the button to edit the expression
         cy.get('button#openRuleEditor').should('exist').click();
         // The Rule Editor dialog should now appear
-        cy.get('#rule-editor-dialog').should('exist');
+        cy.get('lhc-rule-editor #base-dialog').should('exist');
 
         cy.title().should('eq', 'Rule Editor');
 
@@ -473,7 +473,7 @@ describe('Rule editor', () => {
           cy.get('#output-expression-type').select('simple');
         
           // Dialog should get displayed
-          cy.get('#yes-no-dialog').should('exist')
+          cy.get('lhc-fhirpath-easypath-conversion-confirmation-dialog #base-dialog').should('exist')
             .scrollIntoView()
             .should('be.visible')
             .within( ()=> {
@@ -482,7 +482,7 @@ describe('Rule editor', () => {
             });
   
           // The dialog should now disappeared
-          cy.get('#yes-no-dialog').should('not.exist');
+          cy.get('lhc-fhirpath-easypath-conversion-confirmation-dialog #base-dialog').should('not.exist');
 
           // B/c the change in variable type is cancelled.  The variable type should
           // revert back to 'expression'.  And the expression should be %a
@@ -512,7 +512,7 @@ describe('Rule editor', () => {
         // Click the button to edit the expression
         cy.get('button#openRuleEditor').should('exist').click();
         // The Rule Editor dialog should now appear
-        cy.get('#rule-editor-dialog').should('exist');
+        cy.get('lhc-rule-editor #base-dialog').should('exist');
 
         cy.title().should('eq', 'Rule Editor');
 
@@ -522,7 +522,7 @@ describe('Rule editor', () => {
           cy.get('#output-expression-type').select('simple');
 
           // Dialog should get displayed
-          cy.get('#yes-no-dialog').should('exist')
+          cy.get('lhc-fhirpath-easypath-conversion-confirmation-dialog #base-dialog').should('exist')
             .scrollIntoView()
             .should('be.visible')
             .within( ()=> {
@@ -531,7 +531,7 @@ describe('Rule editor', () => {
             });
   
           // The dialog should now disappeared
-          cy.get('#yes-no-dialog').should('not.exist');
+          cy.get('lhc-fhirpath-easypath-conversion-confirmation-dialog #base-dialog').should('not.exist');
 
           // B/c the change in variable type is commited.  The variable type should
           // change to 'simple'.  And the expression should be blank
@@ -561,7 +561,7 @@ describe('Rule editor', () => {
         // Click the button to edit the expression
         cy.get('button#openRuleEditor').should('exist').click();
         // The Rule Editor dialog should now appear
-        cy.get('#rule-editor-dialog').should('exist');
+        cy.get('lhc-rule-editor #base-dialog').should('exist');
 
         cy.title().should('eq', 'Rule Editor');
 
@@ -579,7 +579,7 @@ describe('Rule editor', () => {
           cy.get('#output-expression-type').select('simple');
 
           // Dialog should get displayed
-          cy.get('#yes-no-dialog').should('exist')
+          cy.get('lhc-fhirpath-easypath-conversion-confirmation-dialog #base-dialog').should('exist')
             .scrollIntoView()
             .should('be.visible')
             .within( ()=> {
@@ -588,7 +588,7 @@ describe('Rule editor', () => {
             });
 
           // Easy Path Expression help should exist
-          cy.get('lhc-helps').find('lhc-easy-path-expression-help').should('exist');
+          cy.get('lhc-helps').should('exist');
         }); 
       });
     });
@@ -604,7 +604,7 @@ describe('Rule editor', () => {
         // Click the button to edit the expression
         cy.get('button#openRuleEditor').should('exist').click();
         // The Rule Editor dialog should now appear
-        cy.get('#rule-editor-dialog').should('exist');
+        cy.get('lhc-rule-editor #base-dialog').should('exist');
 
         cy.title().should('eq', 'Rule Editor');
 
@@ -675,7 +675,7 @@ describe('Rule editor', () => {
         // Click the button to edit the expression
         cy.get('button#openRuleEditor').should('exist').click();
         // The Rule Editor dialog should now appear
-        cy.get('#rule-editor-dialog').should('exist');
+        cy.get('lhc-rule-editor #base-dialog').should('exist');
 
         cy.title().should('eq', 'Rule Editor');
 
@@ -725,7 +725,7 @@ describe('Rule editor', () => {
           cy.get('#output-expression-type').select('simple', {'force': true});
 
           // Dialog should get displayed
-          cy.get('#yes-no-dialog').should('exist')
+          cy.get('lhc-fhirpath-easypath-conversion-confirmation-dialog #base-dialog').should('exist')
             .scrollIntoView()
             .should('be.visible')
             .within( ()=> {
@@ -734,7 +734,7 @@ describe('Rule editor', () => {
             });
   
           // The dialog should now disappeared
-          cy.get('#yes-no-dialog').should('not.exist');
+          cy.get('lhc-fhirpath-easypath-conversion-confirmation-dialog #base-dialog').should('not.exist');
 
           // The variable type should stayed as 'FHIRPath Expression'
           cy.get('#output-expression-type').should('have.value', 'fhirpath', {'force': true});
@@ -762,7 +762,7 @@ describe('Rule editor', () => {
         // Click the button to edit the expression
         cy.get('button#openRuleEditor').should('exist').click();
         // The Rule Editor dialog should now appear
-        cy.get('#rule-editor-dialog').should('exist');
+        cy.get('lhc-rule-editor #base-dialog').should('exist');
 
         cy.title().should('eq', 'Rule Editor');
 
@@ -813,7 +813,7 @@ describe('Rule editor', () => {
           cy.get('#output-expression-type').select('simple', {'force': true});
 
           // Dialog should get displayed
-          cy.get('#yes-no-dialog').should('exist')
+          cy.get('lhc-fhirpath-easypath-conversion-confirmation-dialog #base-dialog').should('exist')
             .scrollIntoView()
             .should('be.visible')
             .within( ()=> {
@@ -822,7 +822,7 @@ describe('Rule editor', () => {
             });
   
           // The dialog should now disappeared
-          cy.get('#yes-no-dialog').should('not.exist');
+          cy.get('lhc-fhirpath-easypath-conversion-confirmation-dialog #base-dialog').should('not.exist');
 
           // The variable type should stayed as Easy Path Expression
           cy.get('#output-expression-type').should('have.value', 'simple');
@@ -851,7 +851,7 @@ describe('Rule editor', () => {
         // Click the button to edit the expression
         cy.get('button#openRuleEditor').should('exist').click();
         // The Rule Editor dialog should now appear
-        cy.get('#rule-editor-dialog').should('exist');
+        cy.get('lhc-rule-editor #base-dialog').should('exist');
 
         cy.title().should('eq', 'Rule Editor');
 
@@ -925,7 +925,7 @@ describe('Rule editor', () => {
         // Click the button to edit the expression
         cy.get('button#openRuleEditor').should('exist').click();
         // The Rule Editor dialog should now appear
-        cy.get('#rule-editor-dialog').should('exist');
+        cy.get('lhc-rule-editor #base-dialog').should('exist');
 
         cy.title().should('eq', 'Rule Editor');
 
@@ -1009,7 +1009,7 @@ describe('Rule editor', () => {
         // Click the button to edit the expression
         cy.get('button#openRuleEditor').should('exist').click();
         // The Rule Editor dialog should now appear
-        cy.get('#rule-editor-dialog').should('exist');
+        cy.get('lhc-rule-editor #base-dialog').should('exist');
 
         cy.title().should('eq', 'Rule Editor');
 
@@ -1142,7 +1142,7 @@ describe('Rule editor', () => {
         // Click the button to edit the expression
         cy.get('button#openRuleEditor').should('exist').click();
         // The Rule Editor dialog should now appear
-        cy.get('#rule-editor-dialog').should('exist');
+        cy.get('lhc-rule-editor #base-dialog').should('exist');
 
         cy.title().should('eq', 'Rule Editor');
 
@@ -1160,13 +1160,13 @@ describe('Rule editor', () => {
           cy.get('#output-expression-type').should('exist').should('have.value', 'simple');
 
           // Easy Path Expression help should exist
-          cy.get('lhc-helps lhc-easy-path-expression-help').should('exist');
+          cy.get('lhc-helps').should('exist');
 
           // Select Easy Path Expression variable type
           cy.get('#output-expression-type').select('fhirpath', {'force': true});
 
           // FHIRPath Expression help should exist
-          cy.get('lhc-helps lhc-fhirpath-expression-help').should('exist');
+          cy.get('lhc-helps').should('exist');
         }); 
       });
     });

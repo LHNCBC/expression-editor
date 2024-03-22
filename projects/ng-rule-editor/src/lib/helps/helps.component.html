@@ -7,17 +7,13 @@
     [matTooltip]="matToolTip" >?
   </button>
 
-  <lhc-fhirpath-expression-help
-    *ngIf="type==='expression' || type==='fhirpath'"
-    [id]="'exp-help-dialog-' + index"
-    [display]="showHelp"
-    (onCloseModal)="closeHelp()">
-  </lhc-fhirpath-expression-help>
+  <lhc-fhirpath-expression-help-dialog
+    *ngIf="(type==='expression' || type==='fhirpath') && showHelp"
+    (onCloseHelp)="closeHelp()">
+  </lhc-fhirpath-expression-help-dialog>
 
-  <lhc-easy-path-expression-help
-    *ngIf="type==='simple'"
-    [id]="'exp-help-dialog-' + index"
-    [display]="showHelp"
-    (onCloseModal)="closeHelp()">
-  </lhc-easy-path-expression-help>
+  <lhc-easy-path-expression-help-dialog
+    *ngIf="type==='simple' && showHelp"
+    (onCloseHelp)="closeHelp()">
+  </lhc-easy-path-expression-help-dialog>
 </div>

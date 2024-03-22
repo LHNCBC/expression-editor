@@ -76,51 +76,26 @@
 <div class="error" *ngIf="error">
   {{error}}
 </div>
-  <div *ngIf="displayRuleEditor"
-    cdkTrapFocus
-    [cdkTrapFocusAutoCapture]="true"
-    role="dialog"
-    [attr.aria-hidden]="!displayRuleEditor"
-    aria-label="Rule Editor"
-    cdkFocusInitial
-    aria-modal="true"
-    id="rule-editor-dialog"
-    class="re-modal"> 
 
-    <div class="re-modal-content re-content" #modal aria-modal="true">
-      <div class="re-modal-header">
-        <h4 id="ruleEditorDlgTitle" class="modal-title text-white" role="document">Rule Editor</h4>
-        <button type="button" class="btn-close btn-close-white svg" aria-label="Close" (click)="closeRuleEditorDialog()" style="float:right;">
-          <svg viewBox="0 0 24 24">
-            <circle cx="12" cy="12" r="10"></circle>
-            <line x1="15" y1="9" x2="9" y2="15"></line>
-            <line x1="9" y1="9" x2="15" y2="15"></line> 
-          </svg>
-        </button>
-      </div>
-      <div class="re-modal-body">
-        <lhc-rule-editor
-          [fhirQuestionnaire]="fhir"
-          [itemLinkId]="linkId"
+  <lhc-rule-editor
+    *ngIf="displayRuleEditor"
+    [fhirQuestionnaire]="fhir"
+    [itemLinkId]="linkId"
 
-          [submitButtonName]="'Save'"
-          [expressionLabel]="'Output Expression'"
-          [expressionUri]="linkId ? expressionUri : ''"
-          [userExpressionChoices]=userExpressionChoices
-          [lhcStyle]="{
-            buttonPrimary: { backgroundColor: 'navy', color: 'white' },
-            buttonSecondary: { backgroundColor: 'darkgreen', color: 'white' },
-            input: { backgroundColor: '#ffe' },
-            select: { backgroundColor: '#ffe' }
-          }"
-          [doNotAskToCalculateScore]="doNotAskToCalculateScore"
-          (save)="onSave($event)"
-          (cancel)="closeRuleEditorDialog()">
-        </lhc-rule-editor>
-      </div>
-      <div class="re-modal-footer"></div>
-    </div>
-  </div>
+    [submitButtonName]="'Save'"
+    [expressionLabel]="'Output Expression'"
+    [expressionUri]="linkId ? expressionUri : ''"
+    [userExpressionChoices]=userExpressionChoices
+    [lhcStyle]="{
+      buttonPrimary: { backgroundColor: 'navy', color: 'white' },
+      buttonSecondary: { backgroundColor: 'darkgreen', color: 'white' },
+      input: { backgroundColor: '#ffe' },
+      select: { backgroundColor: '#ffe' }
+    }"
+    [doNotAskToCalculateScore]="doNotAskToCalculateScore"
+    (save)="onSave($event)"
+    (cancel)="closeRuleEditorDialog()">
+  </lhc-rule-editor>
 
 <div *ngIf="displayRuleEditorResult">
   <hr>
