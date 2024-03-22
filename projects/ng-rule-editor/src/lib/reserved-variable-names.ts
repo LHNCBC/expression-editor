@@ -12,13 +12,10 @@ export const ReservedWords = [
   "^context$",
   "^sct$",
   "^loinc$",
-  "^vs-.",
-  "^ext-.",
+  "^vs-",
+  "^ext-",
   "^resource$",
   "^questionnaire$",
   "^qitem$"
 ];
-
-export const StartsWithReservedWords = ReservedWords.filter((word) => word.endsWith("-."));
-
 
