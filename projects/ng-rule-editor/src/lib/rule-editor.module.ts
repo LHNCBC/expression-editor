@@ -21,7 +21,6 @@ import { QueryObservationComponent } from './query-observation/query-observation
 import { CaseStatementsComponent } from './case-statements/case-statements.component';
 import { SelectScoringItemsComponent } from './select-scoring-items/select-scoring-items.component';
 import { HelpsComponent } from './helps/helps.component';
-import { YesNoDialogComponent } from './yes-no-dialog/yes-no-dialog.component';
 import { ExpressionValidatorDirective } from '../directives/expression/expression-validator.directive';
 import { BaseDialogComponent } from './dialogs/base-dialog/base-dialog.component';
 import { CancelChangesConfirmationDialogComponent } from './dialogs/cancel-changes-confirmation-dialog/cancel-changes-confirmation-dialog.component';
@@ -43,7 +42,6 @@ import { EasyPathExpressionHelpDialogComponent } from './dialogs/easy-path-expre
     CaseStatementsComponent,
     SelectScoringItemsComponent,
     HelpsComponent,
-    YesNoDialogComponent,
     ExpressionValidatorDirective,
     BaseDialogComponent,
     CancelChangesConfirmationDialogComponent,
