@@ -46,11 +46,12 @@ export class BaseDialogComponent {
    */
   overlayClose(event) {
     if (event.path) {
+      console.log('base-dialog::overlayClose::event.path');
       if (event.path.indexOf(this.modal.nativeElement) === -1) {
         this.onNo();
       }
     } else if (event.target) {
-      if (event.target instanceof HTMLDivElement) {
+      if (event.target instanceof HTMLDivElement && ('__zone_symbol__clickfalse' in event.target)) {
         this.onNo();
       }
     }
