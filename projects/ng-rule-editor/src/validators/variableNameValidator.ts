@@ -1,6 +1,6 @@
 import { AbstractControl, ValidatorFn } from '@angular/forms';
 import { RuleEditorService } from '../lib/rule-editor.service';
-import { ReservedWords } from '../lib/reserved-variable-names';
+import { ReservedWords, StartsWithReservedWords } from '../lib/reserved-variable-names';
 import * as constants from "../lib/validation";
 
 export function variableNameValidator(ruleEditorService: RuleEditorService, param: any): ValidatorFn {
@@ -14,6 +14,7 @@ export function variableNameValidator(ruleEditorService: RuleEditorService, para
 
     contextVariableNames.splice(param.index, 1);
 
+    const startWithReservedWordsPattern = new RegExp(StartsWithReservedWords.join("|"), "i");
     const reservedWordsPattern = new RegExp(ReservedWords.join("|"), "i");
 
     if (!control.value) {
@@ -28,6 +29,13 @@ export function variableNameValidator(ruleEditorService: RuleEditorService, para
         'message': constants.VARIABLE_NAME_EXISTS_IN_ITEM,
         'ariaMessage': constants.VARIABLE_NAME_EXISTS_IN_ITEM
       };
+    } else if (startWithReservedWordsPattern.test(control.value)) {
+      const msg = constants.getStartWithsErrorMessage(control.value);
+      return { 
+        'reservedWordsNameError': true,
+        'message': msg,
+        'ariaMessage': msg
+      };  
     } else if (reservedWordsPattern.test(control.value)) {
       return { 
         'reservedWordsNameError': true,

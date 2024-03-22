@@ -283,8 +283,19 @@ describe('Rule editor', () => {
             cy.get('#variable-label-2').should('not.have.class', 'field-error');
             cy.get('div#variable-name-error > p').should('not.exist');
 
+            // type variable name 'vs'
+            cy.get('#variable-label-2').clear().type('vs');
+            cy.get('#variable-label-2').should('not.have.class', 'field-error');
+            cy.get('div#variable-name-error > p').should('not.exist');
+            
             // type variable name 'vs-'
             cy.get('#variable-label-2').clear().type('vs-');
+            cy.get('#variable-label-2').should('have.class', 'field-error');
+            cy.get('div#variable-name-error > p')
+              .should('contain.text', constants.getStartWithsErrorMessage('vs-'));
+
+            // type variable name 'vsa-'
+            cy.get('#variable-label-2').clear().type('vsa-');
             cy.get('#variable-label-2').should('not.have.class', 'field-error');
             cy.get('div#variable-name-error > p').should('not.exist');
 
@@ -310,10 +321,16 @@ describe('Rule editor', () => {
             cy.get('#variable-label-2').should('not.have.class', 'field-error');
             cy.get('div#variable-name-error > p').should('not.exist');
             
-            // type variable name 'ext-'
-            cy.get('#variable-label-2').clear().type('ext-');
+            // type variable name 'ext'
+            cy.get('#variable-label-2').clear().type('ext');
             cy.get('#variable-label-2').should('not.have.class', 'field-error');
             cy.get('div#variable-name-error > p').should('not.exist');
+
+            // type variable name 'ext-'
+            cy.get('#variable-label-2').clear().type('ext-');
+            cy.get('#variable-label-2').should('have.class', 'field-error');
+            cy.get('div#variable-name-error > p')
+              .should('contain.text', constants.getStartWithsErrorMessage('ext-'));
 
             // type variable name 'ext-*'
             cy.get('#variable-label-2').clear().type('ext-a');

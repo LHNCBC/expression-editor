@@ -19,3 +19,4 @@ export const ReservedWords = [
   "^qitem$"
 ];
 
+export const StartsWithReservedWords = ReservedWords.filter((word) => word.endsWith("-"));
