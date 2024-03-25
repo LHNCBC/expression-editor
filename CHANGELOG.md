@@ -2,6 +2,10 @@
 
 This project follows [Semantic Versioning](http://semver.org/).
 
+## [3.1.18] 2024-02-27
+### Changed
+- Added variable name validation
+
 ## [3.1.17] 2024-01-26
 ### Added
 - Added expression validation

@@ -448,7 +448,7 @@ export class CaseStatementsComponent implements OnInit, OnChanges, OnDestroy, Af
       // Calling fhirpath.evaluate only on Case condition.
       if (!isOutput) {
         try {
-          const variableNames = this.ruleEditorService.getContextVariableNames();
+          const variableNames = this.ruleEditorService.getContextVariableNamesForExpressionValidation();
           const result = fhirpath.evaluate({}, processedExpression, variableNames);
           return processedExpression;
         } catch(e) {

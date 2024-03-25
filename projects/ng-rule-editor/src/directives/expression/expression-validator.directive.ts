@@ -23,7 +23,7 @@ export class ExpressionValidatorDirective {
     }
 
     if (this.param.type === 'fhirpath' ) {
-      const variableNames = this.ruleEditorService.getContextVariableNames();
+      const variableNames = this.ruleEditorService.getContextVariableNamesForExpressionValidation();
       this.param['variableNames'] = JSON.stringify(variableNames);
     }
 

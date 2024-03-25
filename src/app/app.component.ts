@@ -318,24 +318,26 @@ export class AppComponent implements OnInit, OnDestroy {
    * selected item/question
    */
   openRuleEditorDialog(): void {
-    this.displayRuleEditor = true;
-    this.displayRuleEditorResult = false;
-
-    // The lhc-rule-editor component is not presented before the
-    // 'Open Rule Editor' button is clicked due to the use of *ngIf.
-    // The attributes for the lhc-rule-editor component are not 
-    // getting updated as a result. The below steps are used to 
-    // trigger changes to those attributes. 
-    const tmpUserExpressionChoices = this.userExpressionChoices;
-    const tmpCustomExpressionUri = this.customExpressionUri;
- 
-    this.userExpressionChoices = null;
-    this.customExpressionUri = null;
-
-    this.changeDetectorRef.detectChanges();
-
-    this.userExpressionChoices = tmpUserExpressionChoices;
-    this.customExpressionUri = tmpCustomExpressionUri;
+    if (this.canOpenRuleEditor()) {
+      this.displayRuleEditor = true;
+      this.displayRuleEditorResult = false;
+  
+      // The lhc-rule-editor component is not presented before the
+      // 'Open Rule Editor' button is clicked due to the use of *ngIf.
+      // The attributes for the lhc-rule-editor component are not 
+      // getting updated as a result. The below steps are used to 
+      // trigger changes to those attributes. 
+      const tmpUserExpressionChoices = this.userExpressionChoices;
+      const tmpCustomExpressionUri = this.customExpressionUri;
+   
+      this.userExpressionChoices = null;
+      this.customExpressionUri = null;
+  
+      this.changeDetectorRef.detectChanges();
+  
+      this.userExpressionChoices = tmpUserExpressionChoices;
+      this.customExpressionUri = tmpCustomExpressionUri;
+    }
   }
 
   /**

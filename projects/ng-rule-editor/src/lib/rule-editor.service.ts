@@ -89,7 +89,6 @@ export class RuleEditorService {
   private fhir;
   scoreCalculation = false;
 
-
   private itemVariablesErrors: ItemVariableError[] = [];
   private outputExpressionError = false;
   private caseStatementError = false;
@@ -126,8 +125,6 @@ export class RuleEditorService {
     this.variablesChange.next(this.variables);
 
     this.itemVariablesErrors.splice(i, 1);
-    //this.validationChange.next({'remove': i});
-
     this.validationChange.next(this.getValidationResult());
   }
 
@@ -1774,7 +1771,7 @@ export class RuleEditorService {
     return {
       "hasError" : this.hasValidationErrors(),
       "errorInItemVariables": this.itemVariablesErrors.some(
-        item => (item.name === true || item.expression === true || item.timeInterval === true)),
+        item => (item?.name === true || item?.expression === true || item?.timeInterval === true)),
       "errorInOutputExpression": this.outputExpressionError,
       "errorInOutputCaseStatement": this.caseStatementError     
     };
@@ -1800,13 +1797,28 @@ export class RuleEditorService {
     moveItemInArray(this.itemVariablesErrors, previousIndex, currentIndex);
   };
 
+  /**
+   * Get uneditable variable names
+   * @return Array of uneditable variable names
+   */
+  getCurrentContextUneditableVariableNames(): string[] {
+    return this.uneditableVariables.map(e => e.name)
+  }
+
+  /**
+   * Get editable variable names
+   * @return Array of variable names
+   */
+  getCurrentContextVariableNames(): string[] {
+    return this.variables.map(e => e.label)
+  }
 
   /**
    * Compose the object that contains context variable names and environment variable names
    * as keys used by fhirpath.js to validate the expression.
    * @return object with context variable names and environment variable names as keys
    */
-  getContextVariableNames(): any {
+  getContextVariableNamesForExpressionValidation(): any {
     const names = this.getVariableNames();
 
     const newObj = {};

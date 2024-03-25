@@ -24,28 +24,43 @@
       *ngFor="let variable of variables; index as i"
       [id]="'row-' + i"
       cdkDrag>
-      <div class="variable-column-label">
+      <div class="variable-column-label variable-column-nowrap">
         <!-- Inline SVG for the row drag and drop handle -->
-        <svg
-          cdkDragHandle xmlns="http://www.w3.org/2000/svg"
-          width="20"
-          height="20"
-          fill="currentColor"
-          class="handle"
-          viewBox="0 0 16 16">
-          <path d="M7 2a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zM7 
-            5a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zM7 
-            8a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm-3 
-            3a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm-3 
-            3a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>
-        </svg>
-        <input
-          [id]="'variable-label-' + i"
-          [(ngModel)]="variable.label"
-          (change)="onNameChange()"
-          [style]="lhcStyle.input"
-          class="label"
-          aria-label="Variable label" />
+        <div class="variable-row-nowrap">
+          <svg
+            cdkDragHandle xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            fill="currentColor"
+            class="handle"
+            viewBox="0 0 16 16">
+            <path d="M7 2a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zM7 
+              5a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zM7 
+              8a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm-3 
+              3a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm-3 
+              3a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>
+          </svg>
+          <input
+            [id]="'variable-label-' + i"
+            [(ngModel)]="variable.label"
+            (change)="onNameChange()"
+            [style]="lhcStyle.input"
+            class="label"
+            [attr.aria-label]="nameRef.errors ? nameRef.errors.message : 'Variable label'"
+            [attr.aria-invalid]="nameRef.errors"
+            [class.field-error]="nameRef.errors"
+            #nameRef="ngModel"
+            lhcVariableNameValidator
+            [lhcVariableNameValidatorParams]="{'section': 'Item Variables',
+                                               'field': 'name',
+                                               'name': variable.label, 'index': i}"
+          />
+        </div>
+        <div id="variable-name-error" role="alert" class="row error-span name-error" *ngIf="nameRef.errors">
+          <p class="expression-error" >
+            {{nameRef.errors.message}}
+          </p>
+        </div>
       </div>
       <div class="variable-column-type">
         <select
@@ -152,6 +167,7 @@
           aria-label="Remove variable"
           title="Remove variable"
           [style]="lhcStyle.buttonDanger"
+          matTooltip="Remove variable"
           (click)="onRemove(i)">x
         </button>
       </div>
@@ -168,5 +184,6 @@
   id="add-variable"
   class="btn btn-secondary mt-2"
   (click)="onAdd()"
+  matTooltip="Add variable"
   [ngStyle]="lhcStyle.buttonSecondary">Add variable
 </button>
