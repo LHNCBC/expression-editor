@@ -37,8 +37,8 @@ export enum FieldTypes {
 }
 
 export interface ValidationParam {
-  section: string,
-  field: string,
+  section: SectionTypes,
+  field: FieldTypes,
   [others: string]: string;
 }
 
@@ -56,9 +56,9 @@ export interface ValidationResult {
 }
 
 export interface CaseStatementError {
-  case?: boolean;
-  condition?: boolean;
-  output?: boolean;
+  case?: string;
+  condition?: string;
+  output?: string;
 }
 
 export interface CaseStatement {

@@ -1,9 +1,9 @@
-import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
-
+import { Component, Input, OnChanges, OnDestroy, OnInit, ViewChildren, QueryList } from '@angular/core';
 import { Variable, AllVariableType, SimpleVariableType } from '../variable';
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { RuleEditorService, SimpleStyle } from '../rule-editor.service';
 import copy from 'fast-copy';
+import { NgModel } from '@angular/forms';
 
 @Component({
   selector: 'lhc-variables',
@@ -14,8 +14,12 @@ export class VariablesComponent implements OnInit, OnChanges, OnDestroy {
   @Input() lhcStyle: SimpleStyle = {};
   @Input() advancedInterface: boolean;
 
+  @ViewChildren('exp') expressionRefs: QueryList<NgModel>;
+
   variableType: any = SimpleVariableType;
   variableSubscription;
+  performValidationSubscription;
+
   variables: Variable[];
 
   previousVariable;
@@ -38,6 +42,18 @@ export class VariablesComponent implements OnInit, OnChanges, OnDestroy {
     this.variables = this.ruleEditorService.variables;
     this.variableSubscription = this.ruleEditorService.variablesChange.subscribe((variables) => {
       this.variables = variables;
+    });
+
+    // performValidationSubscription is triggered when the 'Save' button is clicked, allowing each
+    // subscribed component to validate the expression data.
+    this.performValidationSubscription = this.ruleEditorService.performValidationChange.subscribe((validation) => {
+      this.expressionRefs.forEach((e, index) => {
+        if (!e.control.value || e.control.value === "") {
+          e.control.markAsTouched();
+          e.control.markAsDirty();
+          e.control.setValue("");
+        }
+      });
     });
   }
 
@@ -78,6 +94,8 @@ export class VariablesComponent implements OnInit, OnChanges, OnDestroy {
    */
   ngOnDestroy(): void {
     this.variableSubscription.unsubscribe();
+
+    this.performValidationSubscription.unsubscribe();
   }
 
   /**
@@ -196,8 +214,8 @@ export class VariablesComponent implements OnInit, OnChanges, OnDestroy {
    * @param expression - new expression to use
    */
   updateExpression(i: number, expression): void {
-    if (this.variables[i].expression !== expression && expression !== 'Not valid') {
-      this.variables[i].expression = expression;
+    if (this.variables[i].expression !== expression) {
+      this.variables[i].expression = (expression !== 'Not valid') ? expression : "";
     }
   }
 

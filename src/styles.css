@@ -143,5 +143,9 @@ input.field-error {
 }
 
 .fhirpath-error {
-color: red !important;
+  color: red !important;
+}
+
+span.autocomp_selected > ul > li > button {
+  height: 100%;
 }

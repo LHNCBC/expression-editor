@@ -1,8 +1,11 @@
-import { AfterViewInit, Component, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, Input, OnDestroy, OnInit, ViewChild, ViewChildren, QueryList } from '@angular/core';
 import { Question, Variable } from '../variable';
 import { RuleEditorService, SimpleStyle } from '../rule-editor.service';
 import { Unit, UNIT_CONVERSION } from '../units';
 import Def from 'autocomplete-lhc';
+import { NgModel } from '@angular/forms';
+
+import { ExpressionValidatorDirective } from '../../directives/expression/expression-validator.directive';
 
 @Component({
   selector: 'lhc-question',
@@ -13,7 +16,13 @@ export class QuestionComponent implements OnInit, AfterViewInit, OnDestroy {
   @Input() variable: Variable;
   @Input() lhcStyle: SimpleStyle = {};
   @Input() index: number;
+
   @ViewChild('autoComplete') autoCompleteElement;
+  @ViewChild('question') questionRef: NgModel;
+  @ViewChild(ExpressionValidatorDirective) expressionValidator: ExpressionValidatorDirective;
+  
+  performValidationSubscription;
+
   autoComplete;
   linkId = '';
   questions: Question[] = [];
@@ -42,6 +51,12 @@ export class QuestionComponent implements OnInit, AfterViewInit, OnDestroy {
     this.variableService.questionsChange.subscribe((questions) => {
       this.questions = questions;
     });
+
+    // performValidationSubscription is triggered when the 'Save' button is clicked, allowing each
+    // subscribed component to validate the expression data.
+    this.performValidationSubscription = this.variableService.performValidationChange.subscribe((validation) => {
+      this.onChange(true);
+    });
   }
 
   /**
@@ -51,6 +66,22 @@ export class QuestionComponent implements OnInit, AfterViewInit, OnDestroy {
    */
   getQuestionFieldItem(itemText, itemCode): string {
     return itemText + ' (' + itemCode + ')'; 
+  }
+
+  /**
+   * Reset the Variable properties.
+   */
+  resetVariableProperties(): void {
+    this.linkId = '';
+    this.expression = '';
+    this.toUnit = '';
+    this.unit = '';
+
+    this.variable.linkId = '';
+    this.variable.expression = '';
+    this.variable.unit = '';
+    this.conversionOptions = this.getConversionOptions(this.unit);
+    this.isNonConvertibleUnit = this.unit && !this.conversionOptions;
   }
 
   /**
@@ -76,12 +107,17 @@ export class QuestionComponent implements OnInit, AfterViewInit, OnDestroy {
     if (question && this.linkId)
       this.autoComplete.setFieldToListValue(this.getQuestionFieldItem(question.text, this.linkId));
 
-    Def.Autocompleter.Event.observeListSelections(`question-${this.index}`, (res) => {
-      if (res.val_typed_in !== res.final_val && res.hasOwnProperty('item_code') && res.item_code) {
-        this.linkId = res.item_code;
-        this.onChange(true);
-      }
-    });
+      Def.Autocompleter.Event.observeListSelections(`question-${this.index}`, (res) => {
+        if ((res.input_method === "clicked" && res?.item_code) ||
+            (res.input_method === "typed")) {
+
+          if (res.item_code)
+            this.linkId = res.item_code;
+          else
+            this.resetVariableProperties();
+          this.onChange(true);
+        }
+      });
   }
 
   /**
@@ -93,6 +129,8 @@ export class QuestionComponent implements OnInit, AfterViewInit, OnDestroy {
       this.autoComplete.clearStoredSelection();
       this.autoComplete.destroy();
     }
+
+    this.performValidationSubscription.unsubscribe();
   }
 
   /**
@@ -147,6 +185,25 @@ export class QuestionComponent implements OnInit, AfterViewInit, OnDestroy {
       if (this.variable.linkId != this.linkId)
         this.variable.linkId = this.linkId;
       this.variable.unit = this.toUnit;
+    }
+
+    // Due to the change to the expression, calling this to trigger the attribute directive validation.
+    this.triggerExpressionValidation();
+  }
+
+  /**
+   * Trigger the invocation of the attribute directive validation. The ngModel is not providing
+   * two-way binding for the question and the query-observation components; therefore, this
+   * function is requried to trigger the validation.
+   */
+  triggerExpressionValidation():void {
+    if (this.questionRef) {
+      this.questionRef.control.markAsTouched();
+      this.questionRef.control.markAsDirty();
+      this.questionRef.control.setValue((this.linkId) ? this.expression : "");
+  
+      const result = this.expressionValidator.validate(this.questionRef.control);
+      this.questionRef.control.setErrors(result);
     }
   }
 }

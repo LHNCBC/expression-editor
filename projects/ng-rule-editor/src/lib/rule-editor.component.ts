@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output } from '@angular/core';
+import { ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
 
 import { RuleEditorService, SimpleStyle } from './rule-editor.service';
 import { LiveAnnouncer } from '@angular/cdk/a11y';
@@ -23,6 +23,8 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
   @Input() lhcStyle: SimpleStyle = {};
   @Output() save = new EventEmitter<object>();
   @Output() cancel = new EventEmitter<object>();
+
+  @ViewChild('exp') expRef;
 
   errorLoading = 'Could not detect a FHIR Questionnaire; please try a different file.';
   expressionSyntax: string;
@@ -60,6 +62,7 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
   private uneditableVariablesSubscription;
   private disableAdvancedSubscription;
   private validationSubscription;
+  private performValidationSubscription;
 
   constructor(private variableService: RuleEditorService, private liveAnnouncer: LiveAnnouncer, private changeDetectorRef: ChangeDetectorRef) {}
 
@@ -86,6 +89,20 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
         this.validationErrorMessage = (this.validationError) ? this.composeAriaValidationErrorMessage(validation) : "";
       
         this.matToolTip = (this.validationErrorMessage) ? this.validationErrorMessage : "Save the Rule Editor";
+      }
+      //this.validationError = validation.hasError;
+      //this.validationErrorMessage = (this.validationError) ? this.composeAriaValidationErrorMessage(validation) : "";
+    });
+
+    // performValidationSubscription is triggered when the 'Save' button is clicked, allowing each
+    // subscribed component to validate the expression data.
+    this.performValidationSubscription = this.variableService.performValidationChange.subscribe((validation) => {     
+      // By setting the setValue to blank on simple expression that is null, empty, or undefined,
+      // it would force the validation to occurs.
+      if (this.expressionSyntax === "fhirpath" && this.finalExpression === "") {
+        this.expRef.control.markAsTouched();
+        this.expRef.control.markAsDirty();
+        this.expRef.control.setValue("");
       }
     });
   }
@@ -115,7 +132,6 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     message += itemVariablesMessage + outputExpressionMessage;
-
     return message;
   };
 
@@ -130,6 +146,7 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
     this.disableAdvancedSubscription.unsubscribe();
 
     this.validationSubscription.unsubscribe();
+    this.performValidationSubscription.unsubscribe();
   }
 
   /**
@@ -148,6 +165,8 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
     this.variables = [];
     this.uneditableVariables = [];
     this.caseStatements = false;
+
+    this.variableService.resetValidationErrors();
 
     this.changeDetectorRef.detectChanges();
   }
@@ -202,6 +221,7 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
    */
   export(): void {
     if (!this.validationError) {
+      this.variableService.notifyValidationCheck();
       const finalExpression = this.finalExpressionExtension;
       if (finalExpression?.valueExpression)
         finalExpression.valueExpression.expression = this.finalExpression;

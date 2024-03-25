@@ -30,6 +30,12 @@ describe('Rule editor', () => {
             cy.get('#variable-label-2').should('not.have.class', 'field-error');
             cy.get('#variable-label-2').clear().type('aaa');
             cy.get('#variable-label-2').should('not.have.class', 'field-error');
+          
+            cy.get('#variable-type-2').select('simple');
+            cy.get('input.simple-expression')
+              .should('exist')
+              .should('be.visible')
+              .type('1 + 1');
           });
 
         // The 'Save' button should still be enabled.

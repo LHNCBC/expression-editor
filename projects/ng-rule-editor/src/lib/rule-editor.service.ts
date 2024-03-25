@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Subject } from 'rxjs';
 import copy from 'fast-copy';
 
-import { CASE_REGEX, Question, SectionTypes, UneditableVariable, ValidationParam, ValidationResult, Variable } from './variable';
+import { CASE_REGEX, Question, SectionTypes, UneditableVariable, ValidationError, ValidationParam, ValidationResult, Variable } from './variable';
 import { UNIT_CONVERSION } from './units';
 import { moveItemInArray } from '@angular/cdk/drag-drop';
 
@@ -791,6 +791,11 @@ export class RuleEditorService {
    * @param finalExpression
    */
   export(url: string, finalExpression): object {
+    // Check to see if there are any errors from the validation
+    const validationResult = this.getValidationResult();
+    if (validationResult.hasError)
+      return;
+
     // Copy the fhir object, so we can export more than once
     // (if we add our data the second export will have duplicates)
     const fhir = copy(this.fhir);
@@ -1716,10 +1721,11 @@ export class RuleEditorService {
     if (param.section === SectionTypes.ItemVariables) {
       // In the Item Variables Section, there are 2 fields: name and expression
       if (this.itemVariablesErrors.length > 0) {
-        let tmpItemVariableError = this.itemVariablesErrors[param.index];
+        const tmpItemVariableError = this.itemVariablesErrors[param.index];
         tmpItemVariableError[param.field] = (result) ? true : false;
         this.itemVariablesErrors[param.index] = tmpItemVariableError;
       }
+        
     } else if (param.section === SectionTypes.OutputExpression) {
       if (param.field === "expression") {
         this.outputExpressionError = (result) ? true : false;
@@ -1734,6 +1740,13 @@ export class RuleEditorService {
       this.validationChange.next(this.getValidationResult());
     }, 100);
   };
+
+  /**
+   * Notifies all subscribed components to perform validation check.
+   */
+  notifyValidationCheck(): void {
+    this.performValidationChange.next(true);
+  }
 
   /**
    * Check for validation errors in both the 'Item Variables' and the 'Output Expression' sections. The
@@ -1763,6 +1776,17 @@ export class RuleEditorService {
       "errorInOutputCaseStatement": this.caseStatementError     
     };
   };
+  
+  /**
+   * Reset the validation errors. This function gets called when the questionnaire, question,
+   * or output expression changes.
+   */
+  resetValidationErrors(): void {
+    this.itemVariablesErrors = [];
+    this.outputExpressionError = false;
+
+    this.caseStatementError = false;
+  };
 
   /**
    * Handles the validation error list for variables when a variable is being moved.
@@ -1787,5 +1811,27 @@ export class RuleEditorService {
    */
   getCurrentContextVariableNames(): string[] {
     return this.variables.map(e => e.label)
+  }
+
+  /**
+   * Compose the object that contains context variable names and environment variable names
+   * as keys used by fhirpath.js to validate the expression.
+   * @return object with context variable names and environment variable names as keys
+   */
+  getContextVariableNamesForExpressionValidation(): any {
+    const names = this.getVariableNames();
+
+    const newObj = {};
+    names.forEach(key => {
+      newObj[key] = 1;
+    });
+
+    // Adding environment variables
+    newObj['resource'] = 1;
+    newObj['rootResource'] = 1;
+    newObj['sct'] = 1;
+    newObj['loinc'] = 1;
+
+    return newObj;
   }
 }

@@ -2,9 +2,15 @@
 
 This project follows [Semantic Versioning](http://semver.org/).
 
-## [3.1.17] 2024-02-27
+## [3.1.18] 2024-02-27
 ### Changed
 - Added variable name validation
+
+## [3.1.17] 2024-01-26
+### Added
+- Added expression validation
+- Implemented logic to disable the 'Save' button if validation fails
+- Updated autocomplete fields to accept blank as an input
 
 ## [3.1.16] 2024-01-17
 ### Changed
