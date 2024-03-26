@@ -27,7 +27,7 @@ describe('Rule editor', () => {
 
         // Unselect the Root level
         cy.get('#useRootLevel').uncheck();
-        // If the Root level is unchecked, it will reverted to the default linkId (question)
+        // If the Root level is unchecked, it will revert to the default linkId (question)
         cy.get('#question').should('have.value', 'BMI (/39156-5)');
         // The 'Open Rule Editor' should not be disabled
         cy.get('#openRuleEditor').should('not.be.disabled');
