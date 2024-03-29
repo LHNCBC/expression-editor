@@ -7,7 +7,7 @@
   [lhcStyle]="lhcStyle">
 </lhc-fhirpath-easypath-conversion-confirmation-dialog>
 
-<div class="container">
+<div class="container" [attr.aria-hidden]="showConfirmDialog ? 'true' : 'false' ">
   <div class="variable-header" [style]="lhcStyle.variableHeader" aria-hidden="true">
     <div class="variable-column-label">Label</div>
     <div class="variable-column-type">Variable Type</div>

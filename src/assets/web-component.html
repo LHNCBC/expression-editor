@@ -38,6 +38,10 @@
       editor.addEventListener('save', (data) => {
         output.innerText = JSON.stringify(data.detail, null, 2);
       });
+
+      editor.addEventListener('cancel', () => {
+        output.innerText = "done";
+      });
     });
 </script>
 </body>

@@ -20,6 +20,17 @@ export interface SimpleStyle {
   description?: object;
 }
 
+export enum DialogTypes {
+  Confirmation = "confirmation",
+  Help =  "help"
+};
+
+export enum DialogSize {
+  Small = "30%",
+  Medium = "50%",
+  Large = "80%"
+}
+
 export interface DialogStyle {
   dialogTitleBar?: object;
   dialogContentDiv?: object;
@@ -74,8 +85,7 @@ export class RuleEditorService {
   disableAdvancedChange: Subject<boolean> = new Subject<boolean>();
   validationChange: Subject<object> = new Subject<object>();
   performValidationChange: Subject<boolean> = new Subject<boolean>();
-  helpChange: Subject<boolean> = new Subject<boolean>();
-  
+
   uneditableVariables: UneditableVariable[];
   variables: Variable[];
   questions: Question[];

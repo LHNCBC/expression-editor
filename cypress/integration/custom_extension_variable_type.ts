@@ -132,7 +132,7 @@ describe('Rule editor', () => {
         cy.get('#variables-section .variable-row').should('have.length', 2);
 
         // Add variable of variable type "FHIR Query (Observation)""
-        cy.get('#add-variable').should('exist').click();
+        cy.get('#add-variable').should('exist').scrollIntoView().click();
         cy.get('#variables-section .variable-row').should('have.length', 3);
         cy.get('div#row-2').within(() => {
           cy.get('#variable-type-2').select('FHIR Query (Observation)');

@@ -1,13 +1,14 @@
-import { Component, EventEmitter, Input, Output, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { BaseDialogComponent } from '../base-dialog/base-dialog.component';
 import { SimpleStyle, DialogStyle } from '../../rule-editor.service';
+import { LiveAnnouncer } from '@angular/cdk/a11y';
 
 @Component({
   selector: 'lhc-fhirpath-easypath-conversion-confirmation-dialog',
   templateUrl: './fhirpath-easypath-conversion-confirmation-dialog.component.html',
   styleUrls: ['./fhirpath-easypath-conversion-confirmation-dialog.component.css']
 })
-export class FhirpathEasypathConversionConfirmationDialogComponent extends BaseDialogComponent implements OnInit {
+export class FhirpathEasypathConversionConfirmationDialogComponent extends BaseDialogComponent {
 
   @Input() lhcStyle: SimpleStyle = {};
   @Output() confirmationYes: EventEmitter<any> = new EventEmitter<any>();
@@ -18,55 +19,33 @@ export class FhirpathEasypathConversionConfirmationDialogComponent extends BaseD
                   "output expression would result in the expression becoming blank.";
   confirmationPrompt2 = "Proceed?";
 
-  dialogStyle: DialogStyle = {
-    dialogContentDiv: {
-      'padding': '30px 0px 20px 0px',
-      'width': '50%',
-      'border-radius': '10px'
-    },
-    dialogTitleBar: {
-      'padding': '10px 20px 10px 20px',
-      'height': '20px',
-      'background-color': '#3166e3',
-      'color': 'white',
-      'vertical-align': 'middle'
-    },
-    dialogHeaderDiv: {
-      'margin': '0px',
-      'text-align': 'left'
-    },
+  customDialogStyle: DialogStyle = {
     dialogBodyDiv: {
-      'margin': '20px',
       'text-align': 'left'
-    },
-    dialogFooterDiv: {
-      'margin': '0px 10px',
-      'text-align': 'center'
-    },
-    buttonPrimary: this.lhcStyle.buttonPrimary,
-    buttonSecondary: this.lhcStyle.buttonSecondary
-  };
-
-  /**
-   * Angular lifecycle hook called when the component is initialized
-   */
-  ngOnInit(): void {
-    this.dialogStyle['buttonPrimary'] = this.lhcStyle.buttonPrimary;
-    this.dialogStyle['buttonSecondary'] = this.lhcStyle.buttonSecondary;
-    
+    }
   };
   
+  constructor(protected liveAnnouncer: LiveAnnouncer) { 
+    super(liveAnnouncer);
+  }
+
   /**
    * Emits the 'confirmationYes' event
    */
   onYes(): void {
-    this.confirmationYes.emit();
+    this.liveAnnouncer.announce("Yes is selected.");
+    setTimeout(() => {
+      this.confirmationYes.emit();
+    }, 100);
   };
 
   /**
    * Emits the 'confirmationNo' event
    */
   onNo(): void {
-    this.confirmationNo.emit();
+    this.liveAnnouncer.announce("No is selected.");
+    setTimeout(() => {
+      this.confirmationNo.emit();
+    }, 100);
   };
 }

@@ -1,9 +1,7 @@
 <lhc-base-dialog
-  
-  [headerLabel]="'Easy Path Expressions Help'"
-
-  (no)="onNo()"
-  [dialogStyle]="dialogStyle">
+  [titleBarLabel]="'Easy Path Expressions Help'"
+  (dialogClose)="onNo()"
+  [dialogType]="'help'">
   
   <label>
     Easy Path Expressions is a syntax parser that converts basic mathematical
@@ -15,7 +13,7 @@
     <strong>
       <a href="#"
         
-        (focus)="getLiveAnncounementForSection('operators')" 
+        (focus)="getLiveAnncounementForSection()" 
         (click)="toggleUsableOperatorsSection()">Usable Operators
       </a>
       <i [class]="help_arrow_ops"></i>
@@ -57,7 +55,7 @@
   <section id="usableFunctions" class="help_section"  >
     <strong>
       <a href="#" 
-        (focus)="getLiveAnncounementForSection('functions')" 
+        (focus)="getLiveAnncounementForSection()" 
         (click)="toggleUsableFunctionsSection()" >Usable Functions
       </a>
       <i [class]="help_arrow_funcs"></i>

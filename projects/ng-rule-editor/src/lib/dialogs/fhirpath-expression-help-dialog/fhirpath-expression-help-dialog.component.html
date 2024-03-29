@@ -1,8 +1,7 @@
 <lhc-base-dialog
-  [headerLabel]="'FHIRPath Expressions Help'"
-
-  (no)="onNo()"
-  [dialogStyle]="dialogStyle">
+  [titleBarLabel]="'FHIRPath Expressions Help'"
+  (dialogClose)="onNo()"
+  [dialogType]="'help'">
   
   <label>
     FHIRPath is a query and extraction language used in the healthcare industry to 

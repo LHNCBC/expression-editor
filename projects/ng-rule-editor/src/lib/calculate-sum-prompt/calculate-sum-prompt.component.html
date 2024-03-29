@@ -1,13 +1,15 @@
-<div role="dialog" aria-modal="true">
+<lhc-base-dialog
+  [titleBarLabel]="'Calculate Sum of Score'"
+  [dialogType]="'confirmation'"
+  [yesButtonId] = "'score-items-selection'"
+  [noButtonId] = "'skip-score-items-selection'"
+  (yes)="onSelectItemsClick()"
+  (no)="onCloseClick()"
+  (dialogClose)="onCloseClick()">
 
   <div class="score-modal">
     <p [style]="lhcStyle.description">It looks like this might be a score calculation.</p>
     <p [style]="lhcStyle.description">Would you like to calculate the sum of scores?</p>
   </div>
 
-  <div class="prompt-footer">
-    <button class="primary" (click)="onSelectItemsClick()" [style]="lhcStyle.buttonPrimary" id="score-items-selection">Yes</button>
-    <button (click)="onCloseClick()" id="skip-score-items-selection">No</button>
-  </div>
-
-</div>
+</lhc-base-dialog>

@@ -45,11 +45,17 @@
     border: none;
     cursor: pointer;
   }
-  
+
+  button.btn-close:hover svg {
+    fill: white;
+    stroke: rgba(13,110,253, 1);
+  }
+
   button.btn-close {
     padding: 0;
     margin: 0;
     float: right;
+    height: 100%;
   }
   
   button.btn-close.svg {

@@ -3,18 +3,18 @@
   cdkTrapFocus
   role="dialog"
   (click)="overlayClose($event)" 
-  aria-labelledby="dlg-title"
-  aria-describedby="dlg-prompt1 dlg-prompt2"
+  aria-labelledby="title-bar"
+  aria-describedby="dialog-body"
   [cdkTrapFocusAutoCapture]="true"
   cdkFocusInitial
   aria-modal="true"
   id="base-dialog"
-
   class="base-modal">
+
   <div class="base-modal-content base-content" #modal aria-modal="true" [style]="dialogStyle.dialogContentDiv">
-    <div id="title-bar" class="base-modal-header" [ngStyle]="dialogStyle.dialogTitleBar" *ngIf="displayTitleBar" >
+    <div id="title-bar" class="base-modal-header" [attr.aria-label]="titleBarLabel" [ngStyle]="dialogStyle.dialogTitleBar" *ngIf="displayTitleBar" >
       <span>{{titleBarLabel}}</span>
-      <button type="button" class="btn-close btn-close-white svg" aria-label="Close" (click)="onNo()" >
+      <button type="button" class="btn-close btn-close-white svg" aria-label="Close" (click)="onDialogClose()" >
         <svg viewBox="0 0 24 24">
           <circle cx="12" cy="12" r="10"></circle>
           <line x1="15" y1="9" x2="9" y2="15"></line>
@@ -26,13 +26,13 @@
       <div [style]="dialogStyle.dialogHeaderDiv">
         <h2 id="dlg-title">{{headerLabel}}</h2>
       </div>
-      <div class="base-modal-body-content">
+      <div id="dialog-body" class="base-modal-body-content">
         <ng-content></ng-content>
       </div>
     </div>
     <div class="base-modal-footer" [style]="dialogStyle.dialogFooterDiv">
-      <button id="yes-button" role="button" class="primary" [ngStyle]="dialogStyle.buttonPrimary" (click)="onYes()" *ngIf="yesButtonLabel !== ''" >{{yesButtonLabel}}</button>
-      <button id="no-button" role="button" (click)="onNo()" *ngIf="noButtonLabel !== ''">{{noButtonLabel}}</button>
+      <button [id]="yesButtonId" role="button" class="primary" [ngStyle]="dialogStyle.buttonPrimary" (click)="onYes()" *ngIf="yes.observed" >{{yesButtonLabel}}</button>
+      <button [id]="noButtonId" role="button" (click)="onNo()" *ngIf="no.observed">{{noButtonLabel}}</button>
     </div>
 </div>
 </div>

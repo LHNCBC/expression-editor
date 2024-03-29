@@ -1,7 +1,8 @@
 import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
-import { RuleEditorService, SimpleStyle } from '../rule-editor.service';
+import { DialogStyle, RuleEditorService, SimpleStyle } from '../rule-editor.service';
 import {ITreeOptions, KEYS, TREE_ACTIONS, TreeComponent} from '@bugsplat/angular-tree-component';
 import {TreeNode} from '@bugsplat/angular-tree-component/lib/defs/api';
+import { LiveAnnouncer } from '@angular/cdk/a11y';
 
 @Component({
   selector: 'lhc-select-scoring-items',
@@ -64,7 +65,23 @@ export class SelectScoringItemsComponent implements OnInit {
     scrollContainer: document.documentElement // HTML
   };
 
-  constructor(private ruleEditorService: RuleEditorService) { }
+  customDialogStyle: DialogStyle = {
+    dialogContentDiv: {
+      'width': '70%',
+      'max-height': '90%'
+    },
+    dialogHeaderDiv: {
+      'margin': '0px',
+      'text-align': 'left'
+    },
+    dialogBodyDiv: {
+      'text-align': 'left',
+      'max-height': '60vh',
+      'overflow-y': 'auto'
+    }
+  };
+
+  constructor(private ruleEditorService: RuleEditorService, private liveAnnouncer: LiveAnnouncer) { }
 
   /**
    * Angular lifecycle hook called when the component is initialized
@@ -113,7 +130,7 @@ export class SelectScoringItemsComponent implements OnInit {
 
   /**
    * Set the state whether to Expand All or Collapse All the tree model.
-   * @param status - true to expand all and false to collapse all
+   * @param expand - true to expand all and false to collapse all
    */
   setExpandAllState(expand) {
     if (expand) {
@@ -127,17 +144,25 @@ export class SelectScoringItemsComponent implements OnInit {
    * Close the dialog by specifying this should not calculate the score
    */
   onCloseClick(): void {
-    this.ruleEditorService.toggleScoreCalculation();
+    this.liveAnnouncer.announce("Cancel Select scoring items");
+    setTimeout(() => {
+      this.ruleEditorService.toggleScoreCalculation();
+    }, 100);
   }
 
   /**
    * Export the sum of scores as a FHIR Questionnaire
    */
   onExportClick(): void {
-    const selectedItemLinkIds = this.itemTree.treeModel.getActiveNodes()
-                                  .map((node) => node.data.linkId);
-    this.ruleEditorService.setItemLinkIdsForTotalCalculation(selectedItemLinkIds);
-    this.export.emit();
+    this.liveAnnouncer.announce("Export data. Select scoring items dialog close.");
+
+    setTimeout(() => {
+      const selectedItemLinkIds = this.itemTree.treeModel.getActiveNodes()
+                                    .map((node) => node.data.linkId);
+      this.ruleEditorService.setItemLinkIdsForTotalCalculation(selectedItemLinkIds);
+      this.export.emit();
+    }, 100);
+
   }
 
   /**

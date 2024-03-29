@@ -1218,20 +1218,22 @@ describe('Rule editor', () => {
         cy.get('#variables-section .variable-row').should('have.length', 2);
         
         // The confirmation dialog should not exist
-        cy.get('div.rule-editor lhc-fhirpath-easypath-conversion-confirmation-dialog').should('not.exist');
+        cy.get('lhc-fhirpath-easypath-conversion-confirmation-dialog').should('not.exist');
 
         // Cancel button
         cy.get('#cancel-changes').should('exist').click();
 
         // The dialog to confirm cancel should be displayed
-        cy.get('div.rule-editor lhc-cancel-changes-confirmation-dialog').should('exist');
-
-        // The dialog should contains two buttons: Yes and No.
-        cy.get('#yes-button').should('exist');
-        cy.get('#no-button').should('exist');
-
-        // Click 'No' should cancel the Cancel request and hide the dialog
-        cy.get('#no-button').click();
+        cy.get('lhc-cancel-changes-confirmation-dialog')
+          .should('exist')
+          .within(() => {
+            // The dialog should contains two buttons: Yes and No.
+            cy.get('#yes-button').should('exist');
+            cy.get('#no-button').should('exist');
+    
+            // Click 'No' should cancel the Cancel request and hide the dialog
+            cy.get('#no-button').click();
+          });
 
         // The confirmation dialog should not exist
         cy.get('div.rule-editor lhc-fhirpath-easypath-conversion-confirmation-dialog').should('not.exist');
@@ -1261,18 +1263,16 @@ describe('Rule editor', () => {
         cy.get('#cancel-changes').should('exist').click();
 
         // The dialog to confirm cancel should be displayed
-        cy.get('div.rule-editor lhc-cancel-changes-confirmation-dialog').should('exist');
-
-        // Click 'Yes' to confirm cancelling
-        cy.get('#yes-button').click();
+        cy.get('lhc-cancel-changes-confirmation-dialog')
+          .should('exist')
+          .within(() => {
+            // Click 'Yes' button
+            cy.get('#yes-button').should('exist').click();
+          });
 
         // This should reset back to the 'BMI Calculation (Easy Path Expression)' questionnaire
         // The confirmation dialog should be hidden
-        cy.get('div.rule-editor lhc-cancel-changes-confirmation-dialog').should('not.exist');
-
-        // Variables section should revert back to 2 variables.
-        //cy.get('lhc-variables > h2').should('contain', 'Item Variables');
-        //cy.get('#variables-section .variable-row').should('have.length', 2);
+        cy.get('lhc-cancel-changes-confirmation-dialog').should('not.exist');
       });
     });
 
@@ -1290,7 +1290,13 @@ describe('Rule editor', () => {
         cy.get('lhc-rule-editor #base-dialog').should('exist');
 
         // Only the prompt for score calculation should show up
-        cy.get('.rule-editor').should('contain.text', 'Would you like to calculate the sum of scores?');
+        // The prompt to calculate the total scoring item should displayed.
+        cy.get('lhc-calculate-sum-prompt > lhc-base-dialog > #base-dialog')
+          .should('exist')
+          .within(() => {
+            cy.get('#dialog-body')
+              .should('contain.text', 'Would you like to calculate the sum of scores?');
+          });
       });
 
       it('should hide the calculate sum prompt if click no', () => {
@@ -1305,21 +1311,18 @@ describe('Rule editor', () => {
         // The Rule Editor dialog should now appear
         cy.get('lhc-rule-editor #base-dialog').should('exist');
 
-        // Only the prompt for score calculation should show up
-        cy.get('.rule-editor').should('contain.text', 'Would you like to calculate the sum of scores?');
-        cy.get('#skip-score-items-selection').click();
-        cy.get('.rule-editor').should('not.contain.text', 'Would you like to calculate the sum of scores?');
-      
-        // Once canceled, it should show the Rule Editor screen with 0 variables
-        cy.get('div.rule-editor').should('exist').within( ()=> {
-          // Variables section
-          cy.get('lhc-variables > h2').should('contain', 'Item Variables');
-          cy.get('#variables-section .variable-row').should('have.length', 0);
+        // The prompt to calculate the total scoring item should displayed.
+        cy.get('lhc-calculate-sum-prompt > lhc-base-dialog > #base-dialog')
+          .should('exist')
+          .within(() => {
+            cy.get('#dialog-body')
+              .should('contain.text', 'Would you like to calculate the sum of scores?');
+            // Close the dialog
+            cy.get('#skip-score-items-selection').click();
+          });
+        cy.get('lhc-calculate-sum-prompt > lhc-base-dialog > #base-dialog').should('not.exist');
         
-          cy.get('#add-variable').should('exist').should('be.visible');
-  
-          cy.get('#export').should('exist').scrollIntoView().should('be.visible');
-        });
+        cy.get('div.rule-editor').should('not.exist');
       });
 
       it('should display the scoring items selection', () => {
@@ -1336,8 +1339,10 @@ describe('Rule editor', () => {
 
         // Only the prompt for score calculation should show up
         cy.get('#score-items-selection').click();
-        cy.get('div.scoring-items-selection-title').should('have.text', ' Select items to include in the score calculation: ');
-        cy.get('div.scoring-items-selection-body')
+
+        cy.get('lhc-select-scoring-items #dlg-title')
+          .should('contain.text', 'Select items to include in the score calculation:');
+        cy.get('lhc-select-scoring-items .scoring-items-selection-body')
           .within(() => {
             cy.get('#selectAll').should('exist');
             cy.get('div.items-tree').should('exist');
@@ -1464,10 +1469,17 @@ describe('Rule editor', () => {
         // The Rule Editor dialog should now appear
         cy.get('lhc-rule-editor #base-dialog').should('exist');
 
-        cy.get('.rule-editor').should('contain.text', 'Would you like to calculate the sum of scores?');
-        cy.get('#score-items-selection').click();
-        cy.get('div.scoring-items-selection-title').should('have.text', ' Select items to include in the score calculation: ');
-        cy.get('div.scoring-items-selection-body')
+        cy.get('lhc-calculate-sum-prompt > lhc-base-dialog > #base-dialog')
+          .should('exist')
+          .within(() => {
+            cy.get('#dialog-body')
+              .should('contain.text', 'Would you like to calculate the sum of scores?');
+            cy.get('#score-items-selection').click();
+          });
+
+        cy.get('lhc-select-scoring-items #dlg-title')
+          .should('contain.text', 'Select items to include in the score calculation:');
+        cy.get('lhc-select-scoring-items .scoring-items-selection-body')
           .within(() => {
             cy.get('#selectAll').should('exist');
             cy.get('div.items-tree').should('exist');
@@ -1476,7 +1488,7 @@ describe('Rule editor', () => {
 
         // Click Cancel
         cy.get('#skip-export-score').click()
-        cy.get('.rule-editor').should('not.have.text', ' Select items to include in the score calculation: ');
+        cy.get('lhc-select-scoring-items').should('not.exist');
 
         // Once canceled, it should show the Rule Editor screen with 0 variables
         cy.get('div.rule-editor').should('exist').within( ()=> {
@@ -1582,7 +1594,12 @@ describe('Rule editor', () => {
         cy.get('lhc-rule-editor #base-dialog').should('exist');
 
         // Only the prompt for score calculation should show up
-        cy.get('.rule-editor').should('contain.text', 'Would you like to calculate the sum of scores?');
+        cy.get('lhc-calculate-sum-prompt > lhc-base-dialog > #base-dialog')
+          .should('exist')
+          .within(() => {
+            cy.get('#dialog-body')
+              .should('contain.text', 'Would you like to calculate the sum of scores?');
+          });
       });
 
       it('should hide the calculate sum prompt if click no', () => {
@@ -1594,9 +1611,15 @@ describe('Rule editor', () => {
         cy.get('lhc-rule-editor #base-dialog').should('exist');
 
         // Only the prompt for score calculation should show up
-        cy.get('.rule-editor').should('contain.text', 'Would you like to calculate the sum of scores?');
-        cy.get('#skip-score-items-selection').click();
-        cy.get('.rule-editor').should('not.contain.text', 'Would you like to calculate the sum of scores?');
+        cy.get('lhc-calculate-sum-prompt > lhc-base-dialog > #base-dialog')
+          .should('exist')
+          .within(() => {
+            cy.get('#dialog-body')
+              .should('contain.text', 'Would you like to calculate the sum of scores?');
+            // Close the dialog
+            cy.get('#skip-score-items-selection').click();
+          });
+        cy.get('lhc-calculate-sum-prompt > lhc-base-dialog > #base-dialog').should('not.exist');
       });
 
       it('should display the scoring items selection', () => {
@@ -1609,14 +1632,14 @@ describe('Rule editor', () => {
 
         // Only the prompt for score calculation should show up
         cy.get('#score-items-selection').click();
-        cy.get('div.scoring-items-selection-title').should('have.text', ' Select items to include in the score calculation: ');
-        cy.get('div.scoring-items-selection-body')
+        cy.get('lhc-select-scoring-items #dlg-title')
+          .should('contain.text', 'Select items to include in the score calculation:');
+        cy.get('lhc-select-scoring-items .scoring-items-selection-body')
           .within(() => {
             cy.get('#selectAll').should('exist');
-            //cy.get('.item-filter').should('exist');
             cy.get('div.items-tree').should('exist');
             cy.get('div.items-tree tree-node').should('have.length', 26);
-          });
+          });      
       });
 
       it('should be able to collap/expand group', () => {
@@ -1629,8 +1652,10 @@ describe('Rule editor', () => {
 
         // Only the prompt for score calculation should show up
         cy.get('#score-items-selection').click();
-        cy.get('div.scoring-items-selection-title').should('have.text', ' Select items to include in the score calculation: ');
-        cy.get('div.scoring-items-selection-body')
+        
+        cy.get('lhc-select-scoring-items #dlg-title')
+          .should('contain.text', 'Select items to include in the score calculation:');
+        cy.get('lhc-select-scoring-items .scoring-items-selection-body')
           .within(() => {
             // Expand All button should be visible and the tree should be expanded by default  
             cy.get('#expandAll').should('exist').should('be.visible');
@@ -2323,7 +2348,7 @@ describe('Rule editor', () => {
         cy.get('#output-expression-type').should('exist').select('simple');
 
         // Dialog should get displayed
-        cy.get('div.rule-editor lhc-fhirpath-easypath-conversion-confirmation-dialog #base-dialog').should('exist')
+        cy.get('lhc-fhirpath-easypath-conversion-confirmation-dialog #base-dialog').should('exist')
           .scrollIntoView()
           .should('be.visible')
           .within( ()=> {
@@ -2343,14 +2368,16 @@ describe('Rule editor', () => {
         cy.get('#cancel-changes').click();
 
         // The dialog to confirm cancel should be displayed
-        cy.get('div.rule-editor lhc-cancel-changes-confirmation-dialog').should('exist');
-
-        // Click 'Yes' to confirm cancelling
-        cy.get('#yes-button').click();
+        cy.get('lhc-cancel-changes-confirmation-dialog')
+          .should('exist')
+          .within(() => {
+            // Click 'Yes' to confirm cancelling
+            cy.get('#yes-button').click();
+          });
 
         // This should reset back to the 'BMI Calculation (Easy Path Expression)' questionnaire
         // The confirmation dialog should be hidden
-        cy.get('div.rule-editor lhc-cancel-changes-confirmation-dialog').should('not.exist');
+        cy.get('lhc-cancel-changes-confirmation-dialog').should('not.exist');
 
         // The Rule Editor dialog should be closed
         cy.get('lhc-rule-editor #base-dialog', {timeout: 10000}).should('not.exist');
@@ -2406,10 +2433,12 @@ describe('Rule editor', () => {
         cy.get('#cancel-changes').click();
 
         // The dialog to confirm cancel should be displayed
-        cy.get('div.rule-editor lhc-cancel-changes-confirmation-dialog').should('exist');
-
-        // Click 'Yes' to confirm cancelling
-        cy.get('#yes-button').click();
+        cy.get('lhc-cancel-changes-confirmation-dialog')
+          .should('exist')
+          .within(() => {
+            // Click 'Yes' to confirm cancelling
+            cy.get('#yes-button').click();
+          });
 
         // This should reset back to the 'BMI Calculation (Easy Path Expression)' questionnaire
         // The confirmation dialog should be hidden

@@ -1,23 +1,38 @@
+<lhc-calculate-sum-prompt
+  *ngIf="calculateSum && !loadError && !selectItems && !dataExport" 
+  (selectItems)="selectItemsForSumOfScores()"
+  (no)="confirmCancel()"
+  [lhcStyle]="lhcStyle">
+</lhc-calculate-sum-prompt>
+
+<lhc-select-scoring-items
+  *ngIf="calculateSum && !loadError && selectItems"
+  (export)="addSumOfScores()"
+  [items]="fhirQuestionnaire.item"
+  [lhcStyle]="lhcStyle">
+</lhc-select-scoring-items>
+
 <lhc-base-dialog
+  *ngIf="!calculateSum && !loadError && !hideRuleEditor"
   [titleBarLabel]="'Rule Editor'"
+  (dialogClose)="closeDialog()">
 
-  (no)="closeDialog()"
-  [dialogStyle]="dialogStyle">
+  <lhc-cancel-changes-confirmation-dialog
+    *ngIf="!calculateSum && !loadError && !hideRuleEditor && showCancelConfirmationDialog"
+    (confirmationYes)="confirmCancel()"
+    (confirmationNo)="discardCancel()"
+    [lhcStyle]="lhcStyle">
+  </lhc-cancel-changes-confirmation-dialog>
 
-  <div class="rule-editor" *ngIf="!hideRuleEditor">
+  <lhc-fhirpath-easypath-conversion-confirmation-dialog
+    *ngIf="showConfirmDialog"
+    (confirmationYes)="convertFHIRPathToEasyPath($event)"
+    (confirmationNo)="closeConvertDialog()"
+    [lhcStyle]="lhcStyle">
+  </lhc-fhirpath-easypath-conversion-confirmation-dialog>
+
+  <div class="rule-editor" [attr.aria-hidden]="showCancelConfirmationDialog || showConfirmDialog ? 'true' : 'false' "> <!--  *ngIf="!hideRuleEditor"> -->
     <div *ngIf="loadError" class="error">{{errorLoading}}</div>
-    <lhc-calculate-sum-prompt
-      *ngIf="calculateSum && !loadError && !selectItems"
-      (selectItems)="selectItemsForSumOfScores()"
-      [lhcStyle]="lhcStyle">
-    </lhc-calculate-sum-prompt>
-
-    <lhc-select-scoring-items
-      *ngIf="calculateSum && !loadError && selectItems"
-      (export)="addSumOfScores()"
-      [items]="fhirQuestionnaire.item"
-      [lhcStyle]="lhcStyle">
-    </lhc-select-scoring-items>
 
     <div *ngIf="!calculateSum && !loadError">
       <h1 [style]="lhcStyle.h1">{{titleName}}</h1>
@@ -41,16 +56,6 @@
 
       <section id="final-expression-section" class="mb-3" *ngIf="expressionUri && itemLinkId">
         <h2 [style]="lhcStyle.h2">{{expressionLabel}}</h2>
-
-        <lhc-fhirpath-easypath-conversion-confirmation-dialog
-          *ngIf="showConfirmDialog"
-        
-          (confirmationYes)="convertFHIRPathToEasyPath($event)"
-          (confirmationNo)="closeConvertDialog()"
-        
-          [lhcStyle]="lhcStyle">
-        </lhc-fhirpath-easypath-conversion-confirmation-dialog>
-
         <div class="expression-type flex-vertical" *ngIf="userExpressionChoices">
           <label for="expression-type">Expression Type</label>
           <select id="expression-type" class="form-control" aria-label="Expression type" [ngStyle]="lhcStyle.select" [(ngModel)]="finalExpressionExtension.url">
@@ -140,16 +145,6 @@
           </lhc-case-statements>
         </div>
       </section>
-  
-      <lhc-cancel-changes-confirmation-dialog
-        *ngIf="showCancelConfirmationDialog"
-
-        (confirmationYes)="confirmCancel()"
-        (confirmationNo)="discardCancel()"
-
-        [lhcStyle]="lhcStyle">
-      </lhc-cancel-changes-confirmation-dialog>
-
       <button class="primary" [ngClass]="{'disabled': validationError}" role="button"
               [attr.aria-label]="validationErrorMessage" (click)="export()"
               [ngStyle]="lhcStyle.buttonPrimary" id="export">{{submitButtonName}}</button>

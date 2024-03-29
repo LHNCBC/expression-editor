@@ -1,6 +1,6 @@
 import { ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
 
-import { DialogStyle, RuleEditorService, SimpleStyle } from './rule-editor.service';
+import { RuleEditorService, SimpleStyle } from './rule-editor.service';
 import { LiveAnnouncer } from '@angular/cdk/a11y';
 import { ValidationResult } from './variable';
 
@@ -25,7 +25,7 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
   @Output() cancel = new EventEmitter<object>();
 
   @ViewChild('exp') expRef;
-
+  
   errorLoading = 'Could not detect a FHIR Questionnaire; please try a different file.';
   expressionSyntax: string;
   simpleExpression: string;
@@ -43,11 +43,11 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
   hideRuleEditor = false;
   validationError = false;
   validationErrorMessage;
+  dataExport = false;
 
   previousExpressionSyntax;
   previousFinalExpression;
   showConfirmDialog = false;
-  displayHelpDialog = false;
 
   dialogTitle = "Converting FHIRPath Expression to Easy Path Expression";
   dialogPrompt1 = "The Rule Editor does not support conversion from FHIRPath Expression " +
@@ -63,30 +63,6 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
   private validationSubscription;
   private performValidationSubscription;
   private helpSubscription;
-
-  dialogStyle: DialogStyle = {
-    dialogContentDiv: { 
-      'width': '90%',
-      'border-radius': '10px',
-      'max-height': '85vh'
-    },
-    dialogTitleBar: {
-      'padding': '10px 20px 10px 20px',
-      'height': '20px',
-      'background-color': '#3166e3',
-      'color': 'white',
-      'vertical-align': 'middle'
-    },
-    dialogHeaderDiv: {
-      'margin': '30px 20px 0px 20px',
-      'font-size': '24px',
-      'text-align': 'left'},
-    dialogBodyDiv: {
-      'text-align': 'left',
-      'max-height': '75vh',
-      'overflow-y': 'auto'
-    }
-  };
   
   constructor(private variableService: RuleEditorService, private liveAnnouncer: LiveAnnouncer, private changeDetectorRef: ChangeDetectorRef) {}
 
@@ -124,10 +100,6 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
         this.expRef.control.markAsDirty();
         this.expRef.control.setValue("");
       }
-    });
-
-    this.helpSubscription = this.variableService.helpChange.subscribe((help) => {
-      this.displayHelpDialog = help;
     });
   }
 
@@ -245,13 +217,25 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
    * Export FHIR Questionnaire and download as a file
    */
   export(): void {
-    if (!this.validationError) {
-      this.variableService.notifyValidationCheck();
-      const finalExpression = this.finalExpressionExtension;
-      if (finalExpression?.valueExpression)
-        finalExpression.valueExpression.expression = this.finalExpression;
-      this.save.emit(this.variableService.export(this.expressionUri, finalExpression));
-    }
+    this.liveAnnouncer.announce("Export Questionnaire data.");
+    setTimeout(() => {
+      if (!this.validationError) {
+        this.variableService.notifyValidationCheck();
+        const finalExpression = this.finalExpressionExtension;
+        if (finalExpression?.valueExpression) {
+          finalExpression.valueExpression.expression = this.finalExpression;
+        }
+
+        const exportResult = this.variableService.export(this.expressionUri, finalExpression);
+        if (exportResult) {
+          this.save.emit(exportResult);
+          this.dataExport = true;
+          this.calculateSum = false;
+          this.selectItems = false;
+          this.hideRuleEditor = true;
+        }
+      }
+    }, 100);
   }
 
   /**
@@ -267,8 +251,10 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
    * 
    */
   cancelRuleEditorChanges(): void {
-    this.showCancelConfirmationDialog = true;
-    this.displayHelpDialog = false;
+    this.liveAnnouncer.announce("Cancel changes to the Rule Editor");
+    setTimeout(() => {
+      this.showCancelConfirmationDialog = true;
+    }, 100);
   }
 
   /**
@@ -278,35 +264,42 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
    * results in a different beahvior.
    */
   closeDialog(): void {
-    if (this.calculateSum && !this.loadError ) {
-      // Calculate Sum or Scoring Items Selection dialog.
-      this.variableService.toggleScoreCalculation();
-    } else if (this.displayHelpDialog) {
-      // Help dialogs
-      this.displayHelpDialog = !this.displayHelpDialog;
-    } else {
-      // Rule Editor dialog
-      this.showCancelConfirmationDialog = !this.displayHelpDialog;
-    } 
+    this.liveAnnouncer.announce("Closing dialog");
+    setTimeout(() => {
+      if (this.calculateSum && !this.loadError ) {
+        if(!this.selectItems) {
+          this.confirmCancel();
+        } else {
+          // Calculate Sum or Scoring Items Selection dialog.
+          this.variableService.toggleScoreCalculation();
+        }
+      } else {
+        this.showCancelConfirmationDialog = true;
+      }
+    }, 100);
   }
 
   /**
    * Confirm to cancel change
    */
   confirmCancel(): void {
-    this.liveAnnouncer.announce("'yes' was selected. Changes were canceled.");
+    this.liveAnnouncer.announce("Changes were canceled.");
 
     setTimeout(() => {
       this.cancel.emit();
       this.showCancelConfirmationDialog = false;
-    }, 500);
+
+      this.calculateSum = false;
+      this.selectItems = false;
+      this.hideRuleEditor = true;
+    }, 100);
   }
 
   /**
    * Discard the cancel request
    */
   discardCancel(): void {
-    this.liveAnnouncer.announce("'no' was selected. Changes were not canceled");
+    this.liveAnnouncer.announce("Changes were not canceled");
 
     setTimeout(() => {
       this.showCancelConfirmationDialog = false;
@@ -325,6 +318,7 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
     this.variableService.removeSumOfScores(this.fhirQuestionnaire, this.linkIdContext);
     this.save.emit(this.variableService.addSumOfScores());
 
+    this.dataExport = true;
     this.reload();
   }
 

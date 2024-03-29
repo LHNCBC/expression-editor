@@ -1,6 +1,5 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { LiveAnnouncer } from '@angular/cdk/a11y';
-import { RuleEditorService } from '../rule-editor.service';
 
 @Component({
   selector: 'lhc-helps',
@@ -11,11 +10,12 @@ export class HelpsComponent implements OnInit {
 
   @Input() type: string;
   @Input() index;
+  @Output() helpDialogClose: EventEmitter<any> = new EventEmitter<any>();
   
   showHelp = false;
   matToolTip = "Easy Path Expression Help";
 
-  constructor(private liveAnnouncer: LiveAnnouncer, private ruleEditorService: RuleEditorService) {}
+  constructor(private liveAnnouncer: LiveAnnouncer) {};
 
   /**
    * Angular lifecycle hook for initialization
@@ -39,7 +39,6 @@ export class HelpsComponent implements OnInit {
    */
   openHelp(): void {
     this.showHelp = true;
-    this.ruleEditorService.helpChange.next(this.showHelp);
   }
 
   /**
@@ -48,5 +47,7 @@ export class HelpsComponent implements OnInit {
   closeHelp(): void {
     this.liveAnnouncer.announce('Help dialog closed');
     this.showHelp = false;
+
+    this.helpDialogClose.emit();
   }
 }

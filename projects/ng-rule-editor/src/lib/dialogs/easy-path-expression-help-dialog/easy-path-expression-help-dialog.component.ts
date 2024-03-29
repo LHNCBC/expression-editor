@@ -11,32 +11,7 @@ import { LiveAnnouncer } from '@angular/cdk/a11y';
 })
 export class EasyPathExpressionHelpDialogComponent extends BaseDialogComponent {
   @Output() onCloseHelp: EventEmitter<any> = new EventEmitter<any>();
-
-  dialogStyle: DialogStyle = {
-    dialogContentDiv: {
-      'padding': '0px 0px 20px 0px',
-      'width': '70%',
-      'border-radius': '10px',
-      'max-height': '90%'
-    },
-    dialogTitleBar: {
-      'padding': '10px 20px 10px 20px',
-      'height': '20px',
-      'background-color': '#3166e3',
-      'color': 'white',
-      'vertical-align': 'middle'
-    },
-    dialogHeaderDiv: {
-      'text-align': 'left'
-    },
-    dialogBodyDiv: {
-      'margin': '20px',
-      'text-align': 'left',
-      'max-height': '60vh',
-      'overflow-y': 'auto'
-    }
-  };
-
+  
   arrow_arr = ["arrow right", "arrow down"];
   help_arrow_ops = this.arrow_arr[0];
   help_arrow_funcs = this.arrow_arr[0];
@@ -370,38 +345,24 @@ export class EasyPathExpressionHelpDialogComponent extends BaseDialogComponent {
 
   currentActiveOpenedItem = '';
   
-  constructor(private liveAnnouncer: LiveAnnouncer) { 
-    super();
+  constructor(protected liveAnnouncer: LiveAnnouncer) { 
+    super(liveAnnouncer);
   }
 
   /**
    * Emits the 'onCloseHelp' event
    */
   onNo(): void {
-    this.onCloseHelp.emit();
+    this.liveAnnouncer.announce("Help dialog close.");
+    setTimeout(() => {
+      this.onCloseHelp.emit();
+    }, 100);
   };
 
   /**
-   * Close Help Modal
-   */
-/*   closeHelp() {
-    this.showHideSection(false, false);
-
-    this.operatorItemsReadOnly = true;
-    this.functionItemsReadOnly = true;
-
-    if (this.currentActiveOpenedItem !== '') {
-      if (this.usableFunctions2.hasOwnProperty(this.currentActiveOpenedItem))
-        this.usableFunctions2[this.currentActiveOpenedItem].display = false;
-      else if (this.usableOperators2.hasOwnProperty(this.currentActiveOpenedItem))
-        this.usableOperators2[this.currentActiveOpenedItem].display = false;
-    }
-
-    //this.onCloseModal.emit();
-  } */
-
-  /**
-   * Function to handle show/hide of all three help sections 
+   * Function to handle show/hide of all three help sections
+   * @param usableOperatorsFlag - true to display the Usable Operator section
+   * @param usableFunctionsFlag - true to display the Usable Function section
    */
   showHideSection(usableOperatorsFlag, usableFunctionsFlag) {
     this.sectionArr[0] = usableOperatorsFlag;
@@ -414,7 +375,7 @@ export class EasyPathExpressionHelpDialogComponent extends BaseDialogComponent {
   /**
    * Invoke the live announcer 
    */
-  getLiveAnncounementForSection(item) {
+  getLiveAnncounementForSection() {
     let announceText = 'Use the ENTER key to enter this section.';
 
     this.liveAnnouncer.announce(announceText);
@@ -432,6 +393,7 @@ export class EasyPathExpressionHelpDialogComponent extends BaseDialogComponent {
 
   /**
    * Toggle to display detail information for each of the operators and invoke the live announcer 
+   * @param item - Selected usable operator item
    */
   toggleUsableOperatorItem(item) {
     if (this.currentActiveOpenedItem !== '' && this.currentActiveOpenedItem !== item) {
@@ -451,6 +413,7 @@ export class EasyPathExpressionHelpDialogComponent extends BaseDialogComponent {
 
   /**
    * Prepare Live Announcer with the description of the selected item
+   * @param item - Selected usable operator  or function item
    */
   getLiveAnnouncementForItem(item) {
     let announceText = item.description + "  Click the Enter key to get more detail.";
@@ -459,6 +422,7 @@ export class EasyPathExpressionHelpDialogComponent extends BaseDialogComponent {
   }
   /**
    * Prepare Live Announcer with the detail of the selected item
+   * @param item - Selected usable operator or function item
    */
   getLiveAnnouncementDetailForItem(item) {
     let announceText = '';
@@ -488,6 +452,10 @@ export class EasyPathExpressionHelpDialogComponent extends BaseDialogComponent {
     this.functionItemsReadOnly = false;
   }
 
+  /**
+   * Toggle to display detail information for each of the functions and invoke the live announcer 
+   * @param item - Selected usable function item
+  */
   toggleUsableFunctionItem(item) {
     if (this.currentActiveOpenedItem !== '' && this.currentActiveOpenedItem !== item) {
       if (this.usableFunctions2.hasOwnProperty(this.currentActiveOpenedItem))

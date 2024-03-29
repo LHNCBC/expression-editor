@@ -555,23 +555,15 @@ describe('Rule editor', () => {
         // The Rule Editor dialog should now appear
         cy.get('lhc-rule-editor #base-dialog').should('exist');
 
-        cy.get('.rule-editor').contains('Would you like to calculate the sum of scores?');
-        // Click no
-        cy.get('#skip-score-items-selection').click();
-
-        // The 'Output Expression' section should be visible
-        cy.get('#final-expression-section').should('exist').should('be.visible');
-
-        // The Output Expression should be blank
-        cy.get('#simple-expression-final').should('be.empty');
-
-        cy.get('#simple-expression-final').should('not.have.class', 'field-error');
-
-        // The 'Save' button should be disabled
-        cy.get('#export').should('exist').should('not.have.class', 'disabled');
-
-        // Click the 'Save' button, it should run validation
-        cy.get('#export').click();
+        // The prompt to calculate the total scoring item should displayed.
+        cy.get('lhc-calculate-sum-prompt > lhc-base-dialog > #base-dialog')
+          .should('exist')
+          .within(() => {
+            cy.get('#dialog-body')
+              .should('contain.text', 'Would you like to calculate the sum of scores?');
+            // Close the dialog
+            cy.get('#skip-score-items-selection').click();
+          });
       });
     });
   });
