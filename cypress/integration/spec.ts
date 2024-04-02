@@ -6,7 +6,7 @@ describe('Rule editor', () => {
   describe('Angular Library', () => {
     describe('BMI calculation', () => {
       
-      it('should disable the "Open Rule Editor" button if "Root leve" or Question is not selected', () => {
+      it('should disable the "Open Rule Editor" button if "Root level" or Question is not selected', () => {
 
         // The demo has 'BMI (/39156-5) selected by default
         cy.get('#question').should('have.value', 'BMI (/39156-5)');

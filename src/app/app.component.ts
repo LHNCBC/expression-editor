@@ -53,7 +53,7 @@ export class AppComponent implements OnInit, OnDestroy {
   expressionUri = this.calculatedExpression;
   userExpressionChoices = null;
   customExpressionUri = false;
-  fhir = null;
+  fhirQuestionnaire = null;
   questionnaire = 'bmisimple';
   file = '';
   error = '';
@@ -81,7 +81,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
     if (this.questionnaire === '' || this.questionnaire === 'upload') {
       this.liveAnnouncer.announce('Additional settings must be entered below to load the rule editor.');
-      this.fhir = null;
+      this.fhirQuestionnaire = null;
       this.file = '';
       this.linkId = '';
       this.rootLevel = true;
@@ -92,11 +92,11 @@ export class AppComponent implements OnInit, OnDestroy {
 
       this.http.get(`./${this.questionnaire}.json`)
         .subscribe(data => {
-          this.fhir = data;
+          this.fhirQuestionnaire = data;
           this.liveAnnouncer.announce((reload) ? this.formReloadAnnouncement : this.formAppearedAnnouncement);
 
-          if (this.fhir && this.fhir.item instanceof Array) {
-            this.linkIds = this.getQuestionnaireLinkIds(this.fhir.item);
+          if (this.fhirQuestionnaire && this.fhirQuestionnaire.item instanceof Array) {
+            this.linkIds = this.getQuestionnaireLinkIds(this.fhirQuestionnaire.item);
 
             this.defaultItemText = this.linkIds.find((item) => {
               return item.linkId === this.linkId;
@@ -160,10 +160,10 @@ export class AppComponent implements OnInit, OnDestroy {
           this.doNotAskToCalculateScore = false;
           this.linkId = '';
           try {
-            this.fhir = JSON.parse(e.target.result);
+            this.fhirQuestionnaire = JSON.parse(e.target.result);
             this.error = '';
-            if (this.fhir && this.fhir.item instanceof Array) {
-              this.linkIds = this.getQuestionnaireLinkIds(this.fhir.item);
+            if (this.fhirQuestionnaire && this.fhirQuestionnaire.item instanceof Array) {
+              this.linkIds = this.getQuestionnaireLinkIds(this.fhirQuestionnaire.item);
 
               this.composeAutocomplete();
             }
@@ -174,12 +174,12 @@ export class AppComponent implements OnInit, OnDestroy {
               this.rootLevel = true;
             }
           } catch (e) {
-            this.fhir = '';
+            this.fhirQuestionnaire = '';
             this.error = `Could not parse file: ${e}`;
             this.liveAnnouncer.announce(this.error);
           }
         } else {
-          this.fhir = '';
+          this.fhirQuestionnaire = '';
           this.error = 'Could not read file';
           this.liveAnnouncer.announce(this.error);
         }
@@ -340,6 +340,6 @@ export class AppComponent implements OnInit, OnDestroy {
    * 'Root level' checkbox or a question is selected.
    */
   canOpenRuleEditor(): boolean {
-    return this.fhir && (this.rootLevel || this.linkId !== null);
+    return this.fhirQuestionnaire && (this.rootLevel || this.linkId !== null);
   }
 }

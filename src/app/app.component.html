@@ -40,7 +40,7 @@
   <label>Questionnaire:
     <input type="file" id="file-upload" [(ngModel)]="file" accept=".json" (change)="prepareForImport($event)">
   </label>
-  <span *ngIf="fhir">
+  <span *ngIf="fhirQuestionnaire">
     <label>
       <input type="checkbox" id="root-level" [(ngModel)]="rootLevel" (change)="toggleRootLevel()">
       Root level
@@ -100,7 +100,7 @@
       </div>
       <div class="re-modal-body">
         <lhc-rule-editor
-          [fhirQuestionnaire]="fhir"
+          [fhirQuestionnaire]="fhirQuestionnaire"
           [itemLinkId]="linkId"
 
           [submitButtonName]="'Save'"
