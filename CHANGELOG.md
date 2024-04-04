@@ -2,6 +2,10 @@
 
 This project follows [Semantic Versioning](http://semver.org/).
 
+## [3.1.19] 2024-04-04
+### Changed
+- Allowed FHIR Query with parameters to be parsed in any order
+
 ## [3.1.18] 2024-02-27
 ### Changed
 - Added variable name validation
