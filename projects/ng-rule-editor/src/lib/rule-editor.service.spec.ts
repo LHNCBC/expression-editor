@@ -1,6 +1,5 @@
 import { TestBed } from '@angular/core/testing';
 import copy from 'fast-copy';
-
 import { RuleEditorService } from './rule-editor.service';
 import bmi from '../../../../src/assets/bmi.json';
 import phq9 from '../../../../src/assets/phq9.json';
@@ -718,6 +717,83 @@ describe('RuleEditorService', () => {
       expect(output9).toEqual("{{{{%a * 2}} - %b}}");
       const output10 = service.encodeParamValue("{{{{{{%a * 2}} - %b}} + %c}}");
       expect(output10).toEqual("{{{{{{%a * 2}} - %b}} + %c}}");     
+    });
+  });
+
+  describe('decodeFHIRQueryObservationURIExpression', () => {
+    it('should extract FHIR Query Observation object', () => {
+      // URI encoded
+      const expressionConditionResource = "Condition?onset=23%20May%202009";
+      const expressionObservationResourceShort = "Observation?code=loinc|1234-1";
+      const expressionObservationResource =
+        "Observation?code=test%2Chttp://loinc.org|65972-2&date=gt{{today()-2 days}}&patient={{%patient.id}}&_sort=-date&_count=1";
+      const expressionObservationResourceParamsDiffOrders =
+        "Observation?_sort=-date&_count=1&code=test%2Chttp://loinc.org|65972-2&date=gt{{today()-4 weeks}}&patient={{%patient.id}}";
+      const expressionObservationResourceParamsDiffOrders2 =
+        "Observation?patient={{%patient.id}}&_sort=-date&_count=1&code=test%2Chttp://loinc.org|65972-2&date=gt{{today()-6 months}}";
+
+      const fhirqueryobs1 = service.decodeFHIRQueryObservationURIExpression(expressionConditionResource);
+      const fhirqueryobs2 = service.decodeFHIRQueryObservationURIExpression(expressionObservationResourceShort);
+      const fhirqueryobs3 = service.decodeFHIRQueryObservationURIExpression(expressionObservationResource);
+      const fhirqueryobs4 = service.decodeFHIRQueryObservationURIExpression(expressionObservationResourceParamsDiffOrders);
+      const fhirqueryobs5 = service.decodeFHIRQueryObservationURIExpression(expressionObservationResourceParamsDiffOrders2);
+      
+      expect(fhirqueryobs1).toBeNull();
+      expect(fhirqueryobs2).toBeNull();
+      
+      expect(fhirqueryobs3).not.toBeNull();
+      const output3Keys = Object.keys(fhirqueryobs3);
+      for (let i = 0; i < RuleEditorService.FHIR_QUERY_OBS_FIELDS.length; i++) {
+        expect(output3Keys).toContain(RuleEditorService.FHIR_QUERY_OBS_FIELDS[i]);
+      }
+      expect(fhirqueryobs3['date']).toEqual("gt{{today()-2 days}}");
+
+      expect(fhirqueryobs4).not.toBeNull();
+      const output4Keys = Object.keys(fhirqueryobs4);
+      for (let i = 0; i < RuleEditorService.FHIR_QUERY_OBS_FIELDS.length; i++) {
+        expect(output4Keys).toContain(RuleEditorService.FHIR_QUERY_OBS_FIELDS[i]);
+      }
+      expect(fhirqueryobs4['date']).toEqual("gt{{today()-4 weeks}}");
+
+      expect(fhirqueryobs5).not.toBeNull();
+      const output5Keys = Object.keys(fhirqueryobs5);
+      for (let i = 0; i < RuleEditorService.FHIR_QUERY_OBS_FIELDS.length; i++) {
+        expect(output5Keys).toContain(RuleEditorService.FHIR_QUERY_OBS_FIELDS[i]);
+      }
+      expect(fhirqueryobs5['date']).toEqual("gt{{today()-6 months}}");   
+    });
+  });
+
+  describe('getFHIRQueryObservationMatches', () => {
+    it('should extract FHIR Query Observation match array', () => {
+      // URI encoded
+      const expressionConditionResource = "Condition?onset=23%20May%202009";
+      const expressionObservationResourceShort = "Observation?code=loinc|1234-1";
+      const expressionObservationResource =
+        "Observation?code=test%2Chttp://loinc.org|65972-2&date=gt{{today()-2 days}}&patient={{%patient.id}}&_sort=-date&_count=1";
+      const expressionObservationResourceParamsDiffOrders = 
+        "Observation?_sort=-date&_count=1&code=test%2Chttp://loinc.org|65972-2&date=gt{{today()-4 weeks}}&patient={{%patient.id}}";
+      const expressionObservationResourceParamsDiffOrders2 =
+        "Observation?patient={{%patient.id}}&_sort=-date&_count=1&code=test%2Chttp://loinc.org|65972-2&date=gt{{today()-6 months}}";
+
+      const matchArr1 = service.getFHIRQueryObservationMatches(expressionConditionResource);
+      const matchArr2 = service.getFHIRQueryObservationMatches(expressionObservationResourceShort);
+      const matchArr3 = service.getFHIRQueryObservationMatches(expressionObservationResource);
+      const matchArr4 = service.getFHIRQueryObservationMatches(expressionObservationResourceParamsDiffOrders);
+      const matchArr5 = service.getFHIRQueryObservationMatches(expressionObservationResourceParamsDiffOrders2);
+      
+      expect(matchArr1.length).toEqual(0);
+      expect(matchArr2.length).toEqual(0);
+      expect(matchArr3.length).toEqual(4);
+      expect(matchArr3[2]).toEqual("2");
+      expect(matchArr3[3]).toEqual("days");
+      expect(matchArr4.length).toEqual(4);
+      expect(matchArr4[2]).toEqual("4");
+      expect(matchArr4[3]).toEqual("weeks");
+      expect(matchArr5.length).toEqual(4);
+      expect(matchArr5[2]).toEqual("6");
+      expect(matchArr5[3]).toEqual("months");
+
     });
   });
 

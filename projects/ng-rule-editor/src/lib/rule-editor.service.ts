@@ -52,6 +52,7 @@ export class RuleEditorService {
   static SCORE_EXPRESSION_EXTENSION_LINKIDS = 'http://lhcforms.nlm.nih.gov/fhirExt/rule-editor-score-expression-linkids';
   static SIMPLE_SYNTAX_EXTENSION = 'http://lhcforms.nlm.nih.gov/fhirExt/simple-syntax';
   static VARIABLE_TYPE = 'http://lhcforms.nlm.nih.gov/fhirExt/rule-editor-variable-type';
+  static FHIR_QUERY_OBS_FIELDS = ['code', 'date', 'patient', '_sort', '_count'];
 
   syntaxType = 'simple';
   linkIdContext: string;
@@ -81,6 +82,9 @@ export class RuleEditorService {
   private LANGUAGE_FHIR_QUERY = 'application/x-fhir-query';
   private QUESTION_REGEX = /^%resource\.item\.where\(linkId='(.*)'\)\.answer\.value(?:\*(\d*\.?\d*))?$/;
   private QUERY_REGEX = /^Observation\?code=(.+)&date=gt{{today\(\)-(\d+) (.+)}}&patient={{%patient.id}}&_sort=-date&_count=1$/;
+  
+  private QUERY_DATE_REGEX = /gt{{today\(\)-(\d+) (.+)}}/;
+
   private VARIABLE_EXTENSION = 'http://hl7.org/fhir/StructureDefinition/variable';
   private CALCULATED_EXPRESSION = 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression';
   private LAUNCH_CONTEXT_URI = 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-launchContext';
@@ -390,8 +394,8 @@ export class RuleEditorService {
       item = this.linkIdToQuestion[item];
     }
 
-    return (item.answerOption || []).some((answerOption) => {
-      return (answerOption.extension || []).some((extension) => {
+    return (item?.answerOption || []).some((answerOption) => {
+      return (answerOption?.extension || []).some((extension) => {
         return extension.url === 'http://hl7.org/fhir/StructureDefinition/ordinalValue';
       });
     });
@@ -701,8 +705,9 @@ export class RuleEditorService {
    * @private
    */
   private processQueryVariable(name, expression, index?: number, variableType?: string): Variable {
-    let matches = this.decodeQueryURIExpression(expression).match(this.QUERY_REGEX);
-    if ((variableType === "queryObservation") || (!variableType && matches !== null)) {
+    const matches = this.getFHIRQueryObservationMatches(expression);
+    if ((variableType === "queryObservation" || !variableType) &&
+        matches.length > 0) {
       const codes = matches[1].split(',');
       const timeInterval = parseInt(matches[2], 10);
       const timeIntervalUnits = matches[3];
@@ -1564,7 +1569,7 @@ export class RuleEditorService {
    * Decode the Query URL expression.  This supports the query that was saved
    * prior to this change (without URL encoded, just the %2C) and the new
    * URL encoded string
-   * @param excodedExp - Encoded expression
+   * @param expression - Encoded expression
    * @return Decoded URL expression string
    */
   decodeQueryURIExpression(expression: string): string {
@@ -1585,6 +1590,76 @@ export class RuleEditorService {
       queryString += '?' + decodedParams.join('&');
     }
     return queryString;
+  }
+
+  /**
+   * Checks if all specified keys are present in the given object.
+   * @param obj - The object to check for keys
+   * @param keys - An array of keys to check for
+   * @returns True if all keys are present in the object, otherwise false
+   */
+  hasAllProperties(obj: any, keys: string[]): boolean {
+    for (const key of keys) {
+      if (!(key in obj)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  /**
+   * Decode the Query URL expression for FHIR Query Qbservation.
+   * @param expression - FHIR query expression
+   * @returns Returns an object if all specified keys are present, otherwise null
+   */
+  decodeFHIRQueryObservationURIExpression(expression: string): { [key: string]: string } | null {
+    const decodedParams: { [key: string]: string } = {};
+    const resourceArr = expression.split("?");
+    let queryString = resourceArr[0];
+
+    if (queryString !== "Observation")
+      return null;
+
+    if (resourceArr.length > 1) {
+      const queryParams = resourceArr[1].split('&');
+      queryParams.forEach((queryParam) => {
+        const param = queryParam.split('=');
+        const paramKey = this.getDecodeURI(param[0]);
+        const paramVal = this.getDecodeURI(param[1]);
+        decodedParams[paramKey] = paramVal;
+      });
+    }
+    return (this.hasAllProperties(decodedParams, RuleEditorService.FHIR_QUERY_OBS_FIELDS)) ? decodedParams : null;
+  };
+
+  /**
+   * Parse FHIR Query expression with parameters in any order.
+   * @param expression - FHIR query expression
+   * @returns array result that contains the expression, codes,
+   * time interval, and time interval unit 
+   */
+  getFHIRQueryObservationMatches(expression: string ): string[] {
+    const obs = [];
+    const decodedParams = this.decodeFHIRQueryObservationURIExpression(expression);
+
+    if (!decodedParams)
+      return obs;
+
+    obs.push(expression);
+    obs.push(('code' in decodedParams) ? decodedParams['code'] : "");
+
+    if ('date' in decodedParams) {
+      const dateMatches = decodedParams['date'].match(this.QUERY_DATE_REGEX);
+
+      if (dateMatches.length === 3) {
+        const timeInterval = dateMatches[1];
+        const timeIntervalUnits = dateMatches[2];
+        obs.push(timeInterval);
+        obs.push(timeIntervalUnits);
+      }
+    }
+
+    return obs;
   }
 
   /**
