@@ -7,6 +7,7 @@ import { EasyPathExpressionsPipe } from '../easy-path-expressions.pipe';
 import { LiveAnnouncer } from '@angular/cdk/a11y';
 import { NgModel } from '@angular/forms';
 import * as fhirpath from 'fhirpath';
+import * as constants from "../validation";
 
 @Component({
   selector: 'lhc-case-statements',
@@ -39,6 +40,9 @@ export class CaseStatementsComponent implements OnInit, OnChanges, OnDestroy, Af
   hasError = false;
   defaultCaseError = '';
   performValidationSubscription;
+
+  caseAriaErrorMessages = [];
+  caseAriaErrorMessage = '';
 
   constructor(private ruleEditorService: RuleEditorService,
               private liveAnnouncer: LiveAnnouncer,
@@ -176,17 +180,21 @@ export class CaseStatementsComponent implements OnInit, OnChanges, OnDestroy, Af
 
   /**
    * Compose the error result object based on the results: 'Not Valid', 'Required' or null
-   * @param key - Section of the case statement: 'condition' or 'output'
+   * @param key - Section of the case statement: 'condition', 'output', or 'default case'
    * @param result - 'Not Valid' or 'Required'
    * @return ValidationError object or null if there is no error
    */
   composeErrorResultObject(key: string, result: string): ValidationError {
     let errorObj = null;
     if (result === 'Not valid') {
+      const notValidAriaMessage = (key !== 'default case') ?
+        "One of the " + key + " in the Output Expression section is no longer valid." :
+        "The " + key + " in the Output Expression section is no longer valid.";
+
       errorObj = {
         "invalidCaseStatementError": true,
         "message": "The " + key + " is invalid.",
-        "ariaMessage": "The " + key + " is invalid."
+        "ariaMessage": notValidAriaMessage
       };
     } else if (result ===  'Required') {
       errorObj = {
@@ -211,6 +219,8 @@ export class CaseStatementsComponent implements OnInit, OnChanges, OnDestroy, Af
     if (type in this.cases[index].error) {
       hasError = true;
       result = this.composeErrorResultObject('case ' + type, this.cases[index].error[type]);
+    
+      this.caseAriaErrorMessages.push(result.ariaMessage);
     }
     setTimeout(()=> {
       element.control.setErrors(result);
@@ -226,8 +236,11 @@ export class CaseStatementsComponent implements OnInit, OnChanges, OnDestroy, Af
    */
   checkAndUpdateCaseErrors(caseElements: any, type: string): boolean {
     let hasError = false;
-    caseElements.forEach((c, index) => {
-      if ((c.dirty && c.control.value === "") || (c.control.value)) {
+    caseElements.forEach((c, index) => {    
+      const caseError = this.cases[index]['error'];
+      if ((c.dirty && c.control.value === "") ||
+          (c.control.value) ||
+          (caseError && caseError?.[type] && caseError[type] !== 'Required')) {
         const errorFound = this.setElementError(c, index, type);
         if (errorFound)
           hasError = true;
@@ -238,13 +251,29 @@ export class CaseStatementsComponent implements OnInit, OnChanges, OnDestroy, Af
   };
 
   /**
+   * Create the ARIA error message to inform screen reader users of errors in the
+   * Case Statements under the Output Expression section.
+   */
+  composeAriaErrorMessage(): void {
+    if (this.caseAriaErrorMessages.length > 1)
+      this.caseAriaErrorMessage = constants.INVALID_CASES_EXPRESSION; 
+    else if (this.caseAriaErrorMessages.length === 1) {
+      this.caseAriaErrorMessage = this.caseAriaErrorMessages[0];
+    }
+  }
+
+  /**
    * Check for validation errors on the default case
    * @return true if the default case contains error.
    */
   checkAndUpdateDefaultCaseError(): boolean {
     let result = null;
-    if ((this.caseDefaultRef.dirty ) || (this.caseDefaultRef.control.value)) {
+    if ((this.caseDefaultRef.dirty ) || (this.caseDefaultRef.control.value) || (this.defaultCaseError && this.defaultCaseError !== 'Required')) {
       result = this.composeErrorResultObject('default case', this.defaultCaseError);
+    }
+
+    if (result && ('ariaMessage' in result)) {
+      this.caseAriaErrorMessages.push(result.ariaMessage);
     }
 
     setTimeout(()=> {
@@ -263,11 +292,13 @@ export class CaseStatementsComponent implements OnInit, OnChanges, OnDestroy, Af
       "section" : SectionTypes.OutputExpression,
       "field": FieldTypes.Case
     };
+    this.caseAriaErrorMessages = [];
+    this.caseAriaErrorMessage = '';
 
     const hasConditionErrors = this.checkAndUpdateCaseErrors(this.caseConditionRefs, 'condition');
     const hasOutputErrors = this.checkAndUpdateCaseErrors(this.caseOutputRefs, 'output');
     const hasDefaultCaseError = this.checkAndUpdateDefaultCaseError();
-
+    
     let result = null;
     if (hasConditionErrors || hasOutputErrors || hasDefaultCaseError) {
       this.hasError = true;
@@ -278,6 +309,9 @@ export class CaseStatementsComponent implements OnInit, OnChanges, OnDestroy, Af
       }
     } else 
       this.hasError = false;
+
+    this.composeAriaErrorMessage();
+
     this.ruleEditorService.notifyValidationResult(param, result);
 
   };
@@ -398,14 +432,20 @@ export class CaseStatementsComponent implements OnInit, OnChanges, OnDestroy, Af
     const output = this.transformIfSimple(isSimple ?
       this.cases[level].simpleOutput :
       this.cases[level].output, true);
-    const condition = this.transformIfSimple(isSimple ?
+    let condition = this.transformIfSimple(isSimple ?
       this.cases[level].simpleCondition :
       this.cases[level].condition, false);
-
+    
     const defaultCase = this.transformIfSimple(isSimple ?
       this.simpleDefaultCase : this.defaultCase, true);
 
     this.setCaseStatementsErrors(level, condition, output, defaultCase);
+
+    if (condition === 'Not valid') {
+      condition = (isSimple) ?
+        this.cases[level].simpleCondition :
+        this.cases[level].condition, false;
+    }
 
     if (level === 0) {
       const previousValue = this.hidePreview;
@@ -446,7 +486,10 @@ export class CaseStatementsComponent implements OnInit, OnChanges, OnDestroy, Af
       return this.pipe.transform(processedExpression, this.ruleEditorService.variables.map(e => e.label));
     } else {
       // Calling fhirpath.evaluate only on Case condition.
-      if (!isOutput) {
+      if (this.outputExpressions) {
+        if (!processedExpression)
+          return 'Required';
+
         try {
           const variableNames = this.ruleEditorService.getContextVariableNamesForExpressionValidation();
           const result = fhirpath.evaluate({}, processedExpression, variableNames);

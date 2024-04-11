@@ -7,6 +7,7 @@ import { FormsModule } from '@angular/forms';
 import { CaseStatementsComponent } from './case-statements/case-statements.component';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { SyntaxPreviewComponent } from './syntax-preview/syntax-preview.component';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 describe('RuleEditorComponent', () => {
   let component: RuleEditorComponent;
@@ -21,7 +22,7 @@ describe('RuleEditorComponent', () => {
         CaseStatementsComponent,
         SyntaxPreviewComponent
       ],
-      imports: [ FormsModule, MatSnackBarModule ]
+      imports: [ FormsModule, MatSnackBarModule, MatTooltipModule ]
     })
     .compileComponents();
   });

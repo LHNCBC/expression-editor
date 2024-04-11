@@ -51,7 +51,7 @@ function getRequiredErrorObject(type, field): ValidationError {
 /**
  * Compose the Invalid Expression error
  * @param invalidVariableName - true if the validation error is in the Output Expression
- *                              section and was causing by the variable name.
+ *                              section and was caused by the variable name.
  * @returns Invalid expression error object
  */
 function getInvalidExpressionErrorObject(invalidVariableName = false): ValidationError {
@@ -80,7 +80,7 @@ export function expressionValidator(param: ValidationParam): ValidatorFn {
           // the invalidExpressionError
           const result = fhirpath.evaluate({}, control.value, JSON.parse(param.variableNames));
         } catch(e) {
-          return getInvalidExpressionErrorObject(false);
+          return getInvalidExpressionErrorObject(true);
         }
       } else if (param.type === "simple") {
         // Converts the array into string array

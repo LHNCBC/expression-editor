@@ -108,8 +108,13 @@
                                                  'type': 'fhirpath'}"
                 >
             </div>
-
-            <div id="expression-error" role="alert" class="row error-span">
+            <div id="expression-audible-error" role="alert" *ngIf="exp.errors"
+                 class="row error-span visually-hidden">
+              <p class="expression-error" >
+                {{exp.errors.ariaMessage}}
+              </p>
+            </div>
+            <div id="expression-error" class="row error-span">
               <p class="expression-error" *ngIf="exp.errors">
                 {{exp.errors.message}}
               </p>

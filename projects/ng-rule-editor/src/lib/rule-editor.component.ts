@@ -75,6 +75,34 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
     });
     this.variablesSubscription = this.variableService.variablesChange.subscribe((variables) => {
       this.variables = this.variableService.getVariableNames();
+
+      // Update the final expression to re-evaluate it against the new variable list.
+      if (this.caseStatements) {
+        const tmpExpressionSyntax = this.expressionSyntax;
+        const tmpFinalExpression = this.finalExpression;
+
+        if (this.expressionSyntax === "fhirpath") {
+          this.finalExpression = '';
+        }
+        this.expressionSyntax = '';
+    
+        setTimeout(() => {
+          this.expressionSyntax = tmpExpressionSyntax;
+
+          if (this.expressionSyntax === "fhirpath") {
+            this.finalExpression = (this.validationError) ? this.previousFinalExpression : tmpFinalExpression;
+          }
+        }, 10);
+      } else {
+        if (this.expressionSyntax === "fhirpath") {
+          const tmpFinalExpression = this.finalExpression;
+          this.updateFinalExpression("");
+          
+          setTimeout(() => {
+            this.updateFinalExpression(tmpFinalExpression);
+          }, 0);
+        }
+      }
     });
     this.uneditableVariablesSubscription = this.variableService.uneditableVariablesChange.subscribe((variables) => {
       this.variables = this.variableService.getVariableNames();
