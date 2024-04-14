@@ -15,31 +15,28 @@ describe('Rule editor', () => {
 
         // The 'Open Rule Editor' should be enabled because by default
         // the Question BMI is selected
-        cy.get('#openRuleEditor').should('not.be.disabled');
+        cy.get('#openRuleEditor').should('not.have.class', 'disabled');
         
         cy.get('#question').clear().type('{enter}');
 
-        // The 'Open Rule Editor' should be disabled
-        cy.get('#openRuleEditor').should('be.disabled');
+        cy.get('#useRootLevel').should('be.checked');
 
-        // Select the Root level
-        cy.get('#useRootLevel').check();
         // The 'Open Rule Editor' should be enabled
-        cy.get('#openRuleEditor').should('not.be.disabled');
+        cy.get('#openRuleEditor').should('not.have.class', 'disabled');
 
         // Unselect the Root level
         cy.get('#useRootLevel').uncheck();
         // If the Root level is unchecked, it will revert to the default linkId (question)
         cy.get('#question').should('have.value', 'BMI (/39156-5)');
         // The 'Open Rule Editor' should not be disabled
-        cy.get('#openRuleEditor').should('not.be.disabled');
+        cy.get('#openRuleEditor').should('not.have.class', 'disabled');
 
         // Select the question
         cy.get('#question').clear().type('Clothing worn during measure');
         cy.get('span#completionOptions > ul > li').contains('8352-7').click();
         cy.get('#question').should('have.value', 'Clothing worn during measure (/8352-7)');
         // The 'Open Rule Editor' should be enabled
-        cy.get('#openRuleEditor').should('not.be.disabled');
+        cy.get('#openRuleEditor').should('not.have.class', 'disabled');
 
       });
 

@@ -14,7 +14,7 @@ describe('Rule editor demo', () => {
       cy.get('select#questionnaire-select').select('Upload your own questionnaire');
 
       // The 'Open Rule Editor' should be disabled
-      cy.get('#openRuleEditor').should('be.disabled');
+      cy.get('#openRuleEditor').should('have.class', 'disabled');
 
       // Select file to upload
       cy.get('#file-upload').attachFile('bmi.json');
@@ -22,18 +22,18 @@ describe('Rule editor demo', () => {
       // By default, the 'Root level' checkbox is checked
       cy.get('#root-level').should('exist').should('be.checked')
       // The 'Open Rule Editor' should be enabled in this case
-      cy.get('#openRuleEditor').should('not.be.disabled');
+      cy.get('#openRuleEditor').should('not.have.class', 'disabled');
 
       // Uncheck the 'Root level' checkbox
       cy.get('#root-level').uncheck();
       // The 'Open Rule Editor' should be disabled
-      cy.get('#openRuleEditor').should('be.disabled');
+      cy.get('#openRuleEditor').should('have.class', 'disabled');
 
       // Select Question - BMI
       cy.get('#question').type('bmi');
       cy.get('span#completionOptions > ul > li').contains('39156-5').click();
       // The 'Open Rule Editor' should be enabled again.
-      cy.get('#openRuleEditor').should('not.be.disabled');
+      cy.get('#openRuleEditor').should('not.have.class', 'disabled');
 
     });
 
