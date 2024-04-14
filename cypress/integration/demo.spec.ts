@@ -417,8 +417,7 @@ describe('Rule editor demo', () => {
 
       // The Scoring Item panel should now display
       cy.get('lhc-select-scoring-items').should('exist');
-      cy.get('div.scoring-items-selection-body')
-      .within(() => {
+      cy.get('div.scoring-items-selection-body').within(() => {
         cy.get('div.items-tree tree-node').should('have.length', 17);
         cy.get('.angular-tree-component  [type="checkbox"]').as('checkboxes');
 

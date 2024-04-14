@@ -1,7 +1,10 @@
-import { AfterViewInit, Component, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, Input, OnDestroy, OnInit, ViewChild, ViewChildren, QueryList } from '@angular/core';
 import { RuleEditorService, SimpleStyle } from '../rule-editor.service';
 import Def from 'autocomplete-lhc';
 import { HttpClient } from '@angular/common/http';
+
+import { NgModel } from '@angular/forms';
+import { ExpressionValidatorDirective } from '../../directives/expression/expression-validator.directive';
 
 @Component({
   selector: 'lhc-query-observation',
@@ -15,6 +18,13 @@ export class QueryObservationComponent implements OnInit, AfterViewInit, OnDestr
   @Input() index;
   @Input() lhcStyle: SimpleStyle = {};
   @ViewChild('autoComplete') autoCompleteElement;
+  @ViewChild('qobs') codeRef: NgModel;
+  @ViewChild('timeintv') timeIntervalRef: NgModel;
+  @ViewChild(ExpressionValidatorDirective) expressionValidator: ExpressionValidatorDirective;
+
+  performValidationSubscription;
+  hasError = false;
+
   autoComplete;
   codes: Array<string>;
   timeInterval: number;
@@ -46,6 +56,12 @@ export class QueryObservationComponent implements OnInit, AfterViewInit, OnDestr
     } else {
       this.codes = [];
     }
+
+    // performValidationSubscription is triggered when the 'Save' button is clicked, allowing each
+    // subscribed component to validate the expression data.
+    this.performValidationSubscription = this.ruleEditorService.performValidationChange.subscribe((validation) => {
+        this.onChange();
+    });
   }
 
   /**
@@ -102,12 +118,15 @@ export class QueryObservationComponent implements OnInit, AfterViewInit, OnDestr
     if (this.autoComplete !== undefined) {
       this.autoComplete.destroy();
     }
+
+    this.performValidationSubscription.unsubscribe();
   }
 
   /**
    * On changes update the expression and preview
+   * @param expressionChange - true if there is a change in the expression input
    */
-  onChange(): void {
+  onChange(expressionChange: boolean = true): void {
     delete this.variable.simple;
     delete this.variable.linkId;
 
@@ -118,5 +137,27 @@ export class QueryObservationComponent implements OnInit, AfterViewInit, OnDestr
       `date=gt{{today()-${this.timeInterval} ${this.timeIntervalUnit}}}&` +
       `patient={{%patient.id}}&_sort=-date&_count=1`;
     this.variable.expression = this.expression;
+
+    // Due to the change to the expression, calling this to trigger the attribute directive validation.
+    if (expressionChange)
+      this.triggerExpressionValidation();
+  };
+
+
+  /**
+   * Trigger the invocation of the attribute directive validation. The ngModel is not providing
+   * two-way binding for the question and the query-observation components; therefore, this
+   * function is requried to trigger the validation.
+   */
+  triggerExpressionValidation():void {
+    if (this.codeRef) {
+      this.codeRef.control.markAsTouched();
+      this.codeRef.control.markAsDirty();
+      this.codeRef.control.setValue((this.codes.length > 0) ? this.expression : "" );
+  
+      const result = this.expressionValidator.validate(this.codeRef.control);
+    
+      this.codeRef.control.setErrors(result);
+    }
   }
 }

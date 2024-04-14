@@ -393,8 +393,9 @@ describe('Rule editor', () => {
         .should('be.visible')
         .should('not.have.class', 'field-error');
 
-        // Type 'a' into the expression
-        cy.get('#simple-expression-2').type('a');
+        // Type 'a' into the expression, there should be no error
+        cy.get('#simple-expression-2').type('a')
+          .should('not.have.class', 'field-error');
 
         // The 'Save' button should be enabled.
         cy.get('#export').should('not.have.class', 'disabled');

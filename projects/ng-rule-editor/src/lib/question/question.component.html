@@ -1,6 +1,19 @@
 <div class="form-inline question">
   <div class="question-select">
-    <input [style]="lhcStyle.input" placeholder="Select" class="query-autocomplete" #autoComplete id="question-{{index}}" />
+    <input [style]="lhcStyle.input" placeholder="Select" class="query-autocomplete"
+           #autoComplete id="question-{{index}}"
+
+           [attr.aria-invalid]="question.invalid"
+           [attr.aria-label]="question?.errors?.ariaMessage"
+           [class.field-error]="question.errors"
+           (ngModel)="variable.expression"
+           #question="ngModel"
+           lhcExpressionValidator
+           [lhcExpressionValidateInput]="'true'"
+           [lhcExpressionValidatorParams]="{'section': 'Item Variables',
+                                            'field': 'expression', 'type': 'question',
+                                            'linkId': linkId, 'index': index}"
+    />
   </div>
 
   <div class="unit-select">
@@ -14,5 +27,9 @@
     <div *ngIf="itemHasScore" class="detail">Score</div>
   </div>
 </div>
-
-<lhc-syntax-preview [syntax]="expression" [lhcStyle]="lhcStyle"></lhc-syntax-preview>
+<lhc-syntax-preview [syntax]="expression" [lhcStyle]="lhcStyle" *ngIf="!question.errors"></lhc-syntax-preview>
+<div id="expression-error" role="alert" class="row error-span">
+  <p class="expression-error" *ngIf="question.errors">
+    {{question.errors.message}}
+  </p>
+</div>

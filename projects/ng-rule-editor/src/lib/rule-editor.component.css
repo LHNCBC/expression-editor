@@ -40,6 +40,7 @@ h1 {
 }
 
 .flex-vertical {
+  width: 100%;
   flex-direction: column;
 }
 
@@ -121,12 +122,4 @@ button.disabled {
   background-color: gray !important;
   opacity: 0.6;
   cursor: not-allowed;
-}
-
-input.field-error {
-  border: 4px solid red !important;
-}
-
-.fhirpath-error {
-  color: red !important;
 }
