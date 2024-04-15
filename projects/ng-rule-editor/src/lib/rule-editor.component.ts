@@ -141,6 +141,9 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
    * @return string to be used by the 'Save' button as the aria-label in the case of any validation error.
    */
   composeAriaValidationErrorMessage(validation: ValidationResult): string {
+    if (!validation.hasError)
+      return "";
+
     let message = "The 'save' button is disabled due to ";
 
     if (validation.errorInItemVariables) {
@@ -152,11 +155,11 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
 
     if (validation.errorInOutputExpression) {
       message += (validation.errorInItemVariables) ?
-                               ", and " : " an error ";
+                               ", and " : "an error ";
       message += "with the expression in the Output Expression section.";
     } else if (validation.errorInOutputCaseStatement) {
       message += (validation.errorInItemVariables) ?
-                               ", and " : " an error ";
+                               ", and " : "an error ";
       message += "with the case statement in the Output Expression section.";
     } else {
       message += ".";
