@@ -81,9 +81,9 @@ export class RuleEditorService {
   private LANGUAGE_FHIRPATH = 'text/fhirpath';
   private LANGUAGE_FHIR_QUERY = 'application/x-fhir-query';
   private QUESTION_REGEX = /^%resource\.item\.where\(linkId='(.*)'\)\.answer\.value(?:\*(\d*\.?\d*))?$/;
-  private QUERY_REGEX = /^Observation\?code=(.+)&date=gt{{today\(\)-(\d+) (.+)}}&patient={{%patient.id}}&_sort=-date&_count=1$/;
+  private QUERY_REGEX = /^Observation\?code=(.+)&date=gt{{today\(\)-(\d+) (\S+)}}&patient={{%patient.id}}&_sort=-date&_count=1$/;
   
-  private QUERY_DATE_REGEX = /gt{{today\(\)-(\d+) (.+)}}/;
+  private QUERY_DATE_REGEX = /gt{{today\(\)-(\d+) (\S+)}}/;
 
   private VARIABLE_EXTENSION = 'http://hl7.org/fhir/StructureDefinition/variable';
   private CALCULATED_EXPRESSION = 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression';
@@ -1636,7 +1636,10 @@ export class RuleEditorService {
    * Parse FHIR Query expression with parameters in any order.
    * @param expression - FHIR query expression
    * @returns array result that contains the expression, codes,
-   * time interval, and time interval unit 
+   * time interval, and time interval unit, or an empty array. 
+   * If not all the required keys are present, the
+   * decodeFHIRQueryObservationURIExpression function returns null,
+   * resulting in an empty array being returned.
    */
   getFHIRQueryObservationMatches(expression: string ): string[] {
     const obs = [];
@@ -1645,18 +1648,15 @@ export class RuleEditorService {
     if (!decodedParams)
       return obs;
 
-    obs.push(expression);
-    obs.push(('code' in decodedParams) ? decodedParams['code'] : "");
-
-    if ('date' in decodedParams) {
-      const dateMatches = decodedParams['date'].match(this.QUERY_DATE_REGEX);
-
-      if (dateMatches.length === 3) {
-        const timeInterval = dateMatches[1];
-        const timeIntervalUnits = dateMatches[2];
-        obs.push(timeInterval);
-        obs.push(timeIntervalUnits);
-      }
+    const dateMatches = decodedParams['date'].match(this.QUERY_DATE_REGEX);
+    
+    if (dateMatches && dateMatches.length === 3) {
+      const timeInterval = dateMatches[1];
+      const timeIntervalUnits = dateMatches[2];
+      obs.push(expression);
+      obs.push(decodedParams['code']);
+      obs.push(timeInterval);
+      obs.push(timeIntervalUnits);
     }
 
     return obs;
