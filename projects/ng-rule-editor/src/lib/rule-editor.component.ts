@@ -142,24 +142,26 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
    */
   composeAriaValidationErrorMessage(validation: ValidationResult): string {
     let message = "The 'save' button is disabled due to ";
-    let itemVariablesMessage = "";
-    if (validation.errorInItemVariables) {
-      itemVariablesMessage = "error in the Item Variable section ";
-    }
 
-    let outputExpressionMessage = "";
+    if (validation.errorInItemVariables) {
+      message += (validation.errorInOutputCaseStatement ||
+                   validation.errorInOutputExpression) ?
+                   "errors" : "an error";
+      message += " in the Item Variable section";
+    }
 
     if (validation.errorInOutputExpression) {
-      if (itemVariablesMessage !== "")
-        outputExpressionMessage += " and ";
-      outputExpressionMessage += "error with the expression in the Output Expression section";
+      message += (validation.errorInItemVariables) ?
+                               ", and " : " an error ";
+      message += "with the expression in the Output Expression section.";
     } else if (validation.errorInOutputCaseStatement) {
-      if (itemVariablesMessage !== "")
-        outputExpressionMessage += " and ";
-      outputExpressionMessage += "error with the case statement in the Output Expression section";
+      message += (validation.errorInItemVariables) ?
+                               ", and " : " an error ";
+      message += "with the case statement in the Output Expression section.";
+    } else {
+      message += ".";
     }
 
-    message += itemVariablesMessage + outputExpressionMessage;
     return message;
   };
 

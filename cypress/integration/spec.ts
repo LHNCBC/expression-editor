@@ -1734,19 +1734,19 @@ describe('Rule editor', () => {
           });
 
         // Done button should be disabled.
-        cy.get('#export-score').should('be.disabled');
+        cy.get('#export-score').should('have.class', 'disabled');
 
         // Select an individual item
         cy.get('@checkboxes').eq(2).check();
 
         // Done button should now be enabled.
-        cy.get('#export-score').should('be.enabled');
+        cy.get('#export-score').should('not.have.class', 'disabled');
 
         // Unselect an individual item
         cy.get('@checkboxes').eq(2).uncheck();
 
-        // Done button should now be enabled.
-        cy.get('#export-score').should('be.disabled');
+        // Done button should now be disabled.
+        cy.get('#export-score').should('have.class', 'disabled');
 
         // Select all items
         cy.get('#selectAll').click();
@@ -1763,12 +1763,12 @@ describe('Rule editor', () => {
           });
 
         // Done button should now be enabled.
-        cy.get('#export-score').should('be.enabled');
+        cy.get('#export-score').should('not.have.class', 'disabled');
 
         // Unselect all items
         cy.get('#unselectAll').click();
 
-        // Validate to make sure that no items are selected
+        // Validate to make sure that no items were selected
         cy.get('div.scoring-items-selection-body')
           .within(() => {
             cy.get('div.items-tree tree-node').should('have.length', 26);
@@ -1779,8 +1779,8 @@ describe('Rule editor', () => {
             });
           });
 
-        // Button should now be enabled.
-        cy.get('#export-score').should('be.disabled');
+        // Button should now be disabled.
+        cy.get('#export-score').should('have.class', 'disabled');
       });
 
       it('should be able to export score with selected individual items', () => {
@@ -2036,7 +2036,7 @@ describe('Rule editor', () => {
           });
 
           // Done button should now be enabled.
-          cy.get('#export-score').should('be.enabled'); 
+          cy.get('#export-score').should('not.have.class', 'disabled'); 
       });
       
       it('should be able to deselect, select items and export correctly', () => {
