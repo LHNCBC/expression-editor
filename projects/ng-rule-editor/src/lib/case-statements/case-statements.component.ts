@@ -170,6 +170,7 @@ export class CaseStatementsComponent implements OnInit, OnChanges, OnDestroy, Af
    * Angular lifecycle hook for changes
    */
   onChange(): void {
+    this.hasError = false;
     this.output = this.getIif(0);
     this.expressionChange.emit(this.output);
     this.simpleChange.emit(this.simpleExpression);
@@ -188,19 +189,19 @@ export class CaseStatementsComponent implements OnInit, OnChanges, OnDestroy, Af
     let errorObj = null;
     if (result === 'Not valid') {
       const notValidAriaMessage = (key !== 'default case') ?
-        "One of the " + key + " in the Output Expression section is no longer valid." :
-        "The " + key + " in the Output Expression section is no longer valid.";
+        `One of the ${key}s in the Output Expression section is no longer valid.` :
+        `The ${key} in the Output Expression section is no longer valid.`;
 
       errorObj = {
         "invalidCaseStatementError": true,
-        "message": "The " + key + " is invalid.",
+        "message": `The ${key} is invalid.`,
         "ariaMessage": notValidAriaMessage
       };
     } else if (result ===  'Required') {
       errorObj = {
         "invalidCaseStatementError": true,
-        "message": "The " + key + " is required.",
-        "ariaMessage": "The " + key + " is required."
+        "message": `The ${key} is required.`,
+        "ariaMessage": `The ${key} is required.`
       };
     }
     return errorObj;
