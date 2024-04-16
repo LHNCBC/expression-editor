@@ -58,7 +58,7 @@ describe('RuleEditorComponent', () => {
     }
 
     expect(component.composeAriaValidationErrorMessage(validationResult))
-           .toEqual("The 'save' button is disabled due to an error in the Item Variable section.");
+           .toEqual("The 'save' button is disabled due to one or more errors in the Item Variable section.");
   });
 
   it('should return an aria message if there is an error with the expression in the Output Expression section', () => {
@@ -70,11 +70,11 @@ describe('RuleEditorComponent', () => {
     }
 
     expect(component.composeAriaValidationErrorMessage(validationResult))
-           .toEqual("The 'save' button is disabled due to an error with the expression in the" +
+           .toEqual("The 'save' button is disabled due to one or more errors with the expression in the" +
            " Output Expression section.");
   });
 
-  it('should return an aria message if there is an error with the case statement in the Output Expression section', () => {
+  it('should return an aria message if there is one or more errors with the case statement in the Output Expression section', () => {
     const validationResult: ValidationResult = {
       hasError: true,
       errorInItemVariables: false,
@@ -83,7 +83,7 @@ describe('RuleEditorComponent', () => {
     }
 
     expect(component.composeAriaValidationErrorMessage(validationResult))
-           .toEqual("The 'save' button is disabled due to an error with the case statement in the" +
+           .toEqual("The 'save' button is disabled due to one or more errors with the case statement in the" +
            " Output Expression section.");
   });
 

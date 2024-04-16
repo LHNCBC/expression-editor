@@ -26,6 +26,7 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
 
   @ViewChild('exp') expRef;
 
+  noErrorMessage = "There are no more errors on the page.";
   errorLoading = 'Could not detect a FHIR Questionnaire; please try a different file.';
   expressionSyntax: string;
   simpleExpression: string;
@@ -111,15 +112,20 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
       this.disableInterfaceToggle = disable;
     });
     this.validationSubscription = this.variableService.validationChange.subscribe((validation: ValidationResult) => {
-      if (validation) {
+      if (validation && validation.hasError) {
         this.validationError = validation.hasError;
-  
         this.validationErrorMessage = (this.validationError) ? this.composeAriaValidationErrorMessage(validation) : "";
-      
         this.matToolTip = (this.validationErrorMessage) ? this.validationErrorMessage : "Save the Rule Editor";
+      } else {
+        // The validationError represents the current status while the validation.hasError flag
+        // represents the new status. If the status changes from 'true' to 'false', indicating
+        // that all errors have been resolved, the lifeAnnouncer will announce that all issues
+        // have been resolved.   
+        if (this.validationError) {
+          this.validationError = validation.hasError;
+          this.liveAnnouncer.announce(this.noErrorMessage);
+        }
       }
-      //this.validationError = validation.hasError;
-      //this.validationErrorMessage = (this.validationError) ? this.composeAriaValidationErrorMessage(validation) : "";
     });
 
     // performValidationSubscription is triggered when the 'Save' button is clicked, allowing each
@@ -149,18 +155,18 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
     if (validation.errorInItemVariables) {
       message += (validation.errorInOutputCaseStatement ||
                    validation.errorInOutputExpression) ?
-                   "errors" : "an error";
+                   "errors" : "one or more errors";
       message += " in the Item Variable section";
     }
 
     if (validation.errorInOutputExpression) {
       message += (validation.errorInItemVariables) ?
-                               ", and " : "an error ";
-      message += "with the expression in the Output Expression section.";
+                               ", and" : "one or more errors";
+      message += " with the expression in the Output Expression section.";
     } else if (validation.errorInOutputCaseStatement) {
       message += (validation.errorInItemVariables) ?
-                               ", and " : "an error ";
-      message += "with the case statement in the Output Expression section.";
+                               ", and" : "one or more errors";
+      message += " with the case statement in the Output Expression section.";
     } else {
       message += ".";
     }
