@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { CalculateSumPromptComponent } from './calculate-sum-prompt.component';
+import { BaseDialogComponent } from '../dialogs/base-dialog/base-dialog.component';
 
 describe('CalculateSumPromptComponent', () => {
   let component: CalculateSumPromptComponent;
@@ -8,7 +9,10 @@ describe('CalculateSumPromptComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ CalculateSumPromptComponent ]
+      declarations: [
+        CalculateSumPromptComponent,
+        BaseDialogComponent
+      ]
     })
     .compileComponents();
   });

@@ -3,6 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { TreeModule } from '@bugsplat/angular-tree-component';
 
 import { SelectScoringItemsComponent } from './select-scoring-items.component';
+import { BaseDialogComponent } from '../dialogs/base-dialog/base-dialog.component';
 
 describe('SelectScoringItemsComponent', () => {
   let component: SelectScoringItemsComponent;
@@ -10,7 +11,10 @@ describe('SelectScoringItemsComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ SelectScoringItemsComponent ],
+      declarations: [
+        SelectScoringItemsComponent,
+        BaseDialogComponent
+      ],
       imports: [ FormsModule, TreeModule ]
     })
     .compileComponents();

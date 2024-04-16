@@ -1,19 +1,17 @@
 <div 
+  role="dialog"
+  aria-modal="true"
   cdkTrapFocusAutoCapture
   cdkTrapFocus
-  role="dialog"
-  (click)="overlayClose($event)" 
-  aria-labelledby="title-bar"
-  aria-describedby="dialog-body"
-  [cdkTrapFocusAutoCapture]="true"
   cdkFocusInitial
-  aria-modal="true"
-  id="base-dialog"
+  attr.aria-labelledby="{{name}}-title"
+  (click)="overlayClose($event)"
+  attr.id="{{name}}-base-dialog"
   class="base-modal">
 
-  <div class="base-modal-content base-content" #modal aria-modal="true" [style]="dialogStyle.dialogContentDiv">
-    <div id="title-bar" class="base-modal-header" [attr.aria-label]="titleBarLabel" [ngStyle]="dialogStyle.dialogTitleBar" *ngIf="displayTitleBar" >
-      <span>{{titleBarLabel}}</span>
+  <div class="base-modal-content base-content" #modal [style]="dialogStyle.dialogContentDiv">
+    <div attr.id="{{name}}-title-bar" class="base-modal-header" [ngStyle]="dialogStyle.dialogTitleBar" *ngIf="displayTitleBar" >
+      <span attr.id="{{name}}-title">{{titleBarLabel}}</span>
       <button type="button" class="btn-close btn-close-white svg" aria-label="Close" (click)="onDialogClose()" >
         <svg viewBox="0 0 24 24">
           <circle cx="12" cy="12" r="10"></circle>
@@ -24,9 +22,9 @@
     </div>
     <div class="base-modal-body" [style]="dialogStyle.dialogBodyDiv">
       <div [style]="dialogStyle.dialogHeaderDiv">
-        <h2 id="dlg-title">{{headerLabel}}</h2>
+        <h2 attr.id="{{name}}-dialog-title">{{headerLabel}}</h2>
       </div>
-      <div id="dialog-body" class="base-modal-body-content">
+      <div attr.id="{{name}}-dialog-body" class="base-modal-body-content">
         <ng-content></ng-content>
       </div>
     </div>
@@ -34,5 +32,5 @@
       <button [id]="yesButtonId" role="button" class="primary" [ngStyle]="dialogStyle.buttonPrimary" (click)="onYes()" *ngIf="yes.observed" >{{yesButtonLabel}}</button>
       <button [id]="noButtonId" role="button" (click)="onNo()" *ngIf="no.observed">{{noButtonLabel}}</button>
     </div>
-</div>
+  </div>
 </div>

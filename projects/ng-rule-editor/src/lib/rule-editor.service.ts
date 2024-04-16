@@ -1841,6 +1841,9 @@ export class RuleEditorService {
     newObj['sct'] = 1;
     newObj['loinc'] = 1;
 
+    // This is required to support scoring FHIRPath expressions
+    newObj['questionnaire'] = 1;
+
     return newObj;
   }
 }

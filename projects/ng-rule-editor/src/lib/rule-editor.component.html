@@ -1,10 +1,10 @@
 <lhc-calculate-sum-prompt
-  *ngIf="calculateSum && !loadError && !selectItems && !dataExport" 
+  *ngIf="calculateSum && !loadError && !selectItems"
   (selectItems)="selectItemsForSumOfScores()"
-  (no)="confirmCancel()"
+  (no)="closeDialog()"
+  (dialogClose)="closeSumOfScoresDialog()"
   [lhcStyle]="lhcStyle">
 </lhc-calculate-sum-prompt>
-
 <lhc-select-scoring-items
   *ngIf="calculateSum && !loadError && selectItems"
   (export)="addSumOfScores()"
@@ -14,13 +14,16 @@
 
 <lhc-base-dialog
   *ngIf="!calculateSum && !loadError && !hideRuleEditor"
+  [name]="'rule-editor'"
   [titleBarLabel]="'Rule Editor'"
+  [dialogType]="'rule-editor'"
   (dialogClose)="closeDialog()">
 
   <lhc-cancel-changes-confirmation-dialog
     *ngIf="!calculateSum && !loadError && !hideRuleEditor && showCancelConfirmationDialog"
-    (confirmationYes)="confirmCancel()"
+    (confirmationYes)="confirmCancel(false)"
     (confirmationNo)="discardCancel()"
+    (dialogClose)="discardCancel()"
     [lhcStyle]="lhcStyle">
   </lhc-cancel-changes-confirmation-dialog>
 
@@ -28,6 +31,7 @@
     *ngIf="showConfirmDialog"
     (confirmationYes)="convertFHIRPathToEasyPath($event)"
     (confirmationNo)="closeConvertDialog()"
+    (dialogClose)="closeConvertDialog()"
     [lhcStyle]="lhcStyle">
   </lhc-fhirpath-easypath-conversion-confirmation-dialog>
 

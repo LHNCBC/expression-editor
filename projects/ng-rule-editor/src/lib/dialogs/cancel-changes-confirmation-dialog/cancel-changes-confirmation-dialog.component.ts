@@ -12,6 +12,7 @@ export class CancelChangesConfirmationDialogComponent extends BaseDialogComponen
   @Input() lhcStyle: SimpleStyle = {};
   @Output() confirmationYes: EventEmitter<any> = new EventEmitter<any>();
   @Output() confirmationNo: EventEmitter<any> = new EventEmitter<any>();
+  @Output() dialogClose: EventEmitter<any> = new EventEmitter<any>();
 
   constructor(protected liveAnnouncer: LiveAnnouncer) { 
     super(liveAnnouncer);
@@ -24,7 +25,7 @@ export class CancelChangesConfirmationDialogComponent extends BaseDialogComponen
     this.liveAnnouncer.announce("Yes is selected.");
     setTimeout(() => {
       this.confirmationYes.emit();
-    }, 100);
+    }, 50);
   };
 
   /**
@@ -34,6 +35,16 @@ export class CancelChangesConfirmationDialogComponent extends BaseDialogComponen
     this.liveAnnouncer.announce("No is selected.");
     setTimeout(() => {
       this.confirmationNo.emit();
-    }, 100);
+    }, 50);
+  };
+
+  /**
+   * Emits the 'dialogClose' event
+   */
+  onDialogClose(): void {
+    this.liveAnnouncer.announce("Cancel Changes dialog close.");
+    setTimeout(() => {
+      this.dialogClose.emit();
+    }, 50);
   };
 }

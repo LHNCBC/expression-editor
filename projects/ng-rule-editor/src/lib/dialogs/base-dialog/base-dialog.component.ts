@@ -99,6 +99,8 @@ export class BaseDialogComponent implements OnInit {
   @Input() noButtonLabel: string = 'No';
   @Input() yesButtonId: string = 'yes-button';
   @Input() noButtonId: string = 'no-button';
+  @Input() enableOverlayClick: boolean = true;
+  @Input() name: string = '';
 
   @Output() yes: EventEmitter<any> = new EventEmitter<any>();
   @Output() no: EventEmitter<any> = new EventEmitter<any>();
@@ -132,6 +134,9 @@ export class BaseDialogComponent implements OnInit {
     }
 
     this.dialogStyle = this.applyCustomDialogStyle(tmpDialogStyle, this.customDialogStyle);
+
+    if (!this.name)
+      this.name = (this.dialogType) ? this.dialogType : "rule-editor";
   }
 
   /**
@@ -162,7 +167,7 @@ export class BaseDialogComponent implements OnInit {
     this.liveAnnouncer.announce("Yes is selected.");
     setTimeout(() => {
       this.yes.emit();
-    }, 100);
+    }, 50);
   }
 
   /**
@@ -172,17 +177,17 @@ export class BaseDialogComponent implements OnInit {
     this.liveAnnouncer.announce("No is selected.");
     setTimeout(() => {
       this.no.emit();
-    }, 100);
+    }, 50);
   }
 
   /**
    * Emits the 'dialogClose' event
    */
   onDialogClose(): void {
-    this.liveAnnouncer.announce("Dialog close.");
+    this.liveAnnouncer.announce("Dialog close." + this.dialogType);
     setTimeout(() => {
       this.dialogClose.emit();
-    }, 100);
+    }, 50);
   }
 
   /**
@@ -191,13 +196,16 @@ export class BaseDialogComponent implements OnInit {
    * @param event - mouse click event
    */
   overlayClose(event) {
-    if (event.path) {
-      if (event.path.indexOf(this.modal.nativeElement) === -1) {
-        this.onDialogClose();
-      }
-    } else if (event.target) {
-      if (event.target instanceof HTMLDivElement && ('__zone_symbol__clickfalse' in event.target)) {
-        this.onDialogClose();
+    if (this.enableOverlayClick) {
+      if (event.path) {
+        if (event.path.indexOf(this.modal.nativeElement) === -1) {
+          this.onDialogClose();
+        }
+      } else if (event.target) {
+        if (event.target instanceof HTMLDivElement && ('__zone_symbol__clickfalse' in event.target)) {
+          this.onDialogClose();
+          event.stopPropagation();
+        }
       }
     }
   }

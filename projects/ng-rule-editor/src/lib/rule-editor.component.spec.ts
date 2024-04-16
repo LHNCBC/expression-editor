@@ -7,6 +7,7 @@ import { FormsModule } from '@angular/forms';
 import { CaseStatementsComponent } from './case-statements/case-statements.component';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { SyntaxPreviewComponent } from './syntax-preview/syntax-preview.component';
+import { BaseDialogComponent } from './dialogs/base-dialog/base-dialog.component';
 
 describe('RuleEditorComponent', () => {
   let component: RuleEditorComponent;
@@ -19,7 +20,8 @@ describe('RuleEditorComponent', () => {
         UneditableVariablesComponent,
         VariablesComponent,
         CaseStatementsComponent,
-        SyntaxPreviewComponent
+        SyntaxPreviewComponent,
+        BaseDialogComponent
       ],
       imports: [ FormsModule, MatSnackBarModule ]
     })

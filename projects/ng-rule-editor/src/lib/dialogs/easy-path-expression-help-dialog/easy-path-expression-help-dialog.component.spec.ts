@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { EasyPathExpressionHelpDialogComponent } from './easy-path-expression-help-dialog.component';
+import { BaseDialogComponent } from '../base-dialog/base-dialog.component';
 
 describe('EasyPathExpressionHelpDialogComponent', () => {
   let component: EasyPathExpressionHelpDialogComponent;
@@ -8,7 +9,10 @@ describe('EasyPathExpressionHelpDialogComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ EasyPathExpressionHelpDialogComponent ]
+      declarations: [
+        EasyPathExpressionHelpDialogComponent,
+        BaseDialogComponent
+      ]
     })
     .compileComponents();
 

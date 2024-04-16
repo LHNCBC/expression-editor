@@ -22,7 +22,7 @@ export class FhirpathExpressionHelpDialogComponent extends BaseDialogComponent {
     this.liveAnnouncer.announce("Help dialog close.");
     setTimeout(() => {
       this.onCloseHelp.emit();
-    }, 100);
+    }, 50);
   };
 }
 

@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { FhirpathEasypathConversionConfirmationDialogComponent } from './fhirpath-easypath-conversion-confirmation-dialog.component';
+import { BaseDialogComponent } from '../base-dialog/base-dialog.component';
 
 describe('FhirpathEasypathConversionConfirmationDialogComponent', () => {
   let component: FhirpathEasypathConversionConfirmationDialogComponent;
@@ -8,7 +9,10 @@ describe('FhirpathEasypathConversionConfirmationDialogComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ FhirpathEasypathConversionConfirmationDialogComponent ]
+      declarations: [
+        FhirpathEasypathConversionConfirmationDialogComponent,
+        BaseDialogComponent
+      ]
     })
     .compileComponents();
 

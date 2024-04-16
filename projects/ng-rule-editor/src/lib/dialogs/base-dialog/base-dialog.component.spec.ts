@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { BaseDialogComponent } from './base-dialog.component';
+import { A11yModule } from '@angular/cdk/a11y';
 
 describe('BaseDialogComponent', () => {
   let component: BaseDialogComponent;
@@ -8,7 +9,8 @@ describe('BaseDialogComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ BaseDialogComponent ]
+      declarations: [ BaseDialogComponent ],
+      imports: [ A11yModule ]
     })
     .compileComponents();
 

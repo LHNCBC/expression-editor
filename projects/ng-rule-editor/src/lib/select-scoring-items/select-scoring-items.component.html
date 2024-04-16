@@ -1,4 +1,5 @@
 <lhc-base-dialog
+  [name]="'select-scoring-items'"
   [titleBarLabel]="'Scoring Items Selection'"
   [headerLabel]="'Select items to include in the score calculation:'"
   (dialogClose)="onCloseClick()"
@@ -67,6 +68,7 @@
               <span  style="margin: 10px;"></span>
               <tree-node-expander [node]="node"></tree-node-expander>
               <div
+                aria-hidden="true"
                 class="node-content-wrapper"
                 [class.node-content-wrapper-active]="node.isActive"
                 [class.node-content-wrapper-focused]="node.isFocused"

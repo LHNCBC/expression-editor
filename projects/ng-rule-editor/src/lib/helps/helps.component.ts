@@ -47,7 +47,5 @@ export class HelpsComponent implements OnInit {
   closeHelp(): void {
     this.liveAnnouncer.announce('Help dialog closed');
     this.showHelp = false;
-
-    this.helpDialogClose.emit();
   }
 }

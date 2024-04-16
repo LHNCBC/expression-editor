@@ -43,7 +43,6 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
   hideRuleEditor = false;
   validationError = false;
   validationErrorMessage;
-  dataExport = false;
 
   previousExpressionSyntax;
   previousFinalExpression;
@@ -153,7 +152,7 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
    * get updated correctly.
    * @private
    */
-  private resetVariablesOnQuestionnaireChange(): void {
+  private resetVariablesOnQuestionnaireChange(): void { 
     this.expressionSyntax = null;
     this.simpleExpression = null;
     this.finalExpression = null;
@@ -206,7 +205,7 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
     } else {
       this.doNotAskToCalculateScore = true;
     }
-
+  
     this.calculateSum = (this.variableService.scoreCalculation && !this.doNotAskToCalculateScore);
     this.finalExpressionExtension = this.variableService.finalExpressionExtension;
     this.finalExpression = this.variableService.finalExpression;
@@ -229,7 +228,6 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
         const exportResult = this.variableService.export(this.expressionUri, finalExpression);
         if (exportResult) {
           this.save.emit(exportResult);
-          this.dataExport = true;
           this.calculateSum = false;
           this.selectItems = false;
           this.hideRuleEditor = true;
@@ -268,7 +266,7 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
     setTimeout(() => {
       if (this.calculateSum && !this.loadError ) {
         if(!this.selectItems) {
-          this.confirmCancel();
+          this.confirmCancel(false);
         } else {
           // Calculate Sum or Scoring Items Selection dialog.
           this.variableService.toggleScoreCalculation();
@@ -282,17 +280,32 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
   /**
    * Confirm to cancel change
    */
-  confirmCancel(): void {
+  confirmCancel(showRuleEditor: boolean): void { 
     this.liveAnnouncer.announce("Changes were canceled.");
+    
+    setTimeout(() => {
+      this.showCancelConfirmationDialog = false;
+      this.hideRuleEditor = !showRuleEditor;
 
+      // This is what hide the RuleEditor and return back to the
+      // demo.  By disabling this, now, you can only cancel once.
+      this.cancel.emit();
+    }, 50);
+  }
+
+  /**
+   * Close Sum of Scores dialog
+   */
+  closeSumOfScoresDialog(): void {
+    this.liveAnnouncer.announce("Changes were canceled.");
+    // This is required for web-component.html when
+    // closing the dialog.
+    this.hideRuleEditor = false;
+    
     setTimeout(() => {
       this.cancel.emit();
       this.showCancelConfirmationDialog = false;
-
-      this.calculateSum = false;
-      this.selectItems = false;
-      this.hideRuleEditor = true;
-    }, 100);
+    }, 50);
   }
 
   /**
@@ -303,9 +316,9 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
 
     setTimeout(() => {
       this.showCancelConfirmationDialog = false;
-    }, 100);
+    }, 50);
   }
-
+  
   /**
    * Create a new instance of a FHIR questionnaire file by summing all ordinal
    * values
@@ -313,13 +326,13 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
   addSumOfScores(): void {
     this.calculateSum = false;
     this.selectItems = false;
-    this.hideRuleEditor = true;
+    this.hideRuleEditor = false;
 
     this.variableService.removeSumOfScores(this.fhirQuestionnaire, this.linkIdContext);
-    this.save.emit(this.variableService.addSumOfScores());
-
-    this.dataExport = true;
+    this.fhirQuestionnaire = this.variableService.addSumOfScores()
     this.reload();
+
+    this.variableService.toggleScoreCalculation();
   }
 
   /**

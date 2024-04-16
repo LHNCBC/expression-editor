@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { CancelChangesConfirmationDialogComponent } from './cancel-changes-confirmation-dialog.component';
+import { BaseDialogComponent } from '../base-dialog/base-dialog.component';
 
 describe('CancelChangesConfirmationDialogComponent', () => {
   let component: CancelChangesConfirmationDialogComponent;
@@ -8,7 +9,10 @@ describe('CancelChangesConfirmationDialogComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ CancelChangesConfirmationDialogComponent ]
+      declarations: [
+        CancelChangesConfirmationDialogComponent,
+        BaseDialogComponent
+      ]
     })
     .compileComponents();
 

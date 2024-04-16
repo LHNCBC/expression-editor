@@ -1,9 +1,10 @@
 <lhc-base-dialog
+  [name]="'cancel-changes'" 
   [displayTitleBar]=true
   [titleBarLabel]="'Cancel Changes'"
   (yes)="onYes()"
   (no)="onNo()"
-  (dialogClose)="onNo()"
+  (dialogClose)="onDialogClose()"
   [dialogType]="'confirmation'"> 
   <div>
 

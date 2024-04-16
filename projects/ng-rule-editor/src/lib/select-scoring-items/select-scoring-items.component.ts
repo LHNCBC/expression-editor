@@ -147,21 +147,21 @@ export class SelectScoringItemsComponent implements OnInit {
     this.liveAnnouncer.announce("Cancel Select scoring items");
     setTimeout(() => {
       this.ruleEditorService.toggleScoreCalculation();
-    }, 100);
+    }, 50);
   }
 
   /**
    * Export the sum of scores as a FHIR Questionnaire
    */
   onExportClick(): void {
-    this.liveAnnouncer.announce("Export data. Select scoring items dialog close.");
+    this.liveAnnouncer.announce("Select scoring items dialog close.");
 
     setTimeout(() => {
       const selectedItemLinkIds = this.itemTree.treeModel.getActiveNodes()
                                     .map((node) => node.data.linkId);
       this.ruleEditorService.setItemLinkIdsForTotalCalculation(selectedItemLinkIds);
       this.export.emit();
-    }, 100);
+    }, 50);
 
   }
 

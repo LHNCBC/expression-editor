@@ -36,7 +36,7 @@ export class FhirpathEasypathConversionConfirmationDialogComponent extends BaseD
     this.liveAnnouncer.announce("Yes is selected.");
     setTimeout(() => {
       this.confirmationYes.emit();
-    }, 100);
+    }, 50);
   };
 
   /**
@@ -46,6 +46,6 @@ export class FhirpathEasypathConversionConfirmationDialogComponent extends BaseD
     this.liveAnnouncer.announce("No is selected.");
     setTimeout(() => {
       this.confirmationNo.emit();
-    }, 100);
+    }, 50);
   };
 }

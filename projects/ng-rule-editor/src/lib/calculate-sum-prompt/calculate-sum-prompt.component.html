@@ -1,11 +1,12 @@
 <lhc-base-dialog
   [titleBarLabel]="'Calculate Sum of Score'"
+  [name]="'calculate-sum'"
   [dialogType]="'confirmation'"
   [yesButtonId] = "'score-items-selection'"
   [noButtonId] = "'skip-score-items-selection'"
   (yes)="onSelectItemsClick()"
   (no)="onCloseClick()"
-  (dialogClose)="onCloseClick()">
+  (dialogClose)="onDialogCloseClick()">
 
   <div class="score-modal">
     <p [style]="lhcStyle.description">It looks like this might be a score calculation.</p>
