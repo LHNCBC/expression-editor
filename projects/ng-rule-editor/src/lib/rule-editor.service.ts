@@ -81,9 +81,9 @@ export class RuleEditorService {
   private LANGUAGE_FHIRPATH = 'text/fhirpath';
   private LANGUAGE_FHIR_QUERY = 'application/x-fhir-query';
   private QUESTION_REGEX = /^%resource\.item\.where\(linkId='(.*)'\)\.answer\.value(?:\*(\d*\.?\d*))?$/;
-  private QUERY_REGEX = /^Observation\?code=(.+)&date=gt{{today\(\)-(\d+)(\s{1}\S+)}}&patient={{%patient.id}}&_sort=-date&_count=1$/;
+  private QUERY_REGEX = /^Observation\?code=(.+)&date=gt{{today\(\)-(\d+)\s+(\S+)}}&patient={{%patient.id}}&_sort=-date&_count=1$/;
   
-  private QUERY_DATE_REGEX = /gt{{today\(\)-(\d+)(\s{1}\S+)}}/;
+  private QUERY_DATE_REGEX = /gt{{today\(\)-(\d+)\s+(\S+)}}/;
 
   private VARIABLE_EXTENSION = 'http://hl7.org/fhir/StructureDefinition/variable';
   private CALCULATED_EXPRESSION = 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression';
