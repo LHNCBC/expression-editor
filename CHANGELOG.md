@@ -5,6 +5,7 @@ This project follows [Semantic Versioning](http://semver.org/).
 ## [3.1.20] 2024-04-17
 ### Changed
 - Upgraded Cypress from version 9.7.0 to 13.7.3.
+- Upgraded Angular from version 15.2.4 to 17.3.4
 
 ## [3.1.19] 2024-02-28
 ### Changed
