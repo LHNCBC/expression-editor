@@ -22,5 +22,9 @@
       ]
     },
     "useDefineForClassFields": false
-  }
+  },
+  "exclude": [
+    "cypress/**/*.ts",
+    "cypress.config.ts"
+  ]
 }
