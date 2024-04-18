@@ -1,6 +1,7 @@
 {
   "extends": "../tsconfig.json",
-  "include": ["**/*.ts"],
+  "include": ["**/*.cy.ts", "../cypress.config.ts"],
+  "exclude": [],
   "compilerOptions": {
     "sourceMap": false,
     "types": ["cypress", "cypress-file-upload"]
