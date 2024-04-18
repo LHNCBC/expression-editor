@@ -1734,19 +1734,19 @@ describe('Rule editor', () => {
           });
 
         // Done button should be disabled.
-        cy.get('#export-score').should('have.class', 'disabled');
+        cy.get('#export-score').should('be.disabled');
 
         // Select an individual item
         cy.get('@checkboxes').eq(2).check();
 
         // Done button should now be enabled.
-        cy.get('#export-score').should('not.have.class', 'disabled');
+        cy.get('#export-score').should('be.enabled');
 
         // Unselect an individual item
         cy.get('@checkboxes').eq(2).uncheck();
 
         // Done button should now be disabled.
-        cy.get('#export-score').should('have.class', 'disabled');
+        cy.get('#export-score').should('be.disabled');
 
         // Select all items
         cy.get('#selectAll').click();
@@ -1763,7 +1763,7 @@ describe('Rule editor', () => {
           });
 
         // Done button should now be enabled.
-        cy.get('#export-score').should('not.have.class', 'disabled');
+        cy.get('#export-score').should('be.enabled');
 
         // Unselect all items
         cy.get('#unselectAll').click();
@@ -1780,7 +1780,7 @@ describe('Rule editor', () => {
           });
 
         // Button should now be disabled.
-        cy.get('#export-score').should('have.class', 'disabled');
+        cy.get('#export-score').should('be.disabled');
       });
 
       it('should be able to export score with selected individual items', () => {
@@ -2036,7 +2036,7 @@ describe('Rule editor', () => {
           });
 
           // Done button should now be enabled.
-          cy.get('#export-score').should('not.have.class', 'disabled'); 
+          cy.get('#export-score').should('be.enabled'); 
       });
       
       it('should be able to deselect, select items and export correctly', () => {
