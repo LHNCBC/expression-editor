@@ -26,6 +26,9 @@ export class SelectScoringItemsComponent implements OnInit {
   itemList = [];
   selectedItemsSet = new Set<string>();
 
+  matToolTip = "";
+  validationErrorMessage = "";
+
   options: ITreeOptions = {
     displayField: 'text',
     childrenField: 'item',
@@ -77,6 +80,8 @@ export class SelectScoringItemsComponent implements OnInit {
     this.hasChildren = this.hasChildItems(this.scoringItems);
     // If there are child items, if yes then we want to expand the tree by default.
     this.expandAll = this.hasChildren;
+
+    this.setScoreSelectedStatus(false);
   };
 
   /**
@@ -88,6 +93,23 @@ export class SelectScoringItemsComponent implements OnInit {
     return items.some((item) => {
       return item.hasOwnProperty('item') && item.item.length > 0;
     });
+  }
+
+  /**
+   * Set the status of the Scoring Item Selection, validation message, and tooltip
+   * @param status - true if at least one scoring item is selected
+   */
+  private setScoreSelectedStatus(status): void {
+    this.hasScoreSelected = status;
+
+    if (status) {
+      this.matToolTip = "";
+      this.validationErrorMessage = this.matToolTip;
+    } else {
+      this.matToolTip = 
+        "The 'done' button is disabled because at least one scoring item selection is required.";;
+      this.validationErrorMessage = this.matToolTip;
+    }
   }
 
   /**
@@ -107,7 +129,7 @@ export class SelectScoringItemsComponent implements OnInit {
     
     if (this.scoringItems.length > 0) {
       this.itemTree.treeModel.getVisibleRoots().forEach((item) => toggleItemHierarchy(item, status));
-      this.hasScoreSelected = status;
+      this.setScoreSelectedStatus(status);
     }
   }
 
@@ -134,10 +156,12 @@ export class SelectScoringItemsComponent implements OnInit {
    * Export the sum of scores as a FHIR Questionnaire
    */
   onExportClick(): void {
-    const selectedItemLinkIds = this.itemTree.treeModel.getActiveNodes()
-                                  .map((node) => node.data.linkId);
-    this.ruleEditorService.setItemLinkIdsForTotalCalculation(selectedItemLinkIds);
-    this.export.emit();
+    if (this.hasScoreSelected) {
+      const selectedItemLinkIds = this.itemTree.treeModel.getActiveNodes()
+                                    .map((node) => node.data.linkId);
+      this.ruleEditorService.setItemLinkIdsForTotalCalculation(selectedItemLinkIds);
+      this.export.emit();
+    }
   }
 
   /**
@@ -152,7 +176,7 @@ export class SelectScoringItemsComponent implements OnInit {
 
           // If there are pre-selected items in the questionnaire, then we want
           // to make sure that the "Done" button is enabled.
-          this.hasScoreSelected = true;
+          this.setScoreSelectedStatus(true);
         }
       });
     }    
@@ -181,7 +205,7 @@ export class SelectScoringItemsComponent implements OnInit {
   onScoringItemCheckboxClick(node): void {
     node.toggleActivated(true);
     const count = this.itemTree.treeModel.getActiveNodes().length;
-    this.hasScoreSelected = (count > 0);
+    this.setScoreSelectedStatus((count > 0));
   }
 
 }
