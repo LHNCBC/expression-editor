@@ -2,6 +2,10 @@
 
 This project follows [Semantic Versioning](http://semver.org/).
 
+## [3.1.20] 2024-04-22
+### Changed
+- Added logic for the screen reader to announce the reason wny the 'Done' button is disabled.  
+
 ## [3.1.19] 2024-02-28
 ### Changed
 - Enable the 'Open Rule Editor' button only if the questionnaire is selected and either the 'Root level' checkbox or Question drop-down is selected.
