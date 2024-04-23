@@ -4,6 +4,7 @@
     [id]="'exp-help-button-' + index"
     (click)="openHelp()" 
     *ngIf="type==='expression' || type==='fhirpath' || type==='simple'"
+    [attr.aria-label]="matToolTip"
     [matTooltip]="matToolTip" >?
   </button>
 
