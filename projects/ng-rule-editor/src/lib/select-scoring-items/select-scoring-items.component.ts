@@ -13,6 +13,7 @@ export class SelectScoringItemsComponent implements OnInit {
   @Input() lhcStyle: SimpleStyle = {};
   @Input() items = [];
   @Output() export: EventEmitter<any> = new EventEmitter<any>();
+  @Output() review: EventEmitter<any> = new EventEmitter<any>();
 
   @ViewChild('itemTree') itemTree: TreeComponent;
   @ViewChild('filter') filter: string;
@@ -26,6 +27,9 @@ export class SelectScoringItemsComponent implements OnInit {
 
   itemList = [];
   selectedItemsSet = new Set<string>();
+
+  doneSelectionAriaDescription="Click the 'Done' button to complete the scoring item selection.";
+  reviewFHIRPathAriaDesription="Click the 'Review FHIRPath' button to review the scoring items selection in the Rule Editor.";
 
   options: ITreeOptions = {
     displayField: 'text',
@@ -152,15 +156,25 @@ export class SelectScoringItemsComponent implements OnInit {
 
   /**
    * Export the sum of scores as a FHIR Questionnaire
+   * @param reviewFHIRPath - true if the 'Review FHIRPath' button is clicked. Selected items will be
+   *                         reviewed in the Rule Editor. false if the 'Done' (export scoring data)
+   *                         button is clicked. The selected items will be exported.
    */
-  onExportClick(): void {
-    this.liveAnnouncer.announce("Select scoring items dialog close.");
+  onExportClick(reviewFHIRPath: boolean): void {
+    this.doneSelectionAriaDescription='';
+    this.reviewFHIRPathAriaDesription='';
+
+    this.liveAnnouncer.announce("Select scoring items dialog closed.");
 
     setTimeout(() => {
       const selectedItemLinkIds = this.itemTree.treeModel.getActiveNodes()
                                     .map((node) => node.data.linkId);
       this.ruleEditorService.setItemLinkIdsForTotalCalculation(selectedItemLinkIds);
-      this.export.emit();
+
+      if (reviewFHIRPath)
+        this.review.emit();
+      else
+        this.export.emit();
     }, 50);
 
   }

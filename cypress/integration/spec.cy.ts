@@ -1286,8 +1286,6 @@ describe('Rule editor', () => {
         cy.get('#question').should('contain.value', '(/39156-5)');
         // Click the button to edit the expression
         cy.get('button#openRuleEditor').should('exist').click();
-        // The Rule Editor dialog should now appear
-        //cy.get('lhc-rule-editor #rule-editor-base-dialog').should('exist');
 
         // Only the prompt for score calculation should show up
         // The prompt to calculate the total scoring item should displayed.
@@ -1295,7 +1293,7 @@ describe('Rule editor', () => {
           .should('exist')
           .within(() => {
             cy.get('#calculate-sum-dialog-body')
-              .should('contain.text', 'Would you like to calculate the sum of scores?');
+              .should('contain.text', 'Would you like to select items for the sum of scores?');
           });
       });
 
@@ -1314,7 +1312,7 @@ describe('Rule editor', () => {
           .should('exist')
           .within(() => {
             cy.get('#calculate-sum-dialog-body')
-              .should('contain.text', 'Would you like to calculate the sum of scores?');
+              .should('contain.text', 'Would you like to select items for the sum of scores?');
             // Close the dialog
             cy.get('#skip-score-items-selection').click();
           });
@@ -1460,7 +1458,7 @@ describe('Rule editor', () => {
           .should('exist')
           .within(() => {
             cy.get('#calculate-sum-dialog-body')
-              .should('contain.text', 'Would you like to calculate the sum of scores?');
+              .should('contain.text', 'Would you like to select items for the sum of scores?');
             cy.get('#score-items-selection').click();
           });
 
@@ -1518,24 +1516,62 @@ describe('Rule editor', () => {
                 cy.wrap($checkbox).should('not.be.checked');
             });
           });  
-          cy.get('#export-score').click();
+        cy.get('#export-score').click();
 
-          // the Rule-Editor div panel should be hidden
-          cy.get('div.rule-editor > lhc-select-scoring-items').should('not.exist');
-          
-          // Show the Rule Editor 
-          cy.get('lhc-rule-editor > lhc-base-dialog').should('exist')
-          // Variables section
-          cy.get('lhc-variables > h2').should('contain', 'Item Variables');
-          cy.get('#variables-section .variable-row').should('have.length', 3);
+        // the Rule-Editor div panel should be hidden
+        cy.get('div.rule-editor > lhc-select-scoring-items').should('not.exist');
 
-          // Click Save
-          cy.get('#export').click();
+        cy.get('#output')
+          .should('contain.text', '"expression": "iif(%any_questions_answered, iif(%a.exists(), %a, 0) ' +
+            '+ iif(%b.exists(), %b, 0), {})"');
+      });
 
-          cy.get('#output')
-            .should('contain.text', '"expression": "iif(%any_questions_answered,iif(%a.exists(), %a, 0) ' +
-              '+ iif(%b.exists(), %b, 0),{})"');
-        });
+      it('should be able to review selected items', () => {
+        cy.intercept('/phq9.json').as('phq9');
+        cy.get('select#questionnaire-select').select('PHQ9 (no FHIRPath)');
+        cy.wait('@phq9');
+
+        // The demo has '(/39156-5) selected by default
+        cy.get('#question').should('contain.value', '(/39156-5)');
+        // Click the button to edit the expression
+        cy.get('button#openRuleEditor').should('exist').click();
+
+        cy.get('#score-items-selection').click();
+        cy.get('div.scoring-items-selection-body')
+          .within(() => {
+            cy.get('div.items-tree tree-node').should('have.length', 9);
+            cy.get('.angular-tree-component  [type="checkbox"]').as('checkboxes');
+            
+            // Select 3rd and 5th items
+            cy.get('@checkboxes').eq(2).check();
+            cy.get('@checkboxes').eq(4).check();
+            
+            // Validate to make sure that only those two items were selected
+            cy.get('@checkboxes').each(($checkbox, index) => {
+              if (index === 2 || index === 4)
+                cy.wrap($checkbox).should('be.checked');
+              else
+                cy.wrap($checkbox).should('not.be.checked');
+            });
+          });  
+        cy.get('#review-fhirpath').click();
+
+        // the Rule-Editor div panel should be hidden
+        cy.get('div.rule-editor > lhc-select-scoring-items').should('not.exist');
+         
+        // Show the Rule Editor 
+        cy.get('lhc-rule-editor > lhc-base-dialog').should('exist')
+        // Variables section
+        cy.get('lhc-variables > h2').should('contain', 'Item Variables');
+        cy.get('#variables-section .variable-row').should('have.length', 3);
+
+        // Click Save
+        cy.get('#export').click();
+
+        cy.get('#output')
+          .should('contain.text', '"expression": "iif(%any_questions_answered,iif(%a.exists(), %a, 0) ' +
+            '+ iif(%b.exists(), %b, 0),{})"');
+      });
 
       it('should be able to export score with all items', () => {
         cy.intercept('/phq9.json').as('phq9');
@@ -1563,20 +1599,11 @@ describe('Rule editor', () => {
           // the Rule-Editor div panel should be hidden
           cy.get('div.rule-editor > lhc-select-scoring-items').should('not.exist');
 
-          // Show the Rule Editor 
-          cy.get('lhc-rule-editor > lhc-base-dialog').should('exist')
-          // Variables section
-          cy.get('lhc-variables > h2').should('contain', 'Item Variables');
-          cy.get('#variables-section .variable-row').should('have.length', 10);
-
-          // Click Save
-          cy.get('#export').click();
-
           cy.get('#output')
-            .should('contain.text', '"expression": "iif(%any_questions_answered,iif(%a.exists(), %a, 0) ' +
+            .should('contain.text', '"expression": "iif(%any_questions_answered, iif(%a.exists(), %a, 0) ' +
               '+ iif(%b.exists(), %b, 0) + iif(%c.exists(), %c, 0) + iif(%d.exists(), %d, 0) ' +
               '+ iif(%e.exists(), %e, 0) + iif(%f.exists(), %f, 0) + iif(%g.exists(), %g, 0) ' +
-              '+ iif(%h.exists(), %h, 0) + iif(%i.exists(), %i, 0),{})"'
+              '+ iif(%h.exists(), %h, 0) + iif(%i.exists(), %i, 0), {})"'
           );
       });
     });
@@ -1597,7 +1624,7 @@ describe('Rule editor', () => {
           .should('exist')
           .within(() => {
             cy.get('#calculate-sum-dialog-body')
-              .should('contain.text', 'Would you like to calculate the sum of scores?');
+              .should('contain.text', 'Would you like to select items for the sum of scores?');
           });
       });
 
@@ -1612,7 +1639,7 @@ describe('Rule editor', () => {
           .should('exist')
           .within(() => {
             cy.get('#calculate-sum-dialog-body')
-              .should('contain.text', 'Would you like to calculate the sum of scores?');
+              .should('contain.text', 'Would you like to select items for the sum of scores?');
             // Close the dialog
             cy.get('#skip-score-items-selection').click();
           });
@@ -1703,15 +1730,6 @@ describe('Rule editor', () => {
           });  
           cy.get('#export-score').click();
 
-          // Show the Rule Editor 
-          cy.get('lhc-rule-editor > lhc-base-dialog').should('exist')
-          // Variables section
-          cy.get('lhc-variables > h2').should('contain', 'Item Variables');
-          cy.get('#variables-section .variable-row').should('have.length', 23);
-
-          // Click Save
-          cy.get('#export').click();
-          
           // One noticable difference between items not in a group and items in a group is the generated
           // expression. In the case of items in a group, the expression starts from the top node item and
           // works its way down the tree to the destination node.
@@ -1726,14 +1744,14 @@ describe('Rule editor', () => {
             .should('contain.text', "%questionnaire.item.where(linkId = '/44251-7').answerOption");
 
           cy.get('#output')
-            .should('contain.text', '"expression": "iif(%any_questions_answered,iif(%a.exists(), %a, 0) ' +
+            .should('contain.text', '"expression": "iif(%any_questions_answered, iif(%a.exists(), %a, 0) ' +
               '+ iif(%b.exists(), %b, 0) + iif(%c.exists(), %c, 0) + iif(%d.exists(), %d, 0) ' +
               '+ iif(%e.exists(), %e, 0) + iif(%f.exists(), %f, 0) + iif(%g.exists(), %g, 0) ' +
               '+ iif(%h.exists(), %h, 0) + iif(%i.exists(), %i, 0) + iif(%j.exists(), %j, 0) ' +
               '+ iif(%k.exists(), %k, 0) + iif(%l.exists(), %l, 0) + iif(%m.exists(), %m, 0) ' +
               '+ iif(%n.exists(), %n, 0) + iif(%o.exists(), %o, 0) + iif(%p.exists(), %p, 0) ' +
               '+ iif(%q.exists(), %q, 0) + iif(%r.exists(), %r, 0) + iif(%s.exists(), %s, 0) ' +
-              '+ iif(%t.exists(), %t, 0) + iif(%u.exists(), %u, 0) + iif(%v.exists(), %v, 0),{})"');      
+              '+ iif(%t.exists(), %t, 0) + iif(%u.exists(), %u, 0) + iif(%v.exists(), %v, 0), {})"');      
       });
 
       it('should not be able to export score if no scoring items selected', () => {
@@ -1845,20 +1863,11 @@ describe('Rule editor', () => {
           });  
         cy.get('#export-score').click();
 
-        // Show the Rule Editor 
-        cy.get('lhc-rule-editor > lhc-base-dialog').should('exist')
-        // Variables section
-        cy.get('lhc-variables > h2').should('contain', 'Item Variables');
-        cy.get('#variables-section .variable-row').should('have.length', 7);
-
-        // Click Save
-        cy.get('#export').click();
-
         // The total calculation should only include the two selected items.
         cy.get('#output')
-          .should('contain.text', '"expression": "iif(%any_questions_answered,iif(%a.exists(), %a, 0) ' +
+          .should('contain.text', '"expression": "iif(%any_questions_answered, iif(%a.exists(), %a, 0) ' +
             '+ iif(%b.exists(), %b, 0) + iif(%c.exists(), %c, 0) + iif(%d.exists(), %d, 0) ' +
-            '+ iif(%e.exists(), %e, 0) + iif(%f.exists(), %f, 0),{})"');
+            '+ iif(%e.exists(), %e, 0) + iif(%f.exists(), %f, 0), {})"');
 
         cy.get('pre#output').invoke('text').then((jsonData) => {
           // Parse the JSON data
@@ -1932,15 +1941,6 @@ describe('Rule editor', () => {
             });
           });  
           cy.get('#export-score').click();
-
-          // Show the Rule Editor 
-          cy.get('lhc-rule-editor > lhc-base-dialog').should('exist')
-          // Variables section
-          cy.get('lhc-variables > h2').should('contain', 'Item Variables');
-          cy.get('#variables-section .variable-row').should('have.length', 23);
-
-          // Click Save
-          cy.get('#export').click();
 
           cy.get('pre#output').invoke('text').then((jsonData) => {
             // Parse the JSON data
@@ -2104,19 +2104,10 @@ describe('Rule editor', () => {
           });
           cy.get('#export-score').click();
 
-          // Show the Rule Editor 
-          cy.get('lhc-rule-editor > lhc-base-dialog').should('exist')
-          // Variables section
-          cy.get('lhc-variables > h2').should('contain', 'Item Variables');
-          cy.get('#variables-section .variable-row').should('have.length', 5);
-
-          // Click Save
-          cy.get('#export').click();
-
           // The total calculation should only include the two selected items.
           cy.get('#output')
-            .should('contain.text', '"expression": "iif(%any_questions_answered,iif(%a.exists(), %a, 0) ' +
-              '+ iif(%b.exists(), %b, 0) + iif(%c.exists(), %c, 0) + iif(%d.exists(), %d, 0),{})"');
+            .should('contain.text', '"expression": "iif(%any_questions_answered, iif(%a.exists(), %a, 0) ' +
+              '+ iif(%b.exists(), %b, 0) + iif(%c.exists(), %c, 0) + iif(%d.exists(), %d, 0), {})"');
 
           cy.get('pre#output').invoke('text').then((jsonData) => {
             // Parse the JSON data

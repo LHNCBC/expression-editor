@@ -86,7 +86,12 @@
     </div>
   </div>
   <div class="scoring-items-selection-footer button-div">
-    <button class="primary" [disabled]="!hasScoreSelected" (click)="onExportClick()" [style]="lhcStyle.buttonPrimary" id="export-score">Done</button>
+    <button [disabled]="!hasScoreSelected" (click)="onExportClick(false)" [style]="lhcStyle.buttonPrimary"
+            id="export-score" [attr.aria-description]="(hasScoreSelected) ? doneSelectionAriaDescription : ''"
+            >Done</button>
+    <button [disabled]="!hasScoreSelected" (click)="onExportClick(true)" [style]="lhcStyle.buttonSecondary"
+            id="review-fhirpath" [attr.aria-description]="(hasScoreSelected) ? reviewFHIRPathAriaDesription : ''"
+            >Review FHIRPath</button>
     <button (click)="onCloseClick()" id="skip-export-score">Cancel</button>
   </div>
 

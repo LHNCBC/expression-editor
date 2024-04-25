@@ -477,15 +477,6 @@ describe('Rule editor demo', () => {
       // export 
       cy.get('#export-score').click();
 
-      // Show the Rule Editor 
-      cy.get('lhc-rule-editor > lhc-base-dialog').should('exist')
-      // Variables section
-      cy.get('lhc-variables > h2').should('contain', 'Item Variables');
-      cy.get('#variables-section .variable-row').should('have.length', 11);
-
-      // Click Save
-      cy.get('#export').click();
-
       cy.get('pre#output').invoke('text').then((jsonData) => {
         // Parse the JSON data
         const parsedData = JSON.parse(jsonData);

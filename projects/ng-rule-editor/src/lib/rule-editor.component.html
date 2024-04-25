@@ -7,7 +7,8 @@
 </lhc-calculate-sum-prompt>
 <lhc-select-scoring-items
   *ngIf="calculateSum && !loadError && selectItems"
-  (export)="addSumOfScores()"
+  (export)="addSumOfScores(false)"
+  (review)="addSumOfScores(true)"
   [items]="fhirQuestionnaire.item"
   [lhcStyle]="lhcStyle">
 </lhc-select-scoring-items>

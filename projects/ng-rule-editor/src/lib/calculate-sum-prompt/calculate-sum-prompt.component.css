@@ -21,3 +21,21 @@ button {
 .prompt-footer {
   text-align: center;
 }
+
+div.score-instructions {
+  text-align: center;
+  padding-bottom: 20px;
+}
+
+.score-instructions > ul {
+  list-style-position: inside;
+  font-size: 14px;
+  padding-inline-end: 40px;
+  display: table;
+  margin: 0 auto;
+  text-align: left;
+}
+
+.score-instructions > ul > li {
+  font-size: 0.8rem;
+}

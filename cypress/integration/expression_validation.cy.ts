@@ -558,7 +558,7 @@ describe('Rule editor', () => {
           .should('exist')
           .within(() => {
             cy.get('#calculate-sum-dialog-body')
-              .should('contain.text', 'Would you like to calculate the sum of scores?');
+              .should('contain.text', 'Would you like to select items for the sum of scores?');
             // Close the dialog
             cy.get('#skip-score-items-selection').click();
           });

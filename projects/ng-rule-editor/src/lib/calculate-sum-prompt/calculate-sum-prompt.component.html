@@ -2,15 +2,24 @@
   [titleBarLabel]="'Calculate Sum of Score'"
   [name]="'calculate-sum'"
   [dialogType]="'confirmation'"
-  [yesButtonId] = "'score-items-selection'"
-  [noButtonId] = "'skip-score-items-selection'"
-  (yes)="onSelectItemsClick()"
-  (no)="onCloseClick()"
   (dialogClose)="onDialogCloseClick()">
 
   <div class="score-modal">
     <p [style]="lhcStyle.description">It looks like this might be a score calculation.</p>
-    <p [style]="lhcStyle.description">Would you like to calculate the sum of scores?</p>
-  </div>
+    <p [style]="lhcStyle.description">Would you like to select items for the sum of scores?</p>
 
+    <div class="score-instructions" aria-hidden="true">
+      <ul>
+        <li>Click 'Yes' to select items for the scoring calculation.</li>
+        <li>Click 'No' to skip items selection and go to the Rule Editor.</li>
+      </ul>
+    </div>
+    <div class="button-div">
+      <button  (click)="onSelectItemsClick()" [style]="lhcStyle.buttonPrimary"
+              id="score-items-selection" [attr.aria-description]="selectItemsAriaDescription">Yes</button>
+      <button (click)="onCloseClick()"
+              id="skip-score-items-selection" [attr.aria-description]="skipSelectItemsAriaDescription">No</button>
+    </div>
+  </div>
+  
 </lhc-base-dialog>

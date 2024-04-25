@@ -322,16 +322,24 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
   /**
    * Create a new instance of a FHIR questionnaire file by summing all ordinal
    * values
+   * @param reviewFHIRPath - true if the 'Review FHIRPath' button is clicked. Selected items will be
+   *                         reviewed in the Rule Editor. false if the 'Done' (export scoring data)
+   *                         button is clicked. The selected items will be exported. 
    */
-  addSumOfScores(): void {
+  addSumOfScores(reviewFHIRPath: boolean): void {
     this.calculateSum = false;
     this.selectItems = false;
-    this.hideRuleEditor = false;
+    this.hideRuleEditor = !reviewFHIRPath;
 
     this.variableService.removeSumOfScores(this.fhirQuestionnaire, this.linkIdContext);
-    this.fhirQuestionnaire = this.variableService.addSumOfScores()
-    this.reload();
 
+    if (reviewFHIRPath) {
+      this.fhirQuestionnaire = this.variableService.addSumOfScores()
+      this.reload();
+    } else {
+      // Export selected scoring items
+      this.save.emit(this.variableService.addSumOfScores()); 
+    }
     this.variableService.toggleScoreCalculation();
   }
 
