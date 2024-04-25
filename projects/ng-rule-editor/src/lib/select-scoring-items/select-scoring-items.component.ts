@@ -28,9 +28,6 @@ export class SelectScoringItemsComponent implements OnInit {
   itemList = [];
   selectedItemsSet = new Set<string>();
 
-  doneSelectionAriaDescription="Click the 'Done' button to complete the scoring item selection.";
-  reviewFHIRPathAriaDesription="Click the 'Review FHIRPath' button to review the scoring items selection in the Rule Editor.";
-
   options: ITreeOptions = {
     displayField: 'text',
     childrenField: 'item',
@@ -85,6 +82,9 @@ export class SelectScoringItemsComponent implements OnInit {
     }
   };
 
+  doneSelectionAriaDescription="Click the 'Done' button to complete the scoring item selection.";
+  reviewFHIRPathAriaDesription="Click the 'Review FHIRPath' button to review the scoring items selection in the Rule Editor.";
+  
   constructor(private ruleEditorService: RuleEditorService, private liveAnnouncer: LiveAnnouncer) { }
 
   /**
@@ -161,9 +161,6 @@ export class SelectScoringItemsComponent implements OnInit {
    *                         button is clicked. The selected items will be exported.
    */
   onExportClick(reviewFHIRPath: boolean): void {
-    this.doneSelectionAriaDescription='';
-    this.reviewFHIRPathAriaDesription='';
-
     this.liveAnnouncer.announce("Select scoring items dialog closed.");
 
     setTimeout(() => {
@@ -178,7 +175,7 @@ export class SelectScoringItemsComponent implements OnInit {
     }, 50);
 
   }
-
+  
   /**
    * If the questionnaire already contains selected items for the calculation,
    * toggle selection that match the link ids. 

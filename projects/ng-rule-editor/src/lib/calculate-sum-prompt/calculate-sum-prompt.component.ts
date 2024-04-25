@@ -15,7 +15,7 @@ export class CalculateSumPromptComponent implements OnInit {
 
   selectItemsAriaDescription="Click the 'Yes' button to select items for the scoring calculation.";
   skipSelectItemsAriaDescription="Click the 'No' button to skip items selection and go to the Rule Editor.";
-
+  
   constructor(private ruleEditorService: RuleEditorService, private liveAnnouncer: LiveAnnouncer) { }
 
   ngOnInit(): void {}
@@ -35,7 +35,7 @@ export class CalculateSumPromptComponent implements OnInit {
    * Close the dialog by specifying this should not calculate the score
    */
   onCloseClick(): void {
-    this.skipSelectItemsAriaDescription='';
+    //this.skipSelectItemsAriaDescription='';
     this.liveAnnouncer.announce("Cancelled calculate sum of scores.");
 
     setTimeout(() => {
@@ -47,7 +47,7 @@ export class CalculateSumPromptComponent implements OnInit {
    * Export the sum of scores as a FHIR Questionnaire
    */
   onSelectItemsClick(): void {
-    this.selectItemsAriaDescription='';
+    //this.selectItemsAriaDescription='';
     this.selectItems.emit();
   }
 }

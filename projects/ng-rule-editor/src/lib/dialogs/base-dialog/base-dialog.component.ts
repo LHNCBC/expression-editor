@@ -164,7 +164,6 @@ export class BaseDialogComponent implements OnInit {
    * Emits the 'yes' event
    */
   onYes(): void {
-    this.liveAnnouncer.announce("Yes is selected.");
     setTimeout(() => {
       this.yes.emit();
     }, 50);
@@ -174,7 +173,6 @@ export class BaseDialogComponent implements OnInit {
    * Emits the 'no' event
    */
   onNo(): void {
-    this.liveAnnouncer.announce("No is selected.");
     setTimeout(() => {
       this.no.emit();
     }, 50);
@@ -184,7 +182,6 @@ export class BaseDialogComponent implements OnInit {
    * Emits the 'dialogClose' event
    */
   onDialogClose(): void {
-    this.liveAnnouncer.announce("Dialog close." + this.dialogType);
     setTimeout(() => {
       this.dialogClose.emit();
     }, 50);

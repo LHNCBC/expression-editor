@@ -19,7 +19,7 @@ export class FhirpathExpressionHelpDialogComponent extends BaseDialogComponent {
    * Emits the 'onCloseHelp' event
    */
   onNo(): void {
-    this.liveAnnouncer.announce("Help dialog close.");
+    this.liveAnnouncer.announce("Help dialog closed.");
     setTimeout(() => {
       this.onCloseHelp.emit();
     }, 50);

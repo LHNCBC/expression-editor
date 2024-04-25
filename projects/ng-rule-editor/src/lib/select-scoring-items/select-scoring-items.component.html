@@ -86,12 +86,20 @@
     </div>
   </div>
   <div class="scoring-items-selection-footer button-div">
+
+    <div id="button-audible" class="visually-hidden">
+      <p>
+        {{doneSelectionAriaDescription}}
+      </p>
+      <p>  
+        {{reviewFHIRPathAriaDesription}}
+      </p>
+    </div>
+
     <button [disabled]="!hasScoreSelected" (click)="onExportClick(false)" [style]="lhcStyle.buttonPrimary"
-            id="export-score" [attr.aria-description]="(hasScoreSelected) ? doneSelectionAriaDescription : ''"
-            >Done</button>
+            id="export-score" [matTooltip]="doneSelectionAriaDescription">Done</button>
     <button [disabled]="!hasScoreSelected" (click)="onExportClick(true)" [style]="lhcStyle.buttonSecondary"
-            id="review-fhirpath" [attr.aria-description]="(hasScoreSelected) ? reviewFHIRPathAriaDesription : ''"
-            >Review FHIRPath</button>
+            id="review-fhirpath" [matTooltip]="reviewFHIRPathAriaDesription">Review FHIRPath</button>
     <button (click)="onCloseClick()" id="skip-export-score">Cancel</button>
   </div>
 
