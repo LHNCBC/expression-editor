@@ -1626,7 +1626,9 @@ export class RuleEditorService {
         const param = queryParam.split('=');
         const paramKey = this.getDecodeURI(param[0]);
         const paramVal = this.getDecodeURI(param[1]);
-        decodedParams[paramKey] = paramVal;
+
+        if (paramVal)
+          decodedParams[paramKey] = paramVal;
       });
     }
     return (this.hasAllProperties(decodedParams, RuleEditorService.FHIR_QUERY_OBS_FIELDS)) ? decodedParams : null;

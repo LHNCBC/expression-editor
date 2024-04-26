@@ -731,12 +731,20 @@ describe('RuleEditorService', () => {
         "Observation?_sort=-date&_count=1&code=test%2Chttp://loinc.org|65972-2&date=gt{{today()-4 weeks}}&patient={{%patient.id}}";
       const expressionObservationResourceParamsDiffOrders2 =
         "Observation?patient={{%patient.id}}&_sort=-date&_count=1&code=test%2Chttp://loinc.org|65972-2&date=gt{{today()-6 months}}";
+      const expressionObservationMissingValue =
+        "Observation?code=test%2Chttp://loinc.org|65972-2&date=gt{{today()-2 days}}&patient=&_sort=-date&_count=1";
+      const expressionObservationWithNoParameters = "Observation";
+      const expressionObservationMissingKey =
+        "Observation?code=test%2Chttp://loinc.org|65972-2&date=gt{{today()-2 days}}&_sort=-date&_count=1";
 
       const fhirqueryobs1 = service.decodeFHIRQueryObservationURIExpression(expressionConditionResource);
       const fhirqueryobs2 = service.decodeFHIRQueryObservationURIExpression(expressionObservationResourceShort);
       const fhirqueryobs3 = service.decodeFHIRQueryObservationURIExpression(expressionObservationResource);
       const fhirqueryobs4 = service.decodeFHIRQueryObservationURIExpression(expressionObservationResourceParamsDiffOrders);
       const fhirqueryobs5 = service.decodeFHIRQueryObservationURIExpression(expressionObservationResourceParamsDiffOrders2);
+      const fhirqueryobs6 = service.decodeFHIRQueryObservationURIExpression(expressionObservationMissingValue);
+      const fhirqueryobs7 = service.decodeFHIRQueryObservationURIExpression(expressionObservationWithNoParameters);
+      const fhirqueryobs8 = service.decodeFHIRQueryObservationURIExpression(expressionObservationMissingKey);
       
       expect(fhirqueryobs1).toBeNull();
       expect(fhirqueryobs2).toBeNull();
@@ -760,7 +768,11 @@ describe('RuleEditorService', () => {
       for (let i = 0; i < RuleEditorService.FHIR_QUERY_OBS_FIELDS.length; i++) {
         expect(output5Keys).toContain(RuleEditorService.FHIR_QUERY_OBS_FIELDS[i]);
       }
-      expect(fhirqueryobs5['date']).toEqual("gt{{today()-6 months}}");   
+      expect(fhirqueryobs5['date']).toEqual("gt{{today()-6 months}}");
+
+      expect(fhirqueryobs6).toBeNull();
+      expect(fhirqueryobs7).toBeNull();
+      expect(fhirqueryobs8).toBeNull();
     });
   });
 
