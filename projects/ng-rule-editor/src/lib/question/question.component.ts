@@ -155,7 +155,7 @@ export class QuestionComponent implements OnInit, AfterViewInit, OnDestroy {
    * Called when the questionnaire question or unit is changed
    * @param isQuestion - The change was for a question
    */
-  onChange(isQuestion): void {
+  onChange(isQuestion): void {   
     if (isQuestion) {
       // Reset the conversion options when the question changes
       this.toUnit = (this.variable.unit) ? this.variable.unit : '';
@@ -163,6 +163,10 @@ export class QuestionComponent implements OnInit, AfterViewInit, OnDestroy {
 
     // If we already have a question selected (as opposed to the select... prompt)
     if (this.linkId) {
+      if (this.variable.linkId !== this.linkId) {
+        this.toUnit = '';
+      }
+
       delete this.variable.simple;
 
       const question = this.getQuestion(this.linkId);

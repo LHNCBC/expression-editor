@@ -99,6 +99,14 @@ export class RuleEditorService {
   }
 
   /**
+   * Reset variables and uneditable variables
+   */
+  resetVariables(): void {
+    this.variables = [];
+    this.uneditableVariables = [];
+  }
+
+  /**
    * Create a new variable
    */
   addVariable(): void {
@@ -389,9 +397,8 @@ export class RuleEditorService {
     if (typeof item === 'string') {
       item = this.linkIdToQuestion[item];
     }
-
-    return (item.answerOption || []).some((answerOption) => {
-      return (answerOption.extension || []).some((extension) => {
+    return ((item && item.answerOption) || []).some((answerOption) => {
+      return ((answerOption && answerOption.extension) || []).some((extension) => {
         return extension.url === 'http://hl7.org/fhir/StructureDefinition/ordinalValue';
       });
     });
@@ -1350,10 +1357,10 @@ export class RuleEditorService {
       return `%resource.item.where(linkId='${linkId}').answer.value*${factor}`;
     } else {
       const matches = expression.match(this.QUESTION_REGEX);
-      if(matches && matches[2])
+      if (!convertible && matches && matches[2])
         return `%resource.item.where(linkId='${linkId}').answer.value*${matches[2]}`;
-      else
-        return `%resource.item.where(linkId='${linkId}').answer.value`;
+
+      return `%resource.item.where(linkId='${linkId}').answer.value`;
     }
   }
 
@@ -1717,11 +1724,11 @@ export class RuleEditorService {
    * @param result - result of the validation.  Null if there is no error or object containing the
    *                 validation error, error message, and aria error message.
    */
-  notifyValidationResult(param:ValidationParam, result: any ): void {
+  notifyValidationResult(param:ValidationParam, result: any ): void {   
     if (param.section === SectionTypes.ItemVariables) {
       // In the Item Variables Section, there are 2 fields: name and expression
       if (this.itemVariablesErrors.length > 0) {
-        const tmpItemVariableError = this.itemVariablesErrors[param.index];
+        const tmpItemVariableError = {...this.itemVariablesErrors[param.index]};   
         tmpItemVariableError[param.field] = (result) ? true : false;
         this.itemVariablesErrors[param.index] = tmpItemVariableError;
       }

@@ -90,8 +90,6 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
       
         this.matToolTip = (this.validationErrorMessage) ? this.validationErrorMessage : "Save the Rule Editor";
       }
-      //this.validationError = validation.hasError;
-      //this.validationErrorMessage = (this.validationError) ? this.composeAriaValidationErrorMessage(validation) : "";
     });
 
     // performValidationSubscription is triggered when the 'Save' button is clicked, allowing each
@@ -147,6 +145,8 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
 
     this.validationSubscription.unsubscribe();
     this.performValidationSubscription.unsubscribe();
+
+    this.variableService.resetVariables();
   }
 
   /**
