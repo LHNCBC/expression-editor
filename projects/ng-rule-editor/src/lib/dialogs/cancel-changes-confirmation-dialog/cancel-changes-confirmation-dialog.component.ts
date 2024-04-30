@@ -5,8 +5,7 @@ import { LiveAnnouncer } from '@angular/cdk/a11y';
 
 @Component({
   selector: 'lhc-cancel-changes-confirmation-dialog',
-  templateUrl: './cancel-changes-confirmation-dialog.component.html',
-  styleUrls: ['./cancel-changes-confirmation-dialog.component.css']
+  templateUrl: './cancel-changes-confirmation-dialog.component.html'
 })
 export class CancelChangesConfirmationDialogComponent extends BaseDialogComponent {
   @Input() lhcStyle: SimpleStyle = {};
@@ -25,7 +24,7 @@ export class CancelChangesConfirmationDialogComponent extends BaseDialogComponen
     this.liveAnnouncer.announce("Yes is selected.");
     setTimeout(() => {
       this.confirmationYes.emit();
-    }, 50);
+    }, 0);
   };
 
   /**
@@ -35,7 +34,7 @@ export class CancelChangesConfirmationDialogComponent extends BaseDialogComponen
     this.liveAnnouncer.announce("No is selected.");
     setTimeout(() => {
       this.confirmationNo.emit();
-    }, 50);
+    }, 0);
   };
 
   /**
@@ -45,6 +44,6 @@ export class CancelChangesConfirmationDialogComponent extends BaseDialogComponen
     this.liveAnnouncer.announce("Cancel Changes dialog close.");
     setTimeout(() => {
       this.dialogClose.emit();
-    }, 50);
+    }, 0);
   };
 }

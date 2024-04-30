@@ -4,6 +4,7 @@ import { TreeModule } from '@bugsplat/angular-tree-component';
 
 import { SelectScoringItemsComponent } from './select-scoring-items.component';
 import { BaseDialogComponent } from '../dialogs/base-dialog/base-dialog.component';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 describe('SelectScoringItemsComponent', () => {
   let component: SelectScoringItemsComponent;
@@ -15,7 +16,7 @@ describe('SelectScoringItemsComponent', () => {
         SelectScoringItemsComponent,
         BaseDialogComponent
       ],
-      imports: [ FormsModule, TreeModule ]
+      imports: [ FormsModule, TreeModule, MatTooltipModule ]
     })
     .compileComponents();
 

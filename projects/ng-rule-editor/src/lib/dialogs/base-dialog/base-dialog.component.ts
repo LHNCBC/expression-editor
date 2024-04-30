@@ -1,7 +1,8 @@
-import { Component, EventEmitter, OnInit, Input, Output, ViewChild, ElementRef } from '@angular/core';
-import { DialogStyle, DialogTypes, DialogSize } from '../../rule-editor.service';
+import { Component, EventEmitter, OnInit, Input, Output, ViewChild, ElementRef, HostListener } from '@angular/core';
+import { DialogStyle, DialogTypes } from '../../rule-editor.service';
 import copy from 'fast-copy';
 import { LiveAnnouncer } from '@angular/cdk/a11y';
+import { RuleEditorService } from '../../rule-editor.service';
 
 const confirmationDialogStyle = {
   dialogContentDiv: {
@@ -106,6 +107,7 @@ export class BaseDialogComponent implements OnInit {
   @Output() no: EventEmitter<any> = new EventEmitter<any>();
   @Output() dialogClose: EventEmitter<any> = new EventEmitter<any>();
   
+  @ViewChild('overlay') overlayRef: ElementRef;
   @ViewChild('modal') modal: ElementRef;
 
   dialogStyle = {
@@ -118,7 +120,10 @@ export class BaseDialogComponent implements OnInit {
     'buttonSecondary': {}
   };
 
-  constructor(protected liveAnnouncer: LiveAnnouncer) {};
+  timeout = 0;
+  dialogName = "";
+
+  constructor(protected liveAnnouncer: LiveAnnouncer, protected ruleEditorService?: RuleEditorService ) {};
 
   /**
    * Angular lifecycle hook called when the component is initialized
@@ -137,7 +142,16 @@ export class BaseDialogComponent implements OnInit {
 
     if (!this.name)
       this.name = (this.dialogType) ? this.dialogType : "rule-editor";
+
+    this.dialogName = `#${this.name}-base-dialog > div`;
+
+    if (this.ruleEditorService &&
+        this.ruleEditorService.dialogStack.contains(this.dialogName)) {
+      this.ruleEditorService.dialogStack.push(this.dialogName);
+    }
   }
+
+
 
   /**
    * If provide, apply custom css styles to the default css styles
@@ -164,27 +178,37 @@ export class BaseDialogComponent implements OnInit {
    * Emits the 'yes' event
    */
   onYes(): void {
+    if(this.ruleEditorService.dialogStack.peek() === '#cancel-changes-base-dialog > div') {
+      this.ruleEditorService.dialogStack.pop();
+    }
+
     setTimeout(() => {
       this.yes.emit();
-    }, 50);
+    }, this.timeout);
   }
 
   /**
    * Emits the 'no' event
    */
   onNo(): void {
+    if (this.dialogName !== "#rule-editor-base-dialog > div")
+      this.ruleEditorService.dialogStack.pop();
+
     setTimeout(() => {
       this.no.emit();
-    }, 50);
+    }, this.timeout);
   }
 
   /**
    * Emits the 'dialogClose' event
    */
   onDialogClose(): void {
+    if (this.dialogName !== "#rule-editor-base-dialog > div")
+      this.ruleEditorService.dialogStack.pop();
+
     setTimeout(() => {
       this.dialogClose.emit();
-    }, 50);
+    }, this.timeout);
   }
 
   /**
@@ -192,16 +216,21 @@ export class BaseDialogComponent implements OnInit {
    * if clicking outside of the modal
    * @param event - mouse click event
    */
+  @HostListener('document:click', ['$event'])
   overlayClose(event) {
     if (this.enableOverlayClick) {
-      if (event.path) {
-        if (event.path.indexOf(this.modal.nativeElement) === -1) {
-          this.onDialogClose();
+      if (event.target && event.target instanceof HTMLDivElement) {
+        if (this.ruleEditorService && this.ruleEditorService.dialogStack.size() === 0) {
+          this.ruleEditorService.dialogStack.push(this.dialogName);
         }
-      } else if (event.target) {
-        if (event.target instanceof HTMLDivElement && ('__zone_symbol__clickfalse' in event.target)) {
+
+        if (!event.target.closest(this.dialogName) &&
+            (this.ruleEditorService && this.ruleEditorService.dialogStack.peek() === this.dialogName)) {
           this.onDialogClose();
           event.stopPropagation();
+          
+          if (this.dialogName !== "#rule-editor-base-dialog > div")
+            this.ruleEditorService.dialogStack.pop();
         }
       }
     }

@@ -290,7 +290,7 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
       // This is what hide the RuleEditor and return back to the
       // demo.  By disabling this, now, you can only cancel once.
       this.cancel.emit();
-    }, 50);
+    }, 0);
   }
 
   /**
@@ -305,7 +305,7 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
     setTimeout(() => {
       this.cancel.emit();
       this.showCancelConfirmationDialog = false;
-    }, 50);
+    }, 0);
   }
 
   /**
@@ -316,7 +316,7 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
 
     setTimeout(() => {
       this.showCancelConfirmationDialog = false;
-    }, 50);
+    }, 0);
   }
   
   /**
@@ -421,6 +421,6 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
 
     setTimeout(() => {
       this.expressionSyntax = 'fhirpath';
-    }, 10);
+    }, 0);
   }
 }

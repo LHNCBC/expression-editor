@@ -84,7 +84,7 @@ export class SelectScoringItemsComponent implements OnInit {
 
   doneSelectionAriaDescription="Click the 'Done' button to complete the scoring item selection.";
   reviewFHIRPathAriaDesription="Click the 'Review FHIRPath' button to review the scoring items selection in the Rule Editor.";
-  
+
   constructor(private ruleEditorService: RuleEditorService, private liveAnnouncer: LiveAnnouncer) { }
 
   /**
@@ -149,9 +149,11 @@ export class SelectScoringItemsComponent implements OnInit {
    */
   onCloseClick(): void {
     this.liveAnnouncer.announce("Cancel Select scoring items");
+    this.ruleEditorService.dialogStack.pop();
+ 
     setTimeout(() => {
       this.ruleEditorService.toggleScoreCalculation();
-    }, 50);
+    }, 0);
   }
 
   /**
@@ -168,11 +170,13 @@ export class SelectScoringItemsComponent implements OnInit {
                                     .map((node) => node.data.linkId);
       this.ruleEditorService.setItemLinkIdsForTotalCalculation(selectedItemLinkIds);
 
-      if (reviewFHIRPath)
+      if (reviewFHIRPath) {
+        this.ruleEditorService.dialogStack.pop();
         this.review.emit();
-      else
+      } else {
         this.export.emit();
-    }, 50);
+      }
+    }, 0);
 
   }
   

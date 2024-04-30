@@ -5,8 +5,7 @@ import { LiveAnnouncer } from '@angular/cdk/a11y';
 
 @Component({
   selector: 'lhc-fhirpath-easypath-conversion-confirmation-dialog',
-  templateUrl: './fhirpath-easypath-conversion-confirmation-dialog.component.html',
-  styleUrls: ['./fhirpath-easypath-conversion-confirmation-dialog.component.css']
+  templateUrl: './fhirpath-easypath-conversion-confirmation-dialog.component.html'
 })
 export class FhirpathEasypathConversionConfirmationDialogComponent extends BaseDialogComponent {
 
@@ -36,7 +35,7 @@ export class FhirpathEasypathConversionConfirmationDialogComponent extends BaseD
     this.liveAnnouncer.announce("Yes is selected.");
     setTimeout(() => {
       this.confirmationYes.emit();
-    }, 50);
+    }, 0);
   };
 
   /**
@@ -46,6 +45,6 @@ export class FhirpathEasypathConversionConfirmationDialogComponent extends BaseD
     this.liveAnnouncer.announce("No is selected.");
     setTimeout(() => {
       this.confirmationNo.emit();
-    }, 50);
+    }, 0);
   };
 }

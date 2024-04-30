@@ -2,6 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { CalculateSumPromptComponent } from './calculate-sum-prompt.component';
 import { BaseDialogComponent } from '../dialogs/base-dialog/base-dialog.component';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 describe('CalculateSumPromptComponent', () => {
   let component: CalculateSumPromptComponent;
@@ -12,7 +13,8 @@ describe('CalculateSumPromptComponent', () => {
       declarations: [
         CalculateSumPromptComponent,
         BaseDialogComponent
-      ]
+      ],
+      imports: [ MatTooltipModule ]
     })
     .compileComponents();
   });
