@@ -1216,9 +1216,6 @@ describe('Rule editor', () => {
         // Variables section
         cy.get('lhc-variables > h2').should('contain', 'Item Variables');
         cy.get('#variables-section .variable-row').should('have.length', 2);
-        
-        // The confirmation dialog should not exist
-        cy.get('lhc-fhirpath-easypath-conversion-confirmation-dialog').should('not.exist');
 
         // Cancel button
         cy.get('#cancel-changes').should('exist').click();
@@ -1230,13 +1227,62 @@ describe('Rule editor', () => {
             // The dialog should contains two buttons: Yes and No.
             cy.get('#yes-button').should('exist');
             cy.get('#no-button').should('exist');
-    
-            // Click 'No' should cancel the Cancel request and hide the dialog
-            cy.get('#no-button').click();
           });
+      });
 
-        // The confirmation dialog should not exist
-        cy.get('div.rule-editor lhc-fhirpath-easypath-conversion-confirmation-dialog').should('not.exist');
+      it('should get confirmation dialog when click x (close)', () => {
+        cy.get('select#questionnaire-select').select('BMI Calculation (Easy Path expression)');
+
+        // The demo has 'BMI (/39156-5) selected by default
+        cy.get('#question').should('have.value', 'BMI (/39156-5)');
+        // Click the button to edit the expression
+        cy.get('button#openRuleEditor').should('exist').click();
+        // The Rule Editor dialog should now appear
+        cy.get('lhc-rule-editor #rule-editor-base-dialog').should('exist');
+
+        // Variables section
+        cy.get('lhc-variables > h2').should('contain', 'Item Variables');
+        cy.get('#variables-section .variable-row').should('have.length', 2);
+
+        // Close the dialog by clicking 'x'
+        cy.get('#rule-editor-title-bar > button.btn-close').click();
+
+        // The dialog to confirm cancel should be displayed
+        cy.get('lhc-cancel-changes-confirmation-dialog')
+          .should('exist')
+          .within(() => {
+            // The dialog should contains two buttons: Yes and No.
+            cy.get('#yes-button').should('exist');
+            cy.get('#no-button').should('exist');
+
+          });
+      });
+
+      it('should get confirmation dialog when click outside the overlay', () => {
+        cy.get('select#questionnaire-select').select('BMI Calculation (Easy Path expression)');
+
+        // The demo has 'BMI (/39156-5) selected by default
+        cy.get('#question').should('have.value', 'BMI (/39156-5)');
+        // Click the button to edit the expression
+        cy.get('button#openRuleEditor').should('exist').click();
+        // The Rule Editor dialog should now appear
+        cy.get('lhc-rule-editor #rule-editor-base-dialog').should('exist');
+
+        // Variables section
+        cy.get('lhc-variables > h2').should('contain', 'Item Variables');
+        cy.get('#variables-section .variable-row').should('have.length', 2);
+
+        // Close the dialog by clicking outside the overlay
+        cy.get('lhc-rule-editor > lhc-base-dialog > #rule-editor-base-dialog').click(50, 50);
+
+        // The dialog to confirm cancel should be displayed
+        cy.get('lhc-cancel-changes-confirmation-dialog')
+          .should('exist')
+          .within(() => {
+            // The dialog should contains two buttons: Yes and No.
+            cy.get('#yes-button').should('exist');
+            cy.get('#no-button').should('exist');
+          });
       });
 
       it('should be able to cancel changes to the Rule Editor', () => {
@@ -1318,6 +1364,73 @@ describe('Rule editor', () => {
           });
         cy.get('lhc-calculate-sum-prompt > lhc-base-dialog > #calculate-sum-base-dialog')
           .should('not.exist');
+
+        // Once canceled, it should show the Rule Editor screen with 0 variables
+        cy.get('div.rule-editor').should('exist').within( ()=> {
+          // Variables section
+          cy.get('lhc-variables > h2').should('contain', 'Item Variables');
+          cy.get('#variables-section .variable-row').should('have.length', 0);
+        
+          cy.get('#add-variable').should('exist').should('be.visible');
+  
+          cy.get('#export').should('exist').scrollIntoView().should('be.visible');
+        });
+      });
+
+      it('should hide the calculate sum prompt if click x (close)', () => {
+        cy.intercept('/phq9.json').as('phq9');
+        cy.get('select#questionnaire-select').select('PHQ9 (no FHIRPath)');
+        cy.wait('@phq9');
+
+        // The demo has '(/39156-5) selected by default
+        cy.get('#question').should('contain.value', '(/39156-5)');
+        // Click the button to edit the expression
+        cy.get('button#openRuleEditor').should('exist').click();
+
+        // The prompt to calculate the total scoring item should displayed.
+        cy.get('lhc-calculate-sum-prompt > lhc-base-dialog > #calculate-sum-base-dialog')
+          .should('exist')
+          .within(() => {
+            cy.get('#calculate-sum-dialog-body')
+              .should('contain.text', 'Would you like to select items for the sum of scores?');
+          });
+
+        // Close the dialog by clicking 'x'
+        cy.get('#calculate-sum-title-bar > button.btn-close').click();
+
+        cy.get('lhc-calculate-sum-prompt > lhc-base-dialog > #calculate-sum-base-dialog')
+          .should('not.exist');
+
+        // Should return back to the demo screen
+        cy.get('app-root > h1').should('be.visible').should('contain.text', 'Rule Editor Demo');
+      });
+
+      it('should hide the calculate sum prompt if click outside the overlay', () => {
+        cy.intercept('/phq9.json').as('phq9');
+        cy.get('select#questionnaire-select').select('PHQ9 (no FHIRPath)');
+        cy.wait('@phq9');
+
+        // The demo has '(/39156-5) selected by default
+        cy.get('#question').should('contain.value', '(/39156-5)');
+        // Click the button to edit the expression
+        cy.get('button#openRuleEditor').should('exist').click();
+
+        // The prompt to calculate the total scoring item should displayed.
+        cy.get('lhc-calculate-sum-prompt > lhc-base-dialog > #calculate-sum-base-dialog')
+          .should('exist')
+          .within(() => {
+            cy.get('#calculate-sum-dialog-body')
+              .should('contain.text', 'Would you like to select items for the sum of scores?');
+          });
+
+        // Close the dialog by clicking outside the overlay
+        cy.get('lhc-calculate-sum-prompt > lhc-base-dialog > #calculate-sum-base-dialog').click(50, 50);
+
+        cy.get('lhc-calculate-sum-prompt > lhc-base-dialog > #calculate-sum-base-dialog')
+          .should('not.exist');
+
+        // Should return back to the demo screen
+        cy.get('app-root > h1').should('be.visible').should('contain.text', 'Rule Editor Demo');
       });
 
       it('should display the scoring items selection', () => {
@@ -1475,17 +1588,80 @@ describe('Rule editor', () => {
         cy.get('#skip-export-score').click()
         cy.get('lhc-select-scoring-items').should('not.exist');
 
-        // Once canceled, it should show the Rule Editor screen with 0 variables
-        cy.get('div.rule-editor').should('exist').within( ()=> {
-          // Variables section
-          cy.get('lhc-variables > h2').should('contain', 'Item Variables');
-          cy.get('#variables-section .variable-row').should('have.length', 0);
-        
-          cy.get('#add-variable').should('exist').should('be.visible');
-  
-          cy.get('#export').should('exist').scrollIntoView().should('be.visible');
-        });
+        // Should return back to the demo screen
+        cy.get('app-root > h1').should('be.visible').should('contain.text', 'Rule Editor Demo');
+      });
 
+      it('should hide the scoring items selection if click x (close)', () => {
+        cy.intercept('/phq9.json').as('phq9');
+        cy.get('select#questionnaire-select').select('PHQ9 (no FHIRPath)');
+        cy.wait('@phq9');
+
+        // The demo has '(/39156-5) selected by default
+        cy.get('#question').should('contain.value', '(/39156-5)');
+        // Click the button to edit the expression
+        cy.get('button#openRuleEditor').should('exist').click();
+
+        cy.get('lhc-calculate-sum-prompt > lhc-base-dialog > #calculate-sum-base-dialog')
+          .should('exist')
+          .within(() => {
+            cy.get('#calculate-sum-dialog-body')
+              .should('contain.text', 'Would you like to select items for the sum of scores?');
+            cy.get('#score-items-selection').click();
+          });
+
+        cy.get('lhc-select-scoring-items #select-scoring-items-dialog-title')
+          .should('contain.text', 'Select items to include in the score calculation:');
+        cy.get('lhc-select-scoring-items .scoring-items-selection-body')
+          .within(() => {
+            cy.get('#selectAll').should('exist');
+            cy.get('div.items-tree').should('exist');
+            cy.get('div.items-tree tree-node').should('have.length', 9);
+          });
+
+        // Close the dialog by clicking 'x'
+        cy.get('#select-scoring-items-title-bar > button.btn-close').click();
+
+        cy.get('lhc-select-scoring-items').should('not.exist');
+
+        // Should return back to the demo screen
+        cy.get('app-root > h1').should('be.visible').should('contain.text', 'Rule Editor Demo');
+      });
+
+      it('should hide the scoring items selection if click outside the overlay', () => {
+        cy.intercept('/phq9.json').as('phq9');
+        cy.get('select#questionnaire-select').select('PHQ9 (no FHIRPath)');
+        cy.wait('@phq9');
+
+        // The demo has '(/39156-5) selected by default
+        cy.get('#question').should('contain.value', '(/39156-5)');
+        // Click the button to edit the expression
+        cy.get('button#openRuleEditor').should('exist').click();
+
+        cy.get('lhc-calculate-sum-prompt > lhc-base-dialog > #calculate-sum-base-dialog')
+          .should('exist')
+          .within(() => {
+            cy.get('#calculate-sum-dialog-body')
+              .should('contain.text', 'Would you like to select items for the sum of scores?');
+            cy.get('#score-items-selection').click();
+          });
+
+        cy.get('lhc-select-scoring-items #select-scoring-items-dialog-title')
+          .should('contain.text', 'Select items to include in the score calculation:');
+        cy.get('lhc-select-scoring-items .scoring-items-selection-body')
+          .within(() => {
+            cy.get('#selectAll').should('exist');
+            cy.get('div.items-tree').should('exist');
+            cy.get('div.items-tree tree-node').should('have.length', 9);
+          });
+
+        // Close the dialog by clicking outside the overlay
+        cy.get('lhc-select-scoring-items > lhc-base-dialog > #select-scoring-items-base-dialog').click(50, 50);
+
+        cy.get('lhc-select-scoring-items').should('not.exist');
+
+        // Should return back to the demo screen
+        cy.get('app-root > h1').should('be.visible').should('contain.text', 'Rule Editor Demo');
       });
 
       it('should be able to export score with selected individual items', () => {

@@ -2,13 +2,14 @@
   *ngIf="calculateSum && !loadError && !selectItems"
   (selectItems)="selectItemsForSumOfScores()"
   (no)="closeDialog()"
-  (dialogClose)="closeSumOfScoresDialog()"
+  (dialogClose)="closeScoreingDialog()"
   [lhcStyle]="lhcStyle">
 </lhc-calculate-sum-prompt>
 <lhc-select-scoring-items
   *ngIf="calculateSum && !loadError && selectItems"
   (export)="addSumOfScores(false)"
   (review)="addSumOfScores(true)"
+  (dialogClose)="closeScoreingDialog()"
   [items]="fhirQuestionnaire.item"
   [lhcStyle]="lhcStyle">
 </lhc-select-scoring-items>

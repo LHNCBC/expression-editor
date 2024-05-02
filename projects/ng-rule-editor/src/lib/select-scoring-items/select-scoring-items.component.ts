@@ -14,6 +14,7 @@ export class SelectScoringItemsComponent implements OnInit {
   @Input() items = [];
   @Output() export: EventEmitter<any> = new EventEmitter<any>();
   @Output() review: EventEmitter<any> = new EventEmitter<any>();
+  @Output() dialogClose: EventEmitter<any> = new EventEmitter<any>();
 
   @ViewChild('itemTree') itemTree: TreeComponent;
   @ViewChild('filter') filter: string;
@@ -83,7 +84,7 @@ export class SelectScoringItemsComponent implements OnInit {
   };
 
   doneSelectionAriaDescription="Click the 'Done' button to complete the scoring item selection.";
-  reviewFHIRPathAriaDesription="Click the 'Review FHIRPath' button to review the scoring items selection in the Rule Editor.";
+  reviewFHIRPathAriaDesription="Click the 'Review FHIRPath' button to review the scoring item selection in the Rule Editor.";
 
   constructor(private ruleEditorService: RuleEditorService, private liveAnnouncer: LiveAnnouncer) { }
 
@@ -152,6 +153,7 @@ export class SelectScoringItemsComponent implements OnInit {
     this.ruleEditorService.dialogStack.pop();
  
     setTimeout(() => {
+      this.dialogClose.emit();
       this.ruleEditorService.toggleScoreCalculation();
     }, 0);
   }

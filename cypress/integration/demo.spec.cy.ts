@@ -198,18 +198,6 @@ describe('Rule editor demo', () => {
       // The prompt should disappeared
       cy.get('lhc-calculate-sum-prompt').should('not.exist');
 
-      // The Rule Editor dialog should now appear
-      cy.get('lhc-rule-editor #rule-editor-base-dialog').should('exist');  
-      // Close the Rule Editor dialog
-      cy.get('button.btn-close').click();
-      // The dialog to confirm cancel should be displayed
-      cy.get('lhc-cancel-changes-confirmation-dialog')
-        .should('exist')
-        .within(() => {
-          // Click 'Yes' button
-          cy.get('#yes-button').should('exist').click();
-        });
-      
       // Select 'Answer Expression' for the 'Output Expression'
       cy.get('div#expression-entry > select').select('Answer Expression').should('have.value', '0');
 
@@ -285,17 +273,6 @@ describe('Rule editor demo', () => {
           cy.get('button.btn-close').click();
         });
 
-      // The Rule Editor dialog should now appear
-      cy.get('lhc-rule-editor #rule-editor-base-dialog').should('exist');  
-      // Close the Rule Editor dialog
-      cy.get('button.btn-close').click();
-      // The dialog to confirm cancel should be displayed
-      cy.get('lhc-cancel-changes-confirmation-dialog')
-        .should('exist')
-        .within(() => {
-          // Click 'Yes' button
-          cy.get('#yes-button').should('exist').click();
-        });
  
       // Select 'Calculated/Initial Expression (user editable)' for the 'Output Expression'
       cy.get('div#expression-entry > select').select('Other...').should('have.value', 'custom');
@@ -526,7 +503,7 @@ describe('Rule editor demo', () => {
       
       // Close the 'Scoring Items Selection'
       cy.get('button.btn-close').click();
-
+/* 
         // The Rule Editor dialog should now display
       cy.get('lhc-rule-editor > lhc-base-dialog').should('exist');
 
@@ -540,7 +517,7 @@ describe('Rule editor demo', () => {
           // Click 'Yes' button
           cy.get('#yes-button').should('exist').click();
         });    
-
+ */
       // Upload a new questionnaire
       cy.get('select#questionnaire-select').select('Upload your own questionnaire');
       // Select a non-scoring questionnaire

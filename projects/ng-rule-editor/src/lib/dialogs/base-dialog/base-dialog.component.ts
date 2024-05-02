@@ -146,12 +146,10 @@ export class BaseDialogComponent implements OnInit {
     this.dialogName = `#${this.name}-base-dialog > div`;
 
     if (this.ruleEditorService &&
-        this.ruleEditorService.dialogStack.contains(this.dialogName)) {
+        !this.ruleEditorService.dialogStack.contains(this.dialogName)) {
       this.ruleEditorService.dialogStack.push(this.dialogName);
     }
   }
-
-
 
   /**
    * If provide, apply custom css styles to the default css styles

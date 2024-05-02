@@ -80,7 +80,7 @@ class Stack<T> {
   }
 
   contains(element: T): boolean {
-    return this.items.indexOf(element) === -1;
+    return this.items.indexOf(element) > -1;
   }
 
   peek(): T | undefined {

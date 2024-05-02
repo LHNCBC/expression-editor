@@ -14,7 +14,7 @@ export class CalculateSumPromptComponent implements OnInit {
   @Output() dialogClose: EventEmitter<any> = new EventEmitter<any>();
 
   selectItemsAriaDescription="Click the 'Yes' button to select items for the scoring calculation.";
-  skipSelectItemsAriaDescription="Click the 'No' button to skip items selection and go to the Rule Editor.";
+  skipSelectItemsAriaDescription="Click the 'No' button to skip item selection and go to the Rule Editor.";
 
   constructor(private ruleEditorService: RuleEditorService, private liveAnnouncer: LiveAnnouncer) { }
 
@@ -27,6 +27,7 @@ export class CalculateSumPromptComponent implements OnInit {
     this.liveAnnouncer.announce("Cancelled calculate sum of scores.");
 
     setTimeout(() => {
+      this.dialogClose.emit();
       this.ruleEditorService.toggleScoreCalculation();
     }, 0);
   }

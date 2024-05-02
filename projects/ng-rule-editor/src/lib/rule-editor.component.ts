@@ -294,13 +294,12 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   /**
-   * Close Sum of Scores dialog
+   * Close 'Calculate Sum of Scores' or 'Scoring Items Selection' dialogs
    */
-  closeSumOfScoresDialog(): void {
+  closeScoreingDialog(): void {
     this.liveAnnouncer.announce("Changes were canceled.");
-    // This is required for web-component.html when
-    // closing the dialog.
-    this.hideRuleEditor = false;
+
+    this.hideRuleEditor = true;
     
     setTimeout(() => {
       this.cancel.emit();
