@@ -3,6 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { TreeModule } from '@bugsplat/angular-tree-component';
 
 import { SelectScoringItemsComponent } from './select-scoring-items.component';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 describe('SelectScoringItemsComponent', () => {
   let component: SelectScoringItemsComponent;
@@ -11,7 +12,7 @@ describe('SelectScoringItemsComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       declarations: [ SelectScoringItemsComponent ],
-      imports: [ FormsModule, TreeModule ]
+      imports: [ FormsModule, TreeModule, MatTooltipModule ]
     })
     .compileComponents();
 

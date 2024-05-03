@@ -6,6 +6,7 @@ This project follows [Semantic Versioning](http://semver.org/).
 ### Changed
 - Enable the 'Open Rule Editor' button only if the questionnaire is selected and either the 'Root level' checkbox or Question drop-down is selected.
 - Allowed FHIR Query with parameters to be parsed in any order
+- Added logic for the screen reader to announce the reason wny the 'Done' button is disabled. 
 
 ## [3.1.19] 2024-04-01
 ### Added
