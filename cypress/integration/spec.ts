@@ -1778,7 +1778,7 @@ describe('Rule editor', () => {
         // Unselect an individual item
         cy.get('@checkboxes').eq(2).uncheck();
 
-        // Done button should now be enabled.
+        // Done button should now be disabled.
         cy.get('#export-score').should('be.disabled');
 
         // Select all items
@@ -1801,7 +1801,7 @@ describe('Rule editor', () => {
         // Unselect all items
         cy.get('#unselectAll').click();
 
-        // Validate to make sure that no items are selected
+        // Validate to make sure that no items were selected
         cy.get('div.scoring-items-selection-body')
           .within(() => {
             cy.get('div.items-tree tree-node').should('have.length', 26);
@@ -1812,7 +1812,7 @@ describe('Rule editor', () => {
             });
           });
 
-        // Button should now be enabled.
+        // Button should now be disabled.
         cy.get('#export-score').should('be.disabled');
       });
 
