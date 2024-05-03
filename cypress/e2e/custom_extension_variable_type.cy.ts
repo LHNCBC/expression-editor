@@ -189,7 +189,7 @@ describe('Rule editor', () => {
 
         // Variables section
         cy.get('lhc-variables > h2').should('contain', 'Item Variables');
-        cy.get('#variables-section .variable-row').should('have.length', 27);
+        cy.get('#variables-section .variable-row').should('have.length', 31);
 
         // Variable type "FHIRPath Expression" is displayed incorrectly as "Question"
         cy.get('div#row-15').within(() => {
@@ -607,7 +607,7 @@ describe('Rule editor', () => {
           expect(parsedData.item[4].linkId).to.exist;
           expect(parsedData.item[4].linkId).to.have.string('/39156-5');
           expect(parsedData.item[4].extension).to.exist;
-          expect(parsedData.item[4].extension).to.have.lengthOf(29);
+          expect(parsedData.item[4].extension).to.have.lengthOf(33);
 
           // validate that the valueString is updated to 'query'
           expect(parsedData.item[4].extension[7].valueExpression.name).to.equal('fhirpath_exp');
