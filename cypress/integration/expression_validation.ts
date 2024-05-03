@@ -573,6 +573,150 @@ describe('Rule editor', () => {
         // Click the 'Save' button, it should run validation
         cy.get('#export').click();
       });
+
+      it('should display error in the Output Expression section if the dependent variable name is changed.', () => {
+        cy.get('select#questionnaire-select').select('BMI Calculation (Easy Path expression)');
+
+        // The demo has '(/39156-5) selected by default
+        cy.get('#question').should('contain.value', '(/39156-5)');
+        // Click the button to edit the expression
+        cy.get('button#openRuleEditor').should('exist').click();
+        // The Rule Editor dialog should now appear
+        cy.get('#rule-editor-dialog').should('exist');
+
+        // Should have two variables
+        cy.get('#variables-section .variable-row').should('have.length', 2);
+
+        // Check the Advanced Interface checkbox
+        cy.get('input#advanced-interface').check();
+
+        cy.get('#variable-label-0').should('have.value', 'a');
+        cy.get('#variable-label-1').should('have.value', 'b');
+
+        // The variable type should default to Easy Path Expression
+        cy.get('#output-expression-type').should('exist').should('have.value', 'simple');
+        // The output expression should have value a/b^2
+        cy.get('#simple-expression-final').should('have.value', 'a/b^2');
+
+        // Rename variable 'b' to 'bb'
+        cy.get('#variable-label-1').type('b{enter}').should('have.value', 'bb');
+
+        // The output expression should show an error
+        cy.get('#simple-expression-final').should('have.class', 'field-error');
+        cy.get('#expression-error > p').should('contain.text', 'Invalid expression.');
+
+        // Rename variable 'bb' back to 'b'
+        cy.get('#variable-label-1').clear().type('b{enter}').should('have.value', 'b');
+
+        // The output expression should no longer show an error
+        cy.get('#simple-expression-final').should('not.have.class', 'field-error');
+        cy.get('#expression-error > p').should('not.exist');
+
+        // Select FHIRPath Expression variable type
+        cy.get('#output-expression-type').select('fhirpath');
+        // The output expression should have value %a/%b.power(2)
+        cy.get('#final-expression').should('have.value', '%a/%b.power(2)');
+
+        // Rename variable 'b' to 'bb'
+        cy.get('#variable-label-1').type('b{enter}').should('have.value', 'bb');
+
+        // The output expression should show an error
+        cy.get('#final-expression').should('have.class', 'field-error');
+        cy.get('#expression-error > p').should('contain.text', 'Invalid expression.');
+
+        // Rename variable 'bb' back to 'b'
+        cy.get('#variable-label-1').clear().type('b{enter}').should('have.value', 'b');
+
+        // The output expression should no longer show an error
+        cy.get('#final-expression').should('not.have.class', 'field-error');
+        cy.get('#expression-error > p').should('not.exist');
+      });
+
+      it('should display the Case Statement errors in the Output Expression section if the dependent variable name is changed.', () => {
+        cy.get('select#questionnaire-select').select('BMI Calculation (Easy Path expression)');
+
+        // The demo has '(/39156-5) selected by default
+        cy.get('#question').should('contain.value', '(/39156-5)');
+        // Click the button to edit the expression
+        cy.get('button#openRuleEditor').should('exist').click();
+        // The Rule Editor dialog should now appear
+        cy.get('#rule-editor-dialog').should('exist');
+
+        // Should have two variables
+        cy.get('#variables-section .variable-row').should('have.length', 2);
+
+        // Check the Advanced Interface checkbox
+        cy.get('input#advanced-interface').check();
+
+        cy.get('#variable-label-0').should('have.value', 'a');
+        cy.get('#variable-label-1').should('have.value', 'b');
+
+        // The variable type should default to Easy Path Expression
+        cy.get('#output-expression-type').should('exist').should('have.value', 'simple');
+
+        // Check the "Case Statements Helper" checkbox
+        cy.get('#case-statements').check();
+
+        // The case condition, case output, and default case should not display
+        // errors initially. Only when the field is modified or the 'Save' button
+        // is clicked.
+        cy.get('#case-condition-0').should('not.have.class', 'field-error');
+        cy.get('#case-output-0').should('not.have.class', 'field-error');
+        cy.get('.default').should('not.have.class', 'field-error');
+        // the 'Save' button should be enabled
+        cy.get('#export').should('not.have.class', 'disabled');
+
+        // Enter data to the Case Statement
+        cy.get('#case-condition-0').type('b < 5');
+        cy.get('#case-output-0').type('b');
+        cy.get('.default').type('b');
+
+        // Rename variable 'b' to 'bb'
+        cy.get('#variable-label-1').type('b{enter}').should('have.value', 'bb');
+
+        // The Case Statement should fail.
+        cy.get('#case-condition-0').should('have.class', 'field-error');
+        cy.get('#case-condition-0-error').should('contain.text', 'The case condition is invalid.');
+        cy.get('#case-output-0').should('have.class', 'field-error');
+        cy.get('#case-output-0-error').should('contain.text', 'The case output is invalid.');
+        cy.get('.default').should('have.class', 'field-error');
+        cy.get('#default-case-error').should('contain.text', 'The default case is invalid.');
+
+        // Rename variable 'bb' back to 'b'
+        cy.get('#variable-label-1').clear().type('b{enter}').should('have.value', 'b');
+
+        // The error messages should go away
+        cy.get('#case-condition-0').should('not.have.class', 'field-error');
+        cy.get('#case-output-0').should('not.have.class', 'field-error');
+        cy.get('.default').should('not.have.class', 'field-error');
+
+        // Select FHIRPath Expression variable type
+        cy.get('#output-expression-type').select('fhirpath');
+
+        // The Case Statement should be converted to FHIRPath
+        cy.get('#case-condition-0').should('have.value', '%b < 5');
+        cy.get('#case-output-0').should('have.value', '%b');
+        cy.get('.default').should('have.value', '%b');
+
+        // Rename variable 'b' to 'bb'
+        cy.get('#variable-label-1').type('b{enter}').should('have.value', 'bb');
+
+        // The Case Statement should fail.
+        cy.get('#case-condition-0').should('have.class', 'field-error');
+        cy.get('#case-condition-0-error').should('contain.text', 'The case condition is invalid.');
+        cy.get('#case-output-0').should('have.class', 'field-error');
+        cy.get('#case-output-0-error').should('contain.text', 'The case output is invalid.');
+        cy.get('.default').should('have.class', 'field-error');
+        cy.get('#default-case-error').should('contain.text', 'The default case is invalid.');
+
+        // Rename variable 'bb' back to 'b'
+        cy.get('#variable-label-1').clear().type('b{enter}').should('have.value', 'b');
+
+        // The Case Statement error messages should go away
+        cy.get('#case-condition-0').should('not.have.class', 'field-error');
+        cy.get('#case-output-0').should('not.have.class', 'field-error');
+        cy.get('.default').should('not.have.class', 'field-error');
+      });
     });
   });
 });

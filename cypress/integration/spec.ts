@@ -7,6 +7,39 @@ describe('Rule editor', () => {
 
   describe('Angular Library', () => {
     describe('BMI calculation', () => {
+      
+      it('should disable the "Open Rule Editor" button if "Root level" or Question is not selected', () => {
+
+        // The demo has 'BMI (/39156-5) selected by default
+        cy.get('#question').should('have.value', 'BMI (/39156-5)');
+
+        // The 'Open Rule Editor' should be enabled because by default
+        // the Question BMI is selected
+        cy.get('#openRuleEditor').should('not.have.class', 'disabled');
+        
+        cy.get('#question').clear().type('{enter}');
+
+        cy.get('#useRootLevel').should('be.checked');
+
+        // The 'Open Rule Editor' should be enabled
+        cy.get('#openRuleEditor').should('not.have.class', 'disabled');
+
+        // Unselect the Root level
+        cy.get('#useRootLevel').uncheck();
+        // If the Root level is unchecked, it will revert to the default linkId (question)
+        cy.get('#question').should('have.value', 'BMI (/39156-5)');
+        // The 'Open Rule Editor' should not be disabled
+        cy.get('#openRuleEditor').should('not.have.class', 'disabled');
+
+        // Select the question
+        cy.get('#question').clear().type('Clothing worn during measure');
+        cy.get('span#completionOptions > ul > li').contains('8352-7').click();
+        cy.get('#question').should('have.value', 'Clothing worn during measure (/8352-7)');
+        // The 'Open Rule Editor' should be enabled
+        cy.get('#openRuleEditor').should('not.have.class', 'disabled');
+
+      });
+
       it('should display the editor', () => {
 
         // The demo has 'BMI (/39156-5) selected by default
@@ -1745,7 +1778,7 @@ describe('Rule editor', () => {
         // Unselect an individual item
         cy.get('@checkboxes').eq(2).uncheck();
 
-        // Done button should now be enabled.
+        // Done button should now be disabled.
         cy.get('#export-score').should('be.disabled');
 
         // Select all items
@@ -1768,7 +1801,7 @@ describe('Rule editor', () => {
         // Unselect all items
         cy.get('#unselectAll').click();
 
-        // Validate to make sure that no items are selected
+        // Validate to make sure that no items were selected
         cy.get('div.scoring-items-selection-body')
           .within(() => {
             cy.get('div.items-tree tree-node').should('have.length', 26);
@@ -1779,7 +1812,7 @@ describe('Rule editor', () => {
             });
           });
 
-        // Button should now be enabled.
+        // Button should now be disabled.
         cy.get('#export-score').should('be.disabled');
       });
 
