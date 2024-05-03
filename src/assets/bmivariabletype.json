@@ -551,6 +551,63 @@
             "language": "text/fhirpath",
             "expression": "Observation.component.where(code.memberOf(%'vs-observation-vitalsignresult'))"
           }
+        },
+
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/variable",
+          "valueExpression": {
+            "name": "fhir_query_obs_params_order_1",
+            "language": "text/fhirpath",
+            "expression": "Observation?date=gt{{today()-2 weeks}}&patient={{%patient.id}}&_sort=-date&_count=1&code=http://loinc.org|2922-3",
+            "extension": [
+              {
+                "url": "http://lhcforms.nlm.nih.gov/fhirExt/rule-editor-variable-type",
+                "valueString": "queryObservation"
+              }
+            ]
+          }
+        },
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/variable",
+          "valueExpression": {
+            "name": "fhir_query_obs_params_order_2",
+            "language": "text/fhirpath",
+            "expression": "Observation?patient={{%patient.id}}&_sort=-date&_count=1&code=http://loinc.org|2922-3&date=gt{{today()-2 weeks}}",
+            "extension": [
+              {
+                "url": "http://lhcforms.nlm.nih.gov/fhirExt/rule-editor-variable-type",
+                "valueString": "queryObservation"
+              }
+            ]
+          }
+        },
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/variable",
+          "valueExpression": {
+            "name": "fhir_query_obs_params_order_3",
+            "language": "text/fhirpath",
+            "expression": "Observation?_sort=-date&_count=1&code=http://loinc.org|2922-3&date=gt{{today()-2 weeks}}&patient={{%patient.id}}",
+            "extension": [
+              {
+                "url": "http://lhcforms.nlm.nih.gov/fhirExt/rule-editor-variable-type",
+                "valueString": "queryObservation"
+              }
+            ]
+          }
+        },
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/variable",
+          "valueExpression": {
+            "name": "fhir_query_obs_params_order_4",
+            "language": "text/fhirpath",
+            "expression": "Observation?_count=1&code=http://loinc.org|2922-3&date=gt{{today()-2 weeks}}&patient={{%patient.id}}&_sort=-date",
+            "extension": [
+              {
+                "url": "http://lhcforms.nlm.nih.gov/fhirExt/rule-editor-variable-type",
+                "valueString": "queryObservation"
+              }
+            ]
+          }
         }
       ],
       "required": false,

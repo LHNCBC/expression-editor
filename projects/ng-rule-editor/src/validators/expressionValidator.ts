@@ -1,5 +1,5 @@
 import { AbstractControl, ValidatorFn } from '@angular/forms';
-import { ValidationError, ValidationParam, FieldTypes } from '../lib/variable';
+import { ValidationError, ValidationParam, FieldTypes, SectionTypes } from '../lib/variable';
 import * as fhirpath from 'fhirpath';
 import { EasyPathExpressionsPipe } from '../lib/easy-path-expressions.pipe';
 import * as constants from "../lib/validation";
@@ -50,13 +50,16 @@ function getRequiredErrorObject(type, field): ValidationError {
 
 /**
  * Compose the Invalid Expression error
+ * @param invalidVariableName - true if the validation error is in the Output Expression
+ *                              section and was caused by the variable name.
  * @returns Invalid expression error object
  */
-function getInvalidExpressionErrorObject(): ValidationError {
+function getInvalidExpressionErrorObject(invalidVariableName = false): ValidationError {
   return {
     'invalidExpressionError': true,
     'message': constants.INVALID_EXPRESSION,
-    'ariaMessage': constants.INVALID_EXPRESSION
+    'ariaMessage': ( invalidVariableName ) ?
+      constants.INVALID_EXPRESSION_OUTPUT : constants.INVALID_EXPRESSION
   }
 }
 
@@ -77,7 +80,7 @@ export function expressionValidator(param: ValidationParam): ValidatorFn {
           // the invalidExpressionError
           const result = fhirpath.evaluate({}, control.value, JSON.parse(param.variableNames));
         } catch(e) {
-          return getInvalidExpressionErrorObject();
+          return getInvalidExpressionErrorObject(true);
         }
       } else if (param.type === "simple") {
         // Converts the array into string array
@@ -92,7 +95,12 @@ export function expressionValidator(param: ValidationParam): ValidatorFn {
         const fhirPath: string = jsToFhirPathPipe.transform(control.value, varStringArr);
 
         if (fhirPath === 'Not valid') {
-          return getInvalidExpressionErrorObject();
+            // If the failure occurs in the 'Output Expression' section but the
+            // expression itself has not been changed, the validation failure 
+            // likely due to the variable name in the 'Item Variables' section.
+            const invalidVariableName = (param.section === SectionTypes.OutputExpression && !control.dirty);
+            return getInvalidExpressionErrorObject(invalidVariableName);
+  
         } else if (fhirPath === '') {
           return getRequiredErrorObject(param.type, param.field);
         }
