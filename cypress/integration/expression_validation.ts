@@ -17,8 +17,8 @@ describe('Rule editor', () => {
         // The Rule Editor dialog should now appear
         cy.get('#rule-editor-dialog').should('exist');
 
-        // Check the Advanced Interface checkbox
-        cy.get('input#advanced-interface').check();
+        // The Advanced Interface checkbox should be checked
+        cy.get('input#advanced-interface').check().should('be.checked');
 
         // Add 5 new items
         // Add variable of variable type "FHIRPath Expression"
