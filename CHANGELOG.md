@@ -8,6 +8,7 @@ This project follows [Semantic Versioning](http://semver.org/).
 - Allowed FHIR Query with parameters to be parsed in any order
 - Added logic for the screen reader to announce the reason wny the 'Done' button is disabled. 
 - Upgraded Cypress from version 9.7.0 to 13.7.3.
+- Upgraded Angular from version 15.2.4 to 17.3.4
 
 ## [3.1.19] 2024-04-01
 ### Added
