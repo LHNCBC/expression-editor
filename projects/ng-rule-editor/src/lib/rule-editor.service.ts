@@ -397,9 +397,10 @@ export class RuleEditorService {
     if (typeof item === 'string') {
       item = this.linkIdToQuestion[item];
     }
-    return ((item && item.answerOption) || []).some((answerOption) => {
-      return ((answerOption && answerOption.extension) || []).some((extension) => {
-        return extension.url === 'http://hl7.org/fhir/StructureDefinition/ordinalValue';
+    return ((item?.answerOption) || []).some((answerOption) => {
+      return ((answerOption?.extension) || []).some((extension) => {
+        return (extension.url === 'http://hl7.org/fhir/StructureDefinition/ordinalValue' ||
+                extension.url === 'http://hl7.org/fhir/StructureDefinition/itemWeight');
       });
     });
   }
@@ -1347,7 +1348,8 @@ export class RuleEditorService {
    * @param expression - question expression
    * @return expression based on matching criteria
    */
-  valueOrScoreExpression(linkId: string, itemHasScore: boolean, convertible: boolean, unit: string, toUnit: string, expression: string): string {
+  valueOrScoreExpression(linkId: string, itemHasScore: boolean, convertible: boolean, unit: string,
+                         toUnit: string, expression: string): string {
     if (itemHasScore) {
       return `%questionnaire.item.where(linkId = '${linkId}').answerOption` +
         `.where(valueCoding.code=%resource.item.where(linkId = '${linkId}').answer.valueCoding.code).extension` +
@@ -1357,7 +1359,7 @@ export class RuleEditorService {
       return `%resource.item.where(linkId='${linkId}').answer.value*${factor}`;
     } else {
       const matches = expression.match(this.QUESTION_REGEX);
-      if (!convertible && matches && matches[2])
+      if (!convertible && matches && matches[2] && matches[1] === linkId)
         return `%resource.item.where(linkId='${linkId}').answer.value*${matches[2]}`;
 
       return `%resource.item.where(linkId='${linkId}').answer.value`;
