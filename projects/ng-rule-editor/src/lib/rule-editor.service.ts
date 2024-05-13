@@ -20,6 +20,27 @@ export interface SimpleStyle {
   description?: object;
 }
 
+export enum DialogTypes {
+  Confirmation = "confirmation",
+  Help =  "help"
+};
+
+export enum DialogSize {
+  Small = "30%",
+  Medium = "50%",
+  Large = "80%"
+}
+
+export interface DialogStyle {
+  dialogTitleBar?: object;
+  dialogContentDiv?: object;
+  dialogHeaderDiv?: object;
+  dialogBodyDiv?: object;
+  dialogFooterDiv?: object;
+  buttonPrimary?: object;
+  buttonSecondary?: object;
+}
+
 interface WhereConditionExpression {
   itemQuery: string;
   answerOptionQuery: string;
@@ -40,6 +61,38 @@ class ItemVariableError {
     this.name = name;
     this.expression = expression;
     this.timeInterval = timeInterval;
+  }
+};
+
+class Stack<T> {
+  private items: T[];
+
+  constructor() {
+    this.items = [];
+  }
+
+  push(element: T): void {
+    this.items.push(element);
+  }
+
+  pop(): T | undefined {
+    return this.items.pop();
+  }
+
+  contains(element: T): boolean {
+    return this.items.indexOf(element) > -1;
+  }
+
+  peek(): T | undefined {
+    return this.items[this.items.length - 1];
+  }
+
+  isEmpty(): boolean {
+    return this.items.length === 0;
+  }
+
+  size(): number {
+    return this.items.length;
   }
 };
 
@@ -96,6 +149,8 @@ export class RuleEditorService {
   private itemVariablesErrors: ItemVariableError[] = [];
   private outputExpressionError = false;
   private caseStatementError = false;
+
+  dialogStack = new Stack();
 
   constructor() {
     this.variables = [];
@@ -436,18 +491,30 @@ export class RuleEditorService {
    * @return true if load was successful
    */
   import(expressionUri: string, questionnaire, linkIdContext): boolean {
+    console.log('rule-editor.service::expressionUri - ' + expressionUri);
+    console.log('rule-editor.service::questionnaire - ' + JSON.stringify(questionnaire));
+    console.log('rule-editor.service::linkIdContext - ' + linkIdContext);
+    
     this.linkIdContext = linkIdContext;
     this.fhir = copy(questionnaire);
     const loadSuccess = this.fhir.resourceType === 'Questionnaire';
-
+    console.log('rule-editor.service::loadSuccess - ' + loadSuccess);
+    console.log('rule-editor.service::fhir.item - ' + this.fhir.item);
+    console.log('rule-editor.service::fhir.item len - ' + this.fhir.item.length);
+    
     if (loadSuccess && this.fhir.item && this.fhir.item.length) {
+      console.log('rule-editor.service::import');
       if (!this.doNotAskToCalculateScore) {
+        console.log('rule-editor.service::import::step 1');
         // If there is at least one score question we will ask the user if they
         // want to calculate the score
         const scoreMinQuestions = 1;
         this.scoreCalculation = this.getScoreQuestionCount(this.fhir, linkIdContext) >= scoreMinQuestions;
+        console.log('rule-editor.service::import::step 1::scoreCalculation - ' + this.scoreCalculation);
+        
         this.scoreCalculationChange.next(this.scoreCalculation);
       } else {
+        console.log('rule-editor.service::import::step 2');
         this.scoreCalculation = false;
       }
 
@@ -1908,6 +1975,9 @@ export class RuleEditorService {
     newObj['rootResource'] = 1;
     newObj['sct'] = 1;
     newObj['loinc'] = 1;
+
+    // This is required to support scoring FHIRPath expressions
+    newObj['questionnaire'] = 1;
 
     return newObj;
   }

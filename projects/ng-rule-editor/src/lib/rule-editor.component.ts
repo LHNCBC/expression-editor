@@ -64,12 +64,18 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
   private disableAdvancedSubscription;
   private validationSubscription;
   private performValidationSubscription;
-
+  private helpSubscription;
+  
   constructor(private variableService: RuleEditorService, private liveAnnouncer: LiveAnnouncer, private changeDetectorRef: ChangeDetectorRef) {}
 
+  /**
+   * Angular lifecycle hook called when the component is initialized
+   */
   ngOnInit(): void {
     this.calculateSumSubscription = this.variableService.scoreCalculationChange.subscribe((scoreCalculation) => {
       this.calculateSum = (scoreCalculation && !this.doNotAskToCalculateScore);
+      console.log('rule-editor::ngOnInit::calculateSumSubscription::calculateSum - ' + this.calculateSum);
+
     });
     this.finalExpressionSubscription = this.variableService.finalExpressionChange.subscribe((finalExpression) => {
       this.finalExpression = finalExpression;
@@ -195,7 +201,7 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
    * get updated correctly.
    * @private
    */
-  private resetVariablesOnQuestionnaireChange(): void {
+  private resetVariablesOnQuestionnaireChange(): void { 
     this.expressionSyntax = null;
     this.simpleExpression = null;
     this.finalExpression = null;
@@ -227,9 +233,11 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
    * Re-import fhir and context and show the form
    */
   reload(): void {
+    console.log('rule-editor::reload');
     if (this.fhirQuestionnaire instanceof Object) {
       this.variableService.doNotAskToCalculateScore = this.doNotAskToCalculateScore;
       this.loadError = !this.variableService.import(this.expressionUri, this.fhirQuestionnaire, this.itemLinkId);
+      console.log('rule-editor::reload::loadError - ' + this.loadError);
       if (this.loadError) {
         this.liveAnnouncer.announce(this.errorLoading);
       }
@@ -243,13 +251,20 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
     this.expressionSyntax = this.variableService.syntaxType;
     this.selectItems = false;
 
+    console.log('rule-editor::reload::linkIdContext - ' + this.linkIdContext);
+    //this.linkIdContext = "/39156-5";
+    
     if (this.linkIdContext) {
       this.doNotAskToCalculateScore = !this.variableService.shouldCalculateScoreForItem(this.fhirQuestionnaire, this.linkIdContext, this.expressionUri);
     } else {
       this.doNotAskToCalculateScore = true;
     }
+  
+    console.log('rule-editor::reload::scoreCalculation - ' + this.variableService.scoreCalculation);
+    console.log('rule-editor::reload::doNotAskToCalculateScore - ' + this.doNotAskToCalculateScore);
 
     this.calculateSum = (this.variableService.scoreCalculation && !this.doNotAskToCalculateScore);
+    console.log('rule-editor::reload::calculateSum - ' + this.calculateSum);
     this.finalExpressionExtension = this.variableService.finalExpressionExtension;
     this.finalExpression = this.variableService.finalExpression;
     this.variables = this.variableService.getVariableNames();
@@ -259,13 +274,24 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
    * Export FHIR Questionnaire and download as a file
    */
   export(): void {
-    if (!this.validationError) {
-      this.variableService.notifyValidationCheck();
-      const finalExpression = this.finalExpressionExtension;
-      if (finalExpression?.valueExpression)
-        finalExpression.valueExpression.expression = this.finalExpression;
-      this.save.emit(this.variableService.export(this.expressionUri, finalExpression));
-    }
+    this.liveAnnouncer.announce("Export Questionnaire data.");
+    setTimeout(() => {
+      if (!this.validationError) {
+        this.variableService.notifyValidationCheck();
+        const finalExpression = this.finalExpressionExtension;
+        if (finalExpression?.valueExpression) {
+          finalExpression.valueExpression.expression = this.finalExpression;
+        }
+
+        const exportResult = this.variableService.export(this.expressionUri, finalExpression);
+        if (exportResult) {
+          this.save.emit(exportResult);
+          this.calculateSum = false;
+          this.selectItems = false;
+          this.hideRuleEditor = true;
+        }
+      }
+    }, 100);
   }
 
   /**
@@ -281,45 +307,97 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
    * 
    */
   cancelRuleEditorChanges(): void {
-    this.showCancelConfirmationDialog = true;
+    this.liveAnnouncer.announce("Cancel changes to the Rule Editor");
+    setTimeout(() => {
+      this.showCancelConfirmationDialog = true;
+    }, 100);
+  }
+
+  /**
+   * Close the dialog. This function is called when the close dialog
+   * button or the overlay is clicked on the Rule Editor, Calculate
+   * Sum Prompt, Scoring Items Selection, or Helps dialogs. Each
+   * results in a different beahvior.
+   */
+  closeDialog(): void {
+    this.liveAnnouncer.announce("Closing dialog");
+    setTimeout(() => {
+      if (this.calculateSum && !this.loadError ) {
+        if(!this.selectItems) {
+          this.confirmCancel(false);
+        } else {
+          // Calculate Sum or Scoring Items Selection dialog.
+          this.variableService.toggleScoreCalculation();
+        }
+      } else {
+        this.showCancelConfirmationDialog = true;
+      }
+    }, 100);
   }
 
   /**
    * Confirm to cancel change
    */
-  confirmCancel(): void {
-    this.liveAnnouncer.announce("'yes' was selected. Changes were canceled.");
+  confirmCancel(showRuleEditor: boolean): void { 
+    this.liveAnnouncer.announce("Changes were canceled.");
+    
+    setTimeout(() => {
+      this.showCancelConfirmationDialog = false;
+      this.hideRuleEditor = !showRuleEditor;
 
+      // This is what hide the RuleEditor and return back to the
+      // demo.  By disabling this, now, you can only cancel once.
+      this.cancel.emit();
+    }, 0);
+  }
+
+  /**
+   * Close 'Calculate Sum of Scores' or 'Scoring Items Selection' dialogs
+   */
+  closeScoreingDialog(): void {
+    this.liveAnnouncer.announce("Changes were canceled.");
+
+    this.hideRuleEditor = true;
+    
     setTimeout(() => {
       this.cancel.emit();
       this.showCancelConfirmationDialog = false;
-    }, 500);
+    }, 0);
   }
 
   /**
    * Discard the cancel request
    */
   discardCancel(): void {
-    this.liveAnnouncer.announce("'no' was selected. Changes were not canceled");
+    this.liveAnnouncer.announce("Changes were not canceled");
 
     setTimeout(() => {
       this.showCancelConfirmationDialog = false;
-    }, 100);
+    }, 0);
   }
-
+  
   /**
    * Create a new instance of a FHIR questionnaire file by summing all ordinal
    * values
+   * @param reviewFHIRPath - true if the 'Review FHIRPath' button is clicked. Selected items will be
+   *                         reviewed in the Rule Editor. false if the 'Done' (export scoring data)
+   *                         button is clicked. The selected items will be exported. 
    */
-  addSumOfScores(): void {
+  addSumOfScores(reviewFHIRPath: boolean): void {
     this.calculateSum = false;
     this.selectItems = false;
-    this.hideRuleEditor = true;
+    this.hideRuleEditor = !reviewFHIRPath;
 
     this.variableService.removeSumOfScores(this.fhirQuestionnaire, this.linkIdContext);
-    this.save.emit(this.variableService.addSumOfScores());
 
-    this.reload();
+    if (reviewFHIRPath) {
+      this.fhirQuestionnaire = this.variableService.addSumOfScores()
+      this.reload();
+    } else {
+      // Export selected scoring items
+      this.save.emit(this.variableService.addSumOfScores()); 
+    }
+    this.variableService.toggleScoreCalculation();
   }
 
   /**
@@ -400,6 +478,6 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
 
     setTimeout(() => {
       this.expressionSyntax = 'fhirpath';
-    }, 10);
+    }, 0);
   }
 }

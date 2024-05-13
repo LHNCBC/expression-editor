@@ -33,6 +33,9 @@ export class QueryObservationComponent implements OnInit, AfterViewInit, OnDestr
 
   constructor(private http: HttpClient, private ruleEditorService: RuleEditorService) {}
 
+  /**
+   * Angular lifecycle hook called when the component is initialized
+   */
   ngOnInit(): void {
     if (this.variable !== undefined) {
       if (this.variable.codes === undefined) {

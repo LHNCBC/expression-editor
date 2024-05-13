@@ -15,6 +15,9 @@ export class SyntaxPreviewComponent implements OnInit {
   
   constructor(private snackBar: MatSnackBar) { }
 
+  /**
+   * Angular lifecycle hook called when the component is initialized
+   */
   ngOnInit(): void {
   }
 

@@ -64,6 +64,9 @@ export class AppComponent implements OnInit, OnDestroy {
 
   constructor(private http: HttpClient, private liveAnnouncer: LiveAnnouncer, private changeDetectorRef: ChangeDetectorRef) {}
 
+  /**
+   * Angular lifecycle hook called when the component is initialized
+   */
   ngOnInit(): void {
     this.onChange(false);
   }
@@ -93,10 +96,14 @@ export class AppComponent implements OnInit, OnDestroy {
       this.http.get(`./${this.questionnaire}.json`)
         .subscribe(data => {
           this.fhirQuestionnaire = data;
+
+          console.log('app::onChange::fhirQuestionnaire - ' + JSON.stringify(this.fhirQuestionnaire));
+
           this.liveAnnouncer.announce((reload) ? this.formReloadAnnouncement : this.formAppearedAnnouncement);
 
           if (this.fhirQuestionnaire && this.fhirQuestionnaire.item instanceof Array) {
             this.linkIds = this.getQuestionnaireLinkIds(this.fhirQuestionnaire.item);
+console.log('app::onChange::fhirQuestionnaire::linkIds - ' + this.linkIds);
 
             this.defaultItemText = this.linkIds.find((item) => {
               return item.linkId === this.linkId;

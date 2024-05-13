@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { LiveAnnouncer } from '@angular/cdk/a11y';
 
 @Component({
@@ -10,17 +10,17 @@ export class HelpsComponent implements OnInit {
 
   @Input() type: string;
   @Input() index;
-
+  @Output() helpDialogClose: EventEmitter<any> = new EventEmitter<any>();
+  
   showHelp = false;
   matToolTip = "Easy Path Expression Help";
 
-  constructor(private liveAnnouncer: LiveAnnouncer) {}
+  constructor(private liveAnnouncer: LiveAnnouncer) {};
 
   /**
    * Angular lifecycle hook for initialization
    */
-  ngOnInit(): void {
-  }
+  ngOnInit(): void {}
 
   /**
    * Angular lifecycle hook called on input changes

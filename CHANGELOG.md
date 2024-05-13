@@ -2,6 +2,10 @@
 
 This project follows [Semantic Versioning](http://semver.org/).
 
+## [3.1.21] 2024-05-13
+### Added
+- Added base dialog component
+
 ## [3.1.20] 2024-05-03
 ### Changed
 - Enable the 'Open Rule Editor' button only if the questionnaire is selected and either the 'Root level' checkbox or Question drop-down is selected.

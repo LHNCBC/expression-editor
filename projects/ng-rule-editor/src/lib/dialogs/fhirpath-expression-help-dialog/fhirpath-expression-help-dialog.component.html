@@ -1,0 +1,31 @@
+<lhc-base-dialog
+  [name]="'fhirpath-help'"
+  [titleBarLabel]="'FHIRPath Expressions Help'"
+  (dialogClose)="onNo()"
+  [dialogType]="'help'">
+  
+  <label>
+    FHIRPath is a query and extraction language used in the healthcare industry to 
+    navigate and access data within FHIR resources.  For more details, visit 
+    the following links:
+  </label>
+   
+  <section id="links" class="help_section"  >
+    <ul>
+      <li>
+        <a
+          href="https://hl7.org/fhirpath/"
+          target="_blank"
+          rel="noopener noreferrer">FHIRPath
+        </a>
+      </li>
+      <li>
+        <a 
+          href="https://hl7.org/fhir/fhirpath.html"
+          target="_blank"
+          rel="noopener noreferrer">FHIR extensions to FHIRPath
+        </a>
+      </li>
+    </ul>
+  </section>
+</lhc-base-dialog>

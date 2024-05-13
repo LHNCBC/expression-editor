@@ -84,7 +84,7 @@ export class VariablesComponent implements OnInit, OnChanges, OnDestroy {
                 this.variables[index] = queryObservation;
             }
           });
-        }, 10);
+        }, 0);
       }
     }
   }
