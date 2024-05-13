@@ -29,8 +29,8 @@
       </div>
     </div>
     <div class="base-modal-footer" [style]="dialogStyle.dialogFooterDiv">
-      <button [id]="yesButtonId" role="button" class="primary" [ngStyle]="dialogStyle.buttonPrimary" (click)="onYes()" *ngIf="yes.observed" >{{yesButtonLabel}}</button>
-      <button [id]="noButtonId" role="button" (click)="onNo()" *ngIf="no.observed">{{noButtonLabel}}</button>
+      <button [id]="yesButtonId" class="primary" [ngStyle]="dialogStyle.buttonPrimary" (click)="onYes()" *ngIf="yes.observed" >{{yesButtonLabel}}</button>
+      <button [id]="noButtonId" (click)="onNo()" *ngIf="no.observed">{{noButtonLabel}}</button>
     </div>
   </div>
 </div>

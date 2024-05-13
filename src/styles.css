@@ -122,13 +122,18 @@ button:disabled {
   flex: 1;
 }
 
-input {
+lhc-rule-editor input {
   margin-bottom: 0.5rem !important;
 }
 
 input.field-error {
   margin-bottom: 0.5rem !important;
   border: 4px solid red !important;
+}
+
+.name-error {
+  padding-left: 25px;
+  padding-right: 5px;
 }
 
 .expression-error {
@@ -138,7 +143,7 @@ input.field-error {
 }
 
 .fhirpath-error {
-color: red !important;
+  color: red !important;
 }
 
 span.autocomp_selected > ul > li > button {

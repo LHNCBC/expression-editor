@@ -118,3 +118,13 @@ button {
   padding: 0 2em;
   font-size: 1rem;
 }
+
+.variable-row-nowrap {
+  display: flex;
+  flex-direction: row;
+}
+
+.variable-column-nowrap {
+  display: flex;
+  flex-direction: column;
+}

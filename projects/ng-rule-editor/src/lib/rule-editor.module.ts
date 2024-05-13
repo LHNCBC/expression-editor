@@ -21,6 +21,7 @@ import { QueryObservationComponent } from './query-observation/query-observation
 import { CaseStatementsComponent } from './case-statements/case-statements.component';
 import { SelectScoringItemsComponent } from './select-scoring-items/select-scoring-items.component';
 import { HelpsComponent } from './helps/helps.component';
+import { VariableNameValidatorDirective } from '../directives/variable-name/variable-name-validator.directive';
 import { ExpressionValidatorDirective } from '../directives/expression/expression-validator.directive';
 import { BaseDialogComponent } from './dialogs/base-dialog/base-dialog.component';
 import { CancelChangesConfirmationDialogComponent } from './dialogs/cancel-changes-confirmation-dialog/cancel-changes-confirmation-dialog.component';
@@ -47,7 +48,9 @@ import { EasyPathExpressionHelpDialogComponent } from './dialogs/easy-path-expre
     CancelChangesConfirmationDialogComponent,
     FhirpathEasypathConversionConfirmationDialogComponent,
     FhirpathExpressionHelpDialogComponent,
-    EasyPathExpressionHelpDialogComponent
+    EasyPathExpressionHelpDialogComponent,
+    VariableNameValidatorDirective,
+    ExpressionValidatorDirective
   ],
   imports: [
     FormsModule,

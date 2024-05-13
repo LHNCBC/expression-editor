@@ -133,7 +133,13 @@
                 >
               </div>
 
-              <div id="expression-error" role="alert" class="row error-span">
+              <div id="expression-audible-error" role="alert" *ngIf="exp.errors"
+                class="row error-span visually-hidden">
+                <p class="expression-error">
+                  {{exp.errors.ariaMessage}}
+                </p>
+              </div>
+              <div id="expression-error" class="row error-span">
                 <p class="expression-error" *ngIf="exp.errors">
                   {{exp.errors.message}}
                 </p>
@@ -151,10 +157,11 @@
           </lhc-case-statements>
         </div>
       </section>
-      <button class="primary" [ngClass]="{'disabled': validationError}" role="button"
-              [attr.aria-label]="validationErrorMessage" (click)="export()"
+      <button class="primary" [ngClass]="{'disabled': validationError}"
+              [attr.aria-label]="validationErrorMessage" (click)="export()" [matTooltip]="matToolTip" 
               [ngStyle]="lhcStyle.buttonPrimary" id="export">{{submitButtonName}}</button>
-      <button (click)="cancelRuleEditorChanges()" role="button" id="cancel-changes">Cancel</button>
+      <button (click)="cancelRuleEditorChanges()" id="cancel-changes"
+              matTooltip="Cancel the Rule Editor">Cancel</button>
     </div>
   </div>
 

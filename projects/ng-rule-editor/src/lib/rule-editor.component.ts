@@ -25,7 +25,8 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
   @Output() cancel = new EventEmitter<object>();
 
   @ViewChild('exp') expRef;
-  
+
+  noErrorMessage = "There are no more errors on the page.";
   errorLoading = 'Could not detect a FHIR Questionnaire; please try a different file.';
   expressionSyntax: string;
   simpleExpression: string;
@@ -54,6 +55,8 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
                   "output expression would result in the expression becoming blank.";
   dialogPrompt2 = "Proceed?";
 
+  matToolTip = "Save the Rule Editor";
+
   private calculateSumSubscription;
   private finalExpressionSubscription;
   private variablesSubscription;
@@ -71,12 +74,42 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
   ngOnInit(): void {
     this.calculateSumSubscription = this.variableService.scoreCalculationChange.subscribe((scoreCalculation) => {
       this.calculateSum = (scoreCalculation && !this.doNotAskToCalculateScore);
+      console.log('rule-editor::ngOnInit::calculateSumSubscription::calculateSum - ' + this.calculateSum);
+
     });
     this.finalExpressionSubscription = this.variableService.finalExpressionChange.subscribe((finalExpression) => {
       this.finalExpression = finalExpression;
     });
     this.variablesSubscription = this.variableService.variablesChange.subscribe((variables) => {
       this.variables = this.variableService.getVariableNames();
+
+      // Update the final expression to re-evaluate it against the new variable list.
+      if (this.caseStatements) {
+        const tmpExpressionSyntax = this.expressionSyntax;
+        const tmpFinalExpression = this.finalExpression;
+
+        if (this.expressionSyntax === "fhirpath") {
+          this.finalExpression = '';
+        }
+        this.expressionSyntax = '';
+    
+        setTimeout(() => {
+          this.expressionSyntax = tmpExpressionSyntax;
+
+          if (this.expressionSyntax === "fhirpath") {
+            this.finalExpression = (this.validationError) ? this.previousFinalExpression : tmpFinalExpression;
+          }
+        }, 10);
+      } else {
+        if (this.expressionSyntax === "fhirpath") {
+          const tmpFinalExpression = this.finalExpression;
+          this.updateFinalExpression("");
+          
+          setTimeout(() => {
+            this.updateFinalExpression(tmpFinalExpression);
+          }, 0);
+        }
+      }
     });
     this.uneditableVariablesSubscription = this.variableService.uneditableVariablesChange.subscribe((variables) => {
       this.variables = this.variableService.getVariableNames();
@@ -85,8 +118,20 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
       this.disableInterfaceToggle = disable;
     });
     this.validationSubscription = this.variableService.validationChange.subscribe((validation: ValidationResult) => {
-      this.validationError = validation.hasError;
-      this.validationErrorMessage = (this.validationError) ? this.composeAriaValidationErrorMessage(validation) : "";
+      if (validation && validation.hasError) {
+        this.validationError = validation.hasError;
+        this.validationErrorMessage = (this.validationError) ? this.composeAriaValidationErrorMessage(validation) : "";
+        this.matToolTip = (this.validationErrorMessage) ? this.validationErrorMessage : "Save the Rule Editor";
+      } else {
+        // The validationError represents the current status while the validation.hasError flag
+        // represents the new status. If the status changes from 'true' to 'false', indicating
+        // that all errors have been resolved, the lifeAnnouncer will announce that all issues
+        // have been resolved.   
+        if (this.validationError) {
+          this.validationError = validation.hasError;
+          this.liveAnnouncer.announce(this.noErrorMessage);
+        }
+      }
     });
 
     // performValidationSubscription is triggered when the 'Save' button is clicked, allowing each
@@ -108,26 +153,30 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
    * @return string to be used by the 'Save' button as the aria-label in the case of any validation error.
    */
   composeAriaValidationErrorMessage(validation: ValidationResult): string {
-    let message = "The 'save' button is disabled due to ";
-    let itemVariablesMessage = "";
-    if (validation.errorInItemVariables) {
-      itemVariablesMessage = "error in the Item Variable section ";
-    }
+    if (!validation.hasError)
+      return "";
 
-    let outputExpressionMessage = "";
+    let message = "The 'save' button is disabled due to ";
+
+    if (validation.errorInItemVariables) {
+      message += (validation.errorInOutputCaseStatement ||
+                   validation.errorInOutputExpression) ?
+                   "errors" : "one or more errors";
+      message += " in the Item Variable section";
+    }
 
     if (validation.errorInOutputExpression) {
-      if (itemVariablesMessage !== "")
-        outputExpressionMessage += " and ";
-      outputExpressionMessage += "error with the expression in the Output Expression section";
+      message += (validation.errorInItemVariables) ?
+                               ", and" : "one or more errors";
+      message += " with the expression in the Output Expression section.";
     } else if (validation.errorInOutputCaseStatement) {
-      if (itemVariablesMessage !== "")
-        outputExpressionMessage += " and ";
-      outputExpressionMessage += "error with the case statement in the Output Expression section";
+      message += (validation.errorInItemVariables) ?
+                               ", and" : "one or more errors";
+      message += " with the case statement in the Output Expression section.";
+    } else {
+      message += ".";
     }
 
-    message += itemVariablesMessage + outputExpressionMessage;
-    
     return message;
   };
 
@@ -184,9 +233,11 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
    * Re-import fhir and context and show the form
    */
   reload(): void {
+    console.log('rule-editor::reload');
     if (this.fhirQuestionnaire instanceof Object) {
       this.variableService.doNotAskToCalculateScore = this.doNotAskToCalculateScore;
       this.loadError = !this.variableService.import(this.expressionUri, this.fhirQuestionnaire, this.itemLinkId);
+      console.log('rule-editor::reload::loadError - ' + this.loadError);
       if (this.loadError) {
         this.liveAnnouncer.announce(this.errorLoading);
       }
@@ -200,13 +251,20 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
     this.expressionSyntax = this.variableService.syntaxType;
     this.selectItems = false;
 
+    console.log('rule-editor::reload::linkIdContext - ' + this.linkIdContext);
+    //this.linkIdContext = "/39156-5";
+    
     if (this.linkIdContext) {
       this.doNotAskToCalculateScore = !this.variableService.shouldCalculateScoreForItem(this.fhirQuestionnaire, this.linkIdContext, this.expressionUri);
     } else {
       this.doNotAskToCalculateScore = true;
     }
   
+    console.log('rule-editor::reload::scoreCalculation - ' + this.variableService.scoreCalculation);
+    console.log('rule-editor::reload::doNotAskToCalculateScore - ' + this.doNotAskToCalculateScore);
+
     this.calculateSum = (this.variableService.scoreCalculation && !this.doNotAskToCalculateScore);
+    console.log('rule-editor::reload::calculateSum - ' + this.calculateSum);
     this.finalExpressionExtension = this.variableService.finalExpressionExtension;
     this.finalExpression = this.variableService.finalExpression;
     this.variables = this.variableService.getVariableNames();

@@ -105,6 +105,7 @@ export class RuleEditorService {
   static SCORE_EXPRESSION_EXTENSION_LINKIDS = 'http://lhcforms.nlm.nih.gov/fhirExt/rule-editor-score-expression-linkids';
   static SIMPLE_SYNTAX_EXTENSION = 'http://lhcforms.nlm.nih.gov/fhirExt/simple-syntax';
   static VARIABLE_TYPE = 'http://lhcforms.nlm.nih.gov/fhirExt/rule-editor-variable-type';
+  static FHIR_QUERY_OBS_FIELDS = ['code', 'date', 'patient', '_sort', '_count'];
 
   syntaxType = 'simple';
   linkIdContext: string;
@@ -133,7 +134,10 @@ export class RuleEditorService {
   private LANGUAGE_FHIRPATH = 'text/fhirpath';
   private LANGUAGE_FHIR_QUERY = 'application/x-fhir-query';
   private QUESTION_REGEX = /^%resource\.item\.where\(linkId='(.*)'\)\.answer\.value(?:\*(\d*\.?\d*))?$/;
-  private QUERY_REGEX = /^Observation\?code=(.+)&date=gt{{today\(\)-(\d+) (.+)}}&patient={{%patient.id}}&_sort=-date&_count=1$/;
+  private QUERY_REGEX = /^Observation\?code=(.+)&date=gt{{today\(\)-(\d+)\s+(\S+)}}&patient={{%patient.id}}&_sort=-date&_count=1$/;
+  
+  private QUERY_DATE_REGEX = /gt{{today\(\)-(\d+)\s+(\S+)}}/;
+
   private VARIABLE_EXTENSION = 'http://hl7.org/fhir/StructureDefinition/variable';
   private CALCULATED_EXPRESSION = 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression';
   private LAUNCH_CONTEXT_URI = 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-launchContext';
@@ -141,7 +145,6 @@ export class RuleEditorService {
   private linkIdToQuestion = {};
   private fhir;
   scoreCalculation = false;
-
 
   private itemVariablesErrors: ItemVariableError[] = [];
   private outputExpressionError = false;
@@ -181,8 +184,6 @@ export class RuleEditorService {
     this.variablesChange.next(this.variables);
 
     this.itemVariablesErrors.splice(i, 1);
-    //this.validationChange.next({'remove': i});
-
     this.validationChange.next(this.getValidationResult());
   }
 
@@ -449,7 +450,7 @@ export class RuleEditorService {
     }
 
     return (item?.answerOption || []).some((answerOption) => {
-      return (answerOption.extension || []).some((extension) => {
+      return (answerOption?.extension || []).some((extension) => {
         return extension.url === 'http://hl7.org/fhir/StructureDefinition/ordinalValue';
       });
     });
@@ -490,18 +491,30 @@ export class RuleEditorService {
    * @return true if load was successful
    */
   import(expressionUri: string, questionnaire, linkIdContext): boolean {
+    console.log('rule-editor.service::expressionUri - ' + expressionUri);
+    console.log('rule-editor.service::questionnaire - ' + JSON.stringify(questionnaire));
+    console.log('rule-editor.service::linkIdContext - ' + linkIdContext);
+    
     this.linkIdContext = linkIdContext;
     this.fhir = copy(questionnaire);
     const loadSuccess = this.fhir.resourceType === 'Questionnaire';
-
+    console.log('rule-editor.service::loadSuccess - ' + loadSuccess);
+    console.log('rule-editor.service::fhir.item - ' + this.fhir.item);
+    console.log('rule-editor.service::fhir.item len - ' + this.fhir.item.length);
+    
     if (loadSuccess && this.fhir.item && this.fhir.item.length) {
+      console.log('rule-editor.service::import');
       if (!this.doNotAskToCalculateScore) {
+        console.log('rule-editor.service::import::step 1');
         // If there is at least one score question we will ask the user if they
         // want to calculate the score
         const scoreMinQuestions = 1;
         this.scoreCalculation = this.getScoreQuestionCount(this.fhir, linkIdContext) >= scoreMinQuestions;
+        console.log('rule-editor.service::import::step 1::scoreCalculation - ' + this.scoreCalculation);
+        
         this.scoreCalculationChange.next(this.scoreCalculation);
       } else {
+        console.log('rule-editor.service::import::step 2');
         this.scoreCalculation = false;
       }
 
@@ -759,8 +772,9 @@ export class RuleEditorService {
    * @private
    */
   private processQueryVariable(name, expression, index?: number, variableType?: string): Variable {
-    let matches = this.decodeQueryURIExpression(expression).match(this.QUERY_REGEX);
-    if ((variableType === "queryObservation") || (!variableType && matches !== null)) {
+    const matches = this.getFHIRQueryObservationMatches(expression);
+    if ((variableType === "queryObservation" || !variableType) &&
+        matches.length > 0) {
       const codes = matches[1].split(',');
       const timeInterval = parseInt(matches[2], 10);
       const timeIntervalUnits = matches[3];
@@ -1622,7 +1636,7 @@ export class RuleEditorService {
    * Decode the Query URL expression.  This supports the query that was saved
    * prior to this change (without URL encoded, just the %2C) and the new
    * URL encoded string
-   * @param excodedExp - Encoded expression
+   * @param expression - Encoded expression
    * @return Decoded URL expression string
    */
   decodeQueryURIExpression(expression: string): string {
@@ -1643,6 +1657,78 @@ export class RuleEditorService {
       queryString += '?' + decodedParams.join('&');
     }
     return queryString;
+  }
+
+  /**
+   * Checks if all specified keys are present in the given object.
+   * @param obj - The object to check for keys
+   * @param keys - An array of keys to check for
+   * @returns True if all keys are present in the object, otherwise false
+   */
+  hasAllProperties(obj: any, keys: string[]): boolean {
+    for (const key of keys) {
+      if (!(key in obj)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  /**
+   * Decode the Query URL expression for FHIR Query Qbservation.
+   * @param expression - FHIR query expression
+   * @returns Returns an object if all specified keys are present, otherwise null
+   */
+  decodeFHIRQueryObservationURIExpression(expression: string): { [key: string]: string } | null {
+    const decodedParams: { [key: string]: string } = {};
+    const resourceArr = expression.split("?");
+    let queryString = resourceArr[0];
+
+    if (queryString !== "Observation")
+      return null;
+
+    if (resourceArr.length > 1) {
+      const queryParams = resourceArr[1].split('&');
+      queryParams.forEach((queryParam) => {
+        const param = queryParam.split('=');
+        const paramKey = this.getDecodeURI(param[0]);
+        const paramVal = this.getDecodeURI(param[1]);
+
+        if (paramVal)
+          decodedParams[paramKey] = paramVal;
+      });
+    }
+    return (this.hasAllProperties(decodedParams, RuleEditorService.FHIR_QUERY_OBS_FIELDS)) ? decodedParams : null;
+  };
+
+  /**
+   * Parse FHIR Query expression with parameters in any order.
+   * @param expression - FHIR query expression
+   * @returns array result that contains the expression, codes,
+   * time interval, and time interval unit, or an empty array. 
+   * If not all the required keys are present, the
+   * decodeFHIRQueryObservationURIExpression function returns null,
+   * resulting in an empty array being returned.
+   */
+  getFHIRQueryObservationMatches(expression: string ): string[] {
+    const obs = [];
+    const decodedParams = this.decodeFHIRQueryObservationURIExpression(expression);
+
+    if (!decodedParams)
+      return obs;
+
+    const dateMatches = decodedParams['date'].match(this.QUERY_DATE_REGEX);
+    
+    if (dateMatches && dateMatches.length === 3) {
+      const timeInterval = dateMatches[1];
+      const timeIntervalUnits = dateMatches[2];
+      obs.push(expression);
+      obs.push(decodedParams['code']);
+      obs.push(timeInterval);
+      obs.push(timeIntervalUnits);
+    }
+
+    return obs;
   }
 
   /**
@@ -1829,7 +1915,7 @@ export class RuleEditorService {
     return {
       "hasError" : this.hasValidationErrors(),
       "errorInItemVariables": this.itemVariablesErrors.some(
-        item => (item.name === true || item.expression === true || item.timeInterval === true)),
+        item => (item?.name === true || item?.expression === true || item?.timeInterval === true)),
       "errorInOutputExpression": this.outputExpressionError,
       "errorInOutputCaseStatement": this.caseStatementError     
     };
@@ -1855,13 +1941,28 @@ export class RuleEditorService {
     moveItemInArray(this.itemVariablesErrors, previousIndex, currentIndex);
   };
 
+  /**
+   * Get uneditable variable names
+   * @return Array of uneditable variable names
+   */
+  getCurrentContextUneditableVariableNames(): string[] {
+    return this.uneditableVariables.map(e => e.name)
+  }
+
+  /**
+   * Get editable variable names
+   * @return Array of variable names
+   */
+  getCurrentContextVariableNames(): string[] {
+    return this.variables.map(e => e.label)
+  }
 
   /**
    * Compose the object that contains context variable names and environment variable names
    * as keys used by fhirpath.js to validate the expression.
    * @return object with context variable names and environment variable names as keys
    */
-  getContextVariableNames(): any {
+  getContextVariableNamesForExpressionValidation(): any {
     const names = this.getVariableNames();
 
     const newObj = {};

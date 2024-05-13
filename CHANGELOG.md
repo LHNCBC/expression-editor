@@ -2,9 +2,25 @@
 
 This project follows [Semantic Versioning](http://semver.org/).
 
-## [3.1.18] 2024-03-21
+## [3.1.21] 2024-05-13
 ### Added
 - Added base dialog component
+
+## [3.1.20] 2024-05-03
+### Changed
+- Enable the 'Open Rule Editor' button only if the questionnaire is selected and either the 'Root level' checkbox or Question drop-down is selected.
+- Allowed FHIR Query with parameters to be parsed in any order
+- Added logic for the screen reader to announce the reason wny the 'Done' button is disabled. 
+- Upgraded Cypress from version 9.7.0 to 13.7.3.
+- Upgraded Angular from version 15.2.4 to 17.3.4
+
+## [3.1.19] 2024-04-01
+### Added
+- Added variable name validation
+
+## [3.1.18] 2024-02-27
+### Changed
+- Added a screen reader error message for variables used in the output expression
 
 ## [3.1.17] 2024-01-26
 ### Added
