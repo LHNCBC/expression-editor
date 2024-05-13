@@ -68,7 +68,6 @@
               <span  style="margin: 10px;"></span>
               <tree-node-expander [node]="node"></tree-node-expander>
               <div
-                aria-hidden="true"
                 class="node-content-wrapper"
                 [class.node-content-wrapper-active]="node.isActive"
                 [class.node-content-wrapper-focused]="node.isFocused"
@@ -96,10 +95,15 @@
       </p>
     </div>
 
-    <button [disabled]="!hasScoreSelected" (click)="onExportClick(false)" [style]="lhcStyle.buttonPrimary"
-            id="export-score" [matTooltip]="doneSelectionAriaDescription">Done</button>
-    <button [disabled]="!hasScoreSelected" (click)="onExportClick(true)" [style]="lhcStyle.buttonSecondary"
-            id="review-fhirpath" [matTooltip]="reviewFHIRPathAriaDesription">Review FHIRPath</button>
+    <button class="primary" [ngClass]="{'disabled': !hasScoreSelected}"
+            [attr.aria-label]="validationErrorMessage" [matTooltip]="matToolTip"
+            (click)="onExportClick(false)" [style]="lhcStyle.buttonPrimary"
+            id="export-score">Done</button>
+    <button class="secondary" [ngClass]="{'disabled': !hasScoreSelected}"
+            [attr.aria-label]="validationErrorMessage" [matTooltip]="matToolTip"
+            (click)="onExportClick(true)" [style]="lhcStyle.buttonSecondary"
+            id="review-fhirpath">Review FHIRPath</button>
+  
     <button (click)="onCloseClick()" id="skip-export-score">Cancel</button>
   </div>
 

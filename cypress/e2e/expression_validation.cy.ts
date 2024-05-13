@@ -572,7 +572,7 @@ describe('Rule editor', () => {
         // Click the button to edit the expression
         cy.get('button#openRuleEditor').should('exist').click();
         // The Rule Editor dialog should now appear
-        cy.get('#rule-editor-dialog').should('exist');
+        cy.get('lhc-rule-editor #rule-editor-base-dialog').should('exist');
 
         // Should have two variables
         cy.get('#variables-section .variable-row').should('have.length', 2);
@@ -630,7 +630,7 @@ describe('Rule editor', () => {
         // Click the button to edit the expression
         cy.get('button#openRuleEditor').should('exist').click();
         // The Rule Editor dialog should now appear
-        cy.get('#rule-editor-dialog').should('exist');
+        cy.get('lhc-rule-editor #rule-editor-base-dialog').should('exist');
 
         // Should have two variables
         cy.get('#variables-section .variable-row').should('have.length', 2);
