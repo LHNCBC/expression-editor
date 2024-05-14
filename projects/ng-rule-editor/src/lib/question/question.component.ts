@@ -108,15 +108,12 @@ export class QuestionComponent implements OnInit, AfterViewInit, OnDestroy {
       this.autoComplete.setFieldToListValue(this.getQuestionFieldItem(question.text, this.linkId));
 
       Def.Autocompleter.Event.observeListSelections(`question-${this.index}`, (res) => {
-        if ((res.input_method === "clicked" && res?.item_code) ||
-            (res.input_method === "typed")) {
+        if (res.item_code)
+          this.linkId = res.item_code;
+        else
+          this.resetVariableProperties();
+        this.onChange(true);
 
-          if (res.item_code)
-            this.linkId = res.item_code;
-          else
-            this.resetVariableProperties();
-          this.onChange(true);
-        }
       });
   }
 
@@ -155,7 +152,7 @@ export class QuestionComponent implements OnInit, AfterViewInit, OnDestroy {
    * Called when the questionnaire question or unit is changed
    * @param isQuestion - The change was for a question
    */
-  onChange(isQuestion): void {   
+  onChange(isQuestion): void {
     if (isQuestion) {
       // Reset the conversion options when the question changes
       this.toUnit = (this.variable.unit) ? this.variable.unit : '';
@@ -181,7 +178,7 @@ export class QuestionComponent implements OnInit, AfterViewInit, OnDestroy {
         this.itemHasScore = false;
       }
 
-      this.variable.expression = this.variableService.valueOrScoreExpression(
+      this.variable.expression = this.variableService.updateValueOrScoreExpression(
         this.linkId, this.itemHasScore, !this.isNonConvertibleUnit, this.unit, this.toUnit, this.expression);
 
       this.expression = this.variable.expression;

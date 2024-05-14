@@ -1339,7 +1339,7 @@ export class RuleEditorService {
   }
 
   /**
-   * Get the expression for a question
+   * Update the expression for a question due to changes in the question or unit
    * @param linkId - Question linkId
    * @param itemHasScore - Answer has an ordinalValue extension
    * @param convertible - Units can be converted
@@ -1348,7 +1348,7 @@ export class RuleEditorService {
    * @param expression - question expression
    * @return expression based on matching criteria
    */
-  valueOrScoreExpression(linkId: string, itemHasScore: boolean, convertible: boolean, unit: string,
+  updateValueOrScoreExpression(linkId: string, itemHasScore: boolean, convertible: boolean, unit: string,
                          toUnit: string, expression: string): string {
     if (itemHasScore) {
       return `%questionnaire.item.where(linkId = '${linkId}').answerOption` +
