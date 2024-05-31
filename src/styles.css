@@ -122,7 +122,7 @@ button:disabled {
   flex: 1;
 }
 
-lhc-rule-editor input {
+lhc-expression-editor input {
   margin-bottom: 0.5rem !important;
 }
 

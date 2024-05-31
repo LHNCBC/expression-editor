@@ -1,10 +1,10 @@
-# The LHC Rule Editor
+# The LHC Expression Editor
 
 A widget to add FHIRPath expressions to a given FHIR Questionnaire.
 
 ## Usage
 
-The Lister Hill Center (LHC) Rule Editor can be used both as an Angular
+The Lister Hill Center (LHC) Expression Editor can be used both as an Angular
 Component or a Web Component.
 
 ### Attributes available <a name="attributes-available"></a>
@@ -25,7 +25,7 @@ object.
   You can specify a different expression URL here. Only valueExpression
   extensions are currently supported. If the FHIRPath expression is to be 
   stored at the Questionnaire root level, the Output Expression section is
-  omitted because the Rule Editor only supports adding variables at the root level;
+  omitted because the Expression Editor only supports adding variables at the root level;
   as a result for this case the `expressionUri` is not needed.
 * `expressionLabel` - Heading name to use to show user when entering the
   expression.
@@ -53,11 +53,11 @@ object.
 
 ### Use as an Angular Component
 
-1. Install in your project using `npm install --save-prod ng-rule-editor`
+1. Install in your project using `npm install --save-prod ngx-expression-editor`
 2. Make sure your application has `@angular/animations`, `@angular/cdk`,
    `@angular/common`, `@angular/core` and `@angular/material` as dependencies
-   since they are needed as peer dependencies by the Rule Editor.
-3. Add the `lhc-rule-editor` and required tags similar to the example below:
+   since they are needed as peer dependencies by the Expression Editor.
+3. Add the `lhc-expression-editor` and required tags similar to the example below:
 
 #### Angular Component Example
 
@@ -70,14 +70,14 @@ can be passed in or omitted altogether in that case.
 
 To retrieve data use the `(save)` attribute.
 
-    <lhc-rule-editor
+    <lhc-expression-editor
       [fhirQuestionnaire]="fhir[questionnaire]"
       [itemLinkId]="linkId"
 
       (save)="onSave(fhirResult)"
   
       [submitButtonName]="'Save'"
-      [titleName]="'My Rule Editor'"
+      [titleName]="'My Expression Editor'"
       [expressionLabel]="'My Expression'"
       [expressionUri]="'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression'"
       [lhcStyle]="{
@@ -86,30 +86,30 @@ To retrieve data use the `(save)` attribute.
         input: { backgroundColor: 'lightblue' },
         select: { backgroundColor: 'lightblue' }
       }">
-    </lhc-rule-editor>
+    </lhc-expression-editor>
 
 ### Use as a Web Component
 
-1. Install in your project using `npm install --save-prod rule-editor`
+1. Install in your project using `npm install --save-prod expression-editor`
 2. Import jQuery.
-4. Import the JavaScript file `rule-editor.js` on the page or integrate it as
+4. Import the JavaScript file `expression-editor.js` on the page or integrate it as
   part of your build process (webpack, etc.)
-5. Add the <lhc-rule-editor> tag along with necessary [attributes](#attributes-available) to the HTML.
+5. Add the <lhc-expression-editor> tag along with necessary [attributes](#attributes-available) to the HTML.
 6. Add event handlers for the `save` event.
 
 #### Web Component Example
 
 To retrieve data add an event listener for `save`.
 
-    <lhc-rule-editor
+    <lhc-expression-editor
       id="editor"
-      title-name="Test Rule Editor"
+      title-name="Test Expression Editor"
       submit-button-name="Test Submit">
-    </lhc-rule-editor>
+    </lhc-expression-editor>
     
     <pre id="output"></pre>
     
-    <script src="/rule-editor/rule-editor.js"></script>
+    <script src="/expression-editor/expression-editor.js"></script>
     
     <script src="mock-data.js"></script>
     

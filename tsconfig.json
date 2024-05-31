@@ -16,9 +16,9 @@
       "dom"
     ],
     "paths": {
-      "ng-rule-editor": [
-        "dist/ng-rule-editor/ng-rule-editor",
-        "dist/ng-rule-editor"
+      "ngx-expression-editor": [
+        "dist/ngx-expression-editor/ngx-expression-editor",
+        "dist/ngx-expression-editor"
       ]
     },
     "useDefineForClassFields": false

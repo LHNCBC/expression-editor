@@ -1,0 +1,125 @@
+.expression-editor {
+  border: 1px solid #ccc;
+  padding: 1em;
+  margin: 20px;
+  border-radius: 10px;
+}
+
+.toolbar-button {
+  height: 2.7rem;
+}
+
+.file-import {
+  width: 4.6rem;
+  color: transparent;
+}
+
+.file-import::-webkit-file-upload-button {
+  visibility: hidden;
+}
+
+.file-import::before {
+  content: 'Import';
+  display: inline-block;
+  cursor: pointer;
+  color: #fff;
+}
+
+mat-radio-button {
+  margin-left: 1em;
+}
+
+h1 {
+  margin-top: 0;
+}
+
+.expression>.flex-container {
+  width: 100%;
+  flex-wrap: nowrap;
+  flex-direction: row;
+}
+
+.flex-vertical {
+  width: 100%;
+  flex-direction: column;
+}
+
+.expression, .expression-type {
+  display: flex;
+  padding: 0.5rem;
+}
+
+.expression-type {
+  flex: 0 0 15em;
+}
+
+.expression {
+  flex: 1 0 30em;
+  min-width: 0;
+}
+
+input[type=text], select {
+  height: 2rem;
+  font-size: 1rem;
+  width: 100%;
+  margin-bottom: 0.5rem;
+  box-sizing: border-box;
+  border: 1px solid #999;
+  background-color: white;
+  border-radius: 4px;
+  padding: 0 0.5em;
+}
+
+button {
+  height: 2.5rem;
+  border: none;
+  border-radius: 4px;
+  padding: 0 2em;
+  font-size: 1rem;
+}
+
+.primary {
+  background-color: blue;
+  color: white;
+}
+
+lhc-case-statements {
+  flex: 100%;
+  width: 100%;
+  padding: 0.5rem;
+}
+
+.checkbox {
+  padding: 0.5rem;
+}
+
+#export {
+  margin-top: 1em;
+}
+
+@media (max-width: 975px) {
+  .flex-container {
+    flex-direction: column;
+  }
+  .expression-type, .expression {
+    flex: 100%;
+  }
+}
+
+button#cancel-changes {
+  margin-left: 10px;
+}
+
+button-div {
+  text-align: center;
+}
+
+.help {
+  padding-right: 15px;
+}
+
+button.disabled {
+  background-color: gray !important;
+  opacity: 0.6;
+  cursor: not-allowed;
+}

@@ -1,12 +1,12 @@
 {
-  "name": "rule-editor",
-  "version": "3.1.21",
+  "name": "expression-editor",
+  "version": "3.1.22",
   "scripts": {
     "ng": "ng",
-    "start": "ng build --watch ng-rule-editor & sleep 25; ng serve --port 4202; s=$?; kill %1; exit $s",
-    "start-public": "ng build --watch ng-rule-editor & sleep 25; node bin/start-public.js; s=$?; kill %1; exit $s",
-    "build:gh-pages": "ng build ng-rule-editor && ng build rule-editor && ng build --output-path docs --base-href /rule-editor/ && node concatenate.js --output-path docs",
-    "build": "ng build ng-rule-editor --configuration production && ng build rule-editor --configuration production && node concatenate.js && ng build",
+    "start": "ng build --watch ngx-expression-editor & sleep 25; ng serve --port 4202; s=$?; kill %1; exit $s",
+    "start-public": "ng build --watch ngx-expression-editor & sleep 25; node bin/start-public.js; s=$?; kill %1; exit $s",
+    "build:gh-pages": "ng build ngx-expression-editor && ng build expression-editor && ng build --output-path docs --base-href /expression-editor/ && node concatenate.js --output-path docs",
+    "build": "ng build ngx-expression-editor --configuration production && ng build expression-editor --configuration production && node concatenate.js && ng build",
     "test": "ng test --watch=false && ng run demo:cypress-run",
     "test:unit": "ng test --watch=false",
     "lint": "ng lint",

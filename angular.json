@@ -27,8 +27,8 @@
                 "output": ""
               },
               {
-                "glob": "rule-editor.js?(.map)",
-                "input": "dist/rule-editor/",
+                "glob": "expression-editor.js?(.map)",
+                "input": "dist/expression-editor/",
                 "output": ""
               }
             ],
@@ -157,30 +157,30 @@
         }
       }
     },
-    "ng-rule-editor": {
+    "ngx-expression-editor": {
       "projectType": "library",
-      "root": "projects/ng-rule-editor",
-      "sourceRoot": "projects/ng-rule-editor/src",
+      "root": "projects/ngx-expression-editor",
+      "sourceRoot": "projects/ngx-expression-editor/src",
       "prefix": "lhc",
       "architect": {
         "build": {
           "builder": "@angular-devkit/build-angular:ng-packagr",
           "options": {
-            "tsConfig": "projects/ng-rule-editor/tsconfig.lib.json",
-            "project": "projects/ng-rule-editor/ng-package.json"
+            "tsConfig": "projects/ngx-expression-editor/tsconfig.lib.json",
+            "project": "projects/ngx-expression-editor/ng-package.json"
           },
           "configurations": {
             "production": {
-              "tsConfig": "projects/ng-rule-editor/tsconfig.lib.prod.json"
+              "tsConfig": "projects/ngx-expression-editor/tsconfig.lib.prod.json"
             }
           }
         },
         "test": {
           "builder": "@angular-devkit/build-angular:karma",
           "options": {
-            "main": "projects/ng-rule-editor/src/test.ts",
-            "tsConfig": "projects/ng-rule-editor/tsconfig.spec.json",
-            "karmaConfig": "projects/ng-rule-editor/karma.conf.js",
+            "main": "projects/ngx-expression-editor/src/test.ts",
+            "tsConfig": "projects/ngx-expression-editor/tsconfig.spec.json",
+            "karmaConfig": "projects/ngx-expression-editor/karma.conf.js",
             "scripts": [
               "./node_modules/jquery/dist/jquery.min.js"
             ]
@@ -190,9 +190,9 @@
           "builder": "@angular-devkit/build-angular:tslint",
           "options": {
             "tsConfig": [
-              "projects/ng-rule-editor/tsconfig.lib.json",
-              "projects/ng-rule-editor/tsconfig.spec.json",
-              "projects/ng-rule-editor/cypress/tsconfig.json"
+              "projects/ngx-expression-editor/tsconfig.lib.json",
+              "projects/ngx-expression-editor/tsconfig.spec.json",
+              "projects/ngx-expression-editor/cypress/tsconfig.json"
             ],
             "exclude": [
               "**/node_modules/**"
@@ -202,12 +202,12 @@
         "cypress-run": {
           "builder": "@cypress/schematic:cypress",
           "options": {
-            "devServerTarget": "ng-rule-editor:serve",
-            "configFile": "projects/ng-rule-editor/cypress.json"
+            "devServerTarget": "ngx-expression-editor:serve",
+            "configFile": "projects/ngx-expression-editor/cypress.json"
           },
           "configurations": {
             "production": {
-              "devServerTarget": "ng-rule-editor:serve:production"
+              "devServerTarget": "ngx-expression-editor:serve:production"
             }
           }
         },
@@ -216,40 +216,40 @@
           "options": {
             "watch": true,
             "headless": false,
-            "configFile": "projects/ng-rule-editor/cypress.json"
+            "configFile": "projects/ngx-expression-editor/cypress.json"
           }
         },
         "e2e": {
           "builder": "@cypress/schematic:cypress",
           "options": {
-            "devServerTarget": "ng-rule-editor:serve",
+            "devServerTarget": "ngx-expression-editor:serve",
             "watch": true,
             "headless": false
           },
           "configurations": {
             "production": {
-              "devServerTarget": "ng-rule-editor:serve:production"
+              "devServerTarget": "ngx-expression-editor:serve:production"
             }
           }
         }
       }
     },
-    "rule-editor": {
+    "expression-editor": {
       "projectType": "application",
       "schematics": {},
-      "root": "projects/rule-editor",
-      "sourceRoot": "projects/rule-editor/src",
+      "root": "projects/expression-editor",
+      "sourceRoot": "projects/expression-editor/src",
       "prefix": "app",
       "architect": {
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
-            "outputPath": "dist/rule-editor",
-            "index": "projects/rule-editor/src/index.html",
-            "main": "projects/rule-editor/src/main.ts",
+            "outputPath": "dist/expression-editor",
+            "index": "projects/expression-editor/src/index.html",
+            "main": "projects/expression-editor/src/main.ts",
             "sourceMap": true,
-            "polyfills": "projects/rule-editor/src/polyfills.ts",
-            "tsConfig": "projects/rule-editor/tsconfig.app.json",
+            "polyfills": "projects/expression-editor/src/polyfills.ts",
+            "tsConfig": "projects/expression-editor/tsconfig.app.json",
             "aot": true,
             "assets": [],
             "styles": [],
@@ -261,8 +261,8 @@
             "production": {
               "fileReplacements": [
                 {
-                  "replace": "projects/rule-editor/src/environments/environment.ts",
-                  "with": "projects/rule-editor/src/environments/environment.prod.ts"
+                  "replace": "projects/expression-editor/src/environments/environment.ts",
+                  "with": "projects/expression-editor/src/environments/environment.prod.ts"
                 }
               ],
               "optimization": true,
@@ -290,27 +290,27 @@
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
-            "buildTarget": "rule-editor:build"
+            "buildTarget": "expression-editor:build"
           },
           "configurations": {
             "production": {
-              "buildTarget": "rule-editor:build:production"
+              "buildTarget": "expression-editor:build:production"
             }
           }
         },
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "buildTarget": "rule-editor:build"
+            "buildTarget": "expression-editor:build"
           }
         },
         "lint": {
           "builder": "@angular-devkit/build-angular:tslint",
           "options": {
             "tsConfig": [
-              "projects/rule-editor/tsconfig.app.json",
-              "projects/rule-editor/tsconfig.spec.json",
-              "projects/rule-editor/cypress/tsconfig.json"
+              "projects/expression-editor/tsconfig.app.json",
+              "projects/expression-editor/tsconfig.spec.json",
+              "projects/expression-editor/cypress/tsconfig.json"
             ],
             "exclude": [
               "**/node_modules/**"
@@ -320,12 +320,12 @@
         "cypress-run": {
           "builder": "@cypress/schematic:cypress",
           "options": {
-            "devServerTarget": "rule-editor:serve",
-            "configFile": "projects/rule-editor/cypress.json"
+            "devServerTarget": "expression-editor:serve",
+            "configFile": "projects/expression-editor/cypress.json"
           },
           "configurations": {
             "production": {
-              "devServerTarget": "rule-editor:serve:production"
+              "devServerTarget": "expression-editor:serve:production"
             }
           }
         },
@@ -334,19 +334,19 @@
           "options": {
             "watch": true,
             "headless": false,
-            "configFile": "projects/rule-editor/cypress.json"
+            "configFile": "projects/expression-editor/cypress.json"
           }
         },
         "e2e": {
           "builder": "@cypress/schematic:cypress",
           "options": {
-            "devServerTarget": "rule-editor:serve",
+            "devServerTarget": "expression-editor:serve",
             "watch": true,
             "headless": false
           },
           "configurations": {
             "production": {
-              "devServerTarget": "rule-editor:serve:production"
+              "devServerTarget": "expression-editor:serve:production"
             }
           }
         }

@@ -13,8 +13,8 @@ export class AppComponent implements OnInit, OnDestroy {
   @ViewChild('autoComplete', {static: false}) autoCompleteElement: ElementRef;
   autoComplete;
 
-  formAppearedAnnouncement = "The Rule Editor questionnaire has been loaded";
-  formReloadAnnouncement = "The Rule Editor questionnaire has been reloaded";
+  formAppearedAnnouncement = "The Expression Editor questionnaire has been loaded";
+  formReloadAnnouncement = "The Expression Editor questionnaire has been reloaded";
   calculatedExpression = 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression';
   originalLinkId = '/39156-5';
   expressionTypes = [
@@ -59,8 +59,8 @@ export class AppComponent implements OnInit, OnDestroy {
   error = '';
   doNotAskToCalculateScore = false;
 
-  displayRuleEditor = false;
-  displayRuleEditorResult = false;
+  displayExpressionEditor = false;
+  displayExpressionEditorResult = false;
 
   constructor(private http: HttpClient, private liveAnnouncer: LiveAnnouncer, private changeDetectorRef: ChangeDetectorRef) {}
 
@@ -83,7 +83,7 @@ export class AppComponent implements OnInit, OnDestroy {
     this.rootLevel = false;
 
     if (this.questionnaire === '' || this.questionnaire === 'upload') {
-      this.liveAnnouncer.announce('Additional settings must be entered below to load the rule editor.');
+      this.liveAnnouncer.announce('Additional settings must be entered below to load the expression editor.');
       this.fhirQuestionnaire = null;
       this.file = '';
       this.linkId = '';
@@ -135,19 +135,19 @@ console.log('app::onChange::fhirQuestionnaire::linkIds - ' + this.linkIds);
   }
 
   /**
-   * Show a preview of the output questionnaire under the rule editor
+   * Show a preview of the output questionnaire under the expression editor
    * @param fhirResult - questionnaire JSON structure
    */
   onSave(fhirResult): void {
     if (fhirResult) {
-      this.displayRuleEditor = false;
-      this.displayRuleEditorResult = true;
+      this.displayExpressionEditor = false;
+      this.displayExpressionEditorResult = true;
       this.fhirPreview = JSON.stringify(fhirResult, null, 2);
     }
   }
 
   /**
-   * Cancel changes made to the Rule Editor.
+   * Cancel changes made to the Expression Editor.
    */
   onCancel(): void {
     // Reset it back to the 'bmisimple' questionnaire
@@ -314,24 +314,24 @@ console.log('app::onChange::fhirQuestionnaire::linkIds - ' + this.linkIds);
   }
 
   /**
-   * Close the Rule Editor dialog
+   * Close the Expression Editor dialog
    */
-  closeRuleEditorDialog(): void {
-    this.displayRuleEditor = false;
+  closeExpressionEditorDialog(): void {
+    this.displayExpressionEditor = false;
   }
 
   /**
-   * Open the Rule Editor dialog to edit the expression for the
+   * Open the Expression Editor dialog to edit the expression for the
    * selected item/question
    */
-  openRuleEditorDialog(): void {
-    if (this.canOpenRuleEditor()) {
-      this.displayRuleEditor = true;
-      this.displayRuleEditorResult = false;
+  openExpressionEditorDialog(): void {
+    if (this.canOpenExpressionEditor()) {
+      this.displayExpressionEditor = true;
+      this.displayExpressionEditorResult = false;
   
-      // The lhc-rule-editor component is not presented before the
-      // 'Open Rule Editor' button is clicked due to the use of *ngIf.
-      // The attributes for the lhc-rule-editor component are not 
+      // The lhc-expression-editor component is not presented before the
+      // 'Open Expression Editor' button is clicked due to the use of *ngIf.
+      // The attributes for the lhc-expression-editor component are not 
       // getting updated as a result. The below steps are used to 
       // trigger changes to those attributes. 
       const tmpUserExpressionChoices = this.userExpressionChoices;
@@ -348,11 +348,11 @@ console.log('app::onChange::fhirQuestionnaire::linkIds - ' + this.linkIds);
   }
 
   /**
-   * Check if the Rule Editor can be opened to edit the expression.
+   * Check if the Expression Editor can be opened to edit the expression.
    * @return true if the questionnaire is selected and either the
    * 'Root level' checkbox or a question is selected.
    */
-  canOpenRuleEditor(): boolean {
+  canOpenExpressionEditor(): boolean {
     return this.fhirQuestionnaire && (this.rootLevel || this.linkId !== null);
   }
 }

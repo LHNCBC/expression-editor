@@ -1,4 +1,4 @@
-describe('Rule Editor Web Component', () => {
+describe('Expression Editor Web Component', () => {
   beforeEach(() => {
     cy.visit('/web-component.html');
   });
@@ -8,11 +8,11 @@ describe('Rule Editor Web Component', () => {
       cy.get('.score-modal').should('contain.text', 'Would you like to select items for the sum of scores?');
     });
 
-    it('should show the Rule Editor interface if the user clicks no.', () => {
+    it('should show the Expression Editor interface if the user clicks no.', () => {
       cy.get('.score-modal').should('contain.text', 'Would you like to select items for the sum of scores?');
       cy.get('#skip-score-items-selection').click();
 
-      cy.get('h1').should('contain.text', 'Test Rule Editor');
+      cy.get('h1').should('contain.text', 'Test Expression Editor');
       cy.get('#export').should('contain.text', 'Test Submit');
     });
 

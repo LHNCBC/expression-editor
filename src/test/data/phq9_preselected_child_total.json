@@ -310,7 +310,7 @@
                 "expression": "%questionnaire.item.where(linkId = '/44251-7').answerOption.where(valueCoding.code=%resource.item.where(linkId = '/44251-7').answer.valueCoding.code).extension.where(url='http://hl7.org/fhir/StructureDefinition/ordinalValue').valueDecimal",
                 "extension": [
                   {
-                    "url": "http://lhcforms.nlm.nih.gov/fhirExt/rule-editor-score-variable",
+                    "url": "http://lhcforms.nlm.nih.gov/fhirExt/expression-editor-score-variable",
                     "valueBoolean": true
                   }
                 ]
@@ -324,7 +324,7 @@
                 "expression": "%questionnaire.item.where(linkId = '/44258-2').answerOption.where(valueCoding.code=%resource.item.where(linkId = '/44258-2').answer.valueCoding.code).extension.where(url='http://hl7.org/fhir/StructureDefinition/ordinalValue').valueDecimal",
                 "extension": [
                   {
-                    "url": "http://lhcforms.nlm.nih.gov/fhirExt/rule-editor-score-variable",
+                    "url": "http://lhcforms.nlm.nih.gov/fhirExt/expression-editor-score-variable",
                     "valueBoolean": true
                   }
                 ]
@@ -338,7 +338,7 @@
                 "expression": "%a.exists() or %b.exists()",
                 "extension": [
                   {
-                    "url": "http://lhcforms.nlm.nih.gov/fhirExt/rule-editor-score-variable",
+                    "url": "http://lhcforms.nlm.nih.gov/fhirExt/expression-editor-score-variable",
                     "valueBoolean": true
                   }
                 ]
@@ -352,7 +352,7 @@
                 "expression": "iif(%any_questions_answered, iif(%a.exists(), %a, 0) + iif(%b.exists(), %b, 0), {})",
                 "extension": [
                   {
-                    "url": "http://lhcforms.nlm.nih.gov/fhirExt/rule-editor-score-expression-linkids",
+                    "url": "http://lhcforms.nlm.nih.gov/fhirExt/expression-editor-score-expression-linkids",
                     "valueString": "[\"/44251-7\",\"/44258-2\"]"
                   }
                 ]

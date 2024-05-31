@@ -1,6 +1,6 @@
-import * as constants from "../../projects/ng-rule-editor/src/lib/validation";
+import * as constants from "../../projects/ngx-expression-editor/src/lib/validation";
 
-describe('Rule editor', () => {
+describe('Expression Editor', () => {
   beforeEach(() => {
     cy.visit('/');
   });
@@ -12,9 +12,9 @@ describe('Rule editor', () => {
         cy.get('select#questionnaire-select').select('BMI Calculation (Easy Path expression)');
 
         // Click the button to edit the expression
-        cy.get('button#openRuleEditor').should('exist').click();
-        // The Rule Editor dialog should now appear
-        cy.get('lhc-rule-editor #rule-editor-base-dialog').should('exist');
+        cy.get('button#openExpressionEditor').should('exist').click();
+        // The Expression Editor dialog should now appear
+        cy.get('lhc-expression-editor #expression-editor-base-dialog').should('exist');
 
         cy.get('#variables-section .variable-row').should('have.length', 2);
 
@@ -52,9 +52,9 @@ describe('Rule editor', () => {
         cy.get('select#questionnaire-select').select('BMI Calculation (Easy Path expression)');
 
         // Click the button to edit the expression
-        cy.get('button#openRuleEditor').should('exist').click();
-        // The Rule Editor dialog should now appear
-        cy.get('lhc-rule-editor #rule-editor-base-dialog').should('exist');
+        cy.get('button#openExpressionEditor').should('exist').click();
+        // The Expression Editor dialog should now appear
+        cy.get('lhc-expression-editor #expression-editor-base-dialog').should('exist');
 
         cy.get('#variables-section .variable-row').should('have.length', 2);
 
@@ -78,8 +78,8 @@ describe('Rule editor', () => {
         // Click Save, nothing should happen
         cy.get('#export').click();
 
-        // The Rule Editor dialog should stay visible.
-        cy.get('lhc-rule-editor #rule-editor-base-dialog').should('exist');
+        // The Expression Editor dialog should stay visible.
+        cy.get('lhc-expression-editor #expression-editor-base-dialog').should('exist');
 
       });
 
@@ -87,9 +87,9 @@ describe('Rule editor', () => {
         cy.get('select#questionnaire-select').select('BMI Calculation (Easy Path expression)');
 
         // Click the button to edit the expression
-        cy.get('button#openRuleEditor').should('exist').click();
-        // The Rule Editor dialog should now appear
-        cy.get('lhc-rule-editor #rule-editor-base-dialog').should('exist');
+        cy.get('button#openExpressionEditor').should('exist').click();
+        // The Expression Editor dialog should now appear
+        cy.get('lhc-expression-editor #expression-editor-base-dialog').should('exist');
 
         cy.get('#variables-section .variable-row').should('have.length', 2);
 
@@ -110,9 +110,9 @@ describe('Rule editor', () => {
         cy.get('select#questionnaire-select').select('BMI Calculation (Easy Path expression)');
 
         // Click the button to edit the expression
-        cy.get('button#openRuleEditor').should('exist').click();
-        // The Rule Editor dialog should now appear
-        cy.get('lhc-rule-editor #rule-editor-base-dialog').should('exist');
+        cy.get('button#openExpressionEditor').should('exist').click();
+        // The Expression Editor dialog should now appear
+        cy.get('lhc-expression-editor #expression-editor-base-dialog').should('exist');
 
         cy.get('#variables-section .variable-row').should('have.length', 2);
 
@@ -175,9 +175,9 @@ describe('Rule editor', () => {
         cy.get('select#questionnaire-select').select('BMI Calculation (Easy Path expression)');
 
         // Click the button to edit the expression
-        cy.get('button#openRuleEditor').should('exist').click();
-        // The Rule Editor dialog should now appear
-        cy.get('lhc-rule-editor #rule-editor-base-dialog').should('exist');
+        cy.get('button#openExpressionEditor').should('exist').click();
+        // The Expression Editor dialog should now appear
+        cy.get('lhc-expression-editor #expression-editor-base-dialog').should('exist');
 
         cy.get('#variables-section .variable-row').should('have.length', 2);
 
@@ -254,9 +254,9 @@ describe('Rule editor', () => {
         cy.get('select#questionnaire-select').select('BMI Calculation (Easy Path expression)');
 
         // Click the button to edit the expression
-        cy.get('button#openRuleEditor').should('exist').click();
-        // The Rule Editor dialog should now appear
-        cy.get('lhc-rule-editor #rule-editor-base-dialog').should('exist');
+        cy.get('button#openExpressionEditor').should('exist').click();
+        // The Expression Editor dialog should now appear
+        cy.get('lhc-expression-editor #expression-editor-base-dialog').should('exist');
 
         cy.get('#variables-section .variable-row').should('have.length', 2);
 
@@ -369,9 +369,9 @@ describe('Rule editor', () => {
         cy.get('select#questionnaire-select').select('Query');
 
         // Click the button to edit the expression
-        cy.get('button#openRuleEditor').should('exist').click();
-        // The Rule Editor dialog should now appear
-        cy.get('lhc-rule-editor #rule-editor-base-dialog').should('exist');
+        cy.get('button#openExpressionEditor').should('exist').click();
+        // The Expression Editor dialog should now appear
+        cy.get('lhc-expression-editor #expression-editor-base-dialog').should('exist');
 
         // Uneditable variables section should still only have one item
         cy.get('#uneditable-variables-section .variable-row').should('have.length', 1);

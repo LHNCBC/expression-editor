@@ -1,7 +1,7 @@
 // Description:
 //   Concatenates several source files to produce lhc-forms.js and its source map.
 // Optional argument:
-//   --output-path - The output directory defaults to ./dist/rule-editor.  This
+//   --output-path - The output directory defaults to ./dist/expression-editor.  This
 //                   can be overridden using this optional command-line argument.
 //                   The path provided must be relative to the current workspace.
 // Examples:
@@ -17,7 +17,7 @@ const path = require('path');
 (async function build() {
 
   // es2018 files from angular 15 build
-  const jsFileDir = './dist/rule-editor';
+  const jsFileDir = './dist/expression-editor';
   //const jsFiles = ['scripts.js', 'runtime.js', 'polyfills.js', 'main.js'
   const jsFiles = ['runtime.js', 'polyfills.js', 'main.js'].map(f=>path.join(jsFileDir, f));
 
@@ -31,14 +31,14 @@ const path = require('path');
   });
 
   // Add sourcemapping statement to the combined content
-  let outputContent = concat.content + "\n//# sourceMappingURL=rule-editor.js.map\n";
+  let outputContent = concat.content + "\n//# sourceMappingURL=expression-editor.js.map\n";
 
   // If an output path is provided, use that; otherwise, use the default jsFileDir
   const args = process.argv.slice(2);
   const outputFileDir = (args && args.length > 1 && args[0] === '--output-path') ? args[1] : jsFileDir;
 
   // Write outputs
-  fs.writeFileSync(path.join(outputFileDir, 'rule-editor.js'), outputContent);
-  fs.writeFileSync(path.join(outputFileDir, 'rule-editor.js.map'), concat.sourceMap);
+  fs.writeFileSync(path.join(outputFileDir, 'expression-editor.js'), outputContent);
+  fs.writeFileSync(path.join(outputFileDir, 'expression-editor.js.map'), concat.sourceMap);
 
 })()

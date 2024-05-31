@@ -1,4 +1,4 @@
-describe('Rule editor', () => {
+describe('Expression Editor', () => {
   beforeEach(() => {
     cy.visit('/');
   });
@@ -11,11 +11,11 @@ describe('Rule editor', () => {
         // The demo has 'BMI (/39156-5) selected by default
         cy.get('#question').should('have.value', 'BMI (/39156-5)');
         // Click the button to edit the expression
-        cy.get('button#openRuleEditor').should('exist').click();
-        // The Rule Editor dialog should now appear
-        cy.get('lhc-rule-editor #rule-editor-base-dialog').should('exist');
+        cy.get('button#openExpressionEditor').should('exist').click();
+        // The Expression Editor dialog should now appear
+        cy.get('lhc-expression-editor #expression-editor-base-dialog').should('exist');
 
-        cy.title().should('eq', 'Rule Editor');
+        cy.title().should('eq', 'Expression Editor');
 
         // Variables section
         cy.get('lhc-variables > h2').should('contain', 'Item Variables');
@@ -31,11 +31,11 @@ describe('Rule editor', () => {
         // The demo has 'BMI (/39156-5) selected by default
         cy.get('#question').should('have.value', 'BMI (/39156-5)');
         // Click the button to edit the expression
-        cy.get('button#openRuleEditor').should('exist').click();
-        // The Rule Editor dialog should now appear
-        cy.get('lhc-rule-editor #rule-editor-base-dialog').should('exist');
+        cy.get('button#openExpressionEditor').should('exist').click();
+        // The Expression Editor dialog should now appear
+        cy.get('lhc-expression-editor #expression-editor-base-dialog').should('exist');
 
-        cy.title().should('eq', 'Rule Editor');
+        cy.title().should('eq', 'Expression Editor');
 
         // Variables section
         cy.get('lhc-variables > h2').should('contain', 'Item Variables');
@@ -87,11 +87,11 @@ describe('Rule editor', () => {
         // The demo has 'BMI (/39156-5) selected by default
         cy.get('#question').should('have.value', 'BMI (/39156-5)');
         // Click the button to edit the expression
-        cy.get('button#openRuleEditor').should('exist').click();
-        // The Rule Editor dialog should now appear
-        cy.get('lhc-rule-editor #rule-editor-base-dialog').should('exist');
+        cy.get('button#openExpressionEditor').should('exist').click();
+        // The Expression Editor dialog should now appear
+        cy.get('lhc-expression-editor #expression-editor-base-dialog').should('exist');
 
-        cy.title().should('eq', 'Rule Editor');
+        cy.title().should('eq', 'Expression Editor');
 
         // Variables section
         cy.get('lhc-variables > h2').should('contain', 'Item Variables');
@@ -145,11 +145,11 @@ describe('Rule editor', () => {
         // The demo has 'BMI (/39156-5) selected by default
         cy.get('#question').should('have.value', 'BMI (/39156-5)');
         // Click the button to edit the expression
-        cy.get('button#openRuleEditor').should('exist').click();
-        // The Rule Editor dialog should now appear
-        cy.get('lhc-rule-editor #rule-editor-base-dialog').should('exist');
+        cy.get('button#openExpressionEditor').should('exist').click();
+        // The Expression Editor dialog should now appear
+        cy.get('lhc-expression-editor #expression-editor-base-dialog').should('exist');
 
-        cy.title().should('eq', 'Rule Editor');
+        cy.title().should('eq', 'Expression Editor');
         // Variables section
         cy.get('lhc-variables > h2').should('contain', 'Item Variables');
         cy.get('#variables-section .variable-row').should('have.length', 2);
@@ -164,11 +164,11 @@ describe('Rule editor', () => {
         // The demo has 'BMI (/39156-5) selected by default
         cy.get('#question').should('have.value', 'BMI (/39156-5)');
         // Click the button to edit the expression
-        cy.get('button#openRuleEditor').should('exist').click();
-        // The Rule Editor dialog should now appear
-        cy.get('lhc-rule-editor #rule-editor-base-dialog').should('exist');
+        cy.get('button#openExpressionEditor').should('exist').click();
+        // The Expression Editor dialog should now appear
+        cy.get('lhc-expression-editor #expression-editor-base-dialog').should('exist');
 
-        cy.title().should('eq', 'Rule Editor');
+        cy.title().should('eq', 'Expression Editor');
 
         // Variables section
         cy.get('lhc-variables > h2').should('contain', 'Item Variables');
@@ -188,9 +188,9 @@ describe('Rule editor', () => {
         // The demo has 'BMI (/39156-5) selected by default
         cy.get('#question').should('have.value', 'BMI (/39156-5)');
         // Click the button to edit the expression
-        cy.get('button#openRuleEditor').should('exist').click();
-        // The Rule Editor dialog should now appear
-        cy.get('lhc-rule-editor #rule-editor-base-dialog').should('exist');
+        cy.get('button#openExpressionEditor').should('exist').click();
+        // The Expression Editor dialog should now appear
+        cy.get('lhc-expression-editor #expression-editor-base-dialog').should('exist');
 
         cy.get('#exp-help-button-final').should('exist').click();
         cy.get('lhc-easy-path-expression-help-dialog #easy-path-help-base-dialog').should('exist');
@@ -206,11 +206,11 @@ describe('Rule editor', () => {
         // The demo has 'BMI (/39156-5) selected by default
         cy.get('#question').should('have.value', 'BMI (/39156-5)');
         // Click the button to edit the expression
-        cy.get('button#openRuleEditor').should('exist').click();
-        // The Rule Editor dialog should now appear
-        cy.get('lhc-rule-editor #rule-editor-base-dialog').should('exist');
+        cy.get('button#openExpressionEditor').should('exist').click();
+        // The Expression Editor dialog should now appear
+        cy.get('lhc-expression-editor #expression-editor-base-dialog').should('exist');
 
-        cy.title().should('eq', 'Rule Editor');
+        cy.title().should('eq', 'Expression Editor');
 
         // Variables section
         cy.get('lhc-variables > h2').should('contain', 'Item Variables');
@@ -227,11 +227,11 @@ describe('Rule editor', () => {
         // The demo has 'BMI (/39156-5) selected by default
         cy.get('#question').should('have.value', 'BMI (/39156-5)');
         // Click the button to edit the expression
-        cy.get('button#openRuleEditor').should('exist').click();
-        // The Rule Editor dialog should now appear
-        cy.get('lhc-rule-editor #rule-editor-base-dialog').should('exist');
+        cy.get('button#openExpressionEditor').should('exist').click();
+        // The Expression Editor dialog should now appear
+        cy.get('lhc-expression-editor #expression-editor-base-dialog').should('exist');
 
-        cy.title().should('eq', 'Rule Editor');
+        cy.title().should('eq', 'Expression Editor');
 
         // Variables section
         cy.get('lhc-variables > h2').should('contain', 'Item Variables');
@@ -250,11 +250,11 @@ describe('Rule editor', () => {
         // The demo has 'BMI (/39156-5) selected by default
         cy.get('#question').should('have.value', 'BMI (/39156-5)');
         // Click the button to edit the expression
-        cy.get('button#openRuleEditor').should('exist').click();
-        // The Rule Editor dialog should now appear
-        cy.get('lhc-rule-editor #rule-editor-base-dialog').should('exist');
+        cy.get('button#openExpressionEditor').should('exist').click();
+        // The Expression Editor dialog should now appear
+        cy.get('lhc-expression-editor #expression-editor-base-dialog').should('exist');
 
-        cy.title().should('eq', 'Rule Editor');
+        cy.title().should('eq', 'Expression Editor');
 
         // Variables section
         cy.get('lhc-variables > h2').should('contain', 'Item Variables');
@@ -272,11 +272,11 @@ describe('Rule editor', () => {
         // The demo has 'BMI (/39156-5) selected by default
         cy.get('#question').should('have.value', 'BMI (/39156-5)');
         // Click the button to edit the expression
-        cy.get('button#openRuleEditor').should('exist').click();
-        // The Rule Editor dialog should now appear
-        cy.get('lhc-rule-editor #rule-editor-base-dialog').should('exist');
+        cy.get('button#openExpressionEditor').should('exist').click();
+        // The Expression Editor dialog should now appear
+        cy.get('lhc-expression-editor #expression-editor-base-dialog').should('exist');
 
-        cy.title().should('eq', 'Rule Editor');
+        cy.title().should('eq', 'Expression Editor');
 
         // Variables section
         cy.get('lhc-variables > h2').should('contain', 'Item Variables');
@@ -295,9 +295,9 @@ describe('Rule editor', () => {
         // The demo has 'BMI (/39156-5) selected by default
         cy.get('#question').should('have.value', 'BMI (/39156-5)');
         // Click the button to edit the expression
-        cy.get('button#openRuleEditor').should('exist').click();
-        // The Rule Editor dialog should now appear
-        cy.get('lhc-rule-editor #rule-editor-base-dialog').should('exist');
+        cy.get('button#openExpressionEditor').should('exist').click();
+        // The Expression Editor dialog should now appear
+        cy.get('lhc-expression-editor #expression-editor-base-dialog').should('exist');
 
         cy.get('#output-expression-type').find('option:selected').should('have.text', 'FHIRPath Expression');
         cy.get('#exp-help-button-final').should('exist').click();

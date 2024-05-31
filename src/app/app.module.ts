@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 
-import { RuleEditorModule } from 'ng-rule-editor';
+import { ExpressionEditorModule } from 'ngx-expression-editor';
 
 import { AppComponent } from './app.component';
 import { FormsModule } from '@angular/forms';
@@ -16,7 +16,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
   imports: [
     BrowserModule,
     FormsModule,
-    RuleEditorModule,
+    ExpressionEditorModule,
     HttpClientModule,
     A11yModule,
     MatTooltipModule
