@@ -12,7 +12,7 @@ describe('Rule editor', () => {
       .click();
 
     // The Rule Editor dialog should now appear
-    cy.get('#rule-editor-dialog').should('exist');
+    cy.get('lhc-rule-editor #rule-editor-base-dialog').should('exist');
 
     cy.title().should('eq', 'Rule Editor');
 

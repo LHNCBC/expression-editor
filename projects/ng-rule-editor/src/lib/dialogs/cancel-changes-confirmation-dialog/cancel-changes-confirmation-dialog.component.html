@@ -1,0 +1,14 @@
+<lhc-base-dialog
+  [name]="'cancel-changes'" 
+  [displayTitleBar]=true
+  [titleBarLabel]="'Cancel Changes'"
+  (yes)="onYes()"
+  (no)="onNo()"
+  (dialogClose)="onDialogClose()"
+  [dialogType]="'confirmation'"> 
+  <div>
+
+    <p id="confirmation-prompt1">Are you sure you want to cancel?</p>
+    <p id="confirmation-prompt2">Any unsaved changes will be lost.</p>
+  </div>
+</lhc-base-dialog>

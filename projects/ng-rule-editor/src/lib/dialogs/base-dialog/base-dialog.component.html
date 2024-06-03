@@ -1,0 +1,36 @@
+<div 
+  role="dialog"
+  aria-modal="true"
+  cdkTrapFocusAutoCapture
+  cdkTrapFocus
+  #overlay
+  cdkFocusInitial
+  attr.aria-labelledby="{{name}}-title"
+  attr.id="{{name}}-base-dialog"
+  class="base-modal">
+
+  <div class="base-modal-content base-content" #modal [style]="dialogStyle.dialogContentDiv">
+    <div attr.id="{{name}}-title-bar" class="base-modal-header" [ngStyle]="dialogStyle.dialogTitleBar" *ngIf="displayTitleBar" >
+      <span attr.id="{{name}}-title">{{titleBarLabel}}</span>
+      <button type="button" class="btn-close btn-close-white svg" aria-label="Close" (click)="onDialogClose()" >
+        <svg viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="15" y1="9" x2="9" y2="15"></line>
+          <line x1="9" y1="9" x2="15" y2="15"></line> 
+        </svg>
+      </button>
+    </div>
+    <div class="base-modal-body" [style]="dialogStyle.dialogBodyDiv">
+      <div [style]="dialogStyle.dialogHeaderDiv">
+        <h2 attr.id="{{name}}-dialog-title">{{headerLabel}}</h2>
+      </div>
+      <div attr.id="{{name}}-dialog-body" class="base-modal-body-content">
+        <ng-content></ng-content>
+      </div>
+    </div>
+    <div class="base-modal-footer" [style]="dialogStyle.dialogFooterDiv">
+      <button [id]="yesButtonId" class="primary" [ngStyle]="dialogStyle.buttonPrimary" (click)="onYes()" *ngIf="yes.observed" >{{yesButtonLabel}}</button>
+      <button [id]="noButtonId" (click)="onNo()" *ngIf="no.observed">{{noButtonLabel}}</button>
+    </div>
+  </div>
+</div>

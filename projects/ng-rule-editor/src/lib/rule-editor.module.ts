@@ -20,12 +20,14 @@ import { SyntaxPreviewComponent } from './syntax-preview/syntax-preview.componen
 import { QueryObservationComponent } from './query-observation/query-observation.component';
 import { CaseStatementsComponent } from './case-statements/case-statements.component';
 import { SelectScoringItemsComponent } from './select-scoring-items/select-scoring-items.component';
-import { EasyPathExpressionHelpComponent } from './helps/easy-path-expression-help/easy-path-expression-help.component';
-import { FhirpathExpressionHelpComponent } from './helps/fhirpath-expression-help/fhirpath-expression-help.component';
 import { HelpsComponent } from './helps/helps.component';
-import { YesNoDialogComponent } from './yes-no-dialog/yes-no-dialog.component';
 import { VariableNameValidatorDirective } from '../directives/variable-name/variable-name-validator.directive';
 import { ExpressionValidatorDirective } from '../directives/expression/expression-validator.directive';
+import { BaseDialogComponent } from './dialogs/base-dialog/base-dialog.component';
+import { CancelChangesConfirmationDialogComponent } from './dialogs/cancel-changes-confirmation-dialog/cancel-changes-confirmation-dialog.component';
+import { FhirpathEasypathConversionConfirmationDialogComponent } from './dialogs/fhirpath-easypath-conversion-confirmation-dialog/fhirpath-easypath-conversion-confirmation-dialog.component';
+import { FhirpathExpressionHelpDialogComponent } from './dialogs/fhirpath-expression-help-dialog/fhirpath-expression-help-dialog.component';
+import { EasyPathExpressionHelpDialogComponent } from './dialogs/easy-path-expression-help-dialog/easy-path-expression-help-dialog.component';
 
 @NgModule({
   declarations: [
@@ -40,10 +42,13 @@ import { ExpressionValidatorDirective } from '../directives/expression/expressio
     QueryObservationComponent,
     CaseStatementsComponent,
     SelectScoringItemsComponent,
-    EasyPathExpressionHelpComponent,
-    FhirpathExpressionHelpComponent,
     HelpsComponent,
-    YesNoDialogComponent,
+    ExpressionValidatorDirective,
+    BaseDialogComponent,
+    CancelChangesConfirmationDialogComponent,
+    FhirpathEasypathConversionConfirmationDialogComponent,
+    FhirpathExpressionHelpDialogComponent,
+    EasyPathExpressionHelpDialogComponent,
     VariableNameValidatorDirective,
     ExpressionValidatorDirective
   ],

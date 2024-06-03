@@ -1,21 +1,18 @@
-import { Component, Input, Output, EventEmitter, ViewChild, ElementRef } from '@angular/core';
+//import { Component } from '@angular/core';
+import { Component, EventEmitter, Input, Output, OnInit } from '@angular/core';
+import { BaseDialogComponent } from '../base-dialog/base-dialog.component';
+import { SimpleStyle, DialogStyle } from '../../rule-editor.service';
 import { LiveAnnouncer } from '@angular/cdk/a11y';
 
 @Component({
-  selector: 'lhc-easy-path-expression-help',
-  templateUrl: './easy-path-expression-help.component.html',
-  styleUrls: ['./easy-path-expression-help.component.css']
+  selector: 'lhc-easy-path-expression-help-dialog',
+  templateUrl: './easy-path-expression-help-dialog.component.html',
+  styleUrls: ['./easy-path-expression-help-dialog.component.css']
 })
-export class EasyPathExpressionHelpComponent {
-  @Input() display = false;
-  //@Input() variables;
-  @Output() onCloseModal = new EventEmitter();
-  @ViewChild('modal') modal: ElementRef;
-
-  constructor(private liveAnnouncer: LiveAnnouncer) {}
-
+export class EasyPathExpressionHelpDialogComponent extends BaseDialogComponent {
+  @Output() onCloseHelp: EventEmitter<any> = new EventEmitter<any>();
+  
   arrow_arr = ["arrow right", "arrow down"];
-  //help_arrow_vars = this.arrow_arr[0];
   help_arrow_ops = this.arrow_arr[0];
   help_arrow_funcs = this.arrow_arr[0];
 
@@ -347,83 +344,38 @@ export class EasyPathExpressionHelpComponent {
   functionItemsReadOnly = true;
 
   currentActiveOpenedItem = '';
-
-  /**
-   * Close Help Modal from the Overlay - allowed the modal to be closed
-   * if clicking outside of the modal
-   */
-  overlayCloseHelp(event) {
-    if (event.path) {
-      if (event.path.indexOf(this.modal.nativeElement) === -1) {
-        this.closeHelp();
-      }
-    } else if (event.target) {
-      if (event.target instanceof HTMLDivElement) {
-        this.closeHelp();
-      }
-    }
-  }
   
-  /**
-   * Close Help Modal
-   */
-  closeHelp() {
-    //this.liveAnnouncer.announce('Closing Help Dialog.  Returning to the Rule Editor screen');
-    this.showHideSection(false, false);
-
-    this.operatorItemsReadOnly = true;
-    this.functionItemsReadOnly = true;
-
-    if (this.currentActiveOpenedItem !== '') {
-      if (this.usableFunctions2.hasOwnProperty(this.currentActiveOpenedItem))
-        this.usableFunctions2[this.currentActiveOpenedItem].display = false;
-      else if (this.usableOperators2.hasOwnProperty(this.currentActiveOpenedItem))
-        this.usableOperators2[this.currentActiveOpenedItem].display = false;
-    }
-
-    this.onCloseModal.emit();
+  constructor(protected liveAnnouncer: LiveAnnouncer) { 
+    super(liveAnnouncer);
   }
 
   /**
-   * Function to handle show/hide of all three help sections 
+   * Emits the 'onCloseHelp' event
+   */
+  onNo(): void {
+    this.liveAnnouncer.announce("Help dialog closed.");
+    setTimeout(() => {
+      this.onCloseHelp.emit();
+    }, 0);
+  };
+
+  /**
+   * Function to handle show/hide of all three help sections
+   * @param usableOperatorsFlag - true to display the Usable Operator section
+   * @param usableFunctionsFlag - true to display the Usable Function section
    */
   showHideSection(usableOperatorsFlag, usableFunctionsFlag) {
-    //this.sectionArr[0] = variablesFlag;
     this.sectionArr[0] = usableOperatorsFlag;
     this.sectionArr[1] = usableFunctionsFlag;
 
-    //this.help_arrow_vars = this.arrow_arr[variablesFlag?1:0];
     this.help_arrow_ops = this.arrow_arr[usableOperatorsFlag?1:0];
     this.help_arrow_funcs = this.arrow_arr[usableFunctionsFlag?1:0];
   }
  
   /**
-   * Show the Variables section and invoke the live announcer 
+   * Invoke the live announcer 
    */
-/*  
-  toggleVariablesSection() {
-    this.showHideSection(true, false, false);
-
-    this.operatorItemsReadOnly = true;
-
-    let helpText = '';
-    if (this.variables.length === 0)
-      this.liveAnnouncer.announce("There is no variable available for this section");
-    else {
-      if (this.variables.length === 1)
-        helpText += "There is one variable available.  The variable is " + this.variables[0];
-      else {
-        helpText += "There are " + this.variables.length + " variables available." ;
-        for (let i = 0; i < this.variables.length; i++) {
-          helpText += "  " + this.variables[i] + ",  ";          
-        }
-      }
-   
-      this.liveAnnouncer.announce(helpText);
-    }
-  }
-*/
-  getLiveAnncounementForSection(item) {
+  getLiveAnncounementForSection() {
     let announceText = 'Use the ENTER key to enter this section.';
 
     this.liveAnnouncer.announce(announceText);
@@ -441,6 +393,7 @@ export class EasyPathExpressionHelpComponent {
 
   /**
    * Toggle to display detail information for each of the operators and invoke the live announcer 
+   * @param item - Selected usable operator item
    */
   toggleUsableOperatorItem(item) {
     if (this.currentActiveOpenedItem !== '' && this.currentActiveOpenedItem !== item) {
@@ -460,6 +413,7 @@ export class EasyPathExpressionHelpComponent {
 
   /**
    * Prepare Live Announcer with the description of the selected item
+   * @param item - Selected usable operator  or function item
    */
   getLiveAnnouncementForItem(item) {
     let announceText = item.description + "  Click the Enter key to get more detail.";
@@ -468,6 +422,7 @@ export class EasyPathExpressionHelpComponent {
   }
   /**
    * Prepare Live Announcer with the detail of the selected item
+   * @param item - Selected usable operator or function item
    */
   getLiveAnnouncementDetailForItem(item) {
     let announceText = '';
@@ -489,7 +444,7 @@ export class EasyPathExpressionHelpComponent {
   /**
    * Show the Usable Functions section and invoke the live announcer
    */
-  toggleUsableFunctionsSection(action) {
+  toggleUsableFunctionsSection() {
     this.liveAnnouncer.announce('Entering the Usable Functions Items section. Use the tab button to move to each function.');
 
     this.showHideSection(false, true);
@@ -497,6 +452,10 @@ export class EasyPathExpressionHelpComponent {
     this.functionItemsReadOnly = false;
   }
 
+  /**
+   * Toggle to display detail information for each of the functions and invoke the live announcer 
+   * @param item - Selected usable function item
+  */
   toggleUsableFunctionItem(item) {
     if (this.currentActiveOpenedItem !== '' && this.currentActiveOpenedItem !== item) {
       if (this.usableFunctions2.hasOwnProperty(this.currentActiveOpenedItem))
@@ -515,4 +474,3 @@ export class EasyPathExpressionHelpComponent {
   }
 
 }
-

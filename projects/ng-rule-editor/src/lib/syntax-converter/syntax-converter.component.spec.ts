@@ -5,7 +5,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { SyntaxConverterComponent } from './syntax-converter.component';
 import { SyntaxPreviewComponent } from '../syntax-preview/syntax-preview.component';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
-import { EasyPathExpressionHelpComponent } from '../helps/easy-path-expression-help/easy-path-expression-help.component';
+import { EasyPathExpressionHelpDialogComponent } from '../dialogs/easy-path-expression-help-dialog/easy-path-expression-help-dialog.component';
 import { HelpsComponent } from '../helps/helps.component';
 import { ExpressionValidatorDirective } from '../../directives/expression/expression-validator.directive';
 
@@ -15,7 +15,7 @@ describe('SyntaxConverterComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ SyntaxConverterComponent, SyntaxPreviewComponent, HelpsComponent, EasyPathExpressionHelpComponent, ExpressionValidatorDirective ],
+      declarations: [ SyntaxConverterComponent, SyntaxPreviewComponent, HelpsComponent, EasyPathExpressionHelpDialogComponent, ExpressionValidatorDirective ],
       imports: [ FormsModule, MatSnackBarModule, MatTooltipModule ]
     })
     .compileComponents();

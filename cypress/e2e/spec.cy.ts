@@ -47,7 +47,7 @@ describe('Rule editor', () => {
         // Click the button to edit the expression
         cy.get('button#openRuleEditor').should('exist').click();
         // The Rule Editor dialog should now appear
-        cy.get('#rule-editor-dialog').should('exist');
+        cy.get('lhc-rule-editor #rule-editor-base-dialog').should('exist');
 
         cy.title().should('eq', 'Rule Editor');
         // Uneditable variables section should not show up
@@ -65,7 +65,7 @@ describe('Rule editor', () => {
         // Click the button to edit the expression
         cy.get('button#openRuleEditor').should('exist').click();
         // The Rule Editor dialog should now appear
-        cy.get('#rule-editor-dialog').should('exist');
+        cy.get('lhc-rule-editor #rule-editor-base-dialog').should('exist');
 
         cy.get('#variables-section .variable-row').should('have.length', 2);
         cy.get('#add-variable').click();
@@ -78,7 +78,7 @@ describe('Rule editor', () => {
         // Click the button to edit the expression
         cy.get('button#openRuleEditor').should('exist').click();
         // The Rule Editor dialog should now appear
-        cy.get('#rule-editor-dialog').should('exist');
+        cy.get('lhc-rule-editor #rule-editor-base-dialog').should('exist');
 
         cy.get('#variables-section .variable-row').should('have.length', 2);
         cy.get('.remove-variable').last().click();
@@ -91,7 +91,7 @@ describe('Rule editor', () => {
         // Click the button to edit the expression
         cy.get('button#openRuleEditor').should('exist').click();
         // The Rule Editor dialog should now appear
-        cy.get('#rule-editor-dialog').should('exist');
+        cy.get('lhc-rule-editor #rule-editor-base-dialog').should('exist');
 
         cy.get('#export').click();
         cy.get('#output').should('contain.text', '"expression": "%a/%b.power(2)"');
@@ -103,7 +103,7 @@ describe('Rule editor', () => {
         // Click the button to edit the expression
         cy.get('button#openRuleEditor').should('exist').click();
         // The Rule Editor dialog should now appear
-        cy.get('#rule-editor-dialog').should('exist');
+        cy.get('lhc-rule-editor #rule-editor-base-dialog').should('exist');
 
         // User styled input fields have a light yellow background. Declared via an attribute
         cy.get('lhc-rule-editor input:not([type="checkbox"])').first()
@@ -116,7 +116,7 @@ describe('Rule editor', () => {
         // Click the button to edit the expression
         cy.get('button#openRuleEditor').should('exist').click();
         // The Rule Editor dialog should now appear
-        cy.get('#rule-editor-dialog').should('exist');
+        cy.get('lhc-rule-editor #rule-editor-base-dialog').should('exist');
 
         cy.get('#question-1').clear().type('bmi');
         cy.get('span#completionOptions > ul > li').contains('39156-5').click();
@@ -132,7 +132,7 @@ describe('Rule editor', () => {
         // Click the button to edit the expression
         cy.get('button#openRuleEditor').should('exist').click();
         // The Rule Editor dialog should now appear
-        cy.get('#rule-editor-dialog').should('exist');
+        cy.get('lhc-rule-editor #rule-editor-base-dialog').should('exist');
 
         cy.title().should('eq', 'Rule Editor');
 
@@ -161,7 +161,7 @@ describe('Rule editor', () => {
         cy.get('#export').click();
 
         // The Rule Editor dialog should be closed
-        cy.get('#rule-editor-dialog').should('not.exist', {timeout: 10000});
+        cy.get('lhc-rule-editor #rule-editor-base-dialog').should('not.exist', {timeout: 10000});
 
         // Checking the output, it should have the new variable created under the BMI item extension
         cy.get('pre#output').invoke('text').then((jsonData) => {
@@ -193,7 +193,7 @@ describe('Rule editor', () => {
         // Click the button to edit the expression
         cy.get('button#openRuleEditor').should('exist').click();
         // The Rule Editor dialog should now appear
-        cy.get('#rule-editor-dialog').should('exist');
+        cy.get('lhc-rule-editor #rule-editor-base-dialog').should('exist');
 
         // Variables section
         cy.get('lhc-variables > h2').should('contain', 'Item Variables');
@@ -235,7 +235,7 @@ describe('Rule editor', () => {
         cy.get('#export').click();
 
         // The Rule Editor dialog should be closed
-        cy.get('#rule-editor-dialog').should('not.exist', {timeout: 10000});
+        cy.get('lhc-rule-editor #rule-editor-base-dialog').should('not.exist', {timeout: 10000});
 
         // Checking the output, it should have the new variable created under the 
         // "Clothing worn during measure" item extension
@@ -266,7 +266,7 @@ describe('Rule editor', () => {
         // Click the button to edit the expression
         cy.get('button#openRuleEditor').should('exist').click();
         // The Rule Editor dialog should now appear
-        cy.get('#rule-editor-dialog').should('exist');
+        cy.get('lhc-rule-editor #rule-editor-base-dialog').should('exist');
 
         cy.title().should('eq', 'Rule Editor');
         // Variables section
@@ -287,7 +287,7 @@ describe('Rule editor', () => {
         cy.get('#export').click();
 
         // The Rule Editor dialog should be closed
-        cy.get('#rule-editor-dialog').should('not.exist', {timeout: 10000});
+        cy.get('lhc-rule-editor #rule-editor-base-dialog').should('not.exist', {timeout: 10000});
 
         // Checking the output, it should have the new variable created under the root extension
         cy.get('pre#output').should('not.be.empty').invoke('text').then((jsonData) => {
@@ -310,7 +310,7 @@ describe('Rule editor', () => {
         // Click the button to edit the expression
         cy.get('button#openRuleEditor').should('exist').click();
         // The Rule Editor dialog should now appear
-        cy.get('#rule-editor-dialog').should('exist');
+        cy.get('lhc-rule-editor #rule-editor-base-dialog').should('exist');
       
         // Add a variable
         cy.get('#add-variable').click();
@@ -345,7 +345,7 @@ describe('Rule editor', () => {
         cy.get('#export').click();
 
         // The Rule Editor dialog should be closed
-        cy.get('#rule-editor-dialog').should('not.exist', {timeout: 10000});
+        cy.get('lhc-rule-editor #rule-editor-base-dialog').should('not.exist', {timeout: 10000});
 
         // Export output should contain the URL Encoded of the x-fhir-output
         cy.get('pre#output')
@@ -361,7 +361,7 @@ describe('Rule editor', () => {
         // Click the button to edit the expression
         cy.get('button#openRuleEditor').should('exist').click();
         // The Rule Editor dialog should now appear
-        cy.get('#rule-editor-dialog').should('exist');
+        cy.get('lhc-rule-editor #rule-editor-base-dialog').should('exist');
 
         cy.title().should('eq', 'Rule Editor');
 
@@ -445,7 +445,7 @@ describe('Rule editor', () => {
         // Click the button to edit the expression
         cy.get('button#openRuleEditor').should('exist').click();
         // The Rule Editor dialog should now appear
-        cy.get('#rule-editor-dialog').should('exist');
+        cy.get('lhc-rule-editor #rule-editor-base-dialog').should('exist');
 
         cy.title().should('eq', 'Rule Editor');
 
@@ -511,7 +511,7 @@ describe('Rule editor', () => {
         // Click the button to edit the expression
         cy.get('button#openRuleEditor').should('exist').click();
         // The Rule Editor dialog should now appear
-        cy.get('#rule-editor-dialog').should('exist');
+        cy.get('lhc-rule-editor #rule-editor-base-dialog').should('exist');
 
         cy.title().should('eq', 'Rule Editor');
 
@@ -566,7 +566,7 @@ describe('Rule editor', () => {
         // Click the button to edit the expression
         cy.get('button#openRuleEditor').should('exist').click();
         // The Rule Editor dialog should now appear
-        cy.get('#rule-editor-dialog').should('exist');
+        cy.get('lhc-rule-editor #rule-editor-base-dialog').should('exist');
 
         cy.title().should('eq', 'Rule Editor');
 
@@ -616,7 +616,7 @@ describe('Rule editor', () => {
         // Click the button to edit the expression
         cy.get('button#openRuleEditor').should('exist').click();
         // The Rule Editor dialog should now appear
-        cy.get('#rule-editor-dialog').should('exist');
+        cy.get('lhc-rule-editor #rule-editor-base-dialog').should('exist');
     
         cy.title().should('eq', 'Rule Editor');
 
@@ -662,7 +662,7 @@ describe('Rule editor', () => {
           cy.get('button#export').should('exist').click();
 
           // The Rule Editor dialog should be closed
-          cy.get('#rule-editor-dialog').should('not.exist', {timeout: 10000});
+          cy.get('lhc-rule-editor #rule-editor-base-dialog').should('not.exist', {timeout: 10000});
 
           // Validate that the expression was updated correctly
           cy.get('pre#output')
@@ -677,7 +677,7 @@ describe('Rule editor', () => {
         // Click the button to edit the expression
         cy.get('button#openRuleEditor').should('exist').click();
         // The Rule Editor dialog should now appear
-        cy.get('#rule-editor-dialog').should('exist');
+        cy.get('lhc-rule-editor #rule-editor-base-dialog').should('exist');
 
         cy.title().should('eq', 'Rule Editor');
 
@@ -703,7 +703,7 @@ describe('Rule editor', () => {
         cy.get('button#export').should('exist').click();
 
         // The Rule Editor dialog should be closed
-        cy.get('#rule-editor-dialog').should('not.exist', {timeout: 10000});
+        cy.get('lhc-rule-editor #rule-editor-base-dialog').should('not.exist', {timeout: 10000});
 
         // Validate that the expression was updated correctly
         cy.get('pre#output')
@@ -712,7 +712,7 @@ describe('Rule editor', () => {
         // Click the button to edit the expression
         cy.get('button#openRuleEditor').should('exist').click();
         // The Rule Editor dialog should now appear
-        cy.get('#rule-editor-dialog').should('exist');
+        cy.get('lhc-rule-editor #rule-editor-base-dialog').should('exist');
 
         // Check the Advanced Interface checkbox
         cy.get('input#advanced-interface').check();
@@ -732,7 +732,7 @@ describe('Rule editor', () => {
         cy.get('button#export').should('exist').click();
 
         // The Rule Editor dialog should be closed
-        cy.get('#rule-editor-dialog').should('not.exist', {timeout: 10000});
+        cy.get('lhc-rule-editor #rule-editor-base-dialog').should('not.exist', {timeout: 10000});
 
         // Validate that the expression was updated correctly
         cy.get('pre#output')
@@ -741,7 +741,7 @@ describe('Rule editor', () => {
         // Click the button to edit the expression
         cy.get('button#openRuleEditor').should('exist').click();
         // The Rule Editor dialog should now appear
-        cy.get('#rule-editor-dialog').should('exist');
+        cy.get('lhc-rule-editor #rule-editor-base-dialog').should('exist');
 
         // Check the Advanced Interface checkbox
         cy.get('input#advanced-interface').check();
@@ -761,7 +761,7 @@ describe('Rule editor', () => {
         cy.get('button#export').should('exist').click();
 
         // The Rule Editor dialog should be closed
-        cy.get('#rule-editor-dialog').should('not.exist', {timeout: 10000});
+        cy.get('lhc-rule-editor #rule-editor-base-dialog').should('not.exist', {timeout: 10000});
 
         // Validate that the expression was updated correctly
         cy.get('pre#output')
@@ -770,7 +770,7 @@ describe('Rule editor', () => {
         // Click the button to edit the expression
         cy.get('button#openRuleEditor').should('exist').click();
         // The Rule Editor dialog should now appear
-        cy.get('#rule-editor-dialog').should('exist');
+        cy.get('lhc-rule-editor #rule-editor-base-dialog').should('exist');
 
         // Check the Advanced Interface checkbox
         cy.get('input#advanced-interface').check();
@@ -790,7 +790,7 @@ describe('Rule editor', () => {
         cy.get('button#export').should('exist').click();
 
         // The Rule Editor dialog should be closed
-        cy.get('#rule-editor-dialog').should('not.exist', {timeout: 10000});
+        cy.get('lhc-rule-editor #rule-editor-base-dialog').should('not.exist', {timeout: 10000});
 
         // Validate that the expression was updated correctly
         cy.get('pre#output')
@@ -799,7 +799,7 @@ describe('Rule editor', () => {
         // Click the button to edit the expression
         cy.get('button#openRuleEditor').should('exist').click();
         // The Rule Editor dialog should now appear
-        cy.get('#rule-editor-dialog').should('exist');
+        cy.get('lhc-rule-editor #rule-editor-base-dialog').should('exist');
 
         // Check the Advanced Interface checkbox
         cy.get('input#advanced-interface').check();
@@ -819,7 +819,7 @@ describe('Rule editor', () => {
         cy.get('button#export').should('exist').click();
 
         // The Rule Editor dialog should be closed
-        cy.get('#rule-editor-dialog').should('not.exist', {timeout: 10000});
+        cy.get('lhc-rule-editor #rule-editor-base-dialog').should('not.exist', {timeout: 10000});
 
         // Validate that the expression was updated correctly
         cy.get('pre#output')
@@ -829,7 +829,7 @@ describe('Rule editor', () => {
         // Click the button to edit the expression
         cy.get('button#openRuleEditor').should('exist').click();
         // The Rule Editor dialog should now appear
-        cy.get('#rule-editor-dialog').should('exist');
+        cy.get('lhc-rule-editor #rule-editor-base-dialog').should('exist');
 
         // Check the Advanced Interface checkbox
         cy.get('input#advanced-interface').check();
@@ -850,7 +850,7 @@ describe('Rule editor', () => {
         cy.get('button#export').should('exist').click();
 
         // The Rule Editor dialog should be closed
-        cy.get('#rule-editor-dialog').should('not.exist', {timeout: 10000});
+        cy.get('lhc-rule-editor #rule-editor-base-dialog').should('not.exist', {timeout: 10000});
 
         // Validate that the expression was updated correctly
         cy.get('pre#output')
@@ -866,7 +866,7 @@ describe('Rule editor', () => {
         // Click the button to edit the expression
         cy.get('button#openRuleEditor').should('exist').click();
         // The Rule Editor dialog should now appear
-        cy.get('#rule-editor-dialog').should('exist');
+        cy.get('lhc-rule-editor #rule-editor-base-dialog').should('exist');
 
         cy.title().should('eq', 'Rule Editor');
 
@@ -905,7 +905,7 @@ describe('Rule editor', () => {
         // Click the button to edit the expression
         cy.get('button#openRuleEditor').should('exist').click();
         // The Rule Editor dialog should now appear
-        cy.get('#rule-editor-dialog').should('exist');
+        cy.get('lhc-rule-editor #rule-editor-base-dialog').should('exist');
 
         cy.title().should('eq', 'Rule Editor');
 
@@ -998,7 +998,7 @@ describe('Rule editor', () => {
         // Click the button to edit the expression
         cy.get('button#openRuleEditor').should('exist').click();
         // The Rule Editor dialog should now appear
-        cy.get('#rule-editor-dialog').should('exist');
+        cy.get('lhc-rule-editor #rule-editor-base-dialog').should('exist');
 
         cy.title().should('eq', 'Rule Editor');
 
@@ -1086,7 +1086,7 @@ describe('Rule editor', () => {
         // Click the button to edit the expression
         cy.get('button#openRuleEditor').should('exist').click();
         // The Rule Editor dialog should now appear
-        cy.get('#rule-editor-dialog').should('exist');
+        cy.get('lhc-rule-editor #rule-editor-base-dialog').should('exist');
 
         cy.title().should('eq', 'Rule Editor');
 
@@ -1172,7 +1172,7 @@ describe('Rule editor', () => {
         // Click the button to edit the expression
         cy.get('button#openRuleEditor').should('exist').click();
         // The Rule Editor dialog should now appear
-        cy.get('#rule-editor-dialog').should('exist');
+        cy.get('lhc-rule-editor #rule-editor-base-dialog').should('exist');
 
         cy.get('#variable-type-0 option').should('have.length', 5);
 
@@ -1190,7 +1190,7 @@ describe('Rule editor', () => {
         cy.get('#export').click();
 
         // The Rule Editor dialog should be closed
-        cy.get('#rule-editor-dialog', {timeout: 10000}).should('not.exist');
+        cy.get('lhc-rule-editor #rule-editor-base-dialog', {timeout: 10000}).should('not.exist');
 
         cy.get('pre#output').should('contain.text', '(%a/(%b.power(2))).round(1)');
       });
@@ -1203,7 +1203,7 @@ describe('Rule editor', () => {
         // Click the button to edit the expression
         cy.get('button#openRuleEditor').should('exist').click();
         // The Rule Editor dialog should now appear
-        cy.get('#rule-editor-dialog').should('exist');
+        cy.get('lhc-rule-editor #rule-editor-base-dialog').should('exist');
 
         // Variables section
         cy.get('lhc-variables > h2').should('contain', 'Item Variables');
@@ -1244,30 +1244,78 @@ describe('Rule editor', () => {
         // Click the button to edit the expression
         cy.get('button#openRuleEditor').should('exist').click();
         // The Rule Editor dialog should now appear
-        cy.get('#rule-editor-dialog').should('exist');
+        cy.get('lhc-rule-editor #rule-editor-base-dialog').should('exist');
 
         // Variables section
         cy.get('lhc-variables > h2').should('contain', 'Item Variables');
         cy.get('#variables-section .variable-row').should('have.length', 2);
-        
-        // The confirmation dialog should not exist
-        cy.get('div.rule-editor lhc-yes-no-dialog').should('not.exist');
 
         // Cancel button
         cy.get('#cancel-changes').should('exist').click();
 
         // The dialog to confirm cancel should be displayed
-        cy.get('div.rule-editor lhc-yes-no-dialog').should('exist');
+        cy.get('lhc-cancel-changes-confirmation-dialog')
+          .should('exist')
+          .within(() => {
+            // The dialog should contains two buttons: Yes and No.
+            cy.get('#yes-button').should('exist');
+            cy.get('#no-button').should('exist');
+          });
+      });
 
-        // The dialog should contains two buttons: Yes and No.
-        cy.get('#yes-button').should('exist');
-        cy.get('#no-button').should('exist');
+      it('should get confirmation dialog when click x (close)', () => {
+        cy.get('select#questionnaire-select').select('BMI Calculation (Easy Path expression)');
 
-        // Click 'No' should cancel the Cancel request and hide the dialog
-        cy.get('#no-button').click();
+        // The demo has 'BMI (/39156-5) selected by default
+        cy.get('#question').should('have.value', 'BMI (/39156-5)');
+        // Click the button to edit the expression
+        cy.get('button#openRuleEditor').should('exist').click();
+        // The Rule Editor dialog should now appear
+        cy.get('lhc-rule-editor #rule-editor-base-dialog').should('exist');
 
-        // The confirmation dialog should not exist
-        cy.get('div.rule-editor lhc-yes-no-dialog').should('not.exist');
+        // Variables section
+        cy.get('lhc-variables > h2').should('contain', 'Item Variables');
+        cy.get('#variables-section .variable-row').should('have.length', 2);
+
+        // Close the dialog by clicking 'x'
+        cy.get('#rule-editor-title-bar > button.btn-close').click();
+
+        // The dialog to confirm cancel should be displayed
+        cy.get('lhc-cancel-changes-confirmation-dialog')
+          .should('exist')
+          .within(() => {
+            // The dialog should contains two buttons: Yes and No.
+            cy.get('#yes-button').should('exist');
+            cy.get('#no-button').should('exist');
+
+          });
+      });
+
+      it('should get confirmation dialog when click outside the overlay', () => {
+        cy.get('select#questionnaire-select').select('BMI Calculation (Easy Path expression)');
+
+        // The demo has 'BMI (/39156-5) selected by default
+        cy.get('#question').should('have.value', 'BMI (/39156-5)');
+        // Click the button to edit the expression
+        cy.get('button#openRuleEditor').should('exist').click();
+        // The Rule Editor dialog should now appear
+        cy.get('lhc-rule-editor #rule-editor-base-dialog').should('exist');
+
+        // Variables section
+        cy.get('lhc-variables > h2').should('contain', 'Item Variables');
+        cy.get('#variables-section .variable-row').should('have.length', 2);
+
+        // Close the dialog by clicking outside the overlay
+        cy.get('lhc-rule-editor > lhc-base-dialog > #rule-editor-base-dialog').click(50, 50);
+
+        // The dialog to confirm cancel should be displayed
+        cy.get('lhc-cancel-changes-confirmation-dialog')
+          .should('exist')
+          .within(() => {
+            // The dialog should contains two buttons: Yes and No.
+            cy.get('#yes-button').should('exist');
+            cy.get('#no-button').should('exist');
+          });
       });
 
       it('should be able to cancel changes to the Rule Editor', () => {
@@ -1278,7 +1326,7 @@ describe('Rule editor', () => {
         // Click the button to edit the expression
         cy.get('button#openRuleEditor').should('exist').click();
         // The Rule Editor dialog should now appear
-        cy.get('#rule-editor-dialog').should('exist');
+        cy.get('lhc-rule-editor #rule-editor-base-dialog').should('exist');
 
         // Variables section
         cy.get('lhc-variables > h2').should('contain', 'Item Variables');
@@ -1294,18 +1342,16 @@ describe('Rule editor', () => {
         cy.get('#cancel-changes').should('exist').click();
 
         // The dialog to confirm cancel should be displayed
-        cy.get('div.rule-editor lhc-yes-no-dialog').should('exist');
-
-        // Click 'Yes' to confirm cancelling
-        cy.get('#yes-button').click();
+        cy.get('lhc-cancel-changes-confirmation-dialog')
+          .should('exist')
+          .within(() => {
+            // Click 'Yes' button
+            cy.get('#yes-button').should('exist').click();
+          });
 
         // This should reset back to the 'BMI Calculation (Easy Path Expression)' questionnaire
         // The confirmation dialog should be hidden
-        cy.get('div.rule-editor lhc-yes-no-dialog').should('not.exist');
-
-        // Variables section should revert back to 2 variables.
-        //cy.get('lhc-variables > h2').should('contain', 'Item Variables');
-        //cy.get('#variables-section .variable-row').should('have.length', 2);
+        cy.get('lhc-cancel-changes-confirmation-dialog').should('not.exist');
       });
     });
 
@@ -1319,11 +1365,15 @@ describe('Rule editor', () => {
         cy.get('#question').should('contain.value', '(/39156-5)');
         // Click the button to edit the expression
         cy.get('button#openRuleEditor').should('exist').click();
-        // The Rule Editor dialog should now appear
-        cy.get('#rule-editor-dialog').should('exist');
 
         // Only the prompt for score calculation should show up
-        cy.get('.rule-editor').should('contain.text', 'Would you like to calculate the sum of scores?');
+        // The prompt to calculate the total scoring item should displayed.
+        cy.get('lhc-calculate-sum-prompt > lhc-base-dialog > #calculate-sum-base-dialog')
+          .should('exist')
+          .within(() => {
+            cy.get('#calculate-sum-dialog-body')
+              .should('contain.text', 'Would you like to select items for the sum of scores?');
+          });
       });
 
       it('should hide the calculate sum prompt if click no', () => {
@@ -1335,14 +1385,19 @@ describe('Rule editor', () => {
         cy.get('#question').should('contain.value', '(/39156-5)');
         // Click the button to edit the expression
         cy.get('button#openRuleEditor').should('exist').click();
-        // The Rule Editor dialog should now appear
-        cy.get('#rule-editor-dialog').should('exist');
 
-        // Only the prompt for score calculation should show up
-        cy.get('.rule-editor').should('contain.text', 'Would you like to calculate the sum of scores?');
-        cy.get('#skip-score-items-selection').click();
-        cy.get('.rule-editor').should('not.contain.text', 'Would you like to calculate the sum of scores?');
-      
+        // The prompt to calculate the total scoring item should displayed.
+        cy.get('lhc-calculate-sum-prompt > lhc-base-dialog > #calculate-sum-base-dialog')
+          .should('exist')
+          .within(() => {
+            cy.get('#calculate-sum-dialog-body')
+              .should('contain.text', 'Would you like to select items for the sum of scores?');
+            // Close the dialog
+            cy.get('#skip-score-items-selection').click();
+          });
+        cy.get('lhc-calculate-sum-prompt > lhc-base-dialog > #calculate-sum-base-dialog')
+          .should('not.exist');
+
         // Once canceled, it should show the Rule Editor screen with 0 variables
         cy.get('div.rule-editor').should('exist').within( ()=> {
           // Variables section
@@ -1355,6 +1410,62 @@ describe('Rule editor', () => {
         });
       });
 
+      it('should hide the calculate sum prompt if click x (close)', () => {
+        cy.intercept('/phq9.json').as('phq9');
+        cy.get('select#questionnaire-select').select('PHQ9 (no FHIRPath)');
+        cy.wait('@phq9');
+
+        // The demo has '(/39156-5) selected by default
+        cy.get('#question').should('contain.value', '(/39156-5)');
+        // Click the button to edit the expression
+        cy.get('button#openRuleEditor').should('exist').click();
+
+        // The prompt to calculate the total scoring item should displayed.
+        cy.get('lhc-calculate-sum-prompt > lhc-base-dialog > #calculate-sum-base-dialog')
+          .should('exist')
+          .within(() => {
+            cy.get('#calculate-sum-dialog-body')
+              .should('contain.text', 'Would you like to select items for the sum of scores?');
+          });
+
+        // Close the dialog by clicking 'x'
+        cy.get('#calculate-sum-title-bar > button.btn-close').click();
+
+        cy.get('lhc-calculate-sum-prompt > lhc-base-dialog > #calculate-sum-base-dialog')
+          .should('not.exist');
+
+        // Should return back to the demo screen
+        cy.get('app-root > h1').should('be.visible').should('contain.text', 'Rule Editor Demo');
+      });
+
+      it('should hide the calculate sum prompt if click outside the overlay', () => {
+        cy.intercept('/phq9.json').as('phq9');
+        cy.get('select#questionnaire-select').select('PHQ9 (no FHIRPath)');
+        cy.wait('@phq9');
+
+        // The demo has '(/39156-5) selected by default
+        cy.get('#question').should('contain.value', '(/39156-5)');
+        // Click the button to edit the expression
+        cy.get('button#openRuleEditor').should('exist').click();
+
+        // The prompt to calculate the total scoring item should displayed.
+        cy.get('lhc-calculate-sum-prompt > lhc-base-dialog > #calculate-sum-base-dialog')
+          .should('exist')
+          .within(() => {
+            cy.get('#calculate-sum-dialog-body')
+              .should('contain.text', 'Would you like to select items for the sum of scores?');
+          });
+
+        // Close the dialog by clicking outside the overlay
+        cy.get('lhc-calculate-sum-prompt > lhc-base-dialog > #calculate-sum-base-dialog').click(50, 50);
+
+        cy.get('lhc-calculate-sum-prompt > lhc-base-dialog > #calculate-sum-base-dialog')
+          .should('not.exist');
+
+        // Should return back to the demo screen
+        cy.get('app-root > h1').should('be.visible').should('contain.text', 'Rule Editor Demo');
+      });
+
       it('should display the scoring items selection', () => {
         cy.intercept('/phq9.json').as('phq9');
         cy.get('select#questionnaire-select').select('PHQ9 (no FHIRPath)');
@@ -1364,13 +1475,13 @@ describe('Rule editor', () => {
         cy.get('#question').should('contain.value', '(/39156-5)');
         // Click the button to edit the expression
         cy.get('button#openRuleEditor').should('exist').click();
-        // The Rule Editor dialog should now appear
-        cy.get('#rule-editor-dialog').should('exist');
 
         // Only the prompt for score calculation should show up
         cy.get('#score-items-selection').click();
-        cy.get('div.scoring-items-selection-title').should('have.text', ' Select items to include in the score calculation: ');
-        cy.get('div.scoring-items-selection-body')
+
+        cy.get('lhc-select-scoring-items #select-scoring-items-dialog-title')
+          .should('contain.text', 'Select items to include in the score calculation:');
+        cy.get('lhc-select-scoring-items .scoring-items-selection-body')
           .within(() => {
             cy.get('#selectAll').should('exist');
             cy.get('div.items-tree').should('exist');
@@ -1390,8 +1501,6 @@ describe('Rule editor', () => {
         cy.get('#question').should('contain.value', '(/39156-5)');
         // Click the button to edit the expression
         cy.get('button#openRuleEditor').should('exist').click();
-        // The Rule Editor dialog should now appear
-        cy.get('#rule-editor-dialog').should('exist');
 
         cy.get('#score-items-selection').click();
         cy.get('div.scoring-items-selection-body')
@@ -1421,8 +1530,6 @@ describe('Rule editor', () => {
         cy.get('#question').should('contain.value', '(/39156-5)');
         // Click the button to edit the expression
         cy.get('button#openRuleEditor').should('exist').click();
-        // The Rule Editor dialog should now appear
-        cy.get('#rule-editor-dialog').should('exist');
 
         cy.get('#score-items-selection').click();
         cy.get('div.scoring-items-selection-body')
@@ -1453,8 +1560,6 @@ describe('Rule editor', () => {
         cy.get('#question').should('contain.value', '(/39156-5)');
         // Click the button to edit the expression
         cy.get('button#openRuleEditor').should('exist').click();
-        // The Rule Editor dialog should now appear
-        cy.get('#rule-editor-dialog').should('exist');
 
         cy.get('#score-items-selection').click();
         cy.get('div.scoring-items-selection-body')
@@ -1494,13 +1599,18 @@ describe('Rule editor', () => {
         cy.get('#question').should('contain.value', '(/39156-5)');
         // Click the button to edit the expression
         cy.get('button#openRuleEditor').should('exist').click();
-        // The Rule Editor dialog should now appear
-        cy.get('#rule-editor-dialog').should('exist');
 
-        cy.get('.rule-editor').should('contain.text', 'Would you like to calculate the sum of scores?');
-        cy.get('#score-items-selection').click();
-        cy.get('div.scoring-items-selection-title').should('have.text', ' Select items to include in the score calculation: ');
-        cy.get('div.scoring-items-selection-body')
+        cy.get('lhc-calculate-sum-prompt > lhc-base-dialog > #calculate-sum-base-dialog')
+          .should('exist')
+          .within(() => {
+            cy.get('#calculate-sum-dialog-body')
+              .should('contain.text', 'Would you like to select items for the sum of scores?');
+            cy.get('#score-items-selection').click();
+          });
+
+        cy.get('lhc-select-scoring-items #select-scoring-items-dialog-title')
+          .should('contain.text', 'Select items to include in the score calculation:');
+        cy.get('lhc-select-scoring-items .scoring-items-selection-body')
           .within(() => {
             cy.get('#selectAll').should('exist');
             cy.get('div.items-tree').should('exist');
@@ -1509,19 +1619,82 @@ describe('Rule editor', () => {
 
         // Click Cancel
         cy.get('#skip-export-score').click()
-        cy.get('.rule-editor').should('not.have.text', ' Select items to include in the score calculation: ');
+        cy.get('lhc-select-scoring-items').should('not.exist');
 
-        // Once canceled, it should show the Rule Editor screen with 0 variables
-        cy.get('div.rule-editor').should('exist').within( ()=> {
-          // Variables section
-          cy.get('lhc-variables > h2').should('contain', 'Item Variables');
-          cy.get('#variables-section .variable-row').should('have.length', 0);
-        
-          cy.get('#add-variable').should('exist').should('be.visible');
-  
-          cy.get('#export').should('exist').scrollIntoView().should('be.visible');
-        });
+        // Should return back to the demo screen
+        cy.get('app-root > h1').should('be.visible').should('contain.text', 'Rule Editor Demo');
+      });
 
+      it('should hide the scoring items selection if click x (close)', () => {
+        cy.intercept('/phq9.json').as('phq9');
+        cy.get('select#questionnaire-select').select('PHQ9 (no FHIRPath)');
+        cy.wait('@phq9');
+
+        // The demo has '(/39156-5) selected by default
+        cy.get('#question').should('contain.value', '(/39156-5)');
+        // Click the button to edit the expression
+        cy.get('button#openRuleEditor').should('exist').click();
+
+        cy.get('lhc-calculate-sum-prompt > lhc-base-dialog > #calculate-sum-base-dialog')
+          .should('exist')
+          .within(() => {
+            cy.get('#calculate-sum-dialog-body')
+              .should('contain.text', 'Would you like to select items for the sum of scores?');
+            cy.get('#score-items-selection').click();
+          });
+
+        cy.get('lhc-select-scoring-items #select-scoring-items-dialog-title')
+          .should('contain.text', 'Select items to include in the score calculation:');
+        cy.get('lhc-select-scoring-items .scoring-items-selection-body')
+          .within(() => {
+            cy.get('#selectAll').should('exist');
+            cy.get('div.items-tree').should('exist');
+            cy.get('div.items-tree tree-node').should('have.length', 9);
+          });
+
+        // Close the dialog by clicking 'x'
+        cy.get('#select-scoring-items-title-bar > button.btn-close').click();
+
+        cy.get('lhc-select-scoring-items').should('not.exist');
+
+        // Should return back to the demo screen
+        cy.get('app-root > h1').should('be.visible').should('contain.text', 'Rule Editor Demo');
+      });
+
+      it('should hide the scoring items selection if click outside the overlay', () => {
+        cy.intercept('/phq9.json').as('phq9');
+        cy.get('select#questionnaire-select').select('PHQ9 (no FHIRPath)');
+        cy.wait('@phq9');
+
+        // The demo has '(/39156-5) selected by default
+        cy.get('#question').should('contain.value', '(/39156-5)');
+        // Click the button to edit the expression
+        cy.get('button#openRuleEditor').should('exist').click();
+
+        cy.get('lhc-calculate-sum-prompt > lhc-base-dialog > #calculate-sum-base-dialog')
+          .should('exist')
+          .within(() => {
+            cy.get('#calculate-sum-dialog-body')
+              .should('contain.text', 'Would you like to select items for the sum of scores?');
+            cy.get('#score-items-selection').click();
+          });
+
+        cy.get('lhc-select-scoring-items #select-scoring-items-dialog-title')
+          .should('contain.text', 'Select items to include in the score calculation:');
+        cy.get('lhc-select-scoring-items .scoring-items-selection-body')
+          .within(() => {
+            cy.get('#selectAll').should('exist');
+            cy.get('div.items-tree').should('exist');
+            cy.get('div.items-tree tree-node').should('have.length', 9);
+          });
+
+        // Close the dialog by clicking outside the overlay
+        cy.get('lhc-select-scoring-items > lhc-base-dialog > #select-scoring-items-base-dialog').click(50, 50);
+
+        cy.get('lhc-select-scoring-items').should('not.exist');
+
+        // Should return back to the demo screen
+        cy.get('app-root > h1').should('be.visible').should('contain.text', 'Rule Editor Demo');
       });
 
       it('should be able to export score with selected individual items', () => {
@@ -1533,8 +1706,6 @@ describe('Rule editor', () => {
         cy.get('#question').should('contain.value', '(/39156-5)');
         // Click the button to edit the expression
         cy.get('button#openRuleEditor').should('exist').click();
-        // The Rule Editor dialog should now appear
-        cy.get('#rule-editor-dialog').should('exist');
 
         cy.get('#score-items-selection').click();
         cy.get('div.scoring-items-selection-body')
@@ -1554,14 +1725,61 @@ describe('Rule editor', () => {
                 cy.wrap($checkbox).should('not.be.checked');
             });
           });  
-          cy.get('#export-score').click();
+        cy.get('#export-score').click();
 
-          // the Rule-Editor div panel should be hidden
-          cy.get('div.rule-editor > lhc-select-scoring-items').should('not.exist');
-          
-          cy.get('#output')
+        // the Rule-Editor div panel should be hidden
+        cy.get('div.rule-editor > lhc-select-scoring-items').should('not.exist');
+
+        cy.get('#output')
           .should('contain.text', '"expression": "iif(%any_questions_answered, iif(%a.exists(), %a, 0) ' +
             '+ iif(%b.exists(), %b, 0), {})"');
+      });
+
+      it('should be able to review selected items', () => {
+        cy.intercept('/phq9.json').as('phq9');
+        cy.get('select#questionnaire-select').select('PHQ9 (no FHIRPath)');
+        cy.wait('@phq9');
+
+        // The demo has '(/39156-5) selected by default
+        cy.get('#question').should('contain.value', '(/39156-5)');
+        // Click the button to edit the expression
+        cy.get('button#openRuleEditor').should('exist').click();
+
+        cy.get('#score-items-selection').click();
+        cy.get('div.scoring-items-selection-body')
+          .within(() => {
+            cy.get('div.items-tree tree-node').should('have.length', 9);
+            cy.get('.angular-tree-component  [type="checkbox"]').as('checkboxes');
+            
+            // Select 3rd and 5th items
+            cy.get('@checkboxes').eq(2).check();
+            cy.get('@checkboxes').eq(4).check();
+            
+            // Validate to make sure that only those two items were selected
+            cy.get('@checkboxes').each(($checkbox, index) => {
+              if (index === 2 || index === 4)
+                cy.wrap($checkbox).should('be.checked');
+              else
+                cy.wrap($checkbox).should('not.be.checked');
+            });
+          });  
+        cy.get('#review-fhirpath').click();
+
+        // the Rule-Editor div panel should be hidden
+        cy.get('div.rule-editor > lhc-select-scoring-items').should('not.exist');
+         
+        // Show the Rule Editor 
+        cy.get('lhc-rule-editor > lhc-base-dialog').should('exist')
+        // Variables section
+        cy.get('lhc-variables > h2').should('contain', 'Item Variables');
+        cy.get('#variables-section .variable-row').should('have.length', 3);
+
+        // Click Save
+        cy.get('#export').click();
+
+        cy.get('#output')
+          .should('contain.text', '"expression": "iif(%any_questions_answered,iif(%a.exists(), %a, 0) ' +
+            '+ iif(%b.exists(), %b, 0),{})"');
       });
 
       it('should be able to export score with all items', () => {
@@ -1573,8 +1791,6 @@ describe('Rule editor', () => {
         cy.get('#question').should('contain.value', '(/39156-5)');
         // Click the button to edit the expression
         cy.get('button#openRuleEditor').should('exist').click();
-        // The Rule Editor dialog should now appear
-        cy.get('#rule-editor-dialog').should('exist');
 
         cy.get('#score-items-selection').click();
         cy.get('div.scoring-items-selection-body')
@@ -1611,11 +1827,14 @@ describe('Rule editor', () => {
         cy.get('#question').should('contain.value', '(/39156-5)');
         // Click the button to edit the expression
         cy.get('button#openRuleEditor').should('exist').click();
-        // The Rule Editor dialog should now appear
-        cy.get('#rule-editor-dialog').should('exist');
 
         // Only the prompt for score calculation should show up
-        cy.get('.rule-editor').should('contain.text', 'Would you like to calculate the sum of scores?');
+        cy.get('lhc-calculate-sum-prompt > lhc-base-dialog > #calculate-sum-base-dialog')
+          .should('exist')
+          .within(() => {
+            cy.get('#calculate-sum-dialog-body')
+              .should('contain.text', 'Would you like to select items for the sum of scores?');
+          });
       });
 
       it('should hide the calculate sum prompt if click no', () => {
@@ -1623,13 +1842,17 @@ describe('Rule editor', () => {
         cy.get('#question').should('contain.value', '(/39156-5)');
         // Click the button to edit the expression
         cy.get('button#openRuleEditor').should('exist').click();
-        // The Rule Editor dialog should now appear
-        cy.get('#rule-editor-dialog').should('exist');
 
         // Only the prompt for score calculation should show up
-        cy.get('.rule-editor').should('contain.text', 'Would you like to calculate the sum of scores?');
-        cy.get('#skip-score-items-selection').click();
-        cy.get('.rule-editor').should('not.contain.text', 'Would you like to calculate the sum of scores?');
+        cy.get('lhc-calculate-sum-prompt > lhc-base-dialog > #calculate-sum-base-dialog')
+          .should('exist')
+          .within(() => {
+            cy.get('#calculate-sum-dialog-body')
+              .should('contain.text', 'Would you like to select items for the sum of scores?');
+            // Close the dialog
+            cy.get('#skip-score-items-selection').click();
+          });
+        cy.get('lhc-calculate-sum-prompt > lhc-base-dialog > #calculate-sum-base-dialog').should('not.exist');
       });
 
       it('should display the scoring items selection', () => {
@@ -1637,19 +1860,17 @@ describe('Rule editor', () => {
         cy.get('#question').should('contain.value', '(/39156-5)');
         // Click the button to edit the expression
         cy.get('button#openRuleEditor').should('exist').click();
-        // The Rule Editor dialog should now appear
-        cy.get('#rule-editor-dialog').should('exist');
 
         // Only the prompt for score calculation should show up
         cy.get('#score-items-selection').click();
-        cy.get('div.scoring-items-selection-title').should('have.text', ' Select items to include in the score calculation: ');
-        cy.get('div.scoring-items-selection-body')
+        cy.get('lhc-select-scoring-items #select-scoring-items-dialog-title')
+          .should('contain.text', 'Select items to include in the score calculation:');
+        cy.get('lhc-select-scoring-items .scoring-items-selection-body')
           .within(() => {
             cy.get('#selectAll').should('exist');
-            //cy.get('.item-filter').should('exist');
             cy.get('div.items-tree').should('exist');
             cy.get('div.items-tree tree-node').should('have.length', 26);
-          });
+          });      
       });
 
       it('should be able to collap/expand group', () => {
@@ -1657,13 +1878,13 @@ describe('Rule editor', () => {
         cy.get('#question').should('contain.value', '(/39156-5)');
         // Click the button to edit the expression
         cy.get('button#openRuleEditor').should('exist').click();
-        // The Rule Editor dialog should now appear
-        cy.get('#rule-editor-dialog').should('exist');
 
         // Only the prompt for score calculation should show up
         cy.get('#score-items-selection').click();
-        cy.get('div.scoring-items-selection-title').should('have.text', ' Select items to include in the score calculation: ');
-        cy.get('div.scoring-items-selection-body')
+        
+        cy.get('lhc-select-scoring-items #select-scoring-items-dialog-title')
+          .should('contain.text', 'Select items to include in the score calculation:');
+        cy.get('lhc-select-scoring-items .scoring-items-selection-body')
           .within(() => {
             // Expand All button should be visible and the tree should be expanded by default  
             cy.get('#expandAll').should('exist').should('be.visible');
@@ -1679,8 +1900,6 @@ describe('Rule editor', () => {
         cy.get('#question').should('contain.value', '(/39156-5)');
         // Click the button to edit the expression
         cy.get('button#openRuleEditor').should('exist').click();
-        // The Rule Editor dialog should now appear
-        cy.get('#rule-editor-dialog').should('exist');
 
         cy.get('#score-items-selection').click();
         cy.get('div.scoring-items-selection-body')
@@ -1706,8 +1925,6 @@ describe('Rule editor', () => {
         cy.get('#question').should('contain.value', '(/39156-5)');
         // Click the button to edit the expression
         cy.get('button#openRuleEditor').should('exist').click();
-        // The Rule Editor dialog should now appear
-        cy.get('#rule-editor-dialog').should('exist');
 
         cy.get('#score-items-selection').click();
         cy.get('div.scoring-items-selection-body')
@@ -1751,8 +1968,6 @@ describe('Rule editor', () => {
         cy.get('#question').should('contain.value', '(/39156-5)');
         // Click the button to edit the expression
         cy.get('button#openRuleEditor').should('exist').click();
-        // The Rule Editor dialog should now appear
-        cy.get('#rule-editor-dialog').should('exist');
 
         cy.get('#score-items-selection').click();
 
@@ -1767,19 +1982,19 @@ describe('Rule editor', () => {
           });
 
         // Done button should be disabled.
-        cy.get('#export-score').should('be.disabled');
+        cy.get('#export-score').should('have.class', 'disabled');
 
         // Select an individual item
         cy.get('@checkboxes').eq(2).check();
 
         // Done button should now be enabled.
-        cy.get('#export-score').should('be.enabled');
+        cy.get('#export-score').should('not.have.class', 'disabled');
 
         // Unselect an individual item
         cy.get('@checkboxes').eq(2).uncheck();
 
-        // Done button should now be enabled.
-        cy.get('#export-score').should('be.disabled');
+        // Done button should now be disabled.
+        cy.get('#export-score').should('have.class', 'disabled');
 
         // Select all items
         cy.get('#selectAll').click();
@@ -1796,12 +2011,12 @@ describe('Rule editor', () => {
           });
 
         // Done button should now be enabled.
-        cy.get('#export-score').should('be.enabled');
+        cy.get('#export-score').should('not.have.class', 'disabled');
 
         // Unselect all items
         cy.get('#unselectAll').click();
 
-        // Validate to make sure that no items are selected
+        // Validate to make sure that no items were selected
         cy.get('div.scoring-items-selection-body')
           .within(() => {
             cy.get('div.items-tree tree-node').should('have.length', 26);
@@ -1812,8 +2027,8 @@ describe('Rule editor', () => {
             });
           });
 
-        // Button should now be enabled.
-        cy.get('#export-score').should('be.disabled');
+        // Button should now be disabled.
+        cy.get('#export-score').should('have.class', 'disabled');
       });
 
       it('should be able to export score with selected individual items', () => {
@@ -1821,8 +2036,6 @@ describe('Rule editor', () => {
         cy.get('#question').should('contain.value', '(/39156-5)');
         // Click the button to edit the expression
         cy.get('button#openRuleEditor').should('exist').click();
-        // The Rule Editor dialog should now appear
-        cy.get('#rule-editor-dialog').should('exist');
 
         cy.get('#score-items-selection').click();
         cy.get('div.scoring-items-selection-body')
@@ -1924,8 +2137,6 @@ describe('Rule editor', () => {
         cy.get('#question').should('contain.value', '(/39156-5)');
         // Click the button to edit the expression
         cy.get('button#openRuleEditor').should('exist').click();
-        // The Rule Editor dialog should now appear
-        cy.get('#rule-editor-dialog').should('exist');
 
         cy.get('#score-items-selection').click();
         cy.get('div.scoring-items-selection-body')
@@ -2024,8 +2235,6 @@ describe('Rule editor', () => {
         cy.get('#question').should('contain.value', '(/39156-5)');
         // Click the button to edit the expression
         cy.get('button#openRuleEditor').should('exist').click();
-        // The Rule Editor dialog should now appear
-        cy.get('#rule-editor-dialog').should('exist');
 
         cy.get('#score-items-selection').click();
         cy.get('div.scoring-items-selection-body')
@@ -2049,8 +2258,6 @@ describe('Rule editor', () => {
         cy.get('#question').should('contain.value', '(/39156-5)');
         // Click the button to edit the expression
         cy.get('button#openRuleEditor').should('exist').click();
-        // The Rule Editor dialog should now appear
-        cy.get('#rule-editor-dialog').should('exist');
 
         cy.get('#score-items-selection').click();
         cy.get('div.scoring-items-selection-body')
@@ -2069,7 +2276,7 @@ describe('Rule editor', () => {
           });
 
           // Done button should now be enabled.
-          cy.get('#export-score').should('be.enabled'); 
+          cy.get('#export-score').should('not.have.class', 'disabled'); 
       });
       
       it('should be able to deselect, select items and export correctly', () => {
@@ -2077,8 +2284,6 @@ describe('Rule editor', () => {
         cy.get('#question').should('contain.value', '(/39156-5)');
         // Click the button to edit the expression
         cy.get('button#openRuleEditor').should('exist').click();
-        // The Rule Editor dialog should now appear
-        cy.get('#rule-editor-dialog').should('exist');
 
         cy.get('#score-items-selection').click();
         cy.get('div.scoring-items-selection-body')
@@ -2168,7 +2373,7 @@ describe('Rule editor', () => {
         // Click the button to edit the expression
         cy.get('button#openRuleEditor').should('exist').click();
         // The Rule Editor dialog should now appear
-        cy.get('#rule-editor-dialog').should('exist');
+        cy.get('lhc-rule-editor #rule-editor-base-dialog').should('exist');
 
         cy.get('#variable-type-2').contains('FHIR Query (Observation)');
 
@@ -2224,7 +2429,7 @@ describe('Rule editor', () => {
         // Click the button to edit the expression
         cy.get('button#openRuleEditor').should('exist').click();
         // The Rule Editor dialog should now appear
-        cy.get('#rule-editor-dialog').should('exist');
+        cy.get('lhc-rule-editor #rule-editor-base-dialog').should('exist');
 
         cy.get('#advanced-interface').should('not.be.checked');
 
@@ -2254,7 +2459,7 @@ describe('Rule editor', () => {
         // Click the button to edit the expression
         cy.get('button#openRuleEditor').should('exist').click();
         // The Rule Editor dialog should now appear
-        cy.get('#rule-editor-dialog').should('exist');
+        cy.get('lhc-rule-editor #rule-editor-base-dialog').should('exist');
 
         cy.get('#advanced-interface').should('be.checked');
 
@@ -2285,7 +2490,7 @@ describe('Rule editor', () => {
         // Click the button to edit the expression
         cy.get('button#openRuleEditor').should('exist').click();
         // The Rule Editor dialog should now appear
-        cy.get('#rule-editor-dialog').should('exist');
+        cy.get('lhc-rule-editor #rule-editor-base-dialog').should('exist');
 
         cy.get('#add-variable').click();
         cy.get('#variable-label-2').type('{backspace}bmi');
@@ -2339,7 +2544,7 @@ describe('Rule editor', () => {
         // Click the button to edit the expression
         cy.get('button#openRuleEditor').should('exist').click();
         // The Rule Editor dialog should now appear
-        cy.get('#rule-editor-dialog').should('exist');
+        cy.get('lhc-rule-editor #rule-editor-base-dialog').should('exist');
 
         cy.get('#advanced-interface').should('be.checked');
 
@@ -2356,7 +2561,8 @@ describe('Rule editor', () => {
         cy.get('#output-expression-type').should('exist').select('simple');
 
         // Dialog should get displayed
-        cy.get('#yes-no-dialog').should('exist')
+        cy.get('lhc-fhirpath-easypath-conversion-confirmation-dialog #expression-conversion-base-dialog')
+          .should('exist')
           .scrollIntoView()
           .should('be.visible')
           .within( ()=> {
@@ -2376,17 +2582,19 @@ describe('Rule editor', () => {
         cy.get('#cancel-changes').click();
 
         // The dialog to confirm cancel should be displayed
-        cy.get('div.rule-editor lhc-yes-no-dialog').should('exist');
-
-        // Click 'Yes' to confirm cancelling
-        cy.get('#yes-button').click();
+        cy.get('lhc-cancel-changes-confirmation-dialog')
+          .should('exist')
+          .within(() => {
+            // Click 'Yes' to confirm cancelling
+            cy.get('#yes-button').click();
+          });
 
         // This should reset back to the 'BMI Calculation (Easy Path Expression)' questionnaire
         // The confirmation dialog should be hidden
-        cy.get('div.rule-editor lhc-yes-no-dialog').should('not.exist');
+        cy.get('lhc-cancel-changes-confirmation-dialog').should('not.exist');
 
         // The Rule Editor dialog should be closed
-        cy.get('#rule-editor-dialog', {timeout: 10000}).should('not.exist');
+        cy.get('lhc-rule-editor #rule-editor-base-dialog', {timeout: 10000}).should('not.exist');
 
         // Switch questionnaire to 'BMI Calculation (Easy Path expression with cases)'
         cy.get('select#questionnaire-select').select('BMI Calculation (Easy Path expression with cases)');
@@ -2396,7 +2604,7 @@ describe('Rule editor', () => {
         // Click the button to edit the expression
         cy.get('button#openRuleEditor').should('exist').click();
         // The Rule Editor dialog should now appear
-        cy.get('#rule-editor-dialog').should('exist');
+        cy.get('lhc-rule-editor #rule-editor-base-dialog').should('exist');
 
         // Case statement expressions and outputs should be populated
         cy.get('#final-expression-section .cdk-drop-list > div').should('have.length', 3);
@@ -2418,7 +2626,7 @@ describe('Rule editor', () => {
         // Click the button to edit the expression
         cy.get('button#openRuleEditor').should('exist').click();
         // The Rule Editor dialog should now appear
-        cy.get('#rule-editor-dialog').should('exist');
+        cy.get('lhc-rule-editor #rule-editor-base-dialog').should('exist');
 
         // Check the 'Advanced interface' checkbox
         cy.get('#advanced-interface').should('not.be.checked');
@@ -2439,17 +2647,19 @@ describe('Rule editor', () => {
         cy.get('#cancel-changes').click();
 
         // The dialog to confirm cancel should be displayed
-        cy.get('div.rule-editor lhc-yes-no-dialog').should('exist');
-
-        // Click 'Yes' to confirm cancelling
-        cy.get('#yes-button').click();
+        cy.get('lhc-cancel-changes-confirmation-dialog')
+          .should('exist')
+          .within(() => {
+            // Click 'Yes' to confirm cancelling
+            cy.get('#yes-button').click();
+          });
 
         // This should reset back to the 'BMI Calculation (Easy Path Expression)' questionnaire
         // The confirmation dialog should be hidden
-        cy.get('div.rule-editor lhc-yes-no-dialog').should('not.exist');
+        cy.get('div.rule-editor lhc-fhirpath-easypath-conversion-confirmation-dialog').should('not.exist');
 
         // The Rule Editor dialog should be closed
-        cy.get('#rule-editor-dialog', {timeout: 10000}).should('not.exist');
+        cy.get('lhc-rule-editor #rule-editor-base-dialog', {timeout: 10000}).should('not.exist');
 
         // Switch questionnaire to 'BMI Calculation (with cases)'
         cy.get('select#questionnaire-select').select('BMI Calculation (with cases)');
@@ -2459,7 +2669,7 @@ describe('Rule editor', () => {
         // Click the button to edit the expression
         cy.get('button#openRuleEditor').should('exist').click();
         // The Rule Editor dialog should now appear
-        cy.get('#rule-editor-dialog').should('exist');
+        cy.get('lhc-rule-editor #rule-editor-base-dialog').should('exist');
 
         // There should be 3 case statements
         cy.get('#final-expression-section .cdk-drop-list > div').should('have.length', 3);

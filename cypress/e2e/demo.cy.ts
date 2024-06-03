@@ -54,18 +54,26 @@ describe('Rule editor demo', () => {
       // Click the button to edit the expression
       cy.get('button#openRuleEditor').should('exist').click();
       // The Rule Editor dialog should now appear
-      cy.get('#rule-editor-dialog').should('exist');
+      cy.get('lhc-rule-editor #rule-editor-base-dialog').should('exist');
 
       cy.get('#final-expression').should('have.value', '(%a/(%b.power(2))).round(1)');
 
       cy.get('button.btn-close').click();
+
+      // The dialog to confirm cancel should be displayed
+      cy.get('lhc-cancel-changes-confirmation-dialog')
+        .should('exist')
+        .within(() => {
+          // Click 'Yes' button
+          cy.get('#yes-button').should('exist').click();
+        });
 
       cy.get('#expression-entry > select').select('2');
 
       // Click the button to edit the expression
       cy.get('button#openRuleEditor').should('exist').click();
       // The Rule Editor dialog should now appear
-      cy.get('#rule-editor-dialog').should('exist');
+      cy.get('lhc-rule-editor #rule-editor-base-dialog').should('exist');
 
       cy.get('#expression-type').find(':selected').should('contain.text', 'Computed continuously');
 
@@ -75,7 +83,7 @@ describe('Rule editor demo', () => {
       // Click the button to edit the expression
       cy.get('button#openRuleEditor').should('exist').click();
       // The Rule Editor dialog should now appear
-      cy.get('#rule-editor-dialog').should('exist');
+      cy.get('lhc-rule-editor #rule-editor-base-dialog').should('exist');
 
       cy.get('#expression-type').select('Only computed when the form loads');
       cy.get('#export').click();
@@ -129,18 +137,18 @@ describe('Rule editor demo', () => {
 
       // Click the button to edit the expression
       cy.get('button#openRuleEditor').should('exist').click();
-      // The Rule Editor dialog should now appear
-      cy.get('#rule-editor-dialog').should('exist');
 
       // The prompt to calculate the total scoring item should displayed.
-      cy.get('lhc-calculate-sum-prompt > div > div.score-modal').should('exist');
-
-      // The prompt should come with a Yes and No buttons
-      cy.get('#score-items-selection').should('exist');
-      cy.get('#skip-score-items-selection').should('exist');
-
-      // Select No
-      cy.get('#skip-score-items-selection').click();
+      cy.get('lhc-calculate-sum-prompt > lhc-base-dialog > #calculate-sum-base-dialog')
+        .should('exist')
+        .within(() => {
+          // The prompt should come with a Yes and No buttons
+          cy.get('#score-items-selection').should('exist');
+          cy.get('#skip-score-items-selection').should('exist');
+    
+          // Select No
+          cy.get('#skip-score-items-selection').click();
+        });
 
       // By selecting No, the prompt should be gone.
       cy.get('lhc-calculate-sum-prompt').should('not.exist');
@@ -165,13 +173,19 @@ describe('Rule editor demo', () => {
 
       // Click the button to edit the expression
       cy.get('button#openRuleEditor').should('exist').click();
-      // The Rule Editor dialog should now appear
-      cy.get('#rule-editor-dialog').should('exist');
 
       // The prompt should not be displayed.
       cy.get('lhc-calculate-sum-prompt').should('not.exist');
 
       cy.get('button.btn-close').click();
+
+      // The dialog to confirm cancel should be displayed
+      cy.get('lhc-cancel-changes-confirmation-dialog')
+        .should('exist')
+        .within(() => {
+          // Click 'Yes' button
+          cy.get('#yes-button').should('exist').click();
+        });
 
       // Select the second question and the prompt should be displayed.
       cy.get('#question').clear().type('Feeling down, depressed');
@@ -179,8 +193,6 @@ describe('Rule editor demo', () => {
 
       // Click the button to edit the expression
       cy.get('button#openRuleEditor').should('exist').click();
-      // The Rule Editor dialog should now appear
-      cy.get('#rule-editor-dialog').should('exist');
 
       // The prompt should be displayed.
       cy.get('lhc-calculate-sum-prompt').should('exist');
@@ -201,14 +213,14 @@ describe('Rule editor demo', () => {
 
       // Click the button to edit the expression
       cy.get('button#openRuleEditor').should('exist').click();
-      // The Rule Editor dialog should now appear
-      cy.get('#rule-editor-dialog').should('exist');
 
       // The prompt to calculate the total scoring item should displayed.
-      cy.get('lhc-calculate-sum-prompt > div > div.score-modal').should('exist');
-
-      // Close the dialog
-      cy.get('button.btn-close').click();
+      cy.get('lhc-calculate-sum-prompt > lhc-base-dialog > #calculate-sum-base-dialog')
+        .should('exist')
+        .within(() => {
+          // Close the dialog
+          cy.get('button.btn-close').click();
+        });
 
       // The prompt should disappeared
       cy.get('lhc-calculate-sum-prompt').should('not.exist');
@@ -218,42 +230,60 @@ describe('Rule editor demo', () => {
 
       // Click the button to edit the expression
       cy.get('button#openRuleEditor').should('exist').click();
-      // The Rule Editor dialog should now appear
-      cy.get('#rule-editor-dialog').should('exist');
 
       // The prompt should not be displayed
       cy.get('lhc-calculate-sum-prompt').should('not.exist');
 
       // Close the Rule Editor dialog
       cy.get('button.btn-close').click();
+
+      // The dialog to confirm cancel should be displayed
+      cy.get('lhc-cancel-changes-confirmation-dialog')
+        .should('exist')
+        .within(() => {
+          // Click 'Yes' button
+          cy.get('#yes-button').should('exist').click();
+        });
 
       // Select 'Enable When Expression' for the 'Output Expression'
       cy.get('div#expression-entry > select').select('Enable When Expression').should('have.value', '3');
 
       // Click the button to edit the expression
       cy.get('button#openRuleEditor').should('exist').click();
-      // The Rule Editor dialog should now appear
-      cy.get('#rule-editor-dialog').should('exist');
 
       // The prompt should not be displayed
       cy.get('lhc-calculate-sum-prompt').should('not.exist');
 
       // Close the Rule Editor dialog
       cy.get('button.btn-close').click();
+
+      // The dialog to confirm cancel should be displayed
+      cy.get('lhc-cancel-changes-confirmation-dialog')
+        .should('exist')
+        .within(() => {
+          // Click 'Yes' button
+          cy.get('#yes-button').should('exist').click();
+        });
 
       // Select 'Initial Expression' for the 'Output Expression'
       cy.get('div#expression-entry > select').select('Initial Expression').should('have.value', '4');
 
       // Click the button to edit the expression
       cy.get('button#openRuleEditor').should('exist').click();
-      // The Rule Editor dialog should now appear
-      cy.get('#rule-editor-dialog').should('exist');
 
       // The prompt should not be displayed
       cy.get('lhc-calculate-sum-prompt').should('not.exist');
 
       // Close the Rule Editor dialog
       cy.get('button.btn-close').click();
+
+      // The dialog to confirm cancel should be displayed
+      cy.get('lhc-cancel-changes-confirmation-dialog')
+        .should('exist')
+        .within(() => {
+          // Click 'Yes' button
+          cy.get('#yes-button').should('exist').click();
+        });
 
       // Select 'Calculated/Initial Expression (user editable)' for the 'Output Expression'
       cy.get('div#expression-entry > select').select('Calculated/Initial Expression (user editable)')
@@ -261,27 +291,34 @@ describe('Rule editor demo', () => {
 
       // Click the button to edit the expression
       cy.get('button#openRuleEditor').should('exist').click();
-      // The Rule Editor dialog should now appear
-      cy.get('#rule-editor-dialog').should('exist');
 
-      // The prompt should be displayed
-      cy.get('lhc-calculate-sum-prompt').should('exist');
+      // The prompt to calculate the total scoring item should displayed.
+      cy.get('lhc-calculate-sum-prompt > lhc-base-dialog > #calculate-sum-base-dialog')
+        .should('exist')
+        .within(() => {
+          // Close the Calculate Sum Prompt dialog
+          cy.get('button.btn-close').click();
+        });
 
-      // Close the Rule Editor dialog
-      cy.get('button.btn-close').click();
-
+ 
       // Select 'Calculated/Initial Expression (user editable)' for the 'Output Expression'
       cy.get('div#expression-entry > select').select('Other...').should('have.value', 'custom');
 
       // Click the button to edit the expression
       cy.get('button#openRuleEditor').should('exist').click();
-      // The Rule Editor dialog should now appear
-      cy.get('#rule-editor-dialog').should('exist');
 
       // The prompt should not be displayed
       cy.get('lhc-calculate-sum-prompt').should('not.exist');
 
       cy.get('button.btn-close').click();
+
+      // The dialog to confirm cancel should be displayed
+      cy.get('lhc-cancel-changes-confirmation-dialog')
+        .should('exist')
+        .within(() => {
+          // Click 'Yes' button
+          cy.get('#yes-button').should('exist').click();
+        });
 
       // Enter the expression uri that is not the Calculated Expression
       cy.get('input#expression-uri').clear()
@@ -289,13 +326,19 @@ describe('Rule editor demo', () => {
 
       // Click the button to edit the expression
       cy.get('button#openRuleEditor').should('exist').click();
-      // The Rule Editor dialog should now appear
-      cy.get('#rule-editor-dialog').should('exist');
-      
+
       // The prompt should not be displayed
       cy.get('lhc-calculate-sum-prompt').should('not.exist');
 
       cy.get('button.btn-close').click();
+
+      // The dialog to confirm cancel should be displayed
+      cy.get('lhc-cancel-changes-confirmation-dialog')
+        .should('exist')
+        .within(() => {
+          // Click 'Yes' button
+          cy.get('#yes-button').should('exist').click();
+        });
 
       // Enter the expression uri that is not the Calculated Expression
       cy.get('input#expression-uri').clear()
@@ -303,9 +346,7 @@ describe('Rule editor demo', () => {
 
       // Click the button to edit the expression
       cy.get('button#openRuleEditor').should('exist').click();
-      // The Rule Editor dialog should now appear
-      cy.get('#rule-editor-dialog').should('exist');
-      
+
       // The prompt should be displayed
       cy.get('lhc-calculate-sum-prompt').should('exist');
     });
@@ -327,8 +368,6 @@ describe('Rule editor demo', () => {
 
       // Click the button to edit the expression
       cy.get('button#openRuleEditor').should('exist').click();
-      // The Rule Editor dialog should now appear
-      cy.get('#rule-editor-dialog').should('exist');
 
       // The prompt should not be displayed.
       cy.get('lhc-calculate-sum-prompt').should('not.exist');
@@ -336,10 +375,12 @@ describe('Rule editor demo', () => {
       cy.get('#cancel-changes').click();
 
       // The dialog to confirm cancel should be displayed
-      cy.get('div.rule-editor lhc-yes-no-dialog').should('exist');
-
-      // Click 'Yes' to confirm cancelling
-      cy.get('#yes-button').click();
+      cy.get('lhc-cancel-changes-confirmation-dialog')
+        .should('exist')
+        .within(() => {
+          // Click 'Yes' button
+          cy.get('#yes-button').should('exist').click();
+        });
 
       // Selecting a different question that does not have predefined scoring
       // items should still get prompt
@@ -351,8 +392,6 @@ describe('Rule editor demo', () => {
 
       // Click the button to edit the expression
       cy.get('button#openRuleEditor').should('exist').click();
-      // The Rule Editor dialog should now appear
-      cy.get('#rule-editor-dialog').should('exist');
 
       // The prompt should be displayed.
       cy.get('lhc-calculate-sum-prompt').should('exist');
@@ -375,18 +414,18 @@ describe('Rule editor demo', () => {
 
       // Click the button to edit the expression
       cy.get('button#openRuleEditor').should('exist').click();
-      // The Rule Editor dialog should now appear
-      cy.get('#rule-editor-dialog').should('exist');
 
-      // A prompt to calculate the total scoring
-      cy.get('lhc-calculate-sum-prompt > div > div.score-modal').should('exist');
-
-      // The prompt should come with a Yes and No buttons
-      cy.get('#score-items-selection').should('exist');
-      cy.get('#skip-score-items-selection').should('exist');
-
-      // Select Yes
-      cy.get('#score-items-selection').click();
+      // The prompt to calculate the total scoring item should displayed.
+      cy.get('lhc-calculate-sum-prompt > lhc-base-dialog > #calculate-sum-base-dialog')
+        .should('exist')
+        .within(() => {
+          // The prompt should come with a Yes and No buttons
+          cy.get('#score-items-selection').should('exist');
+          cy.get('#skip-score-items-selection').should('exist');
+    
+          // Select Yes
+          cy.get('#score-items-selection').click();
+        });
 
       // The prompt to caculate the total scoring should be hidden.
       cy.get('lhc-calculate-sum-prompt').should('not.exist');
@@ -408,13 +447,15 @@ describe('Rule editor demo', () => {
 
       // Click the button to edit the expression
       cy.get('button#openRuleEditor').should('exist').click();
-      // The Rule Editor dialog should now appear
-      cy.get('#rule-editor-dialog').should('exist');
 
       // Calculating sum of score dialog should display, select Yes 
-      cy.get('lhc-calculate-sum-prompt > div > div.score-modal').should('exist');
-      cy.get('#score-items-selection').click();
-
+      cy.get('lhc-calculate-sum-prompt > lhc-base-dialog > #calculate-sum-base-dialog')
+        .should('exist')
+        .within(() => {
+          // Select Yes
+          cy.get('#score-items-selection').click();
+        });
+      
       // The Scoring Item panel should now display
       cy.get('lhc-select-scoring-items').should('exist');
       cy.get('div.scoring-items-selection-body').within(() => {
@@ -476,18 +517,34 @@ describe('Rule editor demo', () => {
       cy.get('#question').should('contain.value', '(/39156-5)');
       // Click the button to edit the expression
       cy.get('button#openRuleEditor').should('exist').click();
-      // The Rule Editor dialog should now appear
-      cy.get('#rule-editor-dialog').should('exist');
 
       // Calculating sum of score dialog should display, select Yes 
-      cy.get('lhc-calculate-sum-prompt > div > div.score-modal').should('exist');
-      cy.get('#score-items-selection').click();
-
+      cy.get('lhc-calculate-sum-prompt > lhc-base-dialog > #calculate-sum-base-dialog')
+        .should('exist')
+        .within(() => {
+          cy.get('#score-items-selection').click();        
+        });
+      
       // The Scoring Item panel should now display
       cy.get('lhc-select-scoring-items').should('exist');
       
+      // Close the 'Scoring Items Selection'
       cy.get('button.btn-close').click();
+/* 
+        // The Rule Editor dialog should now display
+      cy.get('lhc-rule-editor > lhc-base-dialog').should('exist');
 
+      // Close the 'Rule Editor'
+      cy.get('button.btn-close').click();  
+
+      // The dialog to confirm cancel should be displayed
+      cy.get('lhc-cancel-changes-confirmation-dialog')
+        .should('exist')
+        .within(() => {
+          // Click 'Yes' button
+          cy.get('#yes-button').should('exist').click();
+        });    
+ */
       // Upload a new questionnaire
       cy.get('select#questionnaire-select').select('Upload your own questionnaire');
       // Select a non-scoring questionnaire

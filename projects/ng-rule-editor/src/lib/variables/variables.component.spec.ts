@@ -4,7 +4,7 @@ import { VariablesComponent } from './variables.component';
 import { FormsModule } from '@angular/forms';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
-import { FhirpathExpressionHelpComponent } from '../helps/fhirpath-expression-help/fhirpath-expression-help.component';
+import { FhirpathExpressionHelpDialogComponent } from '../dialogs/fhirpath-expression-help-dialog/fhirpath-expression-help-dialog.component';
 import { HelpsComponent } from '../helps/helps.component';
 
 describe('VariablesComponent', () => {
@@ -14,7 +14,7 @@ describe('VariablesComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [ FormsModule, MatTooltipModule ],
-      declarations: [ VariablesComponent, HelpsComponent, FhirpathExpressionHelpComponent ]
+      declarations: [ VariablesComponent, HelpsComponent, FhirpathExpressionHelpDialogComponent ]
     })
     .compileComponents();
   });
