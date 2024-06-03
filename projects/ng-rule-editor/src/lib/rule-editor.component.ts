@@ -1,6 +1,6 @@
 import { ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
 
-import { RuleEditorService, SimpleStyle } from './rule-editor.service';
+import { RuleEditorService, SimpleStyle, DisplaySectionControl } from './rule-editor.service';
 import { LiveAnnouncer } from '@angular/cdk/a11y';
 import { ValidationResult } from './variable';
 
@@ -21,6 +21,7 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
   @Input() expressionLabel = 'Final Expression';
   @Input() expressionUri = '';
   @Input() lhcStyle: SimpleStyle = {};
+  @Input() display: DisplaySectionControl = {};
   @Output() save = new EventEmitter<object>();
   @Output() cancel = new EventEmitter<object>();
 
@@ -72,10 +73,14 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
    * Angular lifecycle hook called when the component is initialized
    */
   ngOnInit(): void {
+    this.display = {
+      titleSection: 'titleSection' in this.display ? this.display.titleSection : true,
+      uneditableVariablesSection: 'uneditableVariablesSection' in this.display ? this.display.uneditableVariablesSection : true,
+      itemVariablesSection: 'itemVariablesSection' in this.display ? this.display.itemVariablesSection : true,
+      outputExpressionSection: 'outputExpressionSection' in this.display ? this.display.outputExpressionSection : true
+    };
     this.calculateSumSubscription = this.variableService.scoreCalculationChange.subscribe((scoreCalculation) => {
       this.calculateSum = (scoreCalculation && !this.doNotAskToCalculateScore);
-      console.log('rule-editor::ngOnInit::calculateSumSubscription::calculateSum - ' + this.calculateSum);
-
     });
     this.finalExpressionSubscription = this.variableService.finalExpressionChange.subscribe((finalExpression) => {
       this.finalExpression = finalExpression;
@@ -233,11 +238,9 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
    * Re-import fhir and context and show the form
    */
   reload(): void {
-    console.log('rule-editor::reload');
     if (this.fhirQuestionnaire instanceof Object) {
       this.variableService.doNotAskToCalculateScore = this.doNotAskToCalculateScore;
       this.loadError = !this.variableService.import(this.expressionUri, this.fhirQuestionnaire, this.itemLinkId);
-      console.log('rule-editor::reload::loadError - ' + this.loadError);
       if (this.loadError) {
         this.liveAnnouncer.announce(this.errorLoading);
       }
@@ -250,9 +253,6 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
     this.linkIdContext = this.variableService.linkIdContext;
     this.expressionSyntax = this.variableService.syntaxType;
     this.selectItems = false;
-
-    console.log('rule-editor::reload::linkIdContext - ' + this.linkIdContext);
-    //this.linkIdContext = "/39156-5";
     
     if (this.linkIdContext) {
       this.doNotAskToCalculateScore = !this.variableService.shouldCalculateScoreForItem(this.fhirQuestionnaire, this.linkIdContext, this.expressionUri);
@@ -260,11 +260,7 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
       this.doNotAskToCalculateScore = true;
     }
   
-    console.log('rule-editor::reload::scoreCalculation - ' + this.variableService.scoreCalculation);
-    console.log('rule-editor::reload::doNotAskToCalculateScore - ' + this.doNotAskToCalculateScore);
-
     this.calculateSum = (this.variableService.scoreCalculation && !this.doNotAskToCalculateScore);
-    console.log('rule-editor::reload::calculateSum - ' + this.calculateSum);
     this.finalExpressionExtension = this.variableService.finalExpressionExtension;
     this.finalExpression = this.variableService.finalExpression;
     this.variables = this.variableService.getVariableNames();

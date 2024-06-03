@@ -97,13 +97,10 @@ export class AppComponent implements OnInit, OnDestroy {
         .subscribe(data => {
           this.fhirQuestionnaire = data;
 
-          console.log('app::onChange::fhirQuestionnaire - ' + JSON.stringify(this.fhirQuestionnaire));
-
           this.liveAnnouncer.announce((reload) ? this.formReloadAnnouncement : this.formAppearedAnnouncement);
 
           if (this.fhirQuestionnaire && this.fhirQuestionnaire.item instanceof Array) {
             this.linkIds = this.getQuestionnaireLinkIds(this.fhirQuestionnaire.item);
-console.log('app::onChange::fhirQuestionnaire::linkIds - ' + this.linkIds);
 
             this.defaultItemText = this.linkIds.find((item) => {
               return item.linkId === this.linkId;

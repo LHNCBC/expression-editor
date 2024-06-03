@@ -2,6 +2,10 @@
 
 This project follows [Semantic Versioning](http://semver.org/).
 
+## [3.1.22] 2024-05-31
+### Added
+- Added attribute to control the display of each section of the Rule Editor.
+
 ## [3.1.21] 2024-05-13
 ### Added
 - Added base dialog component
