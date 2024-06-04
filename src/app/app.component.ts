@@ -216,7 +216,7 @@ console.log('app::onChange::fhirQuestionnaire::linkIds - ' + this.linkIds);
       this.autoCompleteElement.nativeElement, keys, opts);
 
     Def.Autocompleter.Event.observeListSelections('question', (res) => {
-      if ((res.input_method === "clicked" && res.val_typed_in !== res.final_val && res?.item_code) ||
+      if (((res.input_method === "clicked" || res.input_method === "arrows" ) && res.val_typed_in !== res.final_val && res?.item_code) ||
           (res.input_method === "typed")) {
         this.linkId = res.item_code;
 
