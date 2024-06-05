@@ -73,12 +73,6 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
    * Angular lifecycle hook called when the component is initialized
    */
   ngOnInit(): void {
-    this.display = {
-      titleSection: 'titleSection' in this.display ? this.display.titleSection : true,
-      uneditableVariablesSection: 'uneditableVariablesSection' in this.display ? this.display.uneditableVariablesSection : true,
-      itemVariablesSection: 'itemVariablesSection' in this.display ? this.display.itemVariablesSection : true,
-      outputExpressionSection: 'outputExpressionSection' in this.display ? this.display.outputExpressionSection : true
-    };
     this.calculateSumSubscription = this.variableService.scoreCalculationChange.subscribe((scoreCalculation) => {
       this.calculateSum = (scoreCalculation && !this.doNotAskToCalculateScore);
     });
@@ -264,6 +258,15 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
     this.finalExpressionExtension = this.variableService.finalExpressionExtension;
     this.finalExpression = this.variableService.finalExpression;
     this.variables = this.variableService.getVariableNames();
+
+    if (this.display) {
+      this.display = {
+        titleSection: 'titleSection' in this.display ? this.display.titleSection : true,
+        uneditableVariablesSection: 'uneditableVariablesSection' in this.display ? this.display.uneditableVariablesSection : true,
+        itemVariablesSection: 'itemVariablesSection' in this.display ? this.display.itemVariablesSection : true,
+        outputExpressionSection: 'outputExpressionSection' in this.display ? this.display.outputExpressionSection : true
+      };
+    }    
   }
 
   /**

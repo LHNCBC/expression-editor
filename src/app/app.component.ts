@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { DatePipe } from '@angular/common';
 import { LiveAnnouncer } from '@angular/cdk/a11y';
 import Def from 'autocomplete-lhc';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-root',
@@ -45,6 +46,7 @@ export class AppComponent implements OnInit, OnDestroy {
     }
   ];
 
+  display = {};
   fhirPreview: string;
   linkId = '';
   linkIds;
@@ -62,13 +64,22 @@ export class AppComponent implements OnInit, OnDestroy {
   displayRuleEditor = false;
   displayRuleEditorResult = false;
 
-  constructor(private http: HttpClient, private liveAnnouncer: LiveAnnouncer, private changeDetectorRef: ChangeDetectorRef) {}
+  constructor(private http: HttpClient, private liveAnnouncer: LiveAnnouncer,
+              private changeDetectorRef: ChangeDetectorRef,
+              private activatedRoute: ActivatedRoute) {}
 
   /**
    * Angular lifecycle hook called when the component is initialized
    */
   ngOnInit(): void {
     this.onChange(false);
+
+    this.activatedRoute.queryParams.subscribe(params => {
+      if ("hide" in params) {
+        const hideStr = params['hide'];
+        this.setDisplay(hideStr)
+      }
+    });
   }
 
   /**
@@ -351,5 +362,25 @@ export class AppComponent implements OnInit, OnDestroy {
    */
   canOpenRuleEditor(): boolean {
     return this.fhirQuestionnaire && (this.rootLevel || this.linkId !== null);
+  }
+
+  /**
+   * Set the display object to show/hide various sections of the Rule Editor
+   * based on the hiddenSectionStr.
+   * @param hiddenSectionStr 
+   */
+  setDisplay(hiddenSectionStr): void {
+    const displaySections = ["titleSection", "uneditableVariablesSection",
+                             "itemVariablesSection", "outputExpressionSection"];
+    const sections = hiddenSectionStr.split(",");
+
+    if (sections.length > 0) {
+      const display : { [key:string]: boolean} = {};
+      sections.forEach(key => {
+        if (displaySections.indexOf(key) > -1)
+          display[key] = false;
+      });
+      this.display = display;
+    }
   }
 }

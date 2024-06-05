@@ -4,6 +4,7 @@ import { RuleEditorModule } from 'ng-rule-editor';
 import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { RouterModule } from '@angular/router';
 
 describe('AppComponent', () => {
   beforeEach(async () => {
@@ -15,7 +16,8 @@ describe('AppComponent', () => {
         RuleEditorModule,
         FormsModule,
         HttpClientModule,
-        HttpClientTestingModule
+        HttpClientTestingModule,
+        RouterModule.forRoot([])
       ]
     }).compileComponents();
   });
