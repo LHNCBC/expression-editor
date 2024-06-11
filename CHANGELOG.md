@@ -12,7 +12,7 @@ This project follows [Semantic Versioning](http://semver.org/).
 
 ## [3.1.20] 2024-05-03
 ### Changed
-- Enable the 'Open Expression Editor' button only if the questionnaire is selected and either the 'Root level' checkbox or Question drop-down is selected.
+- Enable the 'Open Rule Editor' button only if the questionnaire is selected and either the 'Root level' checkbox or Question drop-down is selected.
 - Allowed FHIR Query with parameters to be parsed in any order
 - Added logic for the screen reader to announce the reason wny the 'Done' button is disabled. 
 - Upgraded Cypress from version 9.7.0 to 13.7.3.
@@ -34,12 +34,12 @@ This project follows [Semantic Versioning](http://semver.org/).
 
 ## [3.1.16] 2024-01-17
 ### Changed
-- Converted the Expression Editor demo to display in a dialog
+- Converted the Rule Editor demo to display in a dialog
 
 ## [3.1.15] 2024-01-16
 ### Changed
 - Renamed variable-type-final to output-expression-type
-- Added a cancel button to discard changes for the Expression Editor
+- Added a cancel button to discard changes for the Rule Editor
 
 ## [3.1.14] 2024-01-09
 ### Added
@@ -106,7 +106,7 @@ This project follows [Semantic Versioning](http://semver.org/).
 
 ## [3.1.0] 2022-03-28
 ### Added
-- Added the ability to select the output expression type within the Expression Editor.
+- Added the ability to select the output expression type within the Rule Editor.
   There is now an option to enable this functionality.
 
 ## [3.0.1] 2022-02-04
@@ -118,8 +118,8 @@ This project follows [Semantic Versioning](http://semver.org/).
 ## [3.0.0] 2022-01-28
 ### Added
 - Updated URI used for score calculation extensions from:
-  `http://lhcforms.nlm.nih.gov/fhir/ext/expression-editor-expression` to
-  `http://lhcforms.nlm.nih.gov/fhir/ext/expression-editor-score-expression`
+  `http://lhcforms.nlm.nih.gov/fhir/ext/rule-editor-expression` to
+  `http://lhcforms.nlm.nih.gov/fhir/ext/rule-editor-score-expression`
 - Score calculation logic for nested items:
   - Assume scored items are above (in question order) the total score item.
   - If a preceding item is also a total score item, don’t consider any earlier
