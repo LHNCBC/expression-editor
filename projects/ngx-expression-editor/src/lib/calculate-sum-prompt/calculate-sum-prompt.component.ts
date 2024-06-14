@@ -13,8 +13,10 @@ export class CalculateSumPromptComponent implements OnInit {
   @Output() no: EventEmitter<any> = new EventEmitter<any>();
   @Output() dialogClose: EventEmitter<any> = new EventEmitter<any>();
 
+  appName = ExpressionEditorService.APP_NAME;
+
   selectItemsAriaDescription="Click the 'Yes' button to select items for the scoring calculation.";
-  skipSelectItemsAriaDescription="Click the 'No' button to skip item selection and go to the Expression Editor.";
+  skipSelectItemsAriaDescription=`Click the 'No' button to skip item selection and go to the ${this.appName}.`;
 
   constructor(private expressionEditorService: ExpressionEditorService, private liveAnnouncer: LiveAnnouncer) { }
 

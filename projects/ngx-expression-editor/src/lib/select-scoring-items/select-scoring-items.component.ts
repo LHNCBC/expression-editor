@@ -19,6 +19,8 @@ export class SelectScoringItemsComponent implements OnInit {
   @ViewChild('itemTree') itemTree: TreeComponent;
   @ViewChild('filter') filter: string;
 
+  appName = ExpressionEditorService.APP_NAME;
+
   selectedLinkIds: string[] = [];
   scoringItems = [];
   selectAll = false;
@@ -87,7 +89,7 @@ export class SelectScoringItemsComponent implements OnInit {
   };
 
   doneSelectionAriaDescription="Click the 'Done' button to complete the scoring item selection.";
-  reviewFHIRPathAriaDesription="Click the 'Review FHIRPath' button to review the scoring item selection in the Expression Editor.";
+  reviewFHIRPathAriaDesription=`Click the 'Review FHIRPath' button to review the scoring item selection in the ${this.appName}.`;
 
   constructor(private expressionEditorService: ExpressionEditorService, private liveAnnouncer: LiveAnnouncer) { }
 

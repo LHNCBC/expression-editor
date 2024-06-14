@@ -16,6 +16,8 @@ export class VariablesComponent implements OnInit, OnChanges, OnDestroy {
 
   @ViewChildren('exp') expressionRefs: QueryList<NgModel>;
 
+  appName = ExpressionEditorService.APP_NAME;
+
   variableType: any = SimpleVariableType;
   variableSubscription;
   performValidationSubscription;
@@ -28,9 +30,9 @@ export class VariablesComponent implements OnInit, OnChanges, OnDestroy {
   showConfirmDialog = false;
 
   dialogTitle = "Converting FHIRPath Expression to Easy Path Expression";
-  dialogPrompt1 = "The Expression Editor does not support conversion from FHIRPath Expression " + 
-                  "to Easy Path Expression. Switching to the Easy Path Expression may " +
-                  "result in field not getting populated.";
+  dialogPrompt1 = `The ${this.appName} does not support conversion from FHIRPath Expression ` + 
+                  `to Easy Path Expression. Switching to the Easy Path Expression may ` +
+                  `result in field not getting populated.`;
   dialogPrompt2 = "Proceed?";
 
   constructor(private expressionEditorService: ExpressionEditorService) {}
@@ -161,9 +163,9 @@ export class VariablesComponent implements OnInit, OnChanges, OnDestroy {
       this.currentVariable = copy(this.variables[i]);
 
       if (this.currentVariable?.expression && !this.currentVariable?.simple) {
-        this.dialogPrompt1 = "The Expression Editor does not support conversion from FHIRPath Expression " +
-        "to Easy Path Expression. Switching to Easy Path Expression for variable '" + this.currentVariable.label +
-        "' would result in the expression becoming blank.";
+        this.dialogPrompt1 = `The ${this.appName} does not support conversion from FHIRPath Expression ` +
+          `to Easy Path Expression. Switching to Easy Path Expression for variable '${this.currentVariable.label}' ` +
+          `would result in the expression becoming blank.`;
         this.showConfirmDialog = true;
       } else {
         this.variables[this.currentVariableIdx].type = 'simple';

@@ -4,6 +4,7 @@ import { ExpressionEditorModule } from 'ngx-expression-editor';
 import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { environment } from 'src/environments/environment';
 
 describe('AppComponent', () => {
   beforeEach(async () => {
@@ -30,6 +31,6 @@ describe('AppComponent', () => {
     const fixture = TestBed.createComponent(AppComponent);
     fixture.detectChanges();
     const compiled = fixture.nativeElement;
-    expect(compiled.querySelector('h1').textContent).toContain('Expression Editor Demo');
+    expect(compiled.querySelector('h1').textContent).toContain(`${environment.appName} Demo`);
   });
 });

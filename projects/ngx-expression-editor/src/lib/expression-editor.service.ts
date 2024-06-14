@@ -106,6 +106,7 @@ export class ExpressionEditorService {
   static SIMPLE_SYNTAX_EXTENSION = 'http://lhcforms.nlm.nih.gov/fhirExt/simple-syntax';
   static VARIABLE_TYPE = 'http://lhcforms.nlm.nih.gov/fhirExt/expression-editor-variable-type';
   static FHIR_QUERY_OBS_FIELDS = ['code', 'date', 'patient', '_sort', '_count'];
+  static APP_NAME = "Expression Editor";
 
   syntaxType = 'simple';
   linkIdContext: string;
@@ -491,30 +492,18 @@ export class ExpressionEditorService {
    * @return true if load was successful
    */
   import(expressionUri: string, questionnaire, linkIdContext): boolean {
-    console.log('expression-editor.service::expressionUri - ' + expressionUri);
-    console.log('expression-editor.service::questionnaire - ' + JSON.stringify(questionnaire));
-    console.log('expression-editor.service::linkIdContext - ' + linkIdContext);
-    
     this.linkIdContext = linkIdContext;
     this.fhir = copy(questionnaire);
     const loadSuccess = this.fhir.resourceType === 'Questionnaire';
-    console.log('expression-editor.service::loadSuccess - ' + loadSuccess);
-    console.log('expression-editor.service::fhir.item - ' + this.fhir.item);
-    console.log('expression-editor.service::fhir.item len - ' + this.fhir.item.length);
     
     if (loadSuccess && this.fhir.item && this.fhir.item.length) {
-      console.log('expression-editor.service::import');
       if (!this.doNotAskToCalculateScore) {
-        console.log('expression-editor.service::import::step 1');
         // If there is at least one score question we will ask the user if they
         // want to calculate the score
         const scoreMinQuestions = 1;
         this.scoreCalculation = this.getScoreQuestionCount(this.fhir, linkIdContext) >= scoreMinQuestions;
-        console.log('expression-editor.service::import::step 1::scoreCalculation - ' + this.scoreCalculation);
-        
         this.scoreCalculationChange.next(this.scoreCalculation);
       } else {
-        console.log('expression-editor.service::import::step 2');
         this.scoreCalculation = false;
       }
 

@@ -10,10 +10,15 @@ import { SyntaxPreviewComponent } from './syntax-preview/syntax-preview.componen
 import { BaseDialogComponent } from './dialogs/base-dialog/base-dialog.component';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ValidationResult } from './variable';
+import { ENVIRONMENT_TOKEN } from './environment-token';
 
 describe('ExpressionEditorComponent', () => {
   let component: ExpressionEditorComponent;
   let fixture: ComponentFixture<ExpressionEditorComponent>;
+  const env = {
+    production: true,
+    appName: "Expression Editor"
+  };
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -25,7 +30,10 @@ describe('ExpressionEditorComponent', () => {
         SyntaxPreviewComponent,
         BaseDialogComponent
       ],
-      imports: [ FormsModule, MatSnackBarModule, MatTooltipModule ]
+      imports: [ FormsModule, MatSnackBarModule, MatTooltipModule ],
+      providers: [
+        { provide: ENVIRONMENT_TOKEN, useValue: env }
+      ],
     })
     .compileComponents();
   });

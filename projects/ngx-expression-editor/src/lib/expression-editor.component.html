@@ -17,7 +17,7 @@
 <lhc-base-dialog
   *ngIf="!calculateSum && !loadError && !hideExpressionEditor"
   [name]="'expression-editor'"
-  [titleBarLabel]="'Expression Editor'"
+  [titleBarLabel]="appName"
   [dialogType]="'expression-editor'"
   (dialogClose)="closeDialog()">
 
@@ -161,7 +161,7 @@
               [attr.aria-label]="validationErrorMessage" (click)="export()" [matTooltip]="matToolTip" 
               [ngStyle]="lhcStyle.buttonPrimary" id="export">{{submitButtonName}}</button>
       <button (click)="cancelExpressionEditorChanges()" id="cancel-changes"
-              matTooltip="Cancel the Expression Editor">Cancel</button>
+              matTooltip="Cancel the {{appName}}">Cancel</button>
     </div>
   </div>
 

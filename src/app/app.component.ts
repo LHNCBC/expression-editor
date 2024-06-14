@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { DatePipe } from '@angular/common';
 import { LiveAnnouncer } from '@angular/cdk/a11y';
 import Def from 'autocomplete-lhc';
+import { environment } from '../environments/environment';
 
 @Component({
   selector: 'app-root',
@@ -12,9 +13,13 @@ import Def from 'autocomplete-lhc';
 export class AppComponent implements OnInit, OnDestroy {
   @ViewChild('autoComplete', {static: false}) autoCompleteElement: ElementRef;
   autoComplete;
+  appName = ('appName' in environment) ? environment.appName : '';
 
-  formAppearedAnnouncement = "The Expression Editor questionnaire has been loaded";
-  formReloadAnnouncement = "The Expression Editor questionnaire has been reloaded";
+  formAppearedAnnouncement = `The ${this.appName} questionnaire has been loaded`;
+  formReloadAnnouncement = `The ${this.appName} questionnaire has been reloaded`;
+  openExpressionEditorLabel = `Open ${this.appName} button.`;
+  openExpressionEditorTooltip = `Opne the ${this.appName}`;
+
   calculatedExpression = 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression';
   originalLinkId = '/39156-5';
   expressionTypes = [
@@ -83,7 +88,7 @@ export class AppComponent implements OnInit, OnDestroy {
     this.rootLevel = false;
 
     if (this.questionnaire === '' || this.questionnaire === 'upload') {
-      this.liveAnnouncer.announce('Additional settings must be entered below to load the expression editor.');
+      this.liveAnnouncer.announce(`Additional settings must be entered below to load the ${this.appName}.`);
       this.fhirQuestionnaire = null;
       this.file = '';
       this.linkId = '';
@@ -96,14 +101,10 @@ export class AppComponent implements OnInit, OnDestroy {
       this.http.get(`./${this.questionnaire}.json`)
         .subscribe(data => {
           this.fhirQuestionnaire = data;
-
-          console.log('app::onChange::fhirQuestionnaire - ' + JSON.stringify(this.fhirQuestionnaire));
-
           this.liveAnnouncer.announce((reload) ? this.formReloadAnnouncement : this.formAppearedAnnouncement);
 
           if (this.fhirQuestionnaire && this.fhirQuestionnaire.item instanceof Array) {
             this.linkIds = this.getQuestionnaireLinkIds(this.fhirQuestionnaire.item);
-console.log('app::onChange::fhirQuestionnaire::linkIds - ' + this.linkIds);
 
             this.defaultItemText = this.linkIds.find((item) => {
               return item.linkId === this.linkId;

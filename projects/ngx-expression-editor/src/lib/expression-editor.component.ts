@@ -1,8 +1,9 @@
-import { ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, EventEmitter, Inject, Input, OnChanges, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
 
 import { ExpressionEditorService, SimpleStyle } from './expression-editor.service';
 import { LiveAnnouncer } from '@angular/cdk/a11y';
 import { ValidationResult } from './variable';
+import { ENVIRONMENT_TOKEN } from './environment-token';
 
 @Component({
   // tslint:disable-next-line:component-selector
@@ -26,6 +27,7 @@ export class ExpressionEditorComponent implements OnInit, OnChanges, OnDestroy {
 
   @ViewChild('exp') expRef;
 
+  appName = '';
   noErrorMessage = "There are no more errors on the page.";
   errorLoading = 'Could not detect a FHIR Questionnaire; please try a different file.';
   expressionSyntax: string;
@@ -50,12 +52,14 @@ export class ExpressionEditorComponent implements OnInit, OnChanges, OnDestroy {
   showConfirmDialog = false;
 
   dialogTitle = "Converting FHIRPath Expression to Easy Path Expression";
-  dialogPrompt1 = "The Expression Editor does not support conversion from FHIRPath Expression " +
-                  "to Easy Path Expression. Switching to the Easy Path Expression for the " +
-                  "output expression would result in the expression becoming blank.";
+  dialogPrompt1 = `The ${this.appName} does not support conversion from FHIRPath Expression ` +
+                  `to Easy Path Expression. Switching to the Easy Path Expression for the ` +
+                  `output expression would result in the expression becoming blank.`;
   dialogPrompt2 = "Proceed?";
 
-  matToolTip = "Save the Expression Editor";
+  matToolTip = `Save the ${this.appName}`;
+  openExpressionEditorLabel;
+  openExpressionEditorTooltip;
 
   private calculateSumSubscription;
   private finalExpressionSubscription;
@@ -66,16 +70,25 @@ export class ExpressionEditorComponent implements OnInit, OnChanges, OnDestroy {
   private performValidationSubscription;
   private helpSubscription;
   
-  constructor(private variableService: ExpressionEditorService, private liveAnnouncer: LiveAnnouncer, private changeDetectorRef: ChangeDetectorRef) {}
+  constructor(@Inject(ENVIRONMENT_TOKEN) private environment: any, private variableService: ExpressionEditorService, private liveAnnouncer: LiveAnnouncer, private changeDetectorRef: ChangeDetectorRef) {}
 
   /**
    * Angular lifecycle hook called when the component is initialized
    */
   ngOnInit(): void {
+
+    if (this.environment?.appName) {
+      ExpressionEditorService.APP_NAME = this.environment.appName;
+    }
+    this.appName = ExpressionEditorService.APP_NAME;
+    
+    this.dialogPrompt1 = `The ${this.appName} does not support conversion from FHIRPath Expression ` +
+      `to Easy Path Expression. Switching to the Easy Path Expression for the ` +
+      `output expression would result in the expression becoming blank.`;
+    this.matToolTip = `Save the ${this.appName}`;
+
     this.calculateSumSubscription = this.variableService.scoreCalculationChange.subscribe((scoreCalculation) => {
       this.calculateSum = (scoreCalculation && !this.doNotAskToCalculateScore);
-      console.log('expression-editor::ngOnInit::calculateSumSubscription::calculateSum - ' + this.calculateSum);
-
     });
     this.finalExpressionSubscription = this.variableService.finalExpressionChange.subscribe((finalExpression) => {
       this.finalExpression = finalExpression;
@@ -121,7 +134,7 @@ export class ExpressionEditorComponent implements OnInit, OnChanges, OnDestroy {
       if (validation && validation.hasError) {
         this.validationError = validation.hasError;
         this.validationErrorMessage = (this.validationError) ? this.composeAriaValidationErrorMessage(validation) : "";
-        this.matToolTip = (this.validationErrorMessage) ? this.validationErrorMessage : "Save the Expression Editor";
+        this.matToolTip = (this.validationErrorMessage) ? this.validationErrorMessage : `Save the ${this.appName}`;
       } else {
         // The validationError represents the current status while the validation.hasError flag
         // represents the new status. If the status changes from 'true' to 'false', indicating
@@ -233,11 +246,9 @@ export class ExpressionEditorComponent implements OnInit, OnChanges, OnDestroy {
    * Re-import fhir and context and show the form
    */
   reload(): void {
-    console.log('expression-editor::reload');
     if (this.fhirQuestionnaire instanceof Object) {
       this.variableService.doNotAskToCalculateScore = this.doNotAskToCalculateScore;
       this.loadError = !this.variableService.import(this.expressionUri, this.fhirQuestionnaire, this.itemLinkId);
-      console.log('expression-editor::reload::loadError - ' + this.loadError);
       if (this.loadError) {
         this.liveAnnouncer.announce(this.errorLoading);
       }
@@ -250,21 +261,14 @@ export class ExpressionEditorComponent implements OnInit, OnChanges, OnDestroy {
     this.linkIdContext = this.variableService.linkIdContext;
     this.expressionSyntax = this.variableService.syntaxType;
     this.selectItems = false;
-
-    console.log('expression-editor::reload::linkIdContext - ' + this.linkIdContext);
-    //this.linkIdContext = "/39156-5";
     
     if (this.linkIdContext) {
       this.doNotAskToCalculateScore = !this.variableService.shouldCalculateScoreForItem(this.fhirQuestionnaire, this.linkIdContext, this.expressionUri);
     } else {
       this.doNotAskToCalculateScore = true;
     }
-  
-    console.log('expression-editor::reload::scoreCalculation - ' + this.variableService.scoreCalculation);
-    console.log('expression-editor::reload::doNotAskToCalculateScore - ' + this.doNotAskToCalculateScore);
 
     this.calculateSum = (this.variableService.scoreCalculation && !this.doNotAskToCalculateScore);
-    console.log('expression-editor::reload::calculateSum - ' + this.calculateSum);
     this.finalExpressionExtension = this.variableService.finalExpressionExtension;
     this.finalExpression = this.variableService.finalExpression;
     this.variables = this.variableService.getVariableNames();
@@ -307,7 +311,7 @@ export class ExpressionEditorComponent implements OnInit, OnChanges, OnDestroy {
    * 
    */
   cancelExpressionEditorChanges(): void {
-    this.liveAnnouncer.announce("Cancel changes to the Expression Editor");
+    this.liveAnnouncer.announce(`Cancel changes to the ${this.appName}`);
     setTimeout(() => {
       this.showCancelConfirmationDialog = true;
     }, 100);
@@ -423,9 +427,9 @@ export class ExpressionEditorComponent implements OnInit, OnChanges, OnDestroy {
         this.previousExpressionSyntax = this.expressionSyntax;
 
         if (this.caseStatements)
-          this.dialogPrompt1 = "The Expression Editor does not support conversion from FHIRPath Expression " +
-          "to Easy Path Expression. Switching to Easy Path Expression for the case statement " +
-          "would result in the expression becoming blank.";
+          this.dialogPrompt1 = `The ${this.appName} does not support conversion from FHIRPath Expression ` +
+          `to Easy Path Expression. Switching to Easy Path Expression for the case statement ` +
+          `would result in the expression becoming blank.`;
         this.showConfirmDialog = true;
       } else {
         this.previousExpressionSyntax = event.target.value;

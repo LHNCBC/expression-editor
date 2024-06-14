@@ -1,8 +1,9 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { DoBootstrap, Injector, NgModule } from '@angular/core';
 
-import { ExpressionEditorComponent, ExpressionEditorModule } from 'projects/ngx-expression-editor/src/public-api';
+import { ExpressionEditorComponent, ExpressionEditorModule, ENVIRONMENT_TOKEN } from 'projects/ngx-expression-editor/src/public-api';
 import { createCustomElement } from '@angular/elements';
+import { environment } from '../environments/environment';
 
 @NgModule({
   declarations: [],
@@ -10,7 +11,9 @@ import { createCustomElement } from '@angular/elements';
     BrowserModule,
     ExpressionEditorModule
   ],
-  providers: [],
+  providers: [
+    { provide: ENVIRONMENT_TOKEN, useValue: environment }
+  ],
   bootstrap: []
 })
 export class AppModule implements DoBootstrap {

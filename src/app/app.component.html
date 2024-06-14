@@ -1,7 +1,7 @@
-<h1>Expression Editor Demo</h1>
+<h1>{{appName}} Demo</h1>
 
 <p>
-  The Expression Editor is a widget which helps you add FHIRPath expressions to a FHIR Questionnaire.
+  The {{appName}} is a widget which helps you add FHIRPath expressions to a FHIR Questionnaire.
   For documentation refer to the <a href="https://github.com/NLMLHC/expression-editor#the-lhc-expression-editor">Readme on GitHub</a>.
   In the demo below you can choose one of the provided questionnaires or upload
   your own to be able to add, remove or rearrange variables and expressions.
@@ -69,9 +69,9 @@
 
 <div class="btn">
   <button class="primary btn" (click)="openExpressionEditorDialog()" 
-    aria-label="Open Expression Editor button." matTooltip="Open the Expression Editor"
+    [attr.aria-label]="openExpressionEditorLabel" [attr.matTooltip]="openExpressionEditorTooltip"
     id="openExpressionEditor" [ngClass]="{'disabled': !canOpenExpressionEditor()}"
-    >Open Expression Editor</button>
+    >Open {{appName}}</button>
 </div>
 
 <div class="error" *ngIf="error">
