@@ -4,7 +4,7 @@ describe('Expression Editor demo', () => {
   });
 
   describe('upload', () => {
-    it('should not show a Expression Editor before uploading a questionnaire', () => {
+    it('should not show an Expression Editor before uploading a questionnaire', () => {
       cy.get('select#questionnaire-select').select('Upload your own questionnaire');
 
       cy.get('lhc-expression-editor').should('not.exist');
