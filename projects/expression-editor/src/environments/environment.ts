@@ -4,7 +4,8 @@
 
 export const environment = {
   production: false,
-  appName: "Expression Editor"
+  appName: "Expression Editor",
+  appTitle: "Test Expression Editor"
 };
 
 /*

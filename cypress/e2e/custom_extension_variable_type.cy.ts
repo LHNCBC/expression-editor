@@ -1,6 +1,6 @@
 import * as constants from "../../projects/ngx-expression-editor/src/lib/validation";
 
-describe('Expression editor', () => {
+describe(Cypress.env("appName"), () => {
   beforeEach(() => {
     cy.visit('/');
   });
@@ -182,7 +182,7 @@ describe('Expression editor', () => {
         // The Expression Editor dialog should now appear
         cy.get('lhc-expression-editor #expression-editor-base-dialog').should('exist');
 
-        cy.title().should('eq', 'Expression Editor');
+        cy.title().should('eq', Cypress.env("appName"));
 
         // Advanced Interface checkbox
         cy.get('#advanced-interface').should('be.checked');
@@ -252,7 +252,7 @@ describe('Expression editor', () => {
         // The Expression Editor dialog should now appear
         cy.get('lhc-expression-editor #expression-editor-base-dialog').should('exist');
 
-        cy.title().should('eq', 'Expression Editor');
+        cy.title().should('eq', Cypress.env("appName"));
 
         // Should display correct variable type - variable type "FHIRPath Expression"
         cy.get('div#row-6').within(() => {
@@ -333,7 +333,7 @@ describe('Expression editor', () => {
         // The Expression Editor dialog should now appear
         cy.get('lhc-expression-editor #expression-editor-base-dialog').should('exist');
 
-        cy.title().should('eq', 'Expression Editor');
+        cy.title().should('eq', Cypress.env("appName"));
 
         // Question - weight default to kg
         cy.get('div#row-0').within(() => {
@@ -405,7 +405,7 @@ describe('Expression editor', () => {
         // The Expression Editor dialog should now appear
         cy.get('lhc-expression-editor #expression-editor-base-dialog').should('exist');
 
-        cy.title().should('eq', 'Expression Editor');
+        cy.title().should('eq', Cypress.env("appName"));
 
         cy.get('div#row-23').within(() => {
           cy.get('#variable-label-23').should('have.value', 'question_empty_expression');
@@ -426,7 +426,7 @@ describe('Expression editor', () => {
         // The Expression Editor dialog should now appear
         cy.get('lhc-expression-editor #expression-editor-base-dialog').should('exist');
 
-        cy.title().should('eq', 'Expression Editor');
+        cy.title().should('eq', Cypress.env("appName"));
 
         // The configuration said this should be type 'Question'.  However, the factor 
         // 9999 does not matched with any pre-defined factors and therefore, is not a valid
@@ -471,7 +471,7 @@ describe('Expression editor', () => {
         // The Expression Editor dialog should now appear
         cy.get('lhc-expression-editor #expression-editor-base-dialog').should('exist');
 
-        cy.title().should('eq', 'Expression Editor');
+        cy.title().should('eq', Cypress.env("appName"));
 
         // Updated "FHIRPath Expression" variable type to "FHIR Query"
         cy.get('div#row-6').within(() => {
@@ -648,7 +648,7 @@ describe('Expression editor', () => {
         // The Expression Editor dialog should now appear
         cy.get('lhc-expression-editor #expression-editor-base-dialog').should('exist');
 
-        cy.title().should('eq', 'Expression Editor');
+        cy.title().should('eq', Cypress.env("appName"));
 
         cy.get('div#row-22').within(() => {
           cy.get('#variable-label-22').should('have.value', 'question_invalid_unit_var_type_not_defined');

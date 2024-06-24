@@ -17,7 +17,8 @@ describe('ExpressionEditorComponent', () => {
   let fixture: ComponentFixture<ExpressionEditorComponent>;
   const env = {
     production: true,
-    appName: "Expression Editor"
+    appName: "Expression Editor",
+    appTitle: "Expression Editor"
   };
 
   beforeEach(async () => {

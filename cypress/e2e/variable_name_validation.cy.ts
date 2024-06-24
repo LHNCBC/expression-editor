@@ -1,6 +1,6 @@
 import * as constants from "../../projects/ngx-expression-editor/src/lib/validation";
 
-describe('Expression Editor', () => {
+describe(Cypress.env("appName"), () => {
   beforeEach(() => {
     cy.visit('/');
   });

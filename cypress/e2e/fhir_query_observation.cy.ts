@@ -1,4 +1,4 @@
-describe('Expression Editor', () => {
+describe(Cypress.env("appName"), () => {
   beforeEach(() => {
     cy.visit('/');
   });
@@ -17,7 +17,7 @@ describe('Expression Editor', () => {
         // The Expression Editor dialog should now appear
         cy.get('lhc-expression-editor #expression-editor-base-dialog').should('exist');
 
-        cy.title().should('eq', 'Expression Editor');
+        cy.title().should('eq', Cypress.env("appName"));
 
         // standard order
         cy.get('div#row-11').within(() => {

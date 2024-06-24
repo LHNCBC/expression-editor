@@ -1,6 +1,6 @@
 import * as constants from "../../projects/ngx-expression-editor/src/lib/validation";
 
-describe('Expression Editor', () => {
+describe(Cypress.env("appName"), () => {
   beforeEach(() => {
     cy.visit('/');
   });
@@ -8,7 +8,7 @@ describe('Expression Editor', () => {
   describe('Angular Library', () => {
     describe('BMI calculation', () => {
       
-      it('should disable the "Open Expression Editor" button if "Root level" or Question is not selected', () => {
+      it('should disable the "Open ' + Cypress.env("appName") + '" button if "Root level" or Question is not selected', () => {
 
         // The demo has 'BMI (/39156-5) selected by default
         cy.get('#question').should('have.value', 'BMI (/39156-5)');
@@ -49,7 +49,7 @@ describe('Expression Editor', () => {
         // The Expression Editor dialog should now appear
         cy.get('lhc-expression-editor #expression-editor-base-dialog').should('exist');
 
-        cy.title().should('eq', 'Expression Editor');
+        cy.title().should('eq', Cypress.env("appName"));
         // Uneditable variables section should not show up
         cy.get('#uneditable-variables-section .variable-row').should('have.length', 0);
         // Variables section
@@ -134,7 +134,7 @@ describe('Expression Editor', () => {
         // The Expression Editor dialog should now appear
         cy.get('lhc-expression-editor #expression-editor-base-dialog').should('exist');
 
-        cy.title().should('eq', 'Expression Editor');
+        cy.title().should('eq', Cypress.env("appName"));
 
         // By default, the selected item is BMI
         cy.get('#question').should('exist').should('be.visible').should('have.value', 'BMI (/39156-5)');
@@ -180,7 +180,7 @@ describe('Expression Editor', () => {
       it('should be able to select a different question in the questionnaire and add a variable', () => {
         cy.get('#questionnaire-select').select('BMI Calculation (Easy Path expression)');
 
-        cy.title().should('eq', 'Expression Editor');
+        cy.title().should('eq', Cypress.env("appName"));
 
         // By default, the selected item is BMI
         cy.get('#question').should('exist').should('be.visible').should('have.value', 'BMI (/39156-5)');
@@ -255,7 +255,7 @@ describe('Expression Editor', () => {
       it('should be able to select and add a variable to root level', () => {
         cy.get('#questionnaire-select').select('BMI Calculation (Easy Path expression)');
 
-        cy.title().should('eq', 'Expression Editor');
+        cy.title().should('eq', Cypress.env("appName"));
 
         // By default, the selected item is BMI
         cy.get('#question').should('exist').should('be.visible').should('have.value', 'BMI (/39156-5)');
@@ -268,7 +268,7 @@ describe('Expression Editor', () => {
         // The Expression Editor dialog should now appear
         cy.get('lhc-expression-editor #expression-editor-base-dialog').should('exist');
 
-        cy.title().should('eq', 'Expression Editor');
+        cy.title().should('eq', Cypress.env("appName"));
         // Variables section
         cy.get('lhc-variables > h2').should('contain', 'Item Variables');
         cy.get('#variables-section .variable-row').should('have.length', 0);
@@ -363,7 +363,7 @@ describe('Expression Editor', () => {
         // The Expression Editor dialog should now appear
         cy.get('lhc-expression-editor #expression-editor-base-dialog').should('exist');
 
-        cy.title().should('eq', 'Expression Editor');
+        cy.title().should('eq', Cypress.env("appName"));
 
         // Variables section
         cy.get('lhc-variables > h2').should('contain', 'Item Variables');
@@ -447,7 +447,7 @@ describe('Expression Editor', () => {
         // The Expression Editor dialog should now appear
         cy.get('lhc-expression-editor #expression-editor-base-dialog').should('exist');
 
-        cy.title().should('eq', 'Expression Editor');
+        cy.title().should('eq', Cypress.env("appName"));
 
         // Variables section
         cy.get('lhc-variables > h2').should('contain', 'Item Variables');
@@ -513,7 +513,7 @@ describe('Expression Editor', () => {
         // The Expression Editor dialog should now appear
         cy.get('lhc-expression-editor #expression-editor-base-dialog').should('exist');
 
-        cy.title().should('eq', 'Expression Editor');
+        cy.title().should('eq', Cypress.env("appName"));
 
         // Variables section
         cy.get('lhc-variables > h2').should('contain', 'Item Variables');
@@ -568,7 +568,7 @@ describe('Expression Editor', () => {
         // The Expression Editor dialog should now appear
         cy.get('lhc-expression-editor #expression-editor-base-dialog').should('exist');
 
-        cy.title().should('eq', 'Expression Editor');
+        cy.title().should('eq', Cypress.env("appName"));
 
         // Variables section
         cy.get('lhc-variables > h2').should('contain', 'Item Variables');
@@ -618,7 +618,7 @@ describe('Expression Editor', () => {
         // The Expression Editor dialog should now appear
         cy.get('lhc-expression-editor #expression-editor-base-dialog').should('exist');
     
-        cy.title().should('eq', 'Expression Editor');
+        cy.title().should('eq', Cypress.env("appName"));
 
         // Variables section
         cy.get('lhc-variables > h2').should('contain', 'Item Variables');
@@ -679,7 +679,7 @@ describe('Expression Editor', () => {
         // The Expression Editor dialog should now appear
         cy.get('lhc-expression-editor #expression-editor-base-dialog').should('exist');
 
-        cy.title().should('eq', 'Expression Editor');
+        cy.title().should('eq', Cypress.env("appName"));
 
         // Variables section
         cy.get('lhc-variables > h2').should('contain', 'Item Variables');
@@ -868,7 +868,7 @@ describe('Expression Editor', () => {
         // The Expression Editor dialog should now appear
         cy.get('lhc-expression-editor #expression-editor-base-dialog').should('exist');
 
-        cy.title().should('eq', 'Expression Editor');
+        cy.title().should('eq', Cypress.env("appName"));
 
         // Variables section
         cy.get('lhc-variables > h2').should('contain', 'Item Variables');
@@ -907,7 +907,7 @@ describe('Expression Editor', () => {
         // The Expression Editor dialog should now appear
         cy.get('lhc-expression-editor #expression-editor-base-dialog').should('exist');
 
-        cy.title().should('eq', 'Expression Editor');
+        cy.title().should('eq', Cypress.env("appName"));
 
         // Variables section
         cy.get('lhc-variables > h2').should('contain', 'Item Variables');
@@ -1000,7 +1000,7 @@ describe('Expression Editor', () => {
         // The Expression Editor dialog should now appear
         cy.get('lhc-expression-editor #expression-editor-base-dialog').should('exist');
 
-        cy.title().should('eq', 'Expression Editor');
+        cy.title().should('eq', Cypress.env("appName"));
 
         // Variables section
         cy.get('lhc-variables > h2').should('contain', 'Item Variables');
@@ -1088,7 +1088,7 @@ describe('Expression Editor', () => {
         // The Expression Editor dialog should now appear
         cy.get('lhc-expression-editor #expression-editor-base-dialog').should('exist');
 
-        cy.title().should('eq', 'Expression Editor');
+        cy.title().should('eq', Cypress.env("appName"));
 
         // Variables section
         cy.get('lhc-variables > h2').should('contain', 'Item Variables');
@@ -1318,7 +1318,7 @@ describe('Expression Editor', () => {
           });
       });
 
-      it('should be able to cancel changes to the Expression Editor', () => {
+      it('should be able to cancel changes to the ' + Cypress.env("appName"), () => {
         cy.get('select#questionnaire-select').select('BMI Calculation (Easy Path expression)');
 
         // The demo has 'BMI (/39156-5) selected by default
@@ -1435,7 +1435,7 @@ describe('Expression Editor', () => {
           .should('not.exist');
 
         // Should return back to the demo screen
-        cy.get('app-root > h1').should('be.visible').should('contain.text', 'Expression Editor Demo');
+        cy.get('app-root > h1').should('be.visible').should('contain.text', Cypress.env("appName") + ' Demo');
       });
 
       it('should hide the calculate sum prompt if click outside the overlay', () => {
@@ -1463,7 +1463,7 @@ describe('Expression Editor', () => {
           .should('not.exist');
 
         // Should return back to the demo screen
-        cy.get('app-root > h1').should('be.visible').should('contain.text', 'Expression Editor Demo');
+        cy.get('app-root > h1').should('be.visible').should('contain.text', Cypress.env("appName") + ' Demo');
       });
 
       it('should display the scoring items selection', () => {
@@ -1622,7 +1622,7 @@ describe('Expression Editor', () => {
         cy.get('lhc-select-scoring-items').should('not.exist');
 
         // Should return back to the demo screen
-        cy.get('app-root > h1').should('be.visible').should('contain.text', 'Expression Editor Demo');
+        cy.get('app-root > h1').should('be.visible').should('contain.text', Cypress.env("appName") + ' Demo');
       });
 
       it('should hide the scoring items selection if click x (close)', () => {
@@ -1658,7 +1658,7 @@ describe('Expression Editor', () => {
         cy.get('lhc-select-scoring-items').should('not.exist');
 
         // Should return back to the demo screen
-        cy.get('app-root > h1').should('be.visible').should('contain.text', 'Expression Editor Demo');
+        cy.get('app-root > h1').should('be.visible').should('contain.text', Cypress.env("appName") + ' Demo');
       });
 
       it('should hide the scoring items selection if click outside the overlay', () => {
@@ -1694,7 +1694,7 @@ describe('Expression Editor', () => {
         cy.get('lhc-select-scoring-items').should('not.exist');
 
         // Should return back to the demo screen
-        cy.get('app-root > h1').should('be.visible').should('contain.text', 'Expression Editor Demo');
+        cy.get('app-root > h1').should('be.visible').should('contain.text', Cypress.env("appName") + ' Demo');
       });
 
       it('should be able to export score with selected individual items', () => {

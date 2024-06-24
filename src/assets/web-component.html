@@ -27,6 +27,11 @@
   const editor = document.getElementById('editor');
   const output = document.getElementById('output');
 
+  const expEditor = document.querySelector('lhc-expression-editor');
+  if (expEditor) {
+    expEditor.setAttribute('title-name', window.env.appTitle);
+  }
+
   fetch('/phq9.json')
     .then(response => response.json())
     .then(data => {

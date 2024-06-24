@@ -1,4 +1,4 @@
-describe('Expression Editor', () => {
+describe(Cypress.env("appName"), () => {
   beforeEach(() => {
     cy.visit('/');
   });
@@ -18,7 +18,7 @@ describe('Expression Editor', () => {
         // The Expression Editor dialog should now appear
         cy.get('lhc-expression-editor #expression-editor-base-dialog').should('exist');
 
-        cy.title().should('eq', 'Expression Editor');
+        cy.title().should('eq', Cypress.env("appName"));
 
         // Variables section
         cy.get('lhc-variables > h2').should('contain', 'Item Variables');
@@ -54,7 +54,7 @@ describe('Expression Editor', () => {
         // The Expression Editor dialog should now appear
         cy.get('lhc-expression-editor #expression-editor-base-dialog').should('exist');
 
-        cy.title().should('eq', 'Expression Editor');
+        cy.title().should('eq', Cypress.env("appName"));
 
         // Variables section
         cy.get('lhc-variables > h2').should('contain', 'Item Variables');
@@ -89,7 +89,7 @@ describe('Expression Editor', () => {
         // The Expression Editor dialog should now appear
         cy.get('lhc-expression-editor #expression-editor-base-dialog').should('exist');
 
-        cy.title().should('eq', 'Expression Editor');
+        cy.title().should('eq', Cypress.env("appName"));
 
         // Variables section
         cy.get('lhc-variables > h2').should('contain', 'Item Variables');
@@ -161,7 +161,7 @@ describe('Expression Editor', () => {
         // The Expression Editor dialog should now appear
         cy.get('lhc-expression-editor #expression-editor-base-dialog').should('exist');
 
-        cy.title().should('eq', 'Expression Editor');
+        cy.title().should('eq', Cypress.env("appName"));
 
         // Variables section
         cy.get('lhc-variables > h2').should('contain', 'Item Variables');
@@ -211,7 +211,7 @@ describe('Expression Editor', () => {
         // The Expression Editor dialog should now appear
         cy.get('lhc-expression-editor #expression-editor-base-dialog').should('exist');
 
-        cy.title().should('eq', 'Expression Editor');
+        cy.title().should('eq', Cypress.env("appName"));
 
         // Variables section
         cy.get('lhc-variables > h2').should('contain', 'Item Variables');
@@ -261,7 +261,7 @@ describe('Expression Editor', () => {
         // The Expression Editor dialog should now appear
         cy.get('lhc-expression-editor #expression-editor-base-dialog').should('exist');
 
-        cy.title().should('eq', 'Expression Editor');
+        cy.title().should('eq', Cypress.env("appName"));
 
         // Variables section
         cy.get('lhc-variables > h2').should('contain', 'Item Variables');
@@ -314,7 +314,7 @@ describe('Expression Editor', () => {
         // The Expression Editor dialog should now appear
         cy.get('lhc-expression-editor #expression-editor-base-dialog').should('exist');
 
-        cy.title().should('eq', 'Expression Editor');
+        cy.title().should('eq', Cypress.env("appName"));
 
         // Variables section
         cy.get('lhc-variables > h2').should('contain', 'Item Variables');
@@ -374,7 +374,7 @@ describe('Expression Editor', () => {
         // The Expression Editor dialog should now appear
         cy.get('lhc-expression-editor #expression-editor-base-dialog').should('exist');
 
-        cy.title().should('eq', 'Expression Editor');
+        cy.title().should('eq', Cypress.env("appName"));
 
         // Variables section
         cy.get('lhc-variables > h2').should('contain', 'Item Variables');
@@ -421,7 +421,7 @@ describe('Expression Editor', () => {
         // The Expression Editor dialog should now appear
         cy.get('lhc-expression-editor #expression-editor-base-dialog').should('exist');
 
-        cy.title().should('eq', 'Expression Editor');
+        cy.title().should('eq', Cypress.env("appName"));
 
         // Output Expression section
         cy.get('#final-expression-section').within(() => {
@@ -466,7 +466,7 @@ describe('Expression Editor', () => {
         // The Expression Editor dialog should now appear
         cy.get('lhc-expression-editor #expression-editor-base-dialog').should('exist');
 
-        cy.title().should('eq', 'Expression Editor');
+        cy.title().should('eq', Cypress.env("appName"));
 
         // Output Expression section
         cy.get('#final-expression-section').within(() => {
@@ -518,7 +518,7 @@ describe('Expression Editor', () => {
         // The Expression Editor dialog should now appear
         cy.get('lhc-expression-editor #expression-editor-base-dialog').should('exist');
 
-        cy.title().should('eq', 'Expression Editor');
+        cy.title().should('eq', Cypress.env("appName"));
 
         // Output Expression section
         cy.get('#final-expression-section').within(() => {
@@ -572,7 +572,7 @@ describe('Expression Editor', () => {
         // The Expression Editor dialog should now appear
         cy.get('lhc-expression-editor #expression-editor-base-dialog').should('exist');
 
-        cy.title().should('eq', 'Expression Editor');
+        cy.title().should('eq', Cypress.env("appName"));
 
         // Output Expression section
         cy.get('#final-expression-section').within(() => {
@@ -618,7 +618,7 @@ describe('Expression Editor', () => {
         // The Expression Editor dialog should now appear
         cy.get('lhc-expression-editor #expression-editor-base-dialog').should('exist');
 
-        cy.title().should('eq', 'Expression Editor');
+        cy.title().should('eq', Cypress.env("appName"));
 
         // Check the Advanced Interface checkbox
         cy.get('input#advanced-interface').check();
@@ -689,7 +689,7 @@ describe('Expression Editor', () => {
         // The Expression Editor dialog should now appear
         cy.get('lhc-expression-editor #expression-editor-base-dialog').should('exist');
 
-        cy.title().should('eq', 'Expression Editor');
+        cy.title().should('eq', Cypress.env("appName"));
 
         // Check the Advanced Interface checkbox
         cy.get('input#advanced-interface').check();
@@ -779,7 +779,7 @@ describe('Expression Editor', () => {
         // The Expression Editor dialog should now appear
         cy.get('lhc-expression-editor #expression-editor-base-dialog').should('exist');
 
-        cy.title().should('eq', 'Expression Editor');
+        cy.title().should('eq', Cypress.env("appName"));
 
         // Check the Advanced Interface checkbox
         cy.get('input#advanced-interface').check();
@@ -871,7 +871,7 @@ describe('Expression Editor', () => {
         // The Expression Editor dialog should now appear
         cy.get('lhc-expression-editor #expression-editor-base-dialog').should('exist');
 
-        cy.title().should('eq', 'Expression Editor');
+        cy.title().should('eq', Cypress.env("appName"));
 
         // Output Expression section
         cy.get('#final-expression-section').within(() => {
@@ -945,7 +945,7 @@ describe('Expression Editor', () => {
         // The Expression Editor dialog should now appear
         cy.get('lhc-expression-editor #expression-editor-base-dialog').should('exist');
 
-        cy.title().should('eq', 'Expression Editor');
+        cy.title().should('eq', Cypress.env("appName"));
 
         // Output Expression section
         cy.get('#final-expression-section').within(() => {
@@ -1029,7 +1029,7 @@ describe('Expression Editor', () => {
         // The Expression Editor dialog should now appear
         cy.get('lhc-expression-editor #expression-editor-base-dialog').should('exist');
 
-        cy.title().should('eq', 'Expression Editor');
+        cy.title().should('eq', Cypress.env("appName"));
 
         // Output Expression section
         cy.get('#final-expression-section').within(() => {
@@ -1162,7 +1162,7 @@ describe('Expression Editor', () => {
         // The Expression Editor dialog should now appear
         cy.get('lhc-expression-editor #expression-editor-base-dialog').should('exist');
 
-        cy.title().should('eq', 'Expression Editor');
+        cy.title().should('eq', Cypress.env("appName"));
 
         // Check the Advanced Interface checkbox
         cy.get('input#advanced-interface').check();

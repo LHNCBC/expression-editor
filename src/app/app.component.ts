@@ -4,6 +4,7 @@ import { DatePipe } from '@angular/common';
 import { LiveAnnouncer } from '@angular/cdk/a11y';
 import Def from 'autocomplete-lhc';
 import { environment } from '../environments/environment';
+import { Title } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-root',
@@ -14,11 +15,12 @@ export class AppComponent implements OnInit, OnDestroy {
   @ViewChild('autoComplete', {static: false}) autoCompleteElement: ElementRef;
   autoComplete;
   appName = ('appName' in environment) ? environment.appName : '';
+  appTitle = ('appTitle' in environment) ? environment.appTitle : '';
 
   formAppearedAnnouncement = `The ${this.appName} questionnaire has been loaded`;
   formReloadAnnouncement = `The ${this.appName} questionnaire has been reloaded`;
   openExpressionEditorLabel = `Open ${this.appName} button.`;
-  openExpressionEditorTooltip = `Opne the ${this.appName}`;
+  openExpressionEditorTooltip = `Open the ${this.appName}`;
 
   calculatedExpression = 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression';
   originalLinkId = '/39156-5';
@@ -67,13 +69,18 @@ export class AppComponent implements OnInit, OnDestroy {
   displayExpressionEditor = false;
   displayExpressionEditorResult = false;
 
-  constructor(private http: HttpClient, private liveAnnouncer: LiveAnnouncer, private changeDetectorRef: ChangeDetectorRef) {}
+  constructor(private http: HttpClient,
+              private liveAnnouncer: LiveAnnouncer,
+              private changeDetectorRef: ChangeDetectorRef,
+              private titleService: Title) {}
 
   /**
    * Angular lifecycle hook called when the component is initialized
    */
   ngOnInit(): void {
     this.onChange(false);
+
+    this.titleService.setTitle(environment.appTitle);
   }
 
   /**

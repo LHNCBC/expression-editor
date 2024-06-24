@@ -1,4 +1,4 @@
-describe('Expression Editor demo', () => {
+describe(Cypress.env("appName") + ' demo', () => {
   beforeEach(() => {
     cy.visit('/');
   });
@@ -10,7 +10,7 @@ describe('Expression Editor demo', () => {
       cy.get('lhc-expression-editor').should('not.exist');
     });
 
-    it('should disable the "Open Expression Editor" button if questionnaire/Root level/Question have not been selected', () => {
+    it('should disable the "Open ' + Cypress.env("appName") + '" button if questionnaire/Root level/Question have not been selected', () => {
       cy.get('select#questionnaire-select').select('Upload your own questionnaire');
 
       // The 'Open Expression Editor' should be disabled
@@ -530,21 +530,7 @@ describe('Expression Editor demo', () => {
       
       // Close the 'Scoring Items Selection'
       cy.get('button.btn-close').click();
-/* 
-        // The Expression Editor dialog should now display
-      cy.get('lhc-expression-editor > lhc-base-dialog').should('exist');
 
-      // Close the 'Expression Editor'
-      cy.get('button.btn-close').click();  
-
-      // The dialog to confirm cancel should be displayed
-      cy.get('lhc-cancel-changes-confirmation-dialog')
-        .should('exist')
-        .within(() => {
-          // Click 'Yes' button
-          cy.get('#yes-button').should('exist').click();
-        });    
- */
       // Upload a new questionnaire
       cy.get('select#questionnaire-select').select('Upload your own questionnaire');
       // Select a non-scoring questionnaire
