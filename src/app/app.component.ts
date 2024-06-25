@@ -365,24 +365,4 @@ export class AppComponent implements OnInit, OnDestroy {
   canOpenRuleEditor(): boolean {
     return this.fhirQuestionnaire && (this.rootLevel || this.linkId !== null);
   }
-
-  /**
-   * Set the display object to show/hide various sections of the Rule Editor
-   * based on the hiddenSectionStr.
-   * @param hiddenSectionStr 
-   */
-  setDisplay(hiddenSectionStr): void {
-    const displaySections = ["titleSection", "uneditableVariablesSection",
-                             "itemVariablesSection", "outputExpressionSection"];
-    const sections = hiddenSectionStr.split(",");
-
-    if (sections.length > 0) {
-      const display : { [key:string]: boolean} = {};
-      sections.forEach(key => {
-        if (displaySections.indexOf(key) > -1)
-          display[key] = false;
-      });
-      this.display = display;
-    }
-  }
 }

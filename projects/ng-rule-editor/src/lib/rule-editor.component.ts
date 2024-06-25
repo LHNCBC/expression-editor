@@ -259,14 +259,13 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
     this.finalExpression = this.variableService.finalExpression;
     this.variables = this.variableService.getVariableNames();
 
-    if (this.display) {
-      this.display = {
-        titleSection: 'titleSection' in this.display ? this.display.titleSection : true,
-        uneditableVariablesSection: 'uneditableVariablesSection' in this.display ? this.display.uneditableVariablesSection : true,
-        itemVariablesSection: 'itemVariablesSection' in this.display ? this.display.itemVariablesSection : true,
-        outputExpressionSection: 'outputExpressionSection' in this.display ? this.display.outputExpressionSection : true
-      };
-    }    
+    this.display = {
+      titleSection: 'titleSection' in this.display ? this.display.titleSection : true,
+      uneditableVariablesSection: 'uneditableVariablesSection' in this.display ? this.display.uneditableVariablesSection : true,
+      itemVariablesSection: 'itemVariablesSection' in this.display ? this.display.itemVariablesSection : true,
+      outputExpressionSection: 'outputExpressionSection' in this.display ? this.display.outputExpressionSection : true
+    };
+ 
   }
 
   /**
