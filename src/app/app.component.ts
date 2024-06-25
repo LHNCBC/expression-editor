@@ -5,6 +5,8 @@ import { LiveAnnouncer } from '@angular/cdk/a11y';
 import Def from 'autocomplete-lhc';
 import { ActivatedRoute } from '@angular/router';
 
+declare const createDisplayOption: (hiddenSectionStr: string) => { [key:string]: string } | {};
+
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
@@ -77,7 +79,7 @@ export class AppComponent implements OnInit, OnDestroy {
     this.activatedRoute.queryParams.subscribe(params => {
       if ("hide" in params) {
         const hideStr = params['hide'];
-        this.setDisplay(hideStr)
+        this.display = createDisplayOption(hideStr);
       }
     });
   }

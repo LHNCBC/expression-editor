@@ -22,29 +22,15 @@
 <pre id="output"></pre>
 
 <script src="rule-editor.js"></script>
-
+<script src="./assets/js/common-utils.js"></script>
 <script>
   const editor = document.getElementById('editor');
   const output = document.getElementById('output');
-  
-  function createDisplayOption(hiddenSectionStr) {
-    const displaySections = ["titleSection", "uneditableVariablesSection", "itemVariablesSection", "outputExpressionSection"];
-    const sections = hiddenSectionStr.split(",");
-
-    const display = {};
-    if (sections.length > 0) {
-      sections.forEach(key => {
-        if (displaySections.indexOf(key) > -1)
-          display[key] = false;
-      });
-    }
-    return display;
-  }
 
   let params = new URLSearchParams(document.location.search);
   let hideParam = params.get('hide');
 
-  const displayObj = (hideParam !== null) ? createDisplayOption(hideParam) : {};
+  const displayObj = (hideParam !== null) ? window.createDisplayOption(hideParam) : {};
 
   fetch('/query.json')
     .then(response => response.json())

@@ -27,6 +27,11 @@
                 "output": ""
               },
               {
+                "glob": "*",
+                "input": "src/assets/js",
+                "output": "/assets/js"
+              },
+              {
                 "glob": "rule-editor.js?(.map)",
                 "input": "dist/rule-editor/",
                 "output": ""
@@ -39,7 +44,8 @@
               "node_modules/autocomplete-lhc/source/auto_completion.css"
             ],
             "scripts": [
-              "./node_modules/jquery/dist/jquery.min.js"
+              "./node_modules/jquery/dist/jquery.min.js",
+              "./src/assets/js/common-utils.js"
             ]
           },
           "configurations": {
@@ -251,10 +257,17 @@
             "polyfills": "projects/rule-editor/src/polyfills.ts",
             "tsConfig": "projects/rule-editor/tsconfig.app.json",
             "aot": true,
-            "assets": [],
+            "assets": [
+              {
+                "glob": "*",
+                "input": "src/assets/js",
+                "output": "/assets/js"
+              }
+            ],
             "styles": [],
             "scripts": [
-              "./node_modules/jquery/dist/jquery.min.js"
+              "./node_modules/jquery/dist/jquery.min.js",
+              "./src/assets/js/common-utils.js"
             ]
           },
           "configurations": {
