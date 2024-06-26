@@ -12,7 +12,7 @@ describe(Cypress.env("appName") + ' Web Component', () => {
       cy.get('.score-modal').should('contain.text', 'Would you like to select items for the sum of scores?');
       cy.get('#skip-score-items-selection').click();
 
-      cy.get('h1').should('contain.text', Cypress.env("appName"));
+      cy.get('h1').should('contain.text', Cypress.env("appTitle"));
       cy.get('#export').should('contain.text', 'Test Submit');
     });
 

@@ -80,7 +80,7 @@ export class AppComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.onChange(false);
 
-    this.titleService.setTitle(environment.appTitle);
+    this.titleService.setTitle(environment.appName);
   }
 
   /**
