@@ -2,11 +2,12 @@
 // `ng build --prod` replaces `environment.ts` with `environment.prod.ts`.
 // The list of file replacements can be found in `angular.json`.
 
+import envConfig from '../../../../src/config.json';
+
 export const environment = {
-  production: false,
-  appName: "Expression Editor",
-  appTitle: "Test Expression Editor"
-};
+  production: true,
+  ...envConfig
+}
 
 /*
  * For easier debugging in development mode, you can import the following file
