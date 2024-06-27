@@ -8,7 +8,7 @@
  *  "titleSection", "uneditableVariablesSection", "itemVariablesSection", and
  *  "outputExpressionSection"
  */
-function createDisplayOption(hiddenSectionStr) {
+export function createDisplayOption(hiddenSectionStr) {
   const displaySections = ["titleSection", "uneditableVariablesSection",
                            "itemVariablesSection", "outputExpressionSection"];
   const sections = hiddenSectionStr.split(",");

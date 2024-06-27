@@ -4,8 +4,7 @@ import { DatePipe } from '@angular/common';
 import { LiveAnnouncer } from '@angular/cdk/a11y';
 import Def from 'autocomplete-lhc';
 import { ActivatedRoute } from '@angular/router';
-
-declare const createDisplayOption: (hiddenSectionStr: string) => { [key:string]: string } | {};
+import { createDisplayOption } from '../assets/js/common-utils.js';
 
 @Component({
   selector: 'app-root',

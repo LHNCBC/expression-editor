@@ -22,15 +22,17 @@
 <pre id="output"></pre>
 
 <script src="rule-editor.js"></script>
-<script src="./assets/js/common-utils.js"></script>
-<script>
+
+<script type="module">
+  import { createDisplayOption } from './assets/js/common-utils.js';
+
   const editor = document.getElementById('editor');
   const output = document.getElementById('output');
 
   let params = new URLSearchParams(document.location.search);
   let hideParam = params.get('hide');
 
-  const displayObj = (hideParam !== null) ? window.createDisplayOption(hideParam) : {};
+  const displayObj = (hideParam !== null) ? createDisplayOption(hideParam) : {};
 
   fetch('/query.json')
     .then(response => response.json())
