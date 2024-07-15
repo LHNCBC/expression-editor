@@ -2,9 +2,13 @@
 
 This project follows [Semantic Versioning](http://semver.org/).
 
-## [3.1.22] 2024-05-31
+## [3.1.23] 2024-07-15
 ### Added
 - Added attribute to control the display of each section of the Rule Editor.
+
+## [3.1.22] 2024-06-03
+### Fixed
+- Fixed FHIR Query Observation unit issue 
 
 ## [3.1.21] 2024-05-13
 ### Added

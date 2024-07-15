@@ -191,6 +191,8 @@ export class RuleEditorComponent implements OnInit, OnChanges, OnDestroy {
 
     this.validationSubscription.unsubscribe();
     this.performValidationSubscription.unsubscribe();
+
+    this.variableService.resetVariables();
   }
 
   /**
