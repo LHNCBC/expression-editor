@@ -8,6 +8,7 @@ import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { A11yModule } from '@angular/cdk/a11y';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { RouterModule } from '@angular/router';
 
 @NgModule({
   declarations: [
@@ -19,7 +20,8 @@ import { MatTooltipModule } from '@angular/material/tooltip';
     RuleEditorModule,
     HttpClientModule,
     A11yModule,
-    MatTooltipModule
+    MatTooltipModule,
+    RouterModule.forRoot([])
   ],
   providers: [],
   bootstrap: [

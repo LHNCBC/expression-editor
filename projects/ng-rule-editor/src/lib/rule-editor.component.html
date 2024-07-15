@@ -41,26 +41,28 @@
     <div *ngIf="loadError" class="error">{{errorLoading}}</div>
 
     <div *ngIf="!calculateSum && !loadError">
-      <h1 [style]="lhcStyle.h1">{{titleName}}</h1>
+      <section id="title-section" *ngIf="display.titleSection">
+        <h1 [style]="lhcStyle.h1">{{titleName}}</h1>
+  
+        <span
+          class="checkbox"
+          matTooltip="When in the advanced interface you can edit FHIRPath and x-fhir-query directly.  
+            This mode is automatically enabled for complex Questionnaires.">
+          <input type="checkbox" id="advanced-interface" [disabled]="disableInterfaceToggle"
+                [(ngModel)]="advancedInterface">
+          <label for="advanced-interface">Advanced interface</label>
+        </span>
+      </section>
 
-      <span
-        class="checkbox"
-        matTooltip="When in the advanced interface you can edit FHIRPath and x-fhir-query directly.  
-          This mode is automatically enabled for complex Questionnaires.">
-        <input type="checkbox" id="advanced-interface" [disabled]="disableInterfaceToggle"
-              [(ngModel)]="advancedInterface">
-        <label for="advanced-interface">Advanced interface</label>
-      </span>
-
-      <section id="uneditable-variables-section" class="mb-3">
+      <section id="uneditable-variables-section" class="mb-3" *ngIf="display.uneditableVariablesSection">
         <lhc-uneditable-variables></lhc-uneditable-variables>
       </section>
 
-      <section id="variables-section" class="mb-3">
+      <section id="variables-section" class="mb-3" *ngIf="display.itemVariablesSection">
         <lhc-variables [lhcStyle]="lhcStyle" [advancedInterface]="advancedInterface"></lhc-variables>
       </section>
 
-      <section id="final-expression-section" class="mb-3" *ngIf="expressionUri && itemLinkId">
+      <section id="final-expression-section" class="mb-3" *ngIf="display.outputExpressionSection && expressionUri && itemLinkId">
         <h2 [style]="lhcStyle.h2">{{expressionLabel}}</h2>
         <div class="expression-type flex-vertical" *ngIf="userExpressionChoices">
           <label for="expression-type">Expression Type</label>

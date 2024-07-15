@@ -3,6 +3,8 @@ import { HttpClient } from '@angular/common/http';
 import { DatePipe } from '@angular/common';
 import { LiveAnnouncer } from '@angular/cdk/a11y';
 import Def from 'autocomplete-lhc';
+import { ActivatedRoute } from '@angular/router';
+import { createDisplayOption } from '../assets/js/common-utils.js';
 
 @Component({
   selector: 'app-root',
@@ -45,6 +47,7 @@ export class AppComponent implements OnInit, OnDestroy {
     }
   ];
 
+  display = {};
   fhirPreview: string;
   linkId = '';
   linkIds;
@@ -62,13 +65,22 @@ export class AppComponent implements OnInit, OnDestroy {
   displayRuleEditor = false;
   displayRuleEditorResult = false;
 
-  constructor(private http: HttpClient, private liveAnnouncer: LiveAnnouncer, private changeDetectorRef: ChangeDetectorRef) {}
+  constructor(private http: HttpClient, private liveAnnouncer: LiveAnnouncer,
+              private changeDetectorRef: ChangeDetectorRef,
+              private activatedRoute: ActivatedRoute) {}
 
   /**
    * Angular lifecycle hook called when the component is initialized
    */
   ngOnInit(): void {
     this.onChange(false);
+
+    this.activatedRoute.queryParams.subscribe(params => {
+      if ("hide" in params) {
+        const hideStr = params['hide'];
+        this.display = createDisplayOption(hideStr);
+      }
+    });
   }
 
   /**
@@ -97,13 +109,10 @@ export class AppComponent implements OnInit, OnDestroy {
         .subscribe(data => {
           this.fhirQuestionnaire = data;
 
-          console.log('app::onChange::fhirQuestionnaire - ' + JSON.stringify(this.fhirQuestionnaire));
-
           this.liveAnnouncer.announce((reload) ? this.formReloadAnnouncement : this.formAppearedAnnouncement);
 
           if (this.fhirQuestionnaire && this.fhirQuestionnaire.item instanceof Array) {
             this.linkIds = this.getQuestionnaireLinkIds(this.fhirQuestionnaire.item);
-console.log('app::onChange::fhirQuestionnaire::linkIds - ' + this.linkIds);
 
             this.defaultItemText = this.linkIds.find((item) => {
               return item.linkId === this.linkId;

@@ -20,6 +20,13 @@ export interface SimpleStyle {
   description?: object;
 }
 
+export interface DisplaySectionControl {
+  titleSection?: boolean,
+  uneditableVariablesSection?: boolean;
+  itemVariablesSection?: boolean;
+  outputExpressionSection?: boolean;
+}
+
 export enum DialogTypes {
   Confirmation = "confirmation",
   Help =  "help"
@@ -499,30 +506,19 @@ export class RuleEditorService {
    * @return true if load was successful
    */
   import(expressionUri: string, questionnaire, linkIdContext): boolean {
-    console.log('rule-editor.service::expressionUri - ' + expressionUri);
-    console.log('rule-editor.service::questionnaire - ' + JSON.stringify(questionnaire));
-    console.log('rule-editor.service::linkIdContext - ' + linkIdContext);
-    
     this.linkIdContext = linkIdContext;
     this.fhir = copy(questionnaire);
     const loadSuccess = this.fhir.resourceType === 'Questionnaire';
-    console.log('rule-editor.service::loadSuccess - ' + loadSuccess);
-    console.log('rule-editor.service::fhir.item - ' + this.fhir.item);
-    console.log('rule-editor.service::fhir.item len - ' + this.fhir.item.length);
     
     if (loadSuccess && this.fhir.item && this.fhir.item.length) {
-      console.log('rule-editor.service::import');
       if (!this.doNotAskToCalculateScore) {
-        console.log('rule-editor.service::import::step 1');
         // If there is at least one score question we will ask the user if they
         // want to calculate the score
         const scoreMinQuestions = 1;
         this.scoreCalculation = this.getScoreQuestionCount(this.fhir, linkIdContext) >= scoreMinQuestions;
-        console.log('rule-editor.service::import::step 1::scoreCalculation - ' + this.scoreCalculation);
         
         this.scoreCalculationChange.next(this.scoreCalculation);
       } else {
-        console.log('rule-editor.service::import::step 2');
         this.scoreCalculation = false;
       }
 
