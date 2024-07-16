@@ -9,6 +9,8 @@
     "experimentalDecorators": true,
     "moduleResolution": "node",
     "importHelpers": true,
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
     "target": "es6",
     "module": "es2020",
     "lib": [
@@ -16,9 +18,9 @@
       "dom"
     ],
     "paths": {
-      "ng-rule-editor": [
-        "dist/ng-rule-editor/ng-rule-editor",
-        "dist/ng-rule-editor"
+      "ngx-expression-editor": [
+        "dist/ngx-expression-editor/ngx-expression-editor",
+        "dist/ngx-expression-editor"
       ]
     },
     "useDefineForClassFields": false

@@ -210,7 +210,7 @@
             "expression": "%resource.item.where(linkId='/29463-7').answer.value",
             "extension": [
               {
-                "url": "http://lhcforms.nlm.nih.gov/fhirExt/rule-editor-variable-type",
+                "url": "http://lhcforms.nlm.nih.gov/fhirExt/expression-editor-variable-type",
                 "valueString": "question"
               }
             ]
@@ -224,7 +224,7 @@
             "expression": "%resource.item.where(linkId='/29463-7').answer.value*2.20462",
             "extension": [
               {
-                "url": "http://lhcforms.nlm.nih.gov/fhirExt/rule-editor-variable-type",
+                "url": "http://lhcforms.nlm.nih.gov/fhirExt/expression-editor-variable-type",
                 "valueString": "question"
               }
             ]
@@ -245,7 +245,7 @@
             "expression": "%resource.item.where(linkId='/8302-2').answer.value",
             "extension": [
               {
-                "url": "http://lhcforms.nlm.nih.gov/fhirExt/rule-editor-variable-type",
+                "url": "http://lhcforms.nlm.nih.gov/fhirExt/expression-editor-variable-type",
                 "valueString": "question"
               }
             ]
@@ -259,7 +259,7 @@
             "expression": "%resource.item.where(linkId='/8302-2').answer.value*2.54",
             "extension": [
               {
-                "url": "http://lhcforms.nlm.nih.gov/fhirExt/rule-editor-variable-type",
+                "url": "http://lhcforms.nlm.nih.gov/fhirExt/expression-editor-variable-type",
                 "valueString": "question"
               }
             ]
@@ -273,7 +273,7 @@
             "expression": "%resource.item.where(linkId='/8302-2').answer.value*0.0254",
             "extension": [
               {
-                "url": "http://lhcforms.nlm.nih.gov/fhirExt/rule-editor-variable-type",
+                "url": "http://lhcforms.nlm.nih.gov/fhirExt/expression-editor-variable-type",
                 "valueString": "question"
               }
             ]
@@ -287,7 +287,7 @@
             "expression": "%resource.item.where(linkId='/8302-2').answer.value*9999",
             "extension": [
               {
-                "url": "http://lhcforms.nlm.nih.gov/fhirExt/rule-editor-variable-type",
+                "url": "http://lhcforms.nlm.nih.gov/fhirExt/expression-editor-variable-type",
                 "valueString": "question"
               }
             ]
@@ -301,7 +301,7 @@
             "expression": "%resource.item.where(linkId='/8302-2').answer.value",
             "extension": [
               {
-                "url": "http://lhcforms.nlm.nih.gov/fhirExt/rule-editor-variable-type",
+                "url": "http://lhcforms.nlm.nih.gov/fhirExt/expression-editor-variable-type",
                 "valueString": "expression"
               }
             ]
@@ -315,7 +315,7 @@
             "expression": "Observation.component.where(code.memberOf(%'vs-observation-vitalsignresult'))",
             "extension": [
               {
-                "url": "http://lhcforms.nlm.nih.gov/fhirExt/rule-editor-variable-type",
+                "url": "http://lhcforms.nlm.nih.gov/fhirExt/expression-editor-variable-type",
                 "valueString": "expression"
               }
             ]
@@ -329,7 +329,7 @@
             "expression": "%resource.item.where(linkId='/8352-7').answer.value",
             "extension": [
               {
-                "url": "http://lhcforms.nlm.nih.gov/fhirExt/rule-editor-variable-type",
+                "url": "http://lhcforms.nlm.nih.gov/fhirExt/expression-editor-variable-type",
                 "valueString": "query"
               }
             ]
@@ -343,7 +343,7 @@
             "expression": "Observation?code=http://loinc.org|2922-3&date=gt{{today()-1 months}}&patient={{%patient.id}}&_sort=-date&_count=1",
             "extension": [
               {
-                "url": "http://lhcforms.nlm.nih.gov/fhirExt/rule-editor-variable-type",
+                "url": "http://lhcforms.nlm.nih.gov/fhirExt/expression-editor-variable-type",
                 "valueString": "query"
               }
             ]
@@ -357,7 +357,7 @@
             "expression": "Observation?code=http://loinc.org|2922-3&date=gt{{today()-1 days}}&patient={{%patient.id}}&_sort=-date&_count=1",
             "extension": [
               {
-                "url": "http://lhcforms.nlm.nih.gov/fhirExt/rule-editor-variable-type",
+                "url": "http://lhcforms.nlm.nih.gov/fhirExt/expression-editor-variable-type",
                 "valueString": "queryObservation"
               }
             ]
@@ -371,7 +371,7 @@
             "expression": "Observation?code=http://loinc.org|2922-3&date=gt{{today()-2 weeks}}&patient={{%patient.id}}&_sort=-date&_count=1",
             "extension": [
               {
-                "url": "http://lhcforms.nlm.nih.gov/fhirExt/rule-editor-variable-type",
+                "url": "http://lhcforms.nlm.nih.gov/fhirExt/expression-editor-variable-type",
                 "valueString": "queryObservation"
               }
             ]
@@ -385,7 +385,7 @@
             "expression": "Observation?code=http://loinc.org|2922-3&date=gt{{today()-3 months}}&patient={{%patient.id}}&_sort=-date&_count=1",
             "extension": [
               {
-                "url": "http://lhcforms.nlm.nih.gov/fhirExt/rule-editor-variable-type",
+                "url": "http://lhcforms.nlm.nih.gov/fhirExt/expression-editor-variable-type",
                 "valueString": "queryObservation"
               }
             ]
@@ -399,7 +399,7 @@
             "expression": "Observation?code=http://loinc.org|2922-3&date=gt{{today()-4 years}}&patient={{%patient.id}}&_sort=-date&_count=1",
             "extension": [
               {
-                "url": "http://lhcforms.nlm.nih.gov/fhirExt/rule-editor-variable-type",
+                "url": "http://lhcforms.nlm.nih.gov/fhirExt/expression-editor-variable-type",
                 "valueString": "queryObservation"
               }
             ]
@@ -413,7 +413,7 @@
             "expression": "1 + 1",
             "extension": [
               {
-                "url": "http://lhcforms.nlm.nih.gov/fhirExt/rule-editor-variable-type",
+                "url": "http://lhcforms.nlm.nih.gov/fhirExt/expression-editor-variable-type",
                 "valueString": "simple"
               },
               {
@@ -516,7 +516,7 @@
             "expression": "",
             "extension": [
               {
-                "url": "http://lhcforms.nlm.nih.gov/fhirExt/rule-editor-variable-type",
+                "url": "http://lhcforms.nlm.nih.gov/fhirExt/expression-editor-variable-type",
                 "valueString": "question"
               }
             ]
@@ -530,7 +530,7 @@
             "expression": "Observation.component.where(code.memberOf(%'vs-observation-vitalsignresult'))",
             "extension": [
               {
-                "url": "http://lhcforms.nlm.nih.gov/fhirExt/rule-editor-variable-type",
+                "url": "http://lhcforms.nlm.nih.gov/fhirExt/expression-editor-variable-type",
                 "valueString": "question"
               }
             ]
@@ -561,7 +561,7 @@
             "expression": "Observation?date=gt{{today()-2 weeks}}&patient={{%patient.id}}&_sort=-date&_count=1&code=http://loinc.org|2922-3",
             "extension": [
               {
-                "url": "http://lhcforms.nlm.nih.gov/fhirExt/rule-editor-variable-type",
+                "url": "http://lhcforms.nlm.nih.gov/fhirExt/expression-editor-variable-type",
                 "valueString": "queryObservation"
               }
             ]
@@ -575,7 +575,7 @@
             "expression": "Observation?patient={{%patient.id}}&_sort=-date&_count=1&code=http://loinc.org|2922-3&date=gt{{today()-2 weeks}}",
             "extension": [
               {
-                "url": "http://lhcforms.nlm.nih.gov/fhirExt/rule-editor-variable-type",
+                "url": "http://lhcforms.nlm.nih.gov/fhirExt/expression-editor-variable-type",
                 "valueString": "queryObservation"
               }
             ]
@@ -589,7 +589,7 @@
             "expression": "Observation?_sort=-date&_count=1&code=http://loinc.org|2922-3&date=gt{{today()-2 weeks}}&patient={{%patient.id}}",
             "extension": [
               {
-                "url": "http://lhcforms.nlm.nih.gov/fhirExt/rule-editor-variable-type",
+                "url": "http://lhcforms.nlm.nih.gov/fhirExt/expression-editor-variable-type",
                 "valueString": "queryObservation"
               }
             ]
@@ -603,7 +603,7 @@
             "expression": "Observation?_count=1&code=http://loinc.org|2922-3&date=gt{{today()-2 weeks}}&patient={{%patient.id}}&_sort=-date",
             "extension": [
               {
-                "url": "http://lhcforms.nlm.nih.gov/fhirExt/rule-editor-variable-type",
+                "url": "http://lhcforms.nlm.nih.gov/fhirExt/expression-editor-variable-type",
                 "valueString": "queryObservation"
               }
             ]

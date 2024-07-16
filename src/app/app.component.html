@@ -1,8 +1,8 @@
-<h1>Rule Editor Demo</h1>
+<h1>{{appName}} Demo</h1>
 
 <p>
-  The Rule Editor is a widget which helps you add FHIRPath expressions to a FHIR Questionnaire.
-  For documentation refer to the <a href="https://github.com/NLMLHC/rule-editor#the-lhc-rule-editor">Readme on GitHub</a>.
+  The {{appName}} is a widget which helps you add FHIRPath expressions to a FHIR Questionnaire.
+  For documentation refer to the <a href="https://github.com/NLMLHC/expression-editor#the-lhc-expression-editor">Readme on GitHub</a>.
   In the demo below you can choose one of the provided questionnaires or upload
   your own to be able to add, remove or rearrange variables and expressions.
 </p>
@@ -68,21 +68,21 @@
 </div>
 
 <div class="btn">
-  <button class="primary btn" (click)="openRuleEditorDialog()" 
-    aria-label="Open Rule Editor button." matTooltip="Open the Rule Editor"
-    id="openRuleEditor" [ngClass]="{'disabled': !canOpenRuleEditor()}"
-    >Open Rule Editor</button>
+  <button class="primary btn" (click)="openExpressionEditorDialog()" 
+    [attr.aria-label]="openExpressionEditorLabel" [attr.matTooltip]="openExpressionEditorTooltip"
+    id="openExpressionEditor" [ngClass]="{'disabled': !canOpenExpressionEditor()}"
+    >Open {{appName}}</button>
 </div>
 
 <div class="error" *ngIf="error">
   {{error}}
 </div>
 
-  <lhc-rule-editor
-    *ngIf="displayRuleEditor"
+  <lhc-expression-editor
+    *ngIf="displayExpressionEditor"
     [fhirQuestionnaire]="fhirQuestionnaire"
     [itemLinkId]="linkId"
-
+    [titleName]="appTitle"
     [submitButtonName]="'Save'"
     [expressionLabel]="'Output Expression'"
     [expressionUri]="linkId ? expressionUri : ''"
@@ -96,10 +96,10 @@
     [display]="display"
     [doNotAskToCalculateScore]="doNotAskToCalculateScore"
     (save)="onSave($event)"
-    (cancel)="closeRuleEditorDialog()">
-  </lhc-rule-editor>
+    (cancel)="closeExpressionEditorDialog()">
+  </lhc-expression-editor>
 
-<div *ngIf="displayRuleEditorResult">
+<div *ngIf="displayExpressionEditorResult">
   <hr>
   <button *ngIf="fhirPreview" (click)="downloadJson(fhirPreview)" class="download">
     Download Questionnaire

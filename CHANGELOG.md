@@ -2,6 +2,10 @@
 
 This project follows [Semantic Versioning](http://semver.org/).
 
+## [3.1.24] 2024-07-15
+### Changed
+- Renamed the Rule Editor to the Expression Editor
+
 ## [3.1.23] 2024-07-15
 ### Added
 - Added attribute to control the display of each section of the Rule Editor.

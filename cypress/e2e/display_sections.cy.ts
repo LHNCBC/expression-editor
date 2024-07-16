@@ -1,5 +1,5 @@
 
-describe('Rule editor', () => {
+describe('Expression editor', () => {
 
   describe('Angular Library', () => {
     describe('Query', () => {
@@ -9,16 +9,16 @@ describe('Rule editor', () => {
 
         cy.get('#questionnaire-select').select('Query');
 
-        cy.title().should('eq', 'Rule Editor');
+        cy.title().should('eq', 'Expression Editor');
 
         cy.get('#question').should('exist').should('be.visible')
           .should('have.value', 'View selected list (fetched from FHIR context) (/39156-5)');
 
         // Click the button to edit the expression
-        cy.get('button#openRuleEditor').should('exist').click();
+        cy.get('button#openExpressionEditor').should('exist').click();
 
-        // The Rule Editor dialog should now appear
-        cy.get('lhc-rule-editor #rule-editor-base-dialog').should('exist');
+        // The Expression Editor dialog should now appear
+        cy.get('lhc-expression-editor #expression-editor-base-dialog').should('exist');
 
         cy.get('#title-section').should('exist');
         cy.get('#uneditable-variables-section').should('exist');
@@ -34,16 +34,16 @@ describe('Rule editor', () => {
 
         cy.get('#questionnaire-select').select('Query');
 
-        cy.title().should('eq', 'Rule Editor');
+        cy.title().should('eq', 'Expression Editor');
 
         cy.get('#question').should('exist').should('be.visible')
           .should('have.value', 'View selected list (fetched from FHIR context) (/39156-5)');
 
         // Click the button to edit the expression
-        cy.get('button#openRuleEditor').should('exist').click();
+        cy.get('button#openExpressionEditor').should('exist').click();
 
-        // The Rule Editor dialog should now appear
-        cy.get('lhc-rule-editor #rule-editor-base-dialog').should('exist');
+        // The Expression Editor dialog should now appear
+        cy.get('lhc-expression-editor #expression-editor-base-dialog').should('exist');
 
         cy.get('#title-section').should('not.exist');
         cy.get('#uneditable-variables-section').should('exist');
@@ -57,16 +57,16 @@ describe('Rule editor', () => {
         cy.wait('@query1');
 
         cy.get('#questionnaire-select').select('Query');
-        cy.title().should('eq', 'Rule Editor');
+        cy.title().should('eq', 'Expression Editor');
 
         cy.get('#question').should('exist').should('be.visible')
           .should('have.value', 'View selected list (fetched from FHIR context) (/39156-5)');
 
         // Click the button to edit the expression
-        cy.get('button#openRuleEditor').should('exist').click();
+        cy.get('button#openExpressionEditor').should('exist').click();
 
-        // The Rule Editor dialog should now appear
-        cy.get('lhc-rule-editor #rule-editor-base-dialog').should('exist');
+        // The Expression Editor dialog should now appear
+        cy.get('lhc-expression-editor #expression-editor-base-dialog').should('exist');
 
         cy.get('#title-section').should('exist');
         cy.get('#uneditable-variables-section').should('not.exist');
@@ -80,16 +80,16 @@ describe('Rule editor', () => {
         cy.wait('@query1');
 
         cy.get('#questionnaire-select').select('Query');
-        cy.title().should('eq', 'Rule Editor');
+        cy.title().should('eq', 'Expression Editor');
 
         cy.get('#question').should('exist').should('be.visible')
           .should('have.value', 'View selected list (fetched from FHIR context) (/39156-5)');
 
         // Click the button to edit the expression
-        cy.get('button#openRuleEditor').should('exist').click();
+        cy.get('button#openExpressionEditor').should('exist').click();
 
-        // The Rule Editor dialog should now appear
-        cy.get('lhc-rule-editor #rule-editor-base-dialog').should('exist');
+        // The Expression Editor dialog should now appear
+        cy.get('lhc-expression-editor #expression-editor-base-dialog').should('exist');
 
         cy.get('#title-section').should('exist');
         cy.get('#uneditable-variables-section').should('exist');

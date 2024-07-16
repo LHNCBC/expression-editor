@@ -1,20 +1,20 @@
-describe('Rule editor', () => {
+describe('Expression editor', () => {
   beforeEach(() => {
     cy.visit('/');
 
     // The demo has 'BMI (/39156-5) selected by default
     cy.get('#question').should('have.value', 'BMI (/39156-5)');
 
-    // The 'Open Rule Editor' button should not be disabled
-    cy.get('#openRuleEditor')
+    // The 'Open Expression Editor' button should not be disabled
+    cy.get('#openExpressionEditor')
       .should('exist')
       .should('not.have.class', 'disabled')
       .click();
 
-    // The Rule Editor dialog should now appear
-    cy.get('lhc-rule-editor #rule-editor-base-dialog').should('exist');
+    // The Expression Editor dialog should now appear
+    cy.get('lhc-expression-editor #expression-editor-base-dialog').should('exist');
 
-    cy.title().should('eq', 'Rule Editor');
+    cy.title().should('eq', 'Expression Editor');
 
     // Variables section
     cy.get('lhc-variables > h2').should('contain', 'Item Variables');

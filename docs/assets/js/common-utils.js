@@ -1,6 +1,6 @@
 
 /**
- * Set the display object to show/hide various sections of the Rule Editor
+ * Set the display object to show/hide various sections of the Expression Editor
  * based on the hiddenSectionStr.
  * @param hiddenSectionStr - a comma-separated list of section names to be
  * hidden. Possible values are:

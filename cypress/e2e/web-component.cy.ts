@@ -1,4 +1,7 @@
-describe('Rule Editor Web Component', () => {
+describe(Cypress.env("appName") + ' Web Component', () => {
+  beforeEach(() => {
+    cy.visit('/web-component.html');
+  });
 
   describe('score calculation', () => {
     beforeEach(() => {
@@ -9,11 +12,11 @@ describe('Rule Editor Web Component', () => {
       cy.get('.score-modal').should('contain.text', 'Would you like to select items for the sum of scores?');
     });
 
-    it('should show the Rule Editor interface if the user clicks no.', () => {
+    it('should show the ' + Cypress.env("appName") + ' interface if the user clicks no.', () => {
       cy.get('.score-modal').should('contain.text', 'Would you like to select items for the sum of scores?');
       cy.get('#skip-score-items-selection').click();
 
-      cy.get('h1').should('contain.text', 'Test Rule Editor');
+      cy.get('h1').should('contain.text', Cypress.env("appTitle"));
       cy.get('#export').should('contain.text', 'Test Submit');
     });
 
@@ -32,14 +35,14 @@ describe('Rule Editor Web Component', () => {
     });
   });
 
-  describe('Rule Editor sections', () => {
+  describe('Expression Editor sections', () => {
     it('should display all sections', () => {
       cy.intercept('/web-component-sections.html').as('query1');
       cy.visit('/web-component-sections.html');
       cy.wait('@query1');
 
-      // The Rule Editor dialog should now appear
-      cy.get('lhc-rule-editor #rule-editor-base-dialog').should('exist');
+      // The Expression Editor dialog should now appear
+      cy.get('lhc-expression-editor #expression-editor-base-dialog').should('exist');
 
       cy.get('#title-section').should('exist');
       cy.get('#uneditable-variables-section').should('exist');
@@ -53,8 +56,8 @@ describe('Rule Editor Web Component', () => {
       cy.visit('/web-component-sections.html?hide=titleSection');
       cy.wait('@query1');
 
-      // The Rule Editor dialog should now appear
-      cy.get('lhc-rule-editor #rule-editor-base-dialog').should('exist');
+      // The Expression Editor dialog should now appear
+      cy.get('lhc-expression-editor #expression-editor-base-dialog').should('exist');
 
       cy.get('#title-section').should('not.exist');
       cy.get('#uneditable-variables-section').should('exist');
@@ -68,8 +71,8 @@ describe('Rule Editor Web Component', () => {
       cy.visit('/web-component-sections.html?hide=uneditableVariablesSection,itemVariablesSection');
       cy.wait('@query1');
 
-      // The Rule Editor dialog should now appear
-      cy.get('lhc-rule-editor #rule-editor-base-dialog').should('exist');
+      // The Expression Editor dialog should now appear
+      cy.get('lhc-expression-editor #expression-editor-base-dialog').should('exist');
 
       cy.get('#title-section').should('exist');
       cy.get('#uneditable-variables-section').should('not.exist');
@@ -83,8 +86,8 @@ describe('Rule Editor Web Component', () => {
       cy.visit('/web-component-sections.html?hide=outputExpressionSection');
       cy.wait('@query1');
 
-      // The Rule Editor dialog should now appear
-      cy.get('lhc-rule-editor #rule-editor-base-dialog').should('exist');
+      // The Expression Editor dialog should now appear
+      cy.get('lhc-expression-editor #expression-editor-base-dialog').should('exist');
 
       cy.get('#title-section').should('exist');
       cy.get('#uneditable-variables-section').should('exist');

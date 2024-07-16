@@ -1,0 +1,25 @@
+<lhc-base-dialog
+  [titleBarLabel]="'Calculate Sum of Scores'"
+  [name]="'calculate-sum'"
+  [dialogType]="'confirmation'"
+  (dialogClose)="onDialogCloseClick()">
+
+  <div class="score-modal">
+    <p [style]="lhcStyle.description">It looks like this might be a score calculation.</p>
+    <p [style]="lhcStyle.description">Would you like to select items for the sum of scores?</p>
+
+    <div class="score-instructions">
+      <ul>
+        <li>Click 'Yes' to select items for the scoring calculation.</li>
+        <li>Click 'No' to skip item selection and go to the {{appName}}.</li>
+      </ul>
+    </div>
+    <div class="button-div">
+      <button (click)="onSelectItemsClick()" [style]="lhcStyle.buttonPrimary"
+              id="score-items-selection" [matTooltip]="selectItemsAriaDescription">Yes</button>
+      <button (click)="onCloseClick()" id="skip-score-items-selection"
+              [matTooltip]="skipSelectItemsAriaDescription">No</button>
+    </div>
+  </div>
+  
+</lhc-base-dialog>
