@@ -13,21 +13,26 @@
     crossorigin="anonymous"></script>
 </head>
 <body>
-<lhc-rule-editor
+<lhc-expression-editor
   id="editor"
-  title-name="Test Rule Editor"
+  title-name="Test Expression Editor"
   submit-button-name="Test Submit">
-</lhc-rule-editor>
+</lhc-expression-editor>
 
 <pre id="output"></pre>
 
-<script src="rule-editor.js"></script>
+<script src="expression-editor.js"></script>
 
 <script type="module">
   import { createDisplayOption } from './assets/js/common-utils.js';
 
   const editor = document.getElementById('editor');
   const output = document.getElementById('output');
+
+  const expEditor = document.querySelector('lhc-expression-editor');
+  if (expEditor) {
+    expEditor.setAttribute('title-name', window.env.appTitle);
+  }
 
   let params = new URLSearchParams(document.location.search);
   let hideParam = params.get('hide');
