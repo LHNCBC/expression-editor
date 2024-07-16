@@ -5,6 +5,8 @@ import { LiveAnnouncer } from '@angular/cdk/a11y';
 import Def from 'autocomplete-lhc';
 import { environment } from '../environments/environment';
 import { Title } from '@angular/platform-browser';
+import { ActivatedRoute } from '@angular/router';
+import { createDisplayOption } from '../assets/js/common-utils.js';
 
 @Component({
   selector: 'app-root',
@@ -52,6 +54,7 @@ export class AppComponent implements OnInit, OnDestroy {
     }
   ];
 
+  display = {};
   fhirPreview: string;
   linkId = '';
   linkIds;
@@ -72,6 +75,7 @@ export class AppComponent implements OnInit, OnDestroy {
   constructor(private http: HttpClient,
               private liveAnnouncer: LiveAnnouncer,
               private changeDetectorRef: ChangeDetectorRef,
+              private activatedRoute: ActivatedRoute,
               private titleService: Title) {}
 
   /**
@@ -81,6 +85,12 @@ export class AppComponent implements OnInit, OnDestroy {
     this.onChange(false);
 
     this.titleService.setTitle(environment.appName);
+    this.activatedRoute.queryParams.subscribe(params => {
+      if ("hide" in params) {
+        const hideStr = params['hide'];
+        this.display = createDisplayOption(hideStr);
+      }
+    });
   }
 
   /**
@@ -224,7 +234,7 @@ export class AppComponent implements OnInit, OnDestroy {
       this.autoCompleteElement.nativeElement, keys, opts);
 
     Def.Autocompleter.Event.observeListSelections('question', (res) => {
-      if ((res.input_method === "clicked" && res.val_typed_in !== res.final_val && res?.item_code) ||
+      if (((res.input_method === "clicked" || res.input_method === "arrows" ) && res.val_typed_in !== res.final_val && res?.item_code) ||
           (res.input_method === "typed")) {
         this.linkId = res.item_code;
 

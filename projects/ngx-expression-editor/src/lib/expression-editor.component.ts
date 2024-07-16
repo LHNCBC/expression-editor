@@ -1,6 +1,6 @@
 import { ChangeDetectorRef, Component, EventEmitter, Inject, Input, OnChanges, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
 
-import { ExpressionEditorService, SimpleStyle } from './expression-editor.service';
+import { ExpressionEditorService, SimpleStyle, DisplaySectionControl } from './expression-editor.service';
 import { LiveAnnouncer } from '@angular/cdk/a11y';
 import { ValidationResult } from './variable';
 import { ENVIRONMENT_TOKEN } from './environment-token';
@@ -22,6 +22,7 @@ export class ExpressionEditorComponent implements OnInit, OnChanges, OnDestroy {
   @Input() expressionLabel = 'Final Expression';
   @Input() expressionUri = '';
   @Input() lhcStyle: SimpleStyle = {};
+  @Input() display: DisplaySectionControl = {};
   @Output() save = new EventEmitter<object>();
   @Output() cancel = new EventEmitter<object>();
 
@@ -205,6 +206,8 @@ export class ExpressionEditorComponent implements OnInit, OnChanges, OnDestroy {
 
     this.validationSubscription.unsubscribe();
     this.performValidationSubscription.unsubscribe();
+
+    this.variableService.resetVariables();
   }
 
   /**
@@ -267,11 +270,18 @@ export class ExpressionEditorComponent implements OnInit, OnChanges, OnDestroy {
     } else {
       this.doNotAskToCalculateScore = true;
     }
-
     this.calculateSum = (this.variableService.scoreCalculation && !this.doNotAskToCalculateScore);
     this.finalExpressionExtension = this.variableService.finalExpressionExtension;
     this.finalExpression = this.variableService.finalExpression;
     this.variables = this.variableService.getVariableNames();
+
+    this.display = {
+      titleSection: 'titleSection' in this.display ? this.display.titleSection : true,
+      uneditableVariablesSection: 'uneditableVariablesSection' in this.display ? this.display.uneditableVariablesSection : true,
+      itemVariablesSection: 'itemVariablesSection' in this.display ? this.display.itemVariablesSection : true,
+      outputExpressionSection: 'outputExpressionSection' in this.display ? this.display.outputExpressionSection : true
+    };
+ 
   }
 
   /**

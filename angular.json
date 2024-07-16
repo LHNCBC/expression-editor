@@ -27,6 +27,11 @@
                 "output": ""
               },
               {
+                "glob": "*",
+                "input": "src/assets/js",
+                "output": "/assets/js"
+              },
+              {
                 "glob": "expression-editor.js?(.map)",
                 "input": "dist/expression-editor/",
                 "output": ""
@@ -251,7 +256,13 @@
             "polyfills": "projects/expression-editor/src/polyfills.ts",
             "tsConfig": "projects/expression-editor/tsconfig.app.json",
             "aot": true,
-            "assets": [],
+            "assets": [
+              {
+                "glob": "*",
+                "input": "src/assets/js",
+                "output": "/assets/js"
+              }
+            ],
             "styles": [],
             "scripts": [
               "./node_modules/jquery/dist/jquery.min.js"

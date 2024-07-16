@@ -9,6 +9,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { A11yModule } from '@angular/cdk/a11y';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { environment } from '../environments/environment';
+import { RouterModule } from '@angular/router';
 
 @NgModule({
   declarations: [
@@ -20,7 +21,8 @@ import { environment } from '../environments/environment';
     ExpressionEditorModule,
     HttpClientModule,
     A11yModule,
-    MatTooltipModule
+    MatTooltipModule,
+    RouterModule.forRoot([])
   ],
   providers: [
     { provide: ENVIRONMENT_TOKEN, useValue: environment }

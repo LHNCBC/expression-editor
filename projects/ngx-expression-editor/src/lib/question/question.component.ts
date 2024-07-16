@@ -108,15 +108,12 @@ export class QuestionComponent implements OnInit, AfterViewInit, OnDestroy {
       this.autoComplete.setFieldToListValue(this.getQuestionFieldItem(question.text, this.linkId));
 
       Def.Autocompleter.Event.observeListSelections(`question-${this.index}`, (res) => {
-        if ((res.input_method === "clicked" && res?.item_code) ||
-            (res.input_method === "typed")) {
+        if (res.item_code)
+          this.linkId = res.item_code;
+        else
+          this.resetVariableProperties();
+        this.onChange(true);
 
-          if (res.item_code)
-            this.linkId = res.item_code;
-          else
-            this.resetVariableProperties();
-          this.onChange(true);
-        }
       });
   }
 
@@ -163,6 +160,10 @@ export class QuestionComponent implements OnInit, AfterViewInit, OnDestroy {
 
     // If we already have a question selected (as opposed to the select... prompt)
     if (this.linkId) {
+      if (this.variable.linkId !== this.linkId) {
+        this.toUnit = '';
+      }
+
       delete this.variable.simple;
 
       const question = this.getQuestion(this.linkId);
@@ -177,7 +178,7 @@ export class QuestionComponent implements OnInit, AfterViewInit, OnDestroy {
         this.itemHasScore = false;
       }
 
-      this.variable.expression = this.variableService.valueOrScoreExpression(
+      this.variable.expression = this.variableService.updateValueOrScoreExpression(
         this.linkId, this.itemHasScore, !this.isNonConvertibleUnit, this.unit, this.toUnit, this.expression);
 
       this.expression = this.variable.expression;

@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { environment } from 'src/environments/environment';
+import { RouterModule } from '@angular/router';
 
 describe('AppComponent', () => {
   beforeEach(async () => {
@@ -16,7 +17,8 @@ describe('AppComponent', () => {
         ExpressionEditorModule,
         FormsModule,
         HttpClientModule,
-        HttpClientTestingModule
+        HttpClientTestingModule,
+        RouterModule.forRoot([])
       ]
     }).compileComponents();
   });
