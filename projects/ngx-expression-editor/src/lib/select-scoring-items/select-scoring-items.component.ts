@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, ViewChild, ViewEncapsulation } from '@angular/core';
 import { DialogStyle, ExpressionEditorService, SimpleStyle } from '../expression-editor.service';
 import {ITreeOptions, KEYS, TREE_ACTIONS, TreeComponent} from '@bugsplat/angular-tree-component';
 import {TreeNode} from '@bugsplat/angular-tree-component/lib/defs/api';
@@ -7,7 +7,8 @@ import { LiveAnnouncer } from '@angular/cdk/a11y';
 @Component({
   selector: 'lhc-select-scoring-items',
   templateUrl: './select-scoring-items.component.html',
-  styleUrls: ['../expression-editor.component.css', './select-scoring-items.component.css']
+  styleUrls: ['../../../../../node_modules/@bugsplat/angular-tree-component/css/angular-tree-component.css', '../expression-editor.component.css', './select-scoring-items.component.css'],
+  encapsulation: ViewEncapsulation.ShadowDom
 })
 export class SelectScoringItemsComponent implements OnInit {
   @Input() lhcStyle: SimpleStyle = {};
@@ -74,7 +75,7 @@ export class SelectScoringItemsComponent implements OnInit {
 
   customDialogStyle: DialogStyle = {
     dialogContentDiv: {
-      'width': '70%',
+      'width': '80%',
       'max-height': '90%'
     },
     dialogHeaderDiv: {

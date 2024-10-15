@@ -57,12 +57,22 @@ input, select {
   font-size: .8rem;
 }
 
-.syntax-preview {
-  margin-top: 1em;
-}
-
 .syntax-preview > pre {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.autocomp_selected {
+  border: none!important;
+  padding: 0!important;
+  display: block!important;
+}
+
+.autocomp_selected > ul {
+  margin: 0 !important;
+}
+
+span.autocomp_selected > ul > li > button {
+  height: 100%;
 }

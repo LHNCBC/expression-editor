@@ -14,10 +14,13 @@ export interface SimpleStyle {
   variableRow?: object;
   buttonPrimary?: object;
   buttonSecondary?: object;
+  buttonTertiary?: object;
   buttonDanger?: object;
   input?: object;
   select?: object;
   description?: object;
+  body?: object;
+  titleBar?: object;
 }
 
 export interface DisplaySectionControl {

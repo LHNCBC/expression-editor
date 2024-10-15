@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, EventEmitter, Inject, Input, OnChanges, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, EventEmitter, Inject, Input, OnChanges, OnDestroy, OnInit, Output, ViewChild, ViewEncapsulation } from '@angular/core';
 
 import { ExpressionEditorService, SimpleStyle, DisplaySectionControl } from './expression-editor.service';
 import { LiveAnnouncer } from '@angular/cdk/a11y';
@@ -9,7 +9,8 @@ import { ENVIRONMENT_TOKEN } from './environment-token';
   // tslint:disable-next-line:component-selector
   selector: 'lhc-expression-editor',
   templateUrl: 'expression-editor.component.html',
-  styleUrls: ['expression-editor.component.css']
+  styleUrls: ['expression-editor.component.css'],
+  encapsulation: ViewEncapsulation.ShadowDom
 })
 export class ExpressionEditorComponent implements OnInit, OnChanges, OnDestroy {
   @Input() advancedInterface = false;
@@ -71,18 +72,74 @@ export class ExpressionEditorComponent implements OnInit, OnChanges, OnDestroy {
   private performValidationSubscription;
   private helpSubscription;
   
+  // Default Lhc styles. Any updates will be applied on top of these defaults.
+  defaultLhcStyle = {
+    "h2": { "textAlign": "left" },
+    "buttonPrimary": { "backgroundColor": "rgb(13, 110, 253)", "color": "white" },
+    "buttonSecondary": { "backgroundColor": "rgb(240, 240, 240)", "color": 'black' },
+    "buttonTertiary": { "backgroundColor": "darkgreen", "color": "white" },
+    "input": { "backgroundColor": "#ffe", "color": "black" },
+    "select": { "backgroundColor": "#ffe", "color": "black" },
+    "variableHeader": {
+      "backgroundColor": "white",
+      "fontSize": "14px",
+      "color": "black", 
+    },
+    "variableRow": {
+      "backgroundColor": "white",
+      "fontSize": "14px",
+      "color": "black", 
+    },
+    "body": {
+      "fontSize": "14px",
+      "color": "black",
+      "backgroundColor": "white",
+      "fontFamily": "Roboto, Helvetica Neue, Arial, Noto Sans, sans-serif"
+    },
+    "titleBar": {
+      "padding": "10px 20px 10px 20px",
+      "height": "20px",
+      "backgroundColor": "#17b4e3",
+      "color": "white",
+      "verticalAlign": "middle"
+    }
+  };
+
   constructor(@Inject(ENVIRONMENT_TOKEN) private environment: any, private variableService: ExpressionEditorService, private liveAnnouncer: LiveAnnouncer, private changeDetectorRef: ChangeDetectorRef) {}
+  
+  /**
+   * Updates the 'defaultStyles' JSON object by merging it with the 'customStyles' JSON object.
+   * @param customStylesJson - A JSON object containing custom CSS properties and values that
+   *                          override the default value.
+   * @param defaultStylesJson - A JSON object representing the default CSS properties and values,
+   *                            which will be updated by the custom styles.
+   */
+  applyCustomStyles(customStylesJson: any, defaultStylesJson: any): void {
+    for (const key in customStylesJson) {
+      if (defaultStylesJson.hasOwnProperty(key)) {
+        for (const innerKey in customStylesJson[key]) {
+          if (defaultStylesJson[key].hasOwnProperty(innerKey)) {
+            defaultStylesJson[key][innerKey] = customStylesJson[key][innerKey];
+          }
+        }
+      }
+    }
+  }
+  
 
   /**
    * Angular lifecycle hook called when the component is initialized
    */
   ngOnInit(): void {
-
     if (this.environment?.appName) {
       ExpressionEditorService.APP_NAME = this.environment.appName;
     }
     this.appName = ExpressionEditorService.APP_NAME;
     
+    if (this.lhcStyle || Object.keys(this.lhcStyle).length > 0) {
+      this.applyCustomStyles(this.lhcStyle, this.defaultLhcStyle);
+    }
+
     this.dialogPrompt1 = `The ${this.appName} does not support conversion from FHIRPath Expression ` +
       `to Easy Path Expression. Switching to the Easy Path Expression for the ` +
       `output expression would result in the expression becoming blank.`;

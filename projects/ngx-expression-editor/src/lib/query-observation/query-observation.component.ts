@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, Input, OnDestroy, OnInit, ViewChild, ViewChildren, QueryList } from '@angular/core';
+import { AfterViewInit, Component, Input, OnDestroy, OnInit, ViewChild, ViewChildren, QueryList, ViewEncapsulation } from '@angular/core';
 import { ExpressionEditorService, SimpleStyle } from '../expression-editor.service';
 import Def from 'autocomplete-lhc';
 import { HttpClient } from '@angular/common/http';
@@ -9,7 +9,9 @@ import { ExpressionValidatorDirective } from '../../directives/expression/expres
 @Component({
   selector: 'lhc-query-observation',
   templateUrl: './query-observation.component.html',
-  styleUrls: ['./query-observation.component.css']
+  styleUrls: ['../../../../../node_modules/autocomplete-lhc/source/auto_completion.css', './query-observation.component.css'],
+
+  encapsulation: ViewEncapsulation.ShadowDom
 })
 export class QueryObservationComponent implements OnInit, AfterViewInit, OnDestroy {
   queryUrl = 'https://clinicaltables.nlm.nih.gov/api/loinc_items/v3/search?df=text,LOINC_NUM';

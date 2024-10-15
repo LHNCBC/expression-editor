@@ -4,7 +4,8 @@
   [headerLabel]="'Select items to include in the score calculation:'"
   (dialogClose)="onCloseClick()"
   [dialogType]="'confirmation'"
-  [customDialogStyle]="customDialogStyle">
+  [customDialogStyle]="customDialogStyle"
+  [lhcStyle]="lhcStyle">
 
   <div class="scoring-items-selection-body">
     <div class="button-container">
@@ -12,13 +13,13 @@
         <button
           class="btn btn-secondary mt-2"
           (click)="setSelectAllState(true)"
-          [ngStyle]="lhcStyle.buttonSecondary"
+          [ngStyle]="lhcStyle.buttonTertiary"
           id="selectAll" [disabled]="scoringItems.length === 0">Select All
         </button>
         <button
           class="btn btn-secondary mt-2"
           (click)="setSelectAllState(false)"
-          [ngStyle]="lhcStyle.buttonSecondary"
+          [ngStyle]="lhcStyle.buttonTertiary"
           id="unselectAll" [disabled]="scoringItems.length === 0">Unselect All
         </button>
       </div>
@@ -101,10 +102,10 @@
             id="export-score">Done</button>
     <button class="secondary" [ngClass]="{'disabled': !hasScoreSelected}"
             [attr.aria-label]="validationErrorMessage" [matTooltip]="matToolTip"
-            (click)="onExportClick(true)" [style]="lhcStyle.buttonSecondary"
+            (click)="onExportClick(true)" [style]="lhcStyle.buttonTertiary"
             id="review-fhirpath">Review FHIRPath</button>
   
-    <button (click)="onCloseClick()" id="skip-export-score">Cancel</button>
+    <button (click)="onCloseClick()" id="skip-export-score" [style]="lhcStyle.buttonSecondary">Cancel</button>
   </div>
 
 
