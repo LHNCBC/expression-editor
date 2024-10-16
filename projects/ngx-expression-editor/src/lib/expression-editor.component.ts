@@ -74,12 +74,16 @@ export class ExpressionEditorComponent implements OnInit, OnChanges, OnDestroy {
   
   // Default Lhc styles. Any updates will be applied on top of these defaults.
   defaultLhcStyle = {
-    "h2": { "textAlign": "left" },
+    "h1": {},
+    "h2": {},
+    "previewArea": {},
     "buttonPrimary": { "backgroundColor": "rgb(13, 110, 253)", "color": "white" },
     "buttonSecondary": { "backgroundColor": "rgb(240, 240, 240)", "color": 'black' },
     "buttonTertiary": { "backgroundColor": "darkgreen", "color": "white" },
+    "buttonDanger": {},
     "input": { "backgroundColor": "#ffe", "color": "black" },
     "select": { "backgroundColor": "#ffe", "color": "black" },
+    "description": {},
     "variableHeader": {
       "backgroundColor": "white",
       "fontSize": "14px",
@@ -110,7 +114,7 @@ export class ExpressionEditorComponent implements OnInit, OnChanges, OnDestroy {
   /**
    * Updates the 'defaultStyles' JSON object by merging it with the 'customStyles' JSON object.
    * @param customStylesJson - A JSON object containing custom CSS properties and values that
-   *                          override the default value.
+   *                          override or extend the default styles.
    * @param defaultStylesJson - A JSON object representing the default CSS properties and values,
    *                            which will be updated by the custom styles.
    */
@@ -118,9 +122,7 @@ export class ExpressionEditorComponent implements OnInit, OnChanges, OnDestroy {
     for (const key in customStylesJson) {
       if (defaultStylesJson.hasOwnProperty(key)) {
         for (const innerKey in customStylesJson[key]) {
-          if (defaultStylesJson[key].hasOwnProperty(innerKey)) {
-            defaultStylesJson[key][innerKey] = customStylesJson[key][innerKey];
-          }
+          defaultStylesJson[key][innerKey] = customStylesJson[key][innerKey];
         }
       }
     }
