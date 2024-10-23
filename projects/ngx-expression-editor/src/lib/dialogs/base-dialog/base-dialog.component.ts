@@ -162,18 +162,21 @@ export class BaseDialogComponent implements OnInit {
   applyCustomDialogStyle(sourceDialogStyle, customDialogStyle) {
     if (!this.customDialogStyle.dialogContentDiv)
       this.customDialogStyle.dialogContentDiv = {};
-    this.customDialogStyle.dialogContentDiv['backgroundColor'] = this.lhcStyle.body['backgroundColor'];
-    this.customDialogStyle.dialogContentDiv['color'] = this.lhcStyle.body['color'];
-
     if (!this.customDialogStyle.dialogHeaderDiv)
       this.customDialogStyle.dialogHeaderDiv = {};
-    this.customDialogStyle.dialogHeaderDiv['backgroundColor'] = this.lhcStyle.body['backgroundColor'];
-    this.customDialogStyle.dialogHeaderDiv['color'] = this.lhcStyle.body['color'];
-
     if (!this.customDialogStyle.dialogFooterDiv)
       this.customDialogStyle.dialogFooterDiv = {};
-    this.customDialogStyle.dialogFooterDiv['backgroundColor'] = this.lhcStyle.body['backgroundColor'];
-    this.customDialogStyle.dialogFooterDiv['color'] = this.lhcStyle.body['color'];
+
+    if (this.lhcStyle?.body?.backgroundColor) {
+      this.customDialogStyle.dialogContentDiv['backgroundColor'] = this.lhcStyle.body.backgroundColor;
+      this.customDialogStyle.dialogHeaderDiv['backgroundColor'] = this.lhcStyle.body.backgroundColo;
+      this.customDialogStyle.dialogFooterDiv['backgroundColor'] = this.lhcStyle.body.backgroundColor;
+    }
+    if (this.lhcStyle?.body?.color) {
+      this.customDialogStyle.dialogContentDiv['color'] = this.lhcStyle.body.color;
+      this.customDialogStyle.dialogHeaderDiv['color'] = this.lhcStyle.body.color;
+      this.customDialogStyle.dialogFooterDiv['color'] = this.lhcStyle.body.color;
+    }
 
     Object.keys(customDialogStyle).forEach((key) => {
       const val = customDialogStyle[key];

@@ -103,7 +103,7 @@ export class ExpressionEditorComponent implements OnInit, OnChanges, OnDestroy {
     "titleBar": {
       "padding": "10px 20px 10px 20px",
       "height": "20px",
-      "backgroundColor": "#17b4e3",
+      "backgroundColor": "#326295",
       "color": "white",
       "verticalAlign": "middle"
     }

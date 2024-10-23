@@ -19,8 +19,12 @@ export interface SimpleStyle {
   input?: object;
   select?: object;
   description?: object;
-  body?: object;
-  titleBar?: object;
+  body?: {
+    [key: string]: string | undefined;
+  };
+  titleBar?:  {
+    [key: string]: string | undefined;
+  };
 }
 
 export interface DisplaySectionControl {

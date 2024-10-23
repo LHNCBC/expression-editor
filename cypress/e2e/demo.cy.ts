@@ -53,40 +53,45 @@ describe(Cypress.env("appName") + ' demo', () => {
 
       // Click the button to edit the expression
       cy.get('button#openExpressionEditor').should('exist').click();
+
       // The Expression Editor dialog should now appear
-      cy.get('lhc-expression-editor #expression-editor-base-dialog').should('exist');
+      cy.get('lhc-expression-editor').shadow().within(() => {
+        cy.get('#expression-editor-base-dialog').should('exist');
 
-      cy.get('#final-expression').should('have.value', '(%a/(%b.power(2))).round(1)');
+        cy.get('#final-expression').should('have.value', '(%a/(%b.power(2))).round(1)');
 
-      cy.get('button.btn-close').click();
+        cy.get('button.btn-close').click();
 
-      // The dialog to confirm cancel should be displayed
-      cy.get('lhc-cancel-changes-confirmation-dialog')
-        .should('exist')
-        .within(() => {
-          // Click 'Yes' button
-          cy.get('#yes-button').should('exist').click();
-        });
+        // The dialog to confirm cancel should be displayed
+        cy.get('lhc-cancel-changes-confirmation-dialog')
+          .should('exist')
+          .within(() => {
+            // Click 'Yes' button
+            cy.get('#yes-button').should('exist').click();
+          });
+      });
 
       cy.get('#expression-entry > select').select('2');
 
       // Click the button to edit the expression
       cy.get('button#openExpressionEditor').should('exist').click();
       // The Expression Editor dialog should now appear
-      cy.get('lhc-expression-editor #expression-editor-base-dialog').should('exist');
+      cy.get('lhc-expression-editor').shadow().within(() => {
+        cy.get('#expression-editor-base-dialog').should('exist');
+        cy.get('#expression-type').find(':selected').should('contain.text', 'Computed continuously');
 
-      cy.get('#expression-type').find(':selected').should('contain.text', 'Computed continuously');
-
-      cy.get('#export').click();
+        cy.get('#export').click();
+      });
       cy.get('#output').should('contain.text', 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression');
 
       // Click the button to edit the expression
       cy.get('button#openExpressionEditor').should('exist').click();
       // The Expression Editor dialog should now appear
-      cy.get('lhc-expression-editor #expression-editor-base-dialog').should('exist');
-
-      cy.get('#expression-type').select('Only computed when the form loads');
-      cy.get('#export').click();
+      cy.get('lhc-expression-editor').shadow().within(() => {
+        cy.get('#expression-editor-base-dialog').should('exist');
+        cy.get('#expression-type').select('Only computed when the form loads');
+        cy.get('#export').click();
+      });
       cy.get('#output').should('contain.text', 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression');
     });
 
@@ -138,23 +143,25 @@ describe(Cypress.env("appName") + ' demo', () => {
       // Click the button to edit the expression
       cy.get('button#openExpressionEditor').should('exist').click();
 
-      // The prompt to calculate the total scoring item should displayed.
-      cy.get('lhc-calculate-sum-prompt > lhc-base-dialog > #calculate-sum-base-dialog')
-        .should('exist')
-        .within(() => {
-          // The prompt should come with a Yes and No buttons
-          cy.get('#score-items-selection').should('exist');
-          cy.get('#skip-score-items-selection').should('exist');
-    
-          // Select No
-          cy.get('#skip-score-items-selection').click();
-        });
+      cy.get('lhc-expression-editor').shadow().within(() => {
+        // The prompt to calculate the total scoring item should displayed.
+        cy.get('lhc-calculate-sum-prompt > lhc-base-dialog > #calculate-sum-base-dialog')
+          .should('exist')
+          .within(() => {
+            // The prompt should come with a Yes and No buttons
+            cy.get('#score-items-selection').should('exist');
+            cy.get('#skip-score-items-selection').should('exist');
+      
+            // Select No
+            cy.get('#skip-score-items-selection').click();
+          });
+  
+        // By selecting No, the prompt should be gone.
+        cy.get('lhc-calculate-sum-prompt').should('not.exist');
 
-      // By selecting No, the prompt should be gone.
-      cy.get('lhc-calculate-sum-prompt').should('not.exist');
-
-      // The list of scoring items should not be displayed
-      cy.get('lhc-select-scoring-items').should('not.exist');
+        // The list of scoring items should not be displayed
+        cy.get('lhc-select-scoring-items').should('not.exist');
+      });
     });
 
     it('should not display the calculate sum prompt when select the first question', () => {
@@ -173,19 +180,21 @@ describe(Cypress.env("appName") + ' demo', () => {
 
       // Click the button to edit the expression
       cy.get('button#openExpressionEditor').should('exist').click();
+      
+      cy.get('lhc-expression-editor').shadow().within(() => {
+        // The prompt should not be displayed.
+        cy.get('lhc-calculate-sum-prompt').should('not.exist');
 
-      // The prompt should not be displayed.
-      cy.get('lhc-calculate-sum-prompt').should('not.exist');
+        cy.get('button.btn-close').click();
 
-      cy.get('button.btn-close').click();
-
-      // The dialog to confirm cancel should be displayed
-      cy.get('lhc-cancel-changes-confirmation-dialog')
-        .should('exist')
-        .within(() => {
-          // Click 'Yes' button
-          cy.get('#yes-button').should('exist').click();
-        });
+        // The dialog to confirm cancel should be displayed
+        cy.get('lhc-cancel-changes-confirmation-dialog')
+          .should('exist')
+          .within(() => {
+            // Click 'Yes' button
+            cy.get('#yes-button').should('exist').click();
+          });
+      });
 
       // Select the second question and the prompt should be displayed.
       cy.get('#question').clear().type('Feeling down, depressed');
@@ -195,7 +204,7 @@ describe(Cypress.env("appName") + ' demo', () => {
       cy.get('button#openExpressionEditor').should('exist').click();
 
       // The prompt should be displayed.
-      cy.get('lhc-calculate-sum-prompt').should('exist');
+      cy.get('lhc-expression-editor').shadow().find('lhc-calculate-sum-prompt').should('exist');
 
     });
 
@@ -214,14 +223,16 @@ describe(Cypress.env("appName") + ' demo', () => {
       // Click the button to edit the expression
       cy.get('button#openExpressionEditor').should('exist').click();
 
-      // The prompt to calculate the total scoring item should displayed.
-      cy.get('lhc-calculate-sum-prompt > lhc-base-dialog > #calculate-sum-base-dialog')
-        .should('exist')
-        .within(() => {
-          // Close the dialog
-          cy.get('button.btn-close').click();
-        });
+      cy.get('lhc-expression-editor').shadow().within(() => {
+        // The prompt to calculate the total scoring item should displayed.
+        cy.get('lhc-calculate-sum-prompt > lhc-base-dialog > #calculate-sum-base-dialog')
+          .should('exist')
+          .within(() => {
+            // Close the dialog
+            cy.get('button.btn-close').click();
+          });
 
+      });
       // The prompt should disappeared
       cy.get('lhc-calculate-sum-prompt').should('not.exist');
 
@@ -231,39 +242,43 @@ describe(Cypress.env("appName") + ' demo', () => {
       // Click the button to edit the expression
       cy.get('button#openExpressionEditor').should('exist').click();
 
-      // The prompt should not be displayed
-      cy.get('lhc-calculate-sum-prompt').should('not.exist');
+      cy.get('lhc-expression-editor').shadow().within(() => {
+        // The prompt should not be displayed
+        cy.get('lhc-calculate-sum-prompt').should('not.exist');
 
-      // Close the Expression Editor dialog
-      cy.get('button.btn-close').click();
+        // Close the Expression Editor dialog
+        cy.get('button.btn-close').click();
 
-      // The dialog to confirm cancel should be displayed
-      cy.get('lhc-cancel-changes-confirmation-dialog')
-        .should('exist')
-        .within(() => {
-          // Click 'Yes' button
-          cy.get('#yes-button').should('exist').click();
-        });
-
+        // The dialog to confirm cancel should be displayed
+        cy.get('lhc-cancel-changes-confirmation-dialog')
+          .should('exist')
+          .within(() => {
+            // Click 'Yes' button
+            cy.get('#yes-button').should('exist').click();
+          });
+      });
       // Select 'Enable When Expression' for the 'Output Expression'
       cy.get('div#expression-entry > select').select('Enable When Expression').should('have.value', '3');
 
       // Click the button to edit the expression
       cy.get('button#openExpressionEditor').should('exist').click();
 
-      // The prompt should not be displayed
-      cy.get('lhc-calculate-sum-prompt').should('not.exist');
+      
+      cy.get('lhc-expression-editor').shadow().within(() => {
+        // The prompt should not be displayed
+        cy.get('lhc-calculate-sum-prompt').should('not.exist');
 
-      // Close the Expression Editor dialog
-      cy.get('button.btn-close').click();
+        // Close the Expression Editor dialog
+        cy.get('button.btn-close').click();
 
-      // The dialog to confirm cancel should be displayed
-      cy.get('lhc-cancel-changes-confirmation-dialog')
-        .should('exist')
-        .within(() => {
-          // Click 'Yes' button
-          cy.get('#yes-button').should('exist').click();
-        });
+        // The dialog to confirm cancel should be displayed
+        cy.get('lhc-cancel-changes-confirmation-dialog')
+          .should('exist')
+          .within(() => {
+            // Click 'Yes' button
+            cy.get('#yes-button').should('exist').click();
+          });
+      });
 
       // Select 'Initial Expression' for the 'Output Expression'
       cy.get('div#expression-entry > select').select('Initial Expression').should('have.value', '4');
@@ -271,19 +286,21 @@ describe(Cypress.env("appName") + ' demo', () => {
       // Click the button to edit the expression
       cy.get('button#openExpressionEditor').should('exist').click();
 
-      // The prompt should not be displayed
-      cy.get('lhc-calculate-sum-prompt').should('not.exist');
+      cy.get('lhc-expression-editor').shadow().within(() => {
+        // The prompt should not be displayed
+        cy.get('lhc-calculate-sum-prompt').should('not.exist');
 
-      // Close the Expression Editor dialog
-      cy.get('button.btn-close').click();
+        // Close the Expression Editor dialog
+        cy.get('button.btn-close').click();
 
-      // The dialog to confirm cancel should be displayed
-      cy.get('lhc-cancel-changes-confirmation-dialog')
-        .should('exist')
-        .within(() => {
-          // Click 'Yes' button
-          cy.get('#yes-button').should('exist').click();
-        });
+        // The dialog to confirm cancel should be displayed
+        cy.get('lhc-cancel-changes-confirmation-dialog')
+          .should('exist')
+          .within(() => {
+            // Click 'Yes' button
+            cy.get('#yes-button').should('exist').click();
+          });
+      });
 
       // Select 'Calculated/Initial Expression (user editable)' for the 'Output Expression'
       cy.get('div#expression-entry > select').select('Calculated/Initial Expression (user editable)')
@@ -292,53 +309,57 @@ describe(Cypress.env("appName") + ' demo', () => {
       // Click the button to edit the expression
       cy.get('button#openExpressionEditor').should('exist').click();
 
-      // The prompt to calculate the total scoring item should displayed.
-      cy.get('lhc-calculate-sum-prompt > lhc-base-dialog > #calculate-sum-base-dialog')
-        .should('exist')
-        .within(() => {
-          // Close the Calculate Sum Prompt dialog
-          cy.get('button.btn-close').click();
-        });
-
+      cy.get('lhc-expression-editor').shadow().within(() => {
+        // The prompt to calculate the total scoring item should displayed.
+        cy.get('lhc-calculate-sum-prompt > lhc-base-dialog > #calculate-sum-base-dialog')
+          .should('exist')
+          .within(() => {
+            // Close the Calculate Sum Prompt dialog
+            cy.get('button.btn-close').click();
+          });
+      });
  
       // Select 'Calculated/Initial Expression (user editable)' for the 'Output Expression'
       cy.get('div#expression-entry > select').select('Other...').should('have.value', 'custom');
 
       // Click the button to edit the expression
       cy.get('button#openExpressionEditor').should('exist').click();
+      cy.get('lhc-expression-editor').shadow().within(() => {
+        // The prompt should not be displayed
+        cy.get('lhc-calculate-sum-prompt').should('not.exist');
 
-      // The prompt should not be displayed
-      cy.get('lhc-calculate-sum-prompt').should('not.exist');
+        cy.get('button.btn-close').click();
 
-      cy.get('button.btn-close').click();
-
-      // The dialog to confirm cancel should be displayed
-      cy.get('lhc-cancel-changes-confirmation-dialog')
-        .should('exist')
-        .within(() => {
-          // Click 'Yes' button
-          cy.get('#yes-button').should('exist').click();
-        });
+        // The dialog to confirm cancel should be displayed
+        cy.get('lhc-cancel-changes-confirmation-dialog')
+          .should('exist')
+          .within(() => {
+            // Click 'Yes' button
+            cy.get('#yes-button').should('exist').click();
+          });
+      });
 
       // Enter the expression uri that is not the Calculated Expression
       cy.get('input#expression-uri').clear()
         .type('http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-enableWhenExpression');
-
+ 
       // Click the button to edit the expression
       cy.get('button#openExpressionEditor').should('exist').click();
 
-      // The prompt should not be displayed
-      cy.get('lhc-calculate-sum-prompt').should('not.exist');
+      cy.get('lhc-expression-editor').shadow().within(() => {
+        // The prompt should not be displayed
+        cy.get('lhc-calculate-sum-prompt').should('not.exist');
 
-      cy.get('button.btn-close').click();
+        cy.get('button.btn-close').click();
 
-      // The dialog to confirm cancel should be displayed
-      cy.get('lhc-cancel-changes-confirmation-dialog')
-        .should('exist')
-        .within(() => {
-          // Click 'Yes' button
-          cy.get('#yes-button').should('exist').click();
-        });
+        // The dialog to confirm cancel should be displayed
+        cy.get('lhc-cancel-changes-confirmation-dialog')
+          .should('exist')
+          .within(() => {
+            // Click 'Yes' button
+            cy.get('#yes-button').should('exist').click();
+          });
+      });
 
       // Enter the expression uri that is not the Calculated Expression
       cy.get('input#expression-uri').clear()
@@ -348,7 +369,7 @@ describe(Cypress.env("appName") + ' demo', () => {
       cy.get('button#openExpressionEditor').should('exist').click();
 
       // The prompt should be displayed
-      cy.get('lhc-calculate-sum-prompt').should('exist');
+      cy.get('lhc-expression-editor').shadow().find('lhc-calculate-sum-prompt').should('exist');
     });
 
     it('should not display the calculate sum prompt if contain pre-selected scoring without new scoring extension', () => {
@@ -369,19 +390,20 @@ describe(Cypress.env("appName") + ' demo', () => {
       // Click the button to edit the expression
       cy.get('button#openExpressionEditor').should('exist').click();
 
-      // The prompt should not be displayed.
-      cy.get('lhc-calculate-sum-prompt').should('not.exist');
+      cy.get('lhc-expression-editor').shadow().within(() => {
+        // The prompt should not be displayed.
+        cy.get('lhc-calculate-sum-prompt').should('not.exist');
 
-      cy.get('#cancel-changes').click();
+        cy.get('#cancel-changes').click();
 
-      // The dialog to confirm cancel should be displayed
-      cy.get('lhc-cancel-changes-confirmation-dialog')
-        .should('exist')
-        .within(() => {
-          // Click 'Yes' button
-          cy.get('#yes-button').should('exist').click();
-        });
-
+        // The dialog to confirm cancel should be displayed
+        cy.get('lhc-cancel-changes-confirmation-dialog')
+          .should('exist')
+          .within(() => {
+            // Click 'Yes' button
+            cy.get('#yes-button').should('exist').click();
+          });
+      });
       // Selecting a different question that does not have predefined scoring
       // items should still get prompt
       cy.get('#question').clear().type('Feeling bad about yourself');
@@ -394,7 +416,7 @@ describe(Cypress.env("appName") + ' demo', () => {
       cy.get('button#openExpressionEditor').should('exist').click();
 
       // The prompt should be displayed.
-      cy.get('lhc-calculate-sum-prompt').should('exist');
+      cy.get('lhc-expression-editor').shadow().find('lhc-calculate-sum-prompt').should('exist');
 
     });
 
@@ -415,23 +437,25 @@ describe(Cypress.env("appName") + ' demo', () => {
       // Click the button to edit the expression
       cy.get('button#openExpressionEditor').should('exist').click();
 
-      // The prompt to calculate the total scoring item should displayed.
-      cy.get('lhc-calculate-sum-prompt > lhc-base-dialog > #calculate-sum-base-dialog')
-        .should('exist')
-        .within(() => {
-          // The prompt should come with a Yes and No buttons
-          cy.get('#score-items-selection').should('exist');
-          cy.get('#skip-score-items-selection').should('exist');
-    
-          // Select Yes
-          cy.get('#score-items-selection').click();
-        });
-
-      // The prompt to caculate the total scoring should be hidden.
-      cy.get('lhc-calculate-sum-prompt').should('not.exist');
+      cy.get('lhc-expression-editor').shadow().within(() => {
+        // The prompt to calculate the total scoring item should displayed.
+        cy.get('lhc-calculate-sum-prompt > lhc-base-dialog > #calculate-sum-base-dialog')
+          .should('exist')
+          .within(() => {
+            // The prompt should come with a Yes and No buttons
+            cy.get('#score-items-selection').should('exist');
+            cy.get('#skip-score-items-selection').should('exist');
       
-      // The list of scoring items for selection should be displayed.
-      cy.get('lhc-select-scoring-items').should('exist');
+            // Select Yes
+            cy.get('#score-items-selection').click();
+          });
+
+        // The prompt to caculate the total scoring should be hidden.
+        cy.get('lhc-calculate-sum-prompt').should('not.exist');
+        
+        // The list of scoring items for selection should be displayed.
+        cy.get('lhc-select-scoring-items').should('exist');
+      });
     });
 
     it('should be able to display pre-selected scoring items questionnaire and update it', () => {
@@ -448,38 +472,41 @@ describe(Cypress.env("appName") + ' demo', () => {
       // Click the button to edit the expression
       cy.get('button#openExpressionEditor').should('exist').click();
 
-      // Calculating sum of score dialog should display, select Yes 
-      cy.get('lhc-calculate-sum-prompt > lhc-base-dialog > #calculate-sum-base-dialog')
-        .should('exist')
-        .within(() => {
-          // Select Yes
-          cy.get('#score-items-selection').click();
-        });
-      
-      // The Scoring Item panel should now display
-      cy.get('lhc-select-scoring-items').should('exist');
-      cy.get('div.scoring-items-selection-body').within(() => {
-        cy.get('div.items-tree tree-node').should('have.length', 17);
-        cy.get('.angular-tree-component  [type="checkbox"]').as('checkboxes');
+      cy.get('lhc-expression-editor').shadow().within(() => {
+        // Calculating sum of score dialog should display, select Yes 
+        cy.get('lhc-calculate-sum-prompt > lhc-base-dialog > #calculate-sum-base-dialog')
+          .should('exist')
+          .within(() => {
+            // Select Yes
+            cy.get('#score-items-selection').click();
+          });
+        
+        // The Scoring Item panel should now display
+        cy.get('lhc-select-scoring-items').should('exist').shadow().within(() => {
+          cy.get('div.scoring-items-selection-body').within(() => {
+            cy.get('div.items-tree tree-node').should('have.length', 17);
+            cy.get('.angular-tree-component  [type="checkbox"]').as('checkboxes');
 
-        // Validate to make sure that only those six items were selected
-        cy.get('@checkboxes').each(($checkbox, index) => {
-          if (index === 1 || index === 4 || index === 6 || index === 8 ||
-              index === 10 || index === 13)
-            cy.wrap($checkbox).should('be.checked');
-          else
-            cy.wrap($checkbox).should('not.be.checked');
-        });
+            // Validate to make sure that only those six items were selected
+            cy.get('@checkboxes').each(($checkbox, index) => {
+              if (index === 1 || index === 4 || index === 6 || index === 8 ||
+                  index === 10 || index === 13)
+                cy.wrap($checkbox).should('be.checked');
+              else
+                cy.wrap($checkbox).should('not.be.checked');
+            });
 
-        // Select 4 more items
-        cy.get('@checkboxes').eq(0).check();
-        cy.get('@checkboxes').eq(2).check();
-        cy.get('@checkboxes').eq(3).check();
-        cy.get('@checkboxes').eq(5).check();
+            // Select 4 more items
+            cy.get('@checkboxes').eq(0).check();
+            cy.get('@checkboxes').eq(2).check();
+            cy.get('@checkboxes').eq(3).check();
+            cy.get('@checkboxes').eq(5).check();
+          });
+
+          // export 
+          cy.get('#export-score').click();
+        });
       });
-
-      // export 
-      cy.get('#export-score').click();
 
       cy.get('pre#output').invoke('text').then((jsonData) => {
         // Parse the JSON data
@@ -518,18 +545,20 @@ describe(Cypress.env("appName") + ' demo', () => {
       // Click the button to edit the expression
       cy.get('button#openExpressionEditor').should('exist').click();
 
-      // Calculating sum of score dialog should display, select Yes 
-      cy.get('lhc-calculate-sum-prompt > lhc-base-dialog > #calculate-sum-base-dialog')
-        .should('exist')
-        .within(() => {
-          cy.get('#score-items-selection').click();        
+      cy.get('lhc-expression-editor').shadow().within(() => {
+        // Calculating sum of score dialog should display, select Yes 
+        cy.get('lhc-calculate-sum-prompt > lhc-base-dialog > #calculate-sum-base-dialog')
+          .should('exist')
+          .within(() => {
+            cy.get('#score-items-selection').click();        
+          });
+        
+        // The Scoring Item panel should now display
+        cy.get('lhc-select-scoring-items').should('exist').shadow().within(() => {
+          // Close the 'Scoring Items Selection'
+          cy.get('button.btn-close').click();
         });
-      
-      // The Scoring Item panel should now display
-      cy.get('lhc-select-scoring-items').should('exist');
-      
-      // Close the 'Scoring Items Selection'
-      cy.get('button.btn-close').click();
+      });
 
       // Upload a new questionnaire
       cy.get('select#questionnaire-select').select('Upload your own questionnaire');
@@ -546,7 +575,6 @@ describe(Cypress.env("appName") + ' demo', () => {
       // With the fix in place, the prompt should only appear if the new questionnaire
       // contains scoring items and a question is selected. 
       cy.get('lhc-calculate-sum-prompt > div > div.score-modal').should('not.exist');
-
     });
 
   });
