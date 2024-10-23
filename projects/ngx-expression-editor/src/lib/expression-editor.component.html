@@ -39,7 +39,7 @@
     [lhcStyle]="defaultLhcStyle">
   </lhc-fhirpath-easypath-conversion-confirmation-dialog>
 
-  <div class="expression-editor" [attr.aria-hidden]="showCancelConfirmationDialog || showConfirmDialog ? 'true' : 'false' "> <!--  *ngIf="!hideExpressionEditor"> -->
+  <div class="expression-editor" [attr.aria-hidden]="showCancelConfirmationDialog || showConfirmDialog ? 'true' : 'false' ">
     <div *ngIf="loadError" class="error">{{errorLoading}}</div>
 
     <div *ngIf="!calculateSum && !loadError">
@@ -93,7 +93,8 @@
             <lhc-helps
               [type]="expressionSyntax"
               [index]="'final'"
-              class="flex-item">
+              class="flex-item"
+              [lhcStyle]="defaultLhcStyle">
             </lhc-helps>
           </div>
 
@@ -102,7 +103,8 @@
               *ngIf="!advancedInterface"
               [type]="'simple'"
               [index]="'final'"
-              class="flex-item help" >
+              class="flex-item help"
+              [lhcStyle]="defaultLhcStyle">
             </lhc-helps>
             <lhc-syntax-converter
               *ngSwitchCase="'simple'"
