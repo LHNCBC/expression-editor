@@ -1,6 +1,7 @@
 <div>
-  <div>    
-    <input
+  <div>
+    <textarea
+      row="1"
       [(ngModel)]="simple"
       [id]="'simple-expression-' + index"
       (ngModelChange)="onExpressionChange($event)"
@@ -9,7 +10,7 @@
       [style]="lhcStyle.input"
       [attr.aria-invalid]="hasError"
       aria-describedby="fhirpath-error"
-  
+      class="textarea"
       [class.field-error]="exp.errors"
       #exp="ngModel"
       lhcExpressionValidator
@@ -17,7 +18,7 @@
       [lhcExpressionValidatorParams]="{'section': (index === 'final') ? 'Output Expression' : 'Item Variables',
                                        'field': 'expression', 'type': 'simple', 'index': index,
                                        'variables' : variables}"
-    />
+    ></textarea>
 
     <div id="expression-audible-error" role="alert" *ngIf="exp.errors" class="visually-hidden" >
       {{exp.errors.ariaMessage}}

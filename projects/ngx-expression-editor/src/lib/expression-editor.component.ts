@@ -13,7 +13,7 @@ import { ENVIRONMENT_TOKEN } from './environment-token';
   encapsulation: ViewEncapsulation.ShadowDom
 })
 export class ExpressionEditorComponent implements OnInit, OnChanges, OnDestroy {
-  @Input() advancedInterface = false;
+  @Input() advancedInterface = true;
   @Input() doNotAskToCalculateScore = false;
   @Input() fhirQuestionnaire = null;
   @Input() itemLinkId = null;

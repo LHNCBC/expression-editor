@@ -122,7 +122,7 @@ export class ExpressionEditorService {
   static FHIR_QUERY_OBS_FIELDS = ['code', 'date', 'patient', '_sort', '_count'];
   static APP_NAME = "Expression Editor";
 
-  syntaxType = 'simple';
+  syntaxType = 'fhirpath';
   linkIdContext: string;
   uneditableVariablesChange: Subject<UneditableVariable[]> =
     new Subject<UneditableVariable[]>();
@@ -530,7 +530,7 @@ export class ExpressionEditorService {
       }
 
       this.linkIdToQuestion = {};
-      this.needsAdvancedInterface = false;
+      this.needsAdvancedInterface = true;
       this.caseStatements = false;
       this.processItem(this.fhir.item);
 
@@ -600,9 +600,9 @@ export class ExpressionEditorService {
             this.simpleExpression = simpleSyntax;
           }
         } else {
-          // Reset input to be a blank simple expression if there is nothing on
+          // Reset input to be a blank fhirpath expression if there is nothing on
           // the form
-          this.syntaxType = 'simple';
+          this.syntaxType = 'fhirpath';
           this.simpleExpression = '';
           this.finalExpression = '';
           this.finalExpressionExtension = {

@@ -45,7 +45,7 @@
     <div *ngIf="!calculateSum && !loadError">
       <section id="title-section" *ngIf="display.titleSection">
         <h1 [style]="defaultLhcStyle.h1">{{titleName}}</h1>
-  
+<!--   
         <span
           class="checkbox"
           matTooltip="When in the advanced interface you can edit FHIRPath and x-fhir-query directly.  
@@ -54,6 +54,8 @@
                 [(ngModel)]="advancedInterface">
           <label for="advanced-interface">Advanced interface</label>
         </span>
+ -->
+
       </section>
 
       <section id="uneditable-variables-section" class="mb-3" *ngIf="display.uneditableVariablesSection">
@@ -78,8 +80,8 @@
           <label for="case-statements">Case Statements Helper</label>
         </div>
 
-        <div class="flex-container">
-          <div class="expression-type" *ngIf="advancedInterface">
+        <div [ngClass]="{ 'flex-container' : !caseStatements }">
+          <div class="expression-type" *ngIf="advancedInterface" [ngClass]="{ 'flex-item-3' : !caseStatements }">
             <select
               id="output-expression-type"
               class="form-control"
@@ -98,7 +100,7 @@
             </lhc-helps>
           </div>
 
-          <div *ngIf="!caseStatements" class="expression" [ngSwitch]="expressionSyntax">
+          <div *ngIf="!caseStatements" class="expression flex-item-grow" [ngSwitch]="expressionSyntax">
             <lhc-helps
               *ngIf="!advancedInterface"
               [type]="'simple'"
@@ -120,14 +122,14 @@
 
             <div *ngSwitchCase="'fhirpath'" class="flex-vertical">
               <div>
-                <input
-                  type="text"
+                <textarea
+                  row="1"
                   aria-label="FHIRPath"
                   id="final-expression"
                   class="form-control"
                   [(ngModel)]="finalExpression"
                   [ngStyle]="defaultLhcStyle.input"
-                  class="flex-item"
+                  class="flex-item textarea"
                   
                   [class.field-error]="exp.errors"
                   #exp="ngModel"
@@ -136,7 +138,7 @@
                   [lhcExpressionValidatorParams]="{'section': 'Output Expression',
                                                   'field': 'expression',
                                                   'type': 'fhirpath'}"
-                >
+                ></textarea>
               </div>
 
               <div id="expression-audible-error" role="alert" *ngIf="exp.errors"
