@@ -16,6 +16,7 @@ export class SyntaxConverterComponent implements OnInit, OnChanges, OnDestroy {
   @Input() variableName: string;
 
   @Input() validateInput = false;
+  @Input() multipleLines = false;
 
   @Output() simpleChange = new EventEmitter<string>();
   @Output() expressionChange = new EventEmitter<string>();
