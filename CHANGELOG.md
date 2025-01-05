@@ -2,6 +2,10 @@
 
 This project follows [Semantic Versioning](http://semver.org/).
 
+## [3.1.25] 2024-11-29
+### Changed
+- Updated the Node.js version to 22.
+
 ## [3.1.24] 2024-07-15
 ### Changed
 - Renamed the Rule Editor to the Expression Editor
