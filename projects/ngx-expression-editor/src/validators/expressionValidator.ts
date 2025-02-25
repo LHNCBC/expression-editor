@@ -64,6 +64,29 @@ function getInvalidExpressionErrorObject(invalidVariableName = false): Validatio
 }
 
 /**
+ * Replaces a placeholder in the given message with the specified new variable name.
+ *
+ * @param message - The original message containing the placeholder.
+ * @param newVariableName - The new variable name to insert into the message.
+ * @returns The updated message with the new variable name.
+ */
+function replaceVariableName(message: string, newVariableName: string): string {
+  return message.replace(/launch context variable that/, `launch context variable \'${newVariableName}\' that`);
+}
+
+/**
+ * Compose the Invalid Expression warning
+ * @param variableName - variable name that was used in the expression but may not have been defined.
+ * @returns Invalid expression error object
+ */
+function getExpressionWarningObject(variableName: string): ValidationError {
+  return {
+    'invalidExpressionWarning': true,
+    'message': replaceVariableName(constants.INVALID_LAUNCH_CONTEXT, variableName),
+    'ariaMessage': "Warning: " + replaceVariableName(constants.INVALID_LAUNCH_CONTEXT_OUTPUT, variableName)
+  }
+}
+/**
  * Validates the expression for empty or invalid expression.
  * @param param - ValidationParam object that contains must contain at least the section and field
  *                information.
@@ -80,7 +103,24 @@ export function expressionValidator(param: ValidationParam): ValidatorFn {
           // the invalidExpressionError
           const result = fhirpath.evaluate({}, control.value, JSON.parse(param.variableNames));
         } catch(e) {
-          return getInvalidExpressionErrorObject(true);
+          try {
+            // Add a check to see if the expression contains a launch context variable that might
+            // not have been defined. If that is the case, then return a warning.
+            const result2 = fhirpath.evaluate({}, control.value, JSON.parse(param.launchContext));
+          } catch(e2) {
+            return getInvalidExpressionErrorObject(true);
+          }
+
+          // Attempting to access an undefined environment variable: Patient
+          const errorMessage = e.message;
+          const match = errorMessage.match(/Attempting to access an undefined environment variable: (\w+)/);
+          let variableName = '';
+          
+          if (match && match[1]) {
+            variableName = match[1];
+          }
+
+          return getExpressionWarningObject(variableName);
         }
       } else if (param.type === "simple") {
         // Converts the array into string array

@@ -645,9 +645,6 @@ describe(Cypress.env("appName"), () => {
 
           cy.title().should('eq', Cypress.env("appName"));
 
-          // Check the Advanced Interface checkbox
-          cy.get('input#advanced-interface').check();
-
           // Output Expression section
           cy.get('#final-expression-section').within(() => {
             cy.get('h2').should('contain', 'Output Expression');
@@ -717,9 +714,6 @@ describe(Cypress.env("appName"), () => {
           cy.get('#expression-editor-base-dialog').should('exist');
 
           cy.title().should('eq', Cypress.env("appName"));
-
-          // Check the Advanced Interface checkbox
-          cy.get('input#advanced-interface').check();
 
           // Output Expression section
           cy.get('#final-expression-section').within(() => {
@@ -809,9 +803,6 @@ describe(Cypress.env("appName"), () => {
           cy.get('#expression-editor-base-dialog').should('exist');
 
           cy.title().should('eq', Cypress.env("appName"));
-
-          // Check the Advanced Interface checkbox
-          cy.get('input#advanced-interface').check();
 
           // Output Expression section
           cy.get('#final-expression-section').within(() => {
@@ -955,9 +946,6 @@ describe(Cypress.env("appName"), () => {
             
             // The output value textbox should have css class error
             cy.get('div.case-row > div.case-output-column > label > input').should('have.class', 'field-error');
-
-            // The FHIRPath output should have css class error
-            cy.get('div.syntax-preview > div > pre').should('have.class', 'fhirpath-error');
           });
 
           // The 'Save' button should be disabled.
@@ -1026,9 +1014,6 @@ describe(Cypress.env("appName"), () => {
             // The output value textbox should have css class error
             cy.get('div.case-row > div.case-output-column > label > input').should('have.class', 'field-error');
 
-            // The FHIRPath output should have css class error
-            cy.get('div.syntax-preview > div > pre').should('have.class', 'fhirpath-error');
-            
             // Fix the issue by wrapping the Case Outputs and the Output variable with single quotes.
             cy.get('#case-output-0').clear().type("'underweight'");
             cy.get('#case-output-1').clear().type("'normal'");
@@ -1111,9 +1096,6 @@ describe(Cypress.env("appName"), () => {
             
             // The output value textbox should have css class error
             cy.get('div.case-row > div.case-output-column > label > input').should('have.class', 'field-error');
-
-            // The FHIRPath output should have css class error
-            cy.get('div.syntax-preview > div > pre').should('have.class', 'fhirpath-error');
           });
 
           // Fix the issue by adding 4 variables to hold the text, this is not neccessary a 
@@ -1201,9 +1183,6 @@ describe(Cypress.env("appName"), () => {
 
           cy.title().should('eq', Cypress.env("appName"));
 
-          // Check the Advanced Interface checkbox
-          cy.get('input#advanced-interface').check();
-          
           // Output Expression section
           cy.get('#final-expression-section').within(() => {
             cy.get('h2').should('contain', 'Output Expression');

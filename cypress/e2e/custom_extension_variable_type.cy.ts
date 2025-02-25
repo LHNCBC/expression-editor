@@ -195,9 +195,6 @@ describe(Cypress.env("appName"), () => {
 
           cy.title().should('eq', Cypress.env("appName"));
 
-          // Advanced Interface checkbox
-          cy.get('#advanced-interface').should('be.checked');
-
           // Variables section
           cy.get('lhc-variables > h2').should('contain', 'Item Variables');
           cy.get('#variables-section .variable-row').should('have.length', 31);

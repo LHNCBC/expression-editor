@@ -25,6 +25,7 @@ div.items-tree {
 
 div.scoring-items-selection-body {
   padding: 10px 10px 0px 0px;
+  margin-bottom: 10px;
 }
 
 /* container for select/unselect/expand/collapse buttons */

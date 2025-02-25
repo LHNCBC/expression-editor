@@ -71,7 +71,7 @@ export class ExpressionEditorComponent implements OnInit, OnChanges, OnDestroy {
   private validationSubscription;
   private performValidationSubscription;
   private helpSubscription;
-  
+
   // Default Lhc styles. Any updates will be applied on top of these defaults.
   defaultLhcStyle = {
     "h1": {},
@@ -87,12 +87,12 @@ export class ExpressionEditorComponent implements OnInit, OnChanges, OnDestroy {
     "variableHeader": {
       "backgroundColor": "white",
       "fontSize": "14px",
-      "color": "black", 
+      "color": "black",
     },
     "variableRow": {
       "backgroundColor": "white",
       "fontSize": "14px",
-      "color": "black", 
+      "color": "black",
     },
     "body": {
       "fontSize": "14px",
@@ -109,8 +109,8 @@ export class ExpressionEditorComponent implements OnInit, OnChanges, OnDestroy {
     }
   };
 
-  constructor(@Inject(ENVIRONMENT_TOKEN) private environment: any, private variableService: ExpressionEditorService, private liveAnnouncer: LiveAnnouncer, private changeDetectorRef: ChangeDetectorRef) {}
-  
+  constructor(@Inject(ENVIRONMENT_TOKEN) private environment: any, private variableService: ExpressionEditorService, private liveAnnouncer: LiveAnnouncer, private changeDetectorRef: ChangeDetectorRef) { }
+
   /**
    * Updates the 'defaultStyles' JSON object by merging it with the 'customStyles' JSON object.
    * @param customStylesJson - A JSON object containing custom CSS properties and values that
@@ -119,15 +119,8 @@ export class ExpressionEditorComponent implements OnInit, OnChanges, OnDestroy {
    *                            which will be updated by the custom styles.
    */
   applyCustomStyles(customStylesJson: any, defaultStylesJson: any): void {
-    for (const key in customStylesJson) {
-      if (defaultStylesJson.hasOwnProperty(key)) {
-        for (const innerKey in customStylesJson[key]) {
-          defaultStylesJson[key][innerKey] = customStylesJson[key][innerKey];
-        }
-      }
-    }
+    Object.assign(defaultStylesJson, customStylesJson);
   }
-  
 
   /**
    * Angular lifecycle hook called when the component is initialized
@@ -137,7 +130,7 @@ export class ExpressionEditorComponent implements OnInit, OnChanges, OnDestroy {
       ExpressionEditorService.APP_NAME = this.environment.appName;
     }
     this.appName = ExpressionEditorService.APP_NAME;
-    
+
     if (this.lhcStyle || Object.keys(this.lhcStyle).length > 0) {
       this.applyCustomStyles(this.lhcStyle, this.defaultLhcStyle);
     }
@@ -165,7 +158,7 @@ export class ExpressionEditorComponent implements OnInit, OnChanges, OnDestroy {
           this.finalExpression = '';
         }
         this.expressionSyntax = '';
-    
+
         setTimeout(() => {
           this.expressionSyntax = tmpExpressionSyntax;
 
@@ -177,7 +170,7 @@ export class ExpressionEditorComponent implements OnInit, OnChanges, OnDestroy {
         if (this.expressionSyntax === "fhirpath") {
           const tmpFinalExpression = this.finalExpression;
           this.updateFinalExpression("");
-          
+
           setTimeout(() => {
             this.updateFinalExpression(tmpFinalExpression);
           }, 0);
@@ -209,7 +202,7 @@ export class ExpressionEditorComponent implements OnInit, OnChanges, OnDestroy {
 
     // performValidationSubscription is triggered when the 'Save' button is clicked, allowing each
     // subscribed component to validate the expression data.
-    this.performValidationSubscription = this.variableService.performValidationChange.subscribe((validation) => {     
+    this.performValidationSubscription = this.variableService.performValidationChange.subscribe((validation) => {
       // By setting the setValue to blank on simple expression that is null, empty, or undefined,
       // it would force the validation to occurs.
       if (this.expressionSyntax === "fhirpath" && this.finalExpression === "") {
@@ -233,18 +226,18 @@ export class ExpressionEditorComponent implements OnInit, OnChanges, OnDestroy {
 
     if (validation.errorInItemVariables) {
       message += (validation.errorInOutputCaseStatement ||
-                   validation.errorInOutputExpression) ?
-                   "errors" : "one or more errors";
+                  validation.errorInOutputExpression) ?
+                  "errors" : "one or more errors";
       message += " in the Item Variable section";
     }
 
     if (validation.errorInOutputExpression) {
       message += (validation.errorInItemVariables) ?
-                               ", and" : "one or more errors";
+                  ", and" : "one or more errors";
       message += " with the expression in the Output Expression section.";
     } else if (validation.errorInOutputCaseStatement) {
       message += (validation.errorInItemVariables) ?
-                               ", and" : "one or more errors";
+                  ", and" : "one or more errors";
       message += " with the case statement in the Output Expression section.";
     } else {
       message += ".";
@@ -276,7 +269,7 @@ export class ExpressionEditorComponent implements OnInit, OnChanges, OnDestroy {
    * get updated correctly.
    * @private
    */
-  private resetVariablesOnQuestionnaireChange(): void { 
+  private resetVariablesOnQuestionnaireChange(): void {
     this.expressionSyntax = null;
     this.simpleExpression = null;
     this.finalExpression = null;
@@ -301,7 +294,6 @@ export class ExpressionEditorComponent implements OnInit, OnChanges, OnDestroy {
     this.doNotAskToCalculateScore = false;
     this.resetVariablesOnQuestionnaireChange();
     this.reload();
-
   }
 
   /**
@@ -323,7 +315,7 @@ export class ExpressionEditorComponent implements OnInit, OnChanges, OnDestroy {
     this.linkIdContext = this.variableService.linkIdContext;
     this.expressionSyntax = this.variableService.syntaxType;
     this.selectItems = false;
-    
+
     if (this.linkIdContext) {
       this.doNotAskToCalculateScore = !this.variableService.shouldCalculateScoreForItem(this.fhirQuestionnaire, this.linkIdContext, this.expressionUri);
     } else {
@@ -340,7 +332,7 @@ export class ExpressionEditorComponent implements OnInit, OnChanges, OnDestroy {
       itemVariablesSection: 'itemVariablesSection' in this.display ? this.display.itemVariablesSection : true,
       outputExpressionSection: 'outputExpressionSection' in this.display ? this.display.outputExpressionSection : true
     };
- 
+
   }
 
   /**
@@ -350,7 +342,9 @@ export class ExpressionEditorComponent implements OnInit, OnChanges, OnDestroy {
     this.liveAnnouncer.announce("Export Questionnaire data.");
     setTimeout(() => {
       if (!this.validationError) {
-        this.variableService.notifyValidationCheck();
+        if (this.display.outputExpressionSection) {
+          this.variableService.notifyValidationCheck();
+        }
         const finalExpression = this.finalExpressionExtension;
         if (finalExpression?.valueExpression) {
           finalExpression.valueExpression.expression = this.finalExpression;
@@ -395,8 +389,8 @@ export class ExpressionEditorComponent implements OnInit, OnChanges, OnDestroy {
   closeDialog(): void {
     this.liveAnnouncer.announce("Closing dialog");
     setTimeout(() => {
-      if (this.calculateSum && !this.loadError ) {
-        if(!this.selectItems) {
+      if (this.calculateSum && !this.loadError) {
+        if (!this.selectItems) {
           this.confirmCancel(false);
         } else {
           // Calculate Sum or Scoring Items Selection dialog.
@@ -411,9 +405,9 @@ export class ExpressionEditorComponent implements OnInit, OnChanges, OnDestroy {
   /**
    * Confirm to cancel change
    */
-  confirmCancel(showExpressionEditor: boolean): void { 
+  confirmCancel(showExpressionEditor: boolean): void {
     this.liveAnnouncer.announce("Changes were canceled.");
-    
+
     setTimeout(() => {
       this.showCancelConfirmationDialog = false;
       this.hideExpressionEditor = !showExpressionEditor;
@@ -431,7 +425,7 @@ export class ExpressionEditorComponent implements OnInit, OnChanges, OnDestroy {
     this.liveAnnouncer.announce("Changes were canceled.");
 
     this.hideExpressionEditor = true;
-    
+
     setTimeout(() => {
       this.cancel.emit();
       this.showCancelConfirmationDialog = false;
@@ -448,7 +442,7 @@ export class ExpressionEditorComponent implements OnInit, OnChanges, OnDestroy {
       this.showCancelConfirmationDialog = false;
     }, 0);
   }
-  
+
   /**
    * Create a new instance of a FHIR questionnaire file by summing all ordinal
    * values
@@ -468,7 +462,7 @@ export class ExpressionEditorComponent implements OnInit, OnChanges, OnDestroy {
       this.reload();
     } else {
       // Export selected scoring items
-      this.save.emit(this.variableService.addSumOfScores()); 
+      this.save.emit(this.variableService.addSumOfScores());
     }
     this.variableService.toggleScoreCalculation();
   }
@@ -497,8 +491,8 @@ export class ExpressionEditorComponent implements OnInit, OnChanges, OnDestroy {
 
         if (this.caseStatements)
           this.dialogPrompt1 = `The ${this.appName} does not support conversion from FHIRPath Expression ` +
-          `to Easy Path Expression. Switching to Easy Path Expression for the case statement ` +
-          `would result in the expression becoming blank.`;
+            `to Easy Path Expression. Switching to Easy Path Expression for the case statement ` +
+            `would result in the expression becoming blank.`;
         this.showConfirmDialog = true;
       } else {
         this.previousExpressionSyntax = event.target.value;
@@ -531,9 +525,9 @@ export class ExpressionEditorComponent implements OnInit, OnChanges, OnDestroy {
    */
   convertFHIRPathToEasyPath(): void {
     if (this.previousFinalExpression &&
-        this.previousFinalExpression !== this.finalExpression && 
-        this.simpleExpression && 
-        this.simpleExpression !== '') {
+      this.previousFinalExpression !== this.finalExpression &&
+      this.simpleExpression &&
+      this.simpleExpression !== '') {
       this.simpleExpression = '';
     }
     this.showConfirmDialog = false;

@@ -21,7 +21,7 @@ describe(Cypress.env("appName"), () => {
           // Variables section
           cy.get('lhc-variables > h2').should('contain', 'Item Variables');
           cy.get('#variables-section .variable-row').should('have.length', 2);
-          cy.get('#variable-type-1 > option').should('have.length', 3);
+          cy.get('#variable-type-1 > option').should('have.length', 5);
           cy.get('#variable-type-1').select('simple').should('have.value', 'simple');
           cy.get('#exp-help-button-1').should('exist').click();
           //cy.get('.modal-content').should('exist');
@@ -43,7 +43,7 @@ describe(Cypress.env("appName"), () => {
           // Variables section
           cy.get('lhc-variables > h2').should('contain', 'Item Variables');
           cy.get('#variables-section .variable-row').should('have.length', 2);
-          cy.get('#variable-type-1 > option').should('have.length', 3);
+          cy.get('#variable-type-1 > option').should('have.length', 5);
           cy.get('#variable-type-1').select('simple').should('have.value', 'simple');
           cy.get('#exp-help-button-1').should('exist').click();
           cy.get('#usableOperators>strong>a').should('exist').click();
@@ -101,7 +101,7 @@ describe(Cypress.env("appName"), () => {
           // Variables section
           cy.get('lhc-variables > h2').should('contain', 'Item Variables');
           cy.get('#variables-section .variable-row').should('have.length', 2);
-          cy.get('#variable-type-1 > option').should('have.length', 3);
+          cy.get('#variable-type-1 > option').should('have.length', 5);
           cy.get('#variable-type-1').select('simple').should('have.value', 'simple');
           cy.get('#exp-help-button-1').should('exist').click();
           cy.get('#usableFunctions>strong>a').should('exist').click();
@@ -159,7 +159,7 @@ describe(Cypress.env("appName"), () => {
           // Variables section
           cy.get('lhc-variables > h2').should('contain', 'Item Variables');
           cy.get('#variables-section .variable-row').should('have.length', 2);
-          cy.get('#variable-type-1 > option').should('have.length', 3);
+          cy.get('#variable-type-1 > option').should('have.length', 5);
           cy.get('#variable-type-1').select('simple').should('have.value', 'simple');
           cy.get('#exp-help-button-1').should('exist').click();
           cy.get('lhc-easy-path-expression-help-dialog .btn-close').should('exist').click();
@@ -181,7 +181,7 @@ describe(Cypress.env("appName"), () => {
           // Variables section
           cy.get('lhc-variables > h2').should('contain', 'Item Variables');
           cy.get('#variables-section .variable-row').should('have.length', 2);
-          cy.get('#variable-type-1 > option').should('have.length', 3);
+          cy.get('#variable-type-1 > option').should('have.length', 5);
           cy.get('#variable-type-1').select('simple').should('have.value', 'simple');
           cy.get('#exp-help-button-1').should('exist').click();
           cy.get('lhc-easy-path-expression-help-dialog #easy-path-help-base-dialog').click(50, 50);

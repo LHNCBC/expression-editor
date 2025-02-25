@@ -18,9 +18,6 @@ describe(Cypress.env("appName"), () => {
         cy.get('lhc-expression-editor').shadow().within(() => {
           cy.get('#expression-editor-base-dialog').should('exist');
 
-          // The Advanced Interface checkbox should be checked
-          cy.get('input#advanced-interface').check().should('be.checked');
-
           // Add 5 new items
           // Add variable of variable type "FHIRPath Expression"
           cy.get('#add-variable').click();
@@ -225,9 +222,6 @@ describe(Cypress.env("appName"), () => {
         cy.get('lhc-expression-editor').shadow().within(() => {
           cy.get('#expression-editor-base-dialog').should('exist');
 
-          // Check the Advanced Interface checkbox
-          cy.get('input#advanced-interface').check();
-
           // Add 2 new items
           // Add variable of variable type "FHIRPath Expression"
           cy.get('#add-variable').click();
@@ -287,9 +281,6 @@ describe(Cypress.env("appName"), () => {
           cy.get('lhc-variables > h2').should('contain', 'Item Variables');
           cy.get('#variables-section .variable-row').should('have.length', 2);
 
-          // Check the Advanced Interface checkbox
-          cy.get('input#advanced-interface').check();
-          
           // Add variable c
           cy.get('#add-variable').click();
           cy.get('#variables-section .variable-row').should('have.length', 3);
@@ -608,9 +599,6 @@ describe(Cypress.env("appName"), () => {
           // Should have two variables
           cy.get('#variables-section .variable-row').should('have.length', 2);
 
-          // Check the Advanced Interface checkbox
-          cy.get('input#advanced-interface').check();
-
           cy.get('#variable-label-0').should('have.value', 'a');
           cy.get('#variable-label-1').should('have.value', 'b');
 
@@ -667,9 +655,6 @@ describe(Cypress.env("appName"), () => {
 
           // Should have two variables
           cy.get('#variables-section .variable-row').should('have.length', 2);
-
-          // Check the Advanced Interface checkbox
-          cy.get('input#advanced-interface').check();
 
           cy.get('#variable-label-0').should('have.value', 'a');
           cy.get('#variable-label-1').should('have.value', 'b');

@@ -50,9 +50,13 @@ export interface ValidationError {
 
 export interface ValidationResult {
   hasError: boolean;
+  hasWarning: boolean;
   errorInItemVariables?: boolean;
   errorInOutputExpression?: boolean;
   errorInOutputCaseStatement?: boolean;
+  warningInItemVariables?: boolean;
+  warningInOutputExpression?: boolean;
+  warningInOutputCaseStatement?: boolean;
 }
 
 export interface CaseStatementError {

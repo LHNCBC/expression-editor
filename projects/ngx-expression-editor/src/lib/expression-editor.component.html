@@ -131,8 +131,9 @@
                   [(ngModel)]="finalExpression"
                   [ngStyle]="defaultLhcStyle.input"
                   class="flex-item textarea"
-                  
-                  [class.field-error]="exp.errors"
+                  spellcheck="false"
+                  [class.field-error]="exp.errors && !exp.errors?.hasOwnProperty('invalidExpressionWarning')"
+                  [class.field-warning]="exp.errors && exp.errors?.hasOwnProperty('invalidExpressionWarning')"
                   #exp="ngModel"
                   lhcExpressionValidator
                   [lhcExpressionValidateInput]="true"
@@ -141,7 +142,6 @@
                                                   'type': 'fhirpath'}"
                 ></textarea>
               </div>
-
               <div id="expression-audible-error" role="alert" *ngIf="exp.errors"
                 class="row error-span visually-hidden">
                 <p class="expression-error">
@@ -149,7 +149,10 @@
                 </p>
               </div>
               <div id="expression-error" class="row error-span">
-                <p class="expression-error" *ngIf="exp.errors">
+                <p class="expression-error" *ngIf="exp.errors && !exp.errors?.hasOwnProperty('invalidExpressionWarning')">
+                  {{exp.errors.message}}
+                </p>
+                <p class="expression-warning" *ngIf="exp.errors && exp.errors?.hasOwnProperty('invalidExpressionWarning')">
                   {{exp.errors.message}}
                 </p>
               </div>

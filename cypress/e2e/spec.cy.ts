@@ -7,7 +7,6 @@ describe(Cypress.env("appName"), () => {
 
   describe('Angular Library', () => {
     describe('BMI calculation', () => {
-      
       it('should disable the "Open ' + Cypress.env("appName") + '" button if "Root level" or Question is not selected', () => {
 
         // The demo has 'BMI (/39156-5) selected by default
@@ -116,7 +115,7 @@ describe(Cypress.env("appName"), () => {
 
           // User styled input fields have a light yellow background. Declared via an attribute
           cy.get('input:not([type="checkbox"])').first()
-            .should('have.attr', 'style', 'background-color: rgb(255, 255, 238); color: black;');
+            .should('have.attr', 'style', 'background-color: rgb(255, 255, 238);');
         });
       });
 
@@ -226,6 +225,7 @@ describe(Cypress.env("appName"), () => {
           cy.get('#simple-expression-0').type('1 + 1');
 
           // The Output Expression should have no error, the Save button should be enabled
+          cy.get('#output-expression-type').select('simple');
           cy.get('#simple-expression-final').should('not.have.class', 'field-error');
           cy.get('#expression-error > p').should('not.exist');
           cy.get('#export').should('not.have.class', 'disabled');
@@ -438,9 +438,6 @@ describe(Cypress.env("appName"), () => {
               cy.get('div.time-select > select').select('years');
             });
 
-          // Check the Advanced Interface checkbox
-          cy.get('input#advanced-interface').check();
-
           // Validate variables settings didn't get reset
           cy.get('div#row-0')
             .within(() => {
@@ -521,9 +518,6 @@ describe(Cypress.env("appName"), () => {
               cy.get('div.unit-select>select').select('lbs');
             });
 
-          // Check the Advanced Interface checkbox
-          cy.get('input#advanced-interface').check();
-
           // Validate variables settings didn't get reset
           cy.get('div#row-0')
             .within(() => {
@@ -559,9 +553,6 @@ describe(Cypress.env("appName"), () => {
           // Variables section
           cy.get('lhc-variables > h2').should('contain', 'Item Variables');
           cy.get('#variables-section .variable-row').should('have.length', 2);
-
-          // Check the Advanced Interface checkbox
-          cy.get('input#advanced-interface').check();
 
           // Add a variable
           cy.get('#add-variable').should('exist').scrollIntoView().should('be.visible').click();
@@ -637,9 +628,6 @@ describe(Cypress.env("appName"), () => {
                 "%resource.item.where(linkId='/8302-2').answer.value*2.54");
             });
 
-            // Check the Advanced Interface checkbox
-            cy.get('input#advanced-interface').check();
-
             // Validate that the settings still there
             cy.get('div#row-2')
             .within(() => {
@@ -667,9 +655,6 @@ describe(Cypress.env("appName"), () => {
           // Variables section
           cy.get('lhc-variables > h2').should('contain', 'Item Variables');
           cy.get('#variables-section .variable-row').should('have.length', 2);
-
-          // Check the Advanced Interface checkbox
-          cy.get('input#advanced-interface').check();
 
           cy.get('div#row-0')
             .within(() => {
@@ -732,9 +717,6 @@ describe(Cypress.env("appName"), () => {
           cy.get('lhc-variables > h2').should('contain', 'Item Variables');
           cy.get('#variables-section .variable-row').should('have.length', 2);
 
-          // Check the Advanced Interface checkbox
-          cy.get('input#advanced-interface').check();
-
           cy.get('div#row-0')
             .within(() => {
               cy.get('#variable-type-0')
@@ -761,9 +743,6 @@ describe(Cypress.env("appName"), () => {
         // The Expression Editor dialog should now appear
         cy.get('lhc-expression-editor').shadow().within(() => {
           cy.get('#expression-editor-base-dialog').should('exist');
-
-          // Check the Advanced Interface checkbox
-          cy.get('input#advanced-interface').check();
 
           cy.get('div#row-0')
             .within(() => {
@@ -792,9 +771,6 @@ describe(Cypress.env("appName"), () => {
         cy.get('lhc-expression-editor').shadow().within(() => {
           cy.get('#expression-editor-base-dialog').should('exist');
 
-          // Check the Advanced Interface checkbox
-          cy.get('input#advanced-interface').check();
-
           cy.get('div#row-0')
             .within(() => {
               cy.get('#variable-type-0')
@@ -821,9 +797,6 @@ describe(Cypress.env("appName"), () => {
         // The Expression Editor dialog should now appear
         cy.get('lhc-expression-editor').shadow().within(() => {
           cy.get('#expression-editor-base-dialog').should('exist');
-
-          // Check the Advanced Interface checkbox
-          cy.get('input#advanced-interface').check();
 
           cy.get('div#row-0')
             .within(() => {
@@ -852,9 +825,6 @@ describe(Cypress.env("appName"), () => {
         cy.get('lhc-expression-editor').shadow().within(() => {
           cy.get('#expression-editor-base-dialog').should('exist');
 
-          // Check the Advanced Interface checkbox
-          cy.get('input#advanced-interface').check();
-
           cy.get('div#row-0')
             .within(() => {
               cy.get('#variable-type-0')
@@ -882,9 +852,6 @@ describe(Cypress.env("appName"), () => {
         // The Expression Editor dialog should now appear
         cy.get('lhc-expression-editor').shadow().within(() => {
           cy.get('#expression-editor-base-dialog').should('exist');
-
-          // Check the Advanced Interface checkbox
-          cy.get('input#advanced-interface').check();
 
           cy.get('div#row-0')
             .within(() => {
@@ -927,9 +894,6 @@ describe(Cypress.env("appName"), () => {
           cy.get('lhc-variables > h2').should('contain', 'Item Variables');
           cy.get('#variables-section .variable-row').should('have.length', 2);
 
-          // Check the Advanced Interface checkbox
-          cy.get('input#advanced-interface').check();
-
           cy.get('div#row-0')
             .within(() => {
               cy.get('#variable-type-0').should('have.value', 'question').select('query');
@@ -940,9 +904,6 @@ describe(Cypress.env("appName"), () => {
                 cy.get('#autocomplete-0').should('exist').should('be.visible');
               });
             });
-
-          // Uncheck the Advanced Interface checkbox
-          cy.get('input#advanced-interface').uncheck();
 
           cy.get('div#row-0')
             .within(() => {
@@ -971,9 +932,6 @@ describe(Cypress.env("appName"), () => {
           // Variables section
           cy.get('lhc-variables > h2').should('contain', 'Item Variables');
           cy.get('#variables-section .variable-row').should('have.length', 2);
-
-          // Check the Advanced Interface checkbox
-          cy.get('input#advanced-interface').check();
 
           cy.get('div#row-0')
             .within(() => {
@@ -1075,9 +1033,6 @@ describe(Cypress.env("appName"), () => {
           cy.get('lhc-variables > h2').should('contain', 'Item Variables');
           cy.get('#variables-section .variable-row').should('have.length', 2);
 
-          // Check the Advanced Interface checkbox
-          cy.get('input#advanced-interface').check();
-
           cy.get('div#row-1')
             .within(() => {
               cy.get('#variable-type-1').should('have.value', 'question').select('simple');
@@ -1168,9 +1123,6 @@ describe(Cypress.env("appName"), () => {
           cy.get('lhc-variables > h2').should('contain', 'Item Variables');
           cy.get('#variables-section .variable-row').should('have.length', 2);
 
-          // Check the Advanced Interface checkbox
-          cy.get('input#advanced-interface').check();
-
           cy.get('div#row-1')
             .within(() => {
               cy.get('#variable-type-1').should('have.value', 'question');
@@ -1240,12 +1192,19 @@ describe(Cypress.env("appName"), () => {
             });
         });
       });
-      
+
       it('should display the output when the Save(export) button is clicked', () => {
-        cy.get('select#questionnaire-select').select('BMI Calculation');
+        cy.get('select#questionnaire-select > option').should('have.length', 10);
+        // Select BMI Calculation
+        cy.intercept('/bmi.json').as('bmi');
+        cy.get('select#questionnaire-select').select('bmi').should('have.value', 'bmi');
+        cy.wait('@bmi');
 
         // The demo has 'BMI (/39156-5) selected by default
-        cy.get('#question').should('have.value', 'BMI (/39156-5)');
+        cy.get('#question').click();
+        cy.get('span#completionOptions > ul > li').should('have.length', 5);
+        cy.get('span#completionOptions').contains('39156-5').click();
+
         // Click the button to edit the expression
         cy.get('button#openExpressionEditor').should('exist').click();
         // The Expression Editor dialog should now appear
@@ -1860,12 +1819,17 @@ describe(Cypress.env("appName"), () => {
       });
 
       it('should be able to review selected items', () => {
+        cy.get('select#questionnaire-select > option').should('have.length', 10);
+        // Select PHQ9 (no FHIRPath)
         cy.intercept('/phq9.json').as('phq9');
-        cy.get('select#questionnaire-select').select('PHQ9 (no FHIRPath)');
+        cy.get('select#questionnaire-select').select(6).should('have.value', 'phq9');
         cy.wait('@phq9');
 
-        // The demo has '(/39156-5) selected by default
-        cy.get('#question').should('contain.value', '(/39156-5)');
+        // The demo has 'BMI (/39156-5) selected by default
+        cy.get('#question').click();
+        cy.get('span#completionOptions > ul > li').should('have.length', 11);
+        cy.get('span#completionOptions').contains('/39156-5').click();
+
         // Click the button to edit the expression
         cy.get('button#openExpressionEditor').should('exist').click();
 
@@ -2608,8 +2572,6 @@ describe(Cypress.env("appName"), () => {
         cy.get('lhc-expression-editor').shadow().within(() => {
           cy.get('#expression-editor-base-dialog').should('exist');
 
-          cy.get('#advanced-interface').should('not.be.checked');
-
           // Should have the case statement checkbox toggled
           cy.get('#case-statements').should('be.checked');
           cy.get('#output-expressions').should('not.be.checked');
@@ -2639,8 +2601,6 @@ describe(Cypress.env("appName"), () => {
         // The Expression Editor dialog should now appear
         cy.get('lhc-expression-editor').shadow().within(() => {
           cy.get('#expression-editor-base-dialog').should('exist');
-
-          cy.get('#advanced-interface').should('be.checked');
 
           // Should have the case statement checkbox toggled
           cy.get('#case-statements').should('be.checked');
@@ -2729,8 +2689,6 @@ describe(Cypress.env("appName"), () => {
         cy.get('lhc-expression-editor').shadow().within(() => {
           cy.get('#expression-editor-base-dialog').should('exist');
 
-          cy.get('#advanced-interface').should('be.checked');
-
           // There should be 3 case statements
           cy.get('#final-expression-section .cdk-drop-list > div').should('have.length', 3);
           cy.get('#case-condition-0').should('have.value', '%bmi<18.5');
@@ -2815,10 +2773,6 @@ describe(Cypress.env("appName"), () => {
         // The Expression Editor dialog should now appear
         cy.get('lhc-expression-editor').shadow().within(() => {
           cy.get('#expression-editor-base-dialog').should('exist');
-
-          // Check the 'Advanced interface' checkbox
-          cy.get('#advanced-interface').should('not.be.checked');
-          cy.get('#advanced-interface').click();
 
           // Case statement expressions and outputs should be populated
           cy.get('#final-expression-section .cdk-drop-list > div').should('have.length', 3);
