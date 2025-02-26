@@ -1904,8 +1904,8 @@ export class ExpressionEditorService {
       } else if (param.field === "case") {
         this.outputExpressionError = false;
         this.outputExpressionWarning = false;
-        this.caseStatementError = (result && !result.hasOwnProperty('invalidExpressionWarning')) ? true : false;
-        this.caseStatementWarning = (result && result.hasOwnProperty('invalidExpressionWarning')) ? true : false;
+        this.caseStatementError = (result && result.hasOwnProperty('CaseStatementError')) ? result.CaseStatementError : false;
+        this.caseStatementWarning = (result && result.hasOwnProperty('CaseStatementWarning')) ? result.CaseStatementWarning : false;
       }
     }
 

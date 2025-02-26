@@ -42,6 +42,11 @@ export interface ValidationParam {
   [others: string]: string;
 }
 
+export interface CaseStatementValidationResult {
+  hasError: boolean;
+  hasWarning: boolean;
+}
+
 export interface ValidationError {
   [errorKey: string]: boolean | string;
   message: string;
@@ -71,6 +76,7 @@ export interface CaseStatement {
   output: string;
   simpleOutput?: string;
   error?: CaseStatementError;
+  warning?: CaseStatementError;
 }
 
 export enum AllVariableType {

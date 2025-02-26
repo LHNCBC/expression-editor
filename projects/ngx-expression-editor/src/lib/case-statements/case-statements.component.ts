@@ -1,8 +1,8 @@
-import { ChangeDetectorRef,  Component, EventEmitter, Input, OnChanges, OnInit, Output, ViewChild,
+import { ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, OnInit, Output, ViewChild,
          ViewChildren, QueryList, AfterViewInit, OnDestroy } from '@angular/core';
 import { ExpressionEditorService, SimpleStyle } from '../expression-editor.service';
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
-import { CASE_REGEX, CaseStatement, ValidationError, Variable, FieldTypes, SectionTypes } from '../variable';
+import { CASE_REGEX, CaseStatement, ValidationError, Variable, FieldTypes, SectionTypes, CaseStatementValidationResult } from '../variable';
 import { EasyPathExpressionsPipe } from '../easy-path-expressions.pipe';
 import { LiveAnnouncer } from '@angular/cdk/a11y';
 import { NgModel } from '@angular/forms';
@@ -25,24 +25,29 @@ export class CaseStatementsComponent implements OnInit, OnChanges, OnDestroy, Af
 
   @ViewChildren('caseConditionRef') caseConditionRefs: QueryList<NgModel>;
   @ViewChildren('caseOutputRef') caseOutputRefs: QueryList<NgModel>;
-  @ViewChild('caseDefaultRef') caseDefaultRef:NgModel;
- 
+  @ViewChild('caseDefaultRef') caseDefaultRef: NgModel;
+
   STRING_REGEX = /^'(.*)'$/;
   pipe = new EasyPathExpressionsPipe();
   outputExpressions = true;
   defaultCase: string;
   simpleDefaultCase: string;
-  cases: Array<CaseStatement> = [{condition: '', simpleCondition: '', output: '', simpleOutput: ''}];
+  cases: Array<CaseStatement> = [{ condition: '', simpleCondition: '', output: '', simpleOutput: '' }];
 
   output = '';
   hidePreview = false;
 
   hasError = false;
+  hasWarning = false;
   defaultCaseError = '';
+  defaultCaseWarning = '';
   performValidationSubscription;
 
   caseAriaErrorMessages = [];
   caseAriaErrorMessage = '';
+
+  caseAriaWarningMessages = [];
+  caseAriaWarningMessage = '';
 
   constructor(private expressionEditorService: ExpressionEditorService,
               private liveAnnouncer: LiveAnnouncer,
@@ -152,7 +157,7 @@ export class CaseStatementsComponent implements OnInit, OnChanges, OnDestroy, Af
    * Called when adding a new case
    */
   onAdd(): void {
-    this.cases.push({condition: '', simpleCondition: '', output: '', simpleOutput: ''});
+    this.cases.push({ condition: '', simpleCondition: '', output: '', simpleOutput: '' });
     this.onChange();
     // TODO select next input box that was added
   }
@@ -171,6 +176,7 @@ export class CaseStatementsComponent implements OnInit, OnChanges, OnDestroy, Af
    */
   onChange(): void {
     this.hasError = false;
+    this.hasWarning = false;
     this.output = this.getIif(0);
     this.expressionChange.emit(this.output);
     this.simpleChange.emit(this.simpleExpression);
@@ -197,13 +203,20 @@ export class CaseStatementsComponent implements OnInit, OnChanges, OnDestroy, Af
         "message": `The ${key} is invalid.`,
         "ariaMessage": notValidAriaMessage
       };
-    } else if (result ===  'Required') {
+    } else if (result === 'Required') {
       errorObj = {
         "invalidCaseStatementError": true,
         "message": `The ${key} is required.`,
         "ariaMessage": `The ${key} is required.`
       };
+    } else if (result === 'Launch context') {
+      errorObj = {
+        "invalidCaseStatementWarning": true,
+        "message": `The ${key} may contain launch context variable that have not been defined.`,
+        "ariaMessage": `The ${key} may contain launch context variable that have not been defined.`
+      };
     }
+
     return errorObj;
   };
 
@@ -212,43 +225,56 @@ export class CaseStatementsComponent implements OnInit, OnChanges, OnDestroy, Af
    * @param element - the case element
    * @param index - case statement index
    * @param type - case element type: 'condition' or 'output'
-   * @return true if element contains error, false otherwise
+   * @return CaseStatementValidationResult - object containing hasError and hasWarning keys.
    */
-  setElementError(element:any, index:number, type: string): boolean {
+  setElementError(element: any, index: number, type: string): CaseStatementValidationResult {
     let hasError = false;
+    let hasWarning = false;
     let result = null;
     if (type in this.cases[index].error) {
       hasError = true;
       result = this.composeErrorResultObject('case ' + type, this.cases[index].error[type]);
-    
+
       this.caseAriaErrorMessages.push(result.ariaMessage);
+    } else if (type in this.cases[index].warning) {
+      hasWarning = true;
+      result = this.composeErrorResultObject('case ' + type, this.cases[index].warning[type]);
+
+      this.caseAriaWarningMessages.push(result.ariaMessage);
     }
-    setTimeout(()=> {
-      element.control.setErrors(result);
+    setTimeout(() => {
+      if (hasError) {
+        element.control.setErrors(result);
+      } else if (hasWarning) {
+        if (this.syntax === 'simple') {
+          element.control.setErrors(result);
+        } else {
+          element.control.setErrors({ warning: result });
+        }
+      }
     }, 0);
-    return hasError;
+    return { hasError: hasError, hasWarning: hasWarning };
   }
 
   /**
    * Loop through case statement elements of the given type and check for validation errors.
    * @param caseElements - QueryList of elements to check for validation errors
    * @param type - case element type: 'condition' or 'output'
-   * @return true if the selected 'type' contains error.
+   * @return CaseStatementValidationResult - object containing hasError and hasWarning keys.
    */
-  checkAndUpdateCaseErrors(caseElements: any, type: string): boolean {
-    let hasError = false;
-    caseElements.forEach((c, index) => {    
+  checkAndUpdateCaseErrors(caseElements: any, type: string): CaseStatementValidationResult {
+    let result = { hasError: false, hasWarning: false };
+
+    caseElements.forEach((c, index) => {
       const caseError = this.cases[index]['error'];
       if ((c.dirty && c.control.value === "") ||
-          (c.control.value) ||
-          (caseError && caseError?.[type] && caseError[type] !== 'Required')) {
-        const errorFound = this.setElementError(c, index, type);
-        if (errorFound)
-          hasError = true;
+        (c.control.value) ||
+        (caseError && caseError?.[type] && caseError[type] !== 'Required')) {
+        result = this.setElementError(c, index, type);
       }
     });
 
-    return hasError;
+    return result;
   };
 
   /**
@@ -256,10 +282,14 @@ export class CaseStatementsComponent implements OnInit, OnChanges, OnDestroy, Af
    * Case Statements under the Output Expression section.
    */
   composeAriaErrorMessage(): void {
-    if (this.caseAriaErrorMessages.length > 1)
-      this.caseAriaErrorMessage = constants.INVALID_CASES_EXPRESSION; 
-    else if (this.caseAriaErrorMessages.length === 1) {
+    if (this.caseAriaErrorMessages.length > 1) {
+      this.caseAriaErrorMessage = constants.INVALID_CASES_EXPRESSION;
+    } else if (this.caseAriaErrorMessages.length === 1) {
       this.caseAriaErrorMessage = this.caseAriaErrorMessages[0];
+    } else if (this.caseAriaWarningMessages.length > 1) {
+      this.caseAriaErrorMessage = constants.INVALID_CASES_EXPRESSION;
+    } else if (this.caseAriaWarningMessages.length === 1) {
+      this.caseAriaErrorMessage = this.caseAriaWarningMessages[0];
     }
   }
 
@@ -267,20 +297,42 @@ export class CaseStatementsComponent implements OnInit, OnChanges, OnDestroy, Af
    * Check for validation errors on the default case
    * @return true if the default case contains error.
    */
-  checkAndUpdateDefaultCaseError(): boolean {
+  checkAndUpdateDefaultCaseError(): CaseStatementValidationResult {
     let result = null;
-    if ((this.caseDefaultRef.dirty ) || (this.caseDefaultRef.control.value) || (this.defaultCaseError && this.defaultCaseError !== 'Required')) {
+    let hasError = false;
+    let hasWarning = false;
+
+    if ((this.caseDefaultRef.dirty) || (this.caseDefaultRef.control.value) || (this.defaultCaseError && this.defaultCaseError !== 'Required')) {
       result = this.composeErrorResultObject('default case', this.defaultCaseError);
     }
 
     if (result && ('ariaMessage' in result)) {
+      hasError = true;
       this.caseAriaErrorMessages.push(result.ariaMessage);
     }
 
-    setTimeout(()=> {
-      this.caseDefaultRef.control.setErrors(result);
+    if (!result && this.defaultCaseWarning) {
+      result = this.composeErrorResultObject('default case', this.defaultCaseWarning);
+
+      if (result && ('ariaMessage' in result)) {
+        hasWarning = true;
+        this.caseAriaWarningMessages.push(result.ariaMessage);
+      }
+    }
+
+    setTimeout(() => {
+      if (hasError) {
+        this.caseDefaultRef.control.setErrors(result);
+      } else {
+        if (this.syntax === 'simple') {
+          this.caseDefaultRef.control.setErrors(result);
+        } else {
+          this.caseDefaultRef.control.setErrors({ warning: result });
+        }
+      }
     }, 0);
-    return (result !== null);
+
+    return { hasError: hasError, hasWarning: hasWarning };
   };
 
   /**
@@ -290,32 +342,56 @@ export class CaseStatementsComponent implements OnInit, OnChanges, OnDestroy, Af
    */
   updateCaseStatementsErrors(): void {
     const param = {
-      "section" : SectionTypes.OutputExpression,
+      "section": SectionTypes.OutputExpression,
       "field": FieldTypes.Case
     };
     this.caseAriaErrorMessages = [];
     this.caseAriaErrorMessage = '';
 
-    const hasConditionErrors = this.checkAndUpdateCaseErrors(this.caseConditionRefs, 'condition');
-    const hasOutputErrors = this.checkAndUpdateCaseErrors(this.caseOutputRefs, 'output');
-    const hasDefaultCaseError = this.checkAndUpdateDefaultCaseError();
-    
+    this.caseAriaWarningMessages = [];
+    this.caseAriaWarningMessage = '';
+
+    this.hasError = false;
+    this.hasWarning = false;
+
+    const hasConditionResults = this.checkAndUpdateCaseErrors(this.caseConditionRefs, 'condition');
+    const hasOutputResults = this.checkAndUpdateCaseErrors(this.caseOutputRefs, 'output');
+    const hasDefaultCaseResult = this.checkAndUpdateDefaultCaseError();
+
     let result = null;
-    if (hasConditionErrors || hasOutputErrors || hasDefaultCaseError) {
+    if (hasConditionResults.hasError || hasOutputResults.hasError || hasDefaultCaseResult.hasError) {
       this.hasError = true;
       result = {
         "CaseStatementError": true,
         "message": "Case Statement error",
         "ariaMessage": "Case Statement error"
       }
-    } else 
-      this.hasError = false;
+    } else if (hasConditionResults.hasWarning || hasOutputResults.hasWarning || hasDefaultCaseResult.hasWarning) {
+      this.hasWarning = true;
+      result = {
+        "CaseStatementWarning": true,
+        "message": "Case Statement warning",
+        "ariaMessage": "Case Statement warning"
+      }
+    }
 
     this.composeAriaErrorMessage();
 
     this.expressionEditorService.notifyValidationResult(param, result);
 
   };
+
+  /**
+   * Create the ARIA error message to inform screen reader users of errors in the
+   * Case Statements under the Output Expression section.
+   */
+  composeAriaWarningMessage(): void {
+    if (this.caseAriaWarningMessages.length > 1)
+      this.caseAriaWarningMessage = constants.INVALID_CASES_EXPRESSION;
+    else if (this.caseAriaWarningMessages.length === 1) {
+      this.caseAriaWarningMessage = this.caseAriaWarningMessages[0];
+    }
+  }
 
   /**
    * Parse iif expression at specified level. Top level is 0
@@ -405,23 +481,36 @@ export class CaseStatementsComponent implements OnInit, OnChanges, OnDestroy, Af
    */
   setCaseStatementsErrors(level: number, condition: string, output: string, defaultCase: string): void {
     this.cases[level].error = {};
+    this.cases[level].warning = {};
 
-    if (condition === 'Not valid')
+    if (condition === 'Not valid') {
       this.cases[level].error['condition'] = condition;
-    else if (condition === '')
+    } else if (condition === 'Launch context') {
+      this.cases[level].warning['condition'] = condition;
+    } else if (condition === '') {
       this.cases[level].error['condition'] = 'Required';
+    }
 
-    if (output === 'Not valid')
+    if (output === 'Not valid') {
       this.cases[level].error['output'] = output;
-    else if (output === '' || output === "''")
+    } else if (output === 'Launch context') {
+      this.cases[level].warning['output'] = output;
+    } else if (output === '' || output === "''") {
       this.cases[level].error['output'] = 'Required';
+    }
 
-    if (defaultCase === 'Not valid')
+    if (defaultCase === 'Not valid') {
       this.defaultCaseError = defaultCase;
-    else if (defaultCase === '')
-      this.defaultCaseError = 'Required';
-    else
+      this.defaultCaseWarning = '';
+    } else if (defaultCase === 'Launch context') {
+      this.defaultCaseWarning = defaultCase;
       this.defaultCaseError = '';
+    } else if (defaultCase === '') {
+      this.defaultCaseError = 'Required';
+    } else {
+      this.defaultCaseError = '';
+      this.defaultCaseWarning = '';
+    }
   }
 
   /**
@@ -430,14 +519,14 @@ export class CaseStatementsComponent implements OnInit, OnChanges, OnDestroy, Af
    */
   getIif(level: number): string {
     const isSimple = this.syntax === 'simple';
-    const output = this.transformIfSimple(isSimple ?
+    let output = this.transformIfSimple(isSimple ?
       this.cases[level].simpleOutput :
       this.cases[level].output, true);
     let condition = this.transformIfSimple(isSimple ?
       this.cases[level].simpleCondition :
       this.cases[level].condition, false);
-    
-    const defaultCase = this.transformIfSimple(isSimple ?
+
+    let defaultCase = this.transformIfSimple(isSimple ?
       this.simpleDefaultCase : this.defaultCase, true);
 
     this.setCaseStatementsErrors(level, condition, output, defaultCase);
@@ -454,6 +543,18 @@ export class CaseStatementsComponent implements OnInit, OnChanges, OnDestroy, Af
 
       if (!this.hidePreview && previousValue !== this.hidePreview) {
         this.liveAnnouncer.announce('A FHIRPath conversion preview has appeared below.');
+      }
+    }
+
+    if (!isSimple) {
+      if (condition === 'Launch context') {
+        condition = this.cases[level].condition;
+      }
+      if (output === 'Launch context') {
+        output = this.cases[level].output;
+      }
+      if (defaultCase === 'Launch context') {
+        defaultCase = this.defaultCase;
       }
     }
 
@@ -494,9 +595,26 @@ export class CaseStatementsComponent implements OnInit, OnChanges, OnDestroy, Af
         try {
           const variableNames = this.expressionEditorService.getContextVariableNamesForExpressionValidation();
           const result = fhirpath.evaluate({}, processedExpression, variableNames);
+
           return processedExpression;
-        } catch(e) {
-          return 'Not valid';
+        } catch (e) {
+          try {
+            const launchContext = this.expressionEditorService.getCommonLaunchContext();
+            const result = fhirpath.evaluate({}, processedExpression, launchContext);
+          } catch (e2) {
+            return 'Not valid';
+          }
+
+          // Attempting to access an undefined environment variable: Patient
+          const errorMessage = e.message;
+          const match = errorMessage.match(/Attempting to access an undefined environment variable: (\w+)/);
+          let variableName = '';
+
+          if (match && match[1]) {
+            variableName = match[1];
+          }
+
+          return 'Launch context';
         }
       } else
         return processedExpression;
