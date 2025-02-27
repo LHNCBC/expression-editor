@@ -243,14 +243,14 @@ export class CaseStatementsComponent implements OnInit, OnChanges, OnDestroy, Af
       this.caseAriaWarningMessages.push(result.ariaMessage);
     }
     setTimeout(() => {
-      if (hasError) {
-        element.control.setErrors(result);
-      } else if (hasWarning) {
+      if (hasWarning) {
         if (this.syntax === 'simple') {
           element.control.setErrors(result);
         } else {
           element.control.setErrors({ warning: result });
         }
+      } else {
+        element.control.setErrors(result);
       }
     }, 0);
     return { hasError: hasError, hasWarning: hasWarning };
@@ -341,6 +341,7 @@ export class CaseStatementsComponent implements OnInit, OnChanges, OnDestroy, Af
    * and default case) and notify the Expression Editor component on the status.
    */
   updateCaseStatementsErrors(): void {
+    console.log('case-statement::updateCaseStatementsErrors');
     const param = {
       "section": SectionTypes.OutputExpression,
       "field": FieldTypes.Case
@@ -357,6 +358,10 @@ export class CaseStatementsComponent implements OnInit, OnChanges, OnDestroy, Af
     const hasConditionResults = this.checkAndUpdateCaseErrors(this.caseConditionRefs, 'condition');
     const hasOutputResults = this.checkAndUpdateCaseErrors(this.caseOutputRefs, 'output');
     const hasDefaultCaseResult = this.checkAndUpdateDefaultCaseError();
+
+    console.log('case-statement::updateCaseStatementsErrors::hasConditionResults', hasConditionResults);
+    console.log('case-statement::updateCaseStatementsErrors::hasOutputResults', hasOutputResults);
+    console.log('case-statement::updateCaseStatementsErrors::hasDefaultCaseResult', hasDefaultCaseResult);
 
     let result = null;
     if (hasConditionResults.hasError || hasOutputResults.hasError || hasDefaultCaseResult.hasError) {
