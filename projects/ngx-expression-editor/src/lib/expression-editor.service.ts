@@ -878,8 +878,9 @@ export class ExpressionEditorService {
    * Add variables and finalExpression and return the new FHIR Questionnaire
    * @param url Extension URL to use for the expression
    * @param finalExpression
+   * @param simpleExpression
    */
-  export(url: string, finalExpression): object {
+  export(url: string, finalExpression, simpleExpression = ''): object {
     // Check to see if there are any errors from the validation
     const validationResult = this.getValidationResult();
     if (validationResult.hasError)
@@ -930,9 +931,13 @@ export class ExpressionEditorService {
         variablesPresentInitially.push(e);
       }
     });
-    if (this.syntaxType === 'simple') {
-      if (finalExpression && finalExpression.hasOwnProperty('valueExpression') && finalExpression.valueExpression) 
-        this.findOrAddExtension(finalExpression.valueExpression.extension, ExpressionEditorService.SIMPLE_SYNTAX_EXTENSION, 'String', this.simpleExpression);
+    if (this.syntaxType === 'simple' || simpleExpression) {
+      if (finalExpression && finalExpression.hasOwnProperty('valueExpression') && finalExpression.valueExpression) {
+        if (!finalExpression.valueExpression.extension) {
+          finalExpression.valueExpression.extension = [];
+        }
+        this.findOrAddExtension(finalExpression.valueExpression.extension, ExpressionEditorService.SIMPLE_SYNTAX_EXTENSION, 'String', simpleExpression);
+      }
     }
 
     if (this.linkIdContext !== undefined && this.linkIdContext !== null && this.linkIdContext !== '') {
