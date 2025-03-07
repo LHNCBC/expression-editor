@@ -122,8 +122,7 @@ export class ExpressionEditorService {
   static FHIR_QUERY_OBS_FIELDS = ['code', 'date', 'patient', '_sort', '_count'];
   static APP_NAME = "Expression Editor";
 
-  static ENVIRONMENT_VARIABLES = ['resource', 'rootResource', 'sct', 'loinc', 'vs-', 'ext-'];
-  static EXTRACT_EXTENSIONS = ['context', 'questionnaire', 'qitem'];
+  static ENVIRONMENT_VARIABLES = ['resource', 'rootResource', 'sct', 'loinc', 'vs-', 'ext-', 'context', 'questionnaire', 'qitem'];
   static COMMON_LAUNCH_CONTEXT_VARIABLES = ['patient', 'encounter', 'practitioner', 'organization', 'user', 'relatedPerson'];
     
   syntaxType = 'fhirpath';
@@ -2030,10 +2029,6 @@ export class ExpressionEditorService {
 
     ExpressionEditorService.ENVIRONMENT_VARIABLES.forEach(envVar => {
       contextVariables[envVar] = 1;
-    });
-
-    ExpressionEditorService.EXTRACT_EXTENSIONS.forEach(ext => {
-      contextVariables[ext] = 1;
     });
 
     return contextVariables;
