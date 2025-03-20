@@ -562,6 +562,91 @@ describe(Cypress.env("appName"), () => {
         });
       });
 
+      it('should still display error and disable "Save" button when switching case from Easy Path Expression (with errors) to FHIRPath Expression', () => {
+        cy.get('select#questionnaire-select').select('Upload your own questionnaire');
+  
+        cy.get('#file-upload').attachFile('bmisimple.json');
+
+        // Updating the linkId should update the Expression Editor instantly
+        cy.get('#question').type('bmi');
+        cy.get('span#completionOptions > ul > li').contains('39156-5').click();
+
+        // Click the button to edit the expression
+        cy.get('button#openExpressionEditor').should('exist').click();
+        // The Expression Editor dialog should now appear
+        cy.get('lhc-expression-editor').shadow().within(() => {
+          cy.get('#expression-editor-base-dialog').should('exist');
+        });
+
+        // The 'Output Expression' should be default to 'Calculated Expression' 
+        cy.get('#expression-entry > select').should('have.value', '1');
+
+        cy.get('lhc-expression-editor').shadow().within(() => {
+          // The 'Output Expression' section should be visible
+          cy.get('#final-expression-section').should('exist')
+            .scrollIntoView().should('be.visible');
+
+          // Check the "Case Statements Helper" checkbox
+          cy.get('#case-statements').check();
+
+          // The variable type should default to Easy Path Expression
+          cy.get('#output-expression-type').should('exist').should('have.value', 'simple');
+
+          // Populate case statements
+          cy.get('#case-condition-0').clear().type('a > 1');
+          cy.get('#case-output-0').clear().type("'small'");
+          cy.get('#add-case').click();
+          cy.get('#case-condition-1').clear().type('a < 5');
+          cy.get('#case-output-1').clear().type("'medium'");
+          cy.get('.default').clear().type("'large'");
+
+          // Case statements should not have errors.
+          cy.get('#case-condition-0').should('not.have.class', 'field-error');
+          cy.get('#case-output-0').should('not.have.class', 'field-error');
+          cy.get('#case-condition-1').should('not.have.class', 'field-error');
+          cy.get('#case-output-1').should('not.have.class', 'field-error');
+          cy.get('.default').should('not.have.class', 'field-error');
+
+          // The 'Save' button should be enabled since the Output Expression is populate
+          cy.get('#export').should('not.have.class', 'disabled');
+
+          // The preview should display the expression
+          cy.get('lhc-syntax-preview pre').should('contain.text', "iif(%a > 1,'small',iif(%a < 5,'medium','large'))");
+
+          // Empty first case output
+          cy.get('#case-output-0').clear();
+          // Empty second case condition 
+          cy.get('#case-condition-1').clear();
+          // Empty the default output
+          cy.get('.default').clear();
+
+          // Those fields should now display errors.
+          cy.get('#case-output-0').should('have.class', 'field-error');
+          cy.get('#case-condition-1').should('have.class', 'field-error');
+          cy.get('.default').should('have.class', 'field-error');
+          
+          // The 'Save' button should be disabled
+          cy.get('#export').should('have.class', 'disabled');
+
+          // The preview expression should be hidden
+          cy.get('lhc-case-statements lhc-syntax-preview').should('not.exist');
+
+          // Select FHIRPath Expression variable type
+          cy.get('#output-expression-type').select('fhirpath');
+
+          // The case statment should still display errors
+          cy.get('#case-output-0').should('have.class', 'field-error');
+          cy.get('#case-condition-1').should('have.class', 'field-error');
+          cy.get('.default').should('have.class', 'field-error');
+
+          // The preview expression should remain hidden
+          cy.get('lhc-case-statements lhc-syntax-preview').should('not.exist');
+
+          // The 'Save' button should remain disabled
+          cy.get('#export').should('have.class', 'disabled');
+        });
+      });
+
       it('should validate for empty Output Expression when the "Save" button is clicked', () => {
         cy.intercept('/phq9.json').as('phq9');
         cy.get('select#questionnaire-select').select('PHQ9 (no FHIRPath)');

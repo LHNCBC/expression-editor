@@ -264,12 +264,20 @@ export class CaseStatementsComponent implements OnInit, OnChanges, OnDestroy, Af
    */
   checkAndUpdateCaseErrors(caseElements: any, type: string): CaseStatementValidationResult {
     let result = { hasError: false, hasWarning: false };
+    // Use the output to check if there is an error.  This is being used when the Easy Path Expression
+    // case statements contain errors and switching to FHIRPath Expression should retain the errors.
+    const caseTokens = this.output.split(',');
 
     caseElements.forEach((c, index) => {
       const caseError = this.cases[index]['error'];
+      // Determine the index for the caseTokens.
+      const tokenIndex = (2 * index) + (type === "condition" ? 0 : 1);
+
       if ((c.dirty && c.control.value === "") ||
         (c.control.value) ||
-        (caseError && caseError?.[type] && caseError[type] !== 'Required')) {
+        (caseError && caseError?.[type] && caseError[type] !== 'Required') ||
+        (caseError[type] === 'Required' && caseTokens[tokenIndex].indexOf('Required') > -1)) {
+        
         result = this.setElementError(c, index, type);
       }
     });
@@ -301,8 +309,11 @@ export class CaseStatementsComponent implements OnInit, OnChanges, OnDestroy, Af
     let result = null;
     let hasError = false;
     let hasWarning = false;
+    // Use the output to check if there is an error.
+    const outputTokens = this.output.split(',');
 
-    if ((this.caseDefaultRef.dirty) || (this.caseDefaultRef.control.value) || (this.defaultCaseError && this.defaultCaseError !== 'Required')) {
+    if ((this.caseDefaultRef.dirty) || (this.caseDefaultRef.control.value) || (this.defaultCaseError && this.defaultCaseError !== 'Required') ||
+        (this.defaultCaseError === 'Required' && outputTokens[outputTokens.length - 1].indexOf('Required') > -1)) {
       result = this.composeErrorResultObject('default case', this.defaultCaseError);
     }
 
@@ -341,7 +352,6 @@ export class CaseStatementsComponent implements OnInit, OnChanges, OnDestroy, Af
    * and default case) and notify the Expression Editor component on the status.
    */
   updateCaseStatementsErrors(): void {
-    console.log('case-statement::updateCaseStatementsErrors');
     const param = {
       "section": SectionTypes.OutputExpression,
       "field": FieldTypes.Case
@@ -359,9 +369,6 @@ export class CaseStatementsComponent implements OnInit, OnChanges, OnDestroy, Af
     const hasOutputResults = this.checkAndUpdateCaseErrors(this.caseOutputRefs, 'output');
     const hasDefaultCaseResult = this.checkAndUpdateDefaultCaseError();
 
-    console.log('case-statement::updateCaseStatementsErrors::hasConditionResults', hasConditionResults);
-    console.log('case-statement::updateCaseStatementsErrors::hasOutputResults', hasOutputResults);
-    console.log('case-statement::updateCaseStatementsErrors::hasDefaultCaseResult', hasDefaultCaseResult);
 
     let result = null;
     if (hasConditionResults.hasError || hasOutputResults.hasError || hasDefaultCaseResult.hasError) {
@@ -383,7 +390,8 @@ export class CaseStatementsComponent implements OnInit, OnChanges, OnDestroy, Af
     this.composeAriaErrorMessage();
 
     this.expressionEditorService.notifyValidationResult(param, result);
-
+    // Added this to solve karma test issues with view has already been updated.
+    this.changeDetectorRef.detectChanges();
   };
 
   /**
@@ -492,7 +500,7 @@ export class CaseStatementsComponent implements OnInit, OnChanges, OnDestroy, Af
       this.cases[level].error['condition'] = condition;
     } else if (condition === 'Launch context') {
       this.cases[level].warning['condition'] = condition;
-    } else if (condition === '') {
+    } else if (condition === '' || condition === 'Required') {
       this.cases[level].error['condition'] = 'Required';
     }
 
@@ -500,7 +508,7 @@ export class CaseStatementsComponent implements OnInit, OnChanges, OnDestroy, Af
       this.cases[level].error['output'] = output;
     } else if (output === 'Launch context') {
       this.cases[level].warning['output'] = output;
-    } else if (output === '' || output === "''") {
+    } else if (output === '' || output === "''" || output === 'Required') {
       this.cases[level].error['output'] = 'Required';
     }
 
@@ -510,7 +518,7 @@ export class CaseStatementsComponent implements OnInit, OnChanges, OnDestroy, Af
     } else if (defaultCase === 'Launch context') {
       this.defaultCaseWarning = defaultCase;
       this.defaultCaseError = '';
-    } else if (defaultCase === '') {
+    } else if (defaultCase === '' || defaultCase === 'Required') {
       this.defaultCaseError = 'Required';
     } else {
       this.defaultCaseError = '';
@@ -524,12 +532,17 @@ export class CaseStatementsComponent implements OnInit, OnChanges, OnDestroy, Af
    */
   getIif(level: number): string {
     const isSimple = this.syntax === 'simple';
-    let output = this.transformIfSimple(isSimple ?
-      this.cases[level].simpleOutput :
-      this.cases[level].output, true);
-    let condition = this.transformIfSimple(isSimple ?
-      this.cases[level].simpleCondition :
-      this.cases[level].condition, false);
+    // Added check for when the simpleOutput and simpleCondition are empty.
+    let output = this.cases[level].simpleOutput === '' &&
+                 this.cases[level].simpleOutput === this.cases[level].output ? "" :
+                                                      this.transformIfSimple(isSimple ?
+                                                      this.cases[level].simpleOutput :
+                                                      this.cases[level].output, true);
+    let condition = this.cases[level].simpleCondition === '' &&
+                    this.cases[level].simpleCondition === this.cases[level].condition ? "" :
+                                                            this.transformIfSimple(isSimple ?
+                                                            this.cases[level].simpleCondition :
+                                                            this.cases[level].condition, false);
 
     let defaultCase = this.transformIfSimple(isSimple ?
       this.simpleDefaultCase : this.defaultCase, true);
@@ -594,9 +607,9 @@ export class CaseStatementsComponent implements OnInit, OnChanges, OnDestroy, Af
     } else {
       // Calling fhirpath.evaluate only on Case condition.
       if (this.outputExpressions) {
-        if (!processedExpression)
+        if (!processedExpression) {
           return 'Required';
-
+        }
         try {
           const variableNames = this.expressionEditorService.getContextVariableNamesForExpressionValidation();
           const result = fhirpath.evaluate({}, processedExpression, variableNames);
