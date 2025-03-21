@@ -8,7 +8,8 @@ import { NgModel } from '@angular/forms';
 @Component({
   selector: 'lhc-variables',
   templateUrl: './variables.component.html',
-  styleUrls: ['./variables.component.css']
+  styleUrls: ['./variables.component.css'],
+  standalone: false
 })
 export class VariablesComponent implements OnInit, OnChanges, OnDestroy {
   @Input() lhcStyle: SimpleStyle = {};

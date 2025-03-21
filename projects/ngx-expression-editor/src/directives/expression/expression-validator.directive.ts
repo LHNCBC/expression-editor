@@ -9,7 +9,8 @@ import { ValidationParam } from '../../lib/variable';
     provide: NG_VALIDATORS,
     useExisting: ExpressionValidatorDirective,
     multi: true
-  }]
+  }],
+  standalone: false
 })
 export class ExpressionValidatorDirective {
   @Input('lhcExpressionValidatorParams') param: ValidationParam;

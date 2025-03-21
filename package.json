@@ -14,17 +14,17 @@
     "test:e2e": "ng e2e --port 4203"
   },
   "dependencies": {
-    "@angular/animations": "~18.2.13",
-    "@angular/cdk": "^17.3.4",
-    "@angular/common": "~18.2.13",
-    "@angular/compiler": "~18.2.13",
-    "@angular/core": "~18.2.13",
-    "@angular/elements": "^18.2.13",
-    "@angular/forms": "~18.2.13",
-    "@angular/material": "^17.3.4",
-    "@angular/platform-browser": "~18.2.13",
-    "@angular/platform-browser-dynamic": "~18.2.13",
-    "@angular/router": "~18.2.13",
+    "@angular/animations": "~19.2.3",
+    "@angular/cdk": "^19.2.3",
+    "@angular/common": "~19.2.3",
+    "@angular/compiler": "~19.2.3",
+    "@angular/core": "~19.2.3",
+    "@angular/elements": "^19.2.3",
+    "@angular/forms": "~19.2.3",
+    "@angular/material": "^19.2.3",
+    "@angular/platform-browser": "~19.2.3",
+    "@angular/platform-browser-dynamic": "~19.2.3",
+    "@angular/router": "~19.2.3",
     "@bugsplat/angular-tree-component": "^13.0.1",
     "@material/tooltip": "^12.0.0",
     "@ungap/custom-elements": "^1.0.0",
@@ -36,12 +36,13 @@
     "jquery": "^3.6.0",
     "rxjs": "~7.4.0",
     "tslib": "^2.0.0",
-    "zone.js": "~0.14.10"
+    "zone.js": "~0.15.0"
   },
   "devDependencies": {
-    "@angular-devkit/build-angular": "~18.2.15",
-    "@angular/cli": "~18.2.15",
-    "@angular/compiler-cli": "~18.2.13",
+    "@angular-devkit/build-angular": "~19.2.4",
+    "@angular-devkit/core": "~19.2.4",    
+    "@angular/cli": "~19.2.4",
+    "@angular/compiler-cli": "~19.2.3",
     "@cypress/schematic": "^2.5.1",
     "@types/jasmine": "~3.6.0",
     "@types/node": "^12.20.17",
@@ -57,9 +58,9 @@
     "karma-coverage": "~2.0.3",
     "karma-jasmine": "~4.0.0",
     "karma-jasmine-html-reporter": "^1.5.0",
-    "ng-packagr": "^18.2.1",
+    "ng-packagr": "^19.2.0",
     "ts-node": "~8.3.0",
     "tslint": "~6.1.0",
-    "typescript": "~5.4.5"
+    "typescript": "~5.8.2"
   }
 }
