@@ -1,4 +1,6 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import 'zone.js/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+
 import { FormsModule } from '@angular/forms';
 import { TreeModule } from '@bugsplat/angular-tree-component';
 
@@ -10,8 +12,8 @@ describe('SelectScoringItemsComponent', () => {
   let component: SelectScoringItemsComponent;
   let fixture: ComponentFixture<SelectScoringItemsComponent>;
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
+  beforeEach(waitForAsync(() => {
+    TestBed.configureTestingModule({
       declarations: [
         SelectScoringItemsComponent,
         BaseDialogComponent
@@ -23,7 +25,7 @@ describe('SelectScoringItemsComponent', () => {
     fixture = TestBed.createComponent(SelectScoringItemsComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
-  });
+  }));
 
   it('should create', () => {
     expect(component).toBeTruthy();
