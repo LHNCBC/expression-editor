@@ -2826,6 +2826,61 @@ describe(Cypress.env("appName"), () => {
           cy.get('#case-output-2').should('have.value', "'overweight'");
         });
       });
+
+      it('should not reset Easy Path Expression case statements when switching from Easy Path to FHIRPath and back', () => {
+        cy.get('select#questionnaire-select').select('BMI Calculation (Easy Path expression)');
+
+        // The demo has 'BMI (/39156-5) selected by default
+        cy.get('#question').should('have.value', 'BMI (/39156-5)');
+        // Click the button to edit the expression
+        cy.get('button#openExpressionEditor').should('exist').click();
+        // The Expression Editor dialog should now appear
+        cy.get('lhc-expression-editor').shadow().within(() => {
+          cy.get('#expression-editor-base-dialog').should('exist');
+
+          cy.get('#case-statements').should('not.be.checked');
+          cy.get('#case-statements').check();
+
+          cy.get('#output-expressions').uncheck();
+
+          // Add a conditions and outputs
+          cy.get('#case-condition-0').type('a<18.5');
+          cy.get('#case-output-0').type('underweight');
+          cy.get('#add-case').click();
+          cy.get('#case-condition-1').type('a<25');
+          cy.get('#case-output-1').type('normal');
+          cy.get('#add-case').click();
+          cy.get('#case-condition-2').type('a<30');
+          cy.get('#case-output-2').type('overweight');
+          // Add a default value
+          cy.get('.default').type('obese');
+  
+          // Change output expression to FHIRPath Expression
+          cy.get('#output-expression-type').should('exist').select('fhirpath');
+
+          cy.get('#final-expression-section .cdk-drop-list > div').should('have.length', 3);
+          cy.get('#case-condition-0').should('have.value', '%a<18.5');
+          cy.get('#case-output-0').should('have.value', "'underweight'");
+          cy.get('#case-condition-1').should('have.value', '%a<25');
+          cy.get('#case-output-1').should('have.value', "'normal'");
+          cy.get('#case-condition-2').should('have.value', '%a<30');
+          cy.get('#case-output-2').should('have.value', "'overweight'");
+          cy.get('.default').should('have.value', "'obese'");
+
+          // Change output expression to Easy Path Expression
+          cy.get('#output-expression-type').should('exist').select('simple');
+
+          // If no changes have been made and simple case statements where filled in prior,
+          // display the previously entered case statements.
+          cy.get('#case-condition-0').should('have.value', 'a<18.5');
+          cy.get('#case-output-0').should('have.value', "underweight");
+          cy.get('#case-condition-1').should('have.value', 'a<25');
+          cy.get('#case-output-1').should('have.value', "normal");
+          cy.get('#case-condition-2').should('have.value', 'a<30');
+          cy.get('#case-output-2').should('have.value', "overweight");          
+          cy.get('.default').should('have.value', "obese");
+        });
+      });
     });
   });
 });

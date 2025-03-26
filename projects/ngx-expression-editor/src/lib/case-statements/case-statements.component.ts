@@ -49,6 +49,8 @@ export class CaseStatementsComponent implements OnInit, OnChanges, OnDestroy, Af
   caseAriaWarningMessages = [];
   caseAriaWarningMessage = '';
 
+  simpleCaseObject;
+
   constructor(private expressionEditorService: ExpressionEditorService,
               private liveAnnouncer: LiveAnnouncer,
               private changeDetectorRef: ChangeDetectorRef) {}
@@ -144,12 +146,27 @@ export class CaseStatementsComponent implements OnInit, OnChanges, OnDestroy, Af
    */
   ngOnChanges(changes): void {
     if (changes.syntax && this.syntax === 'simple' && changes.syntax.firstChange === false) {
+      // If the simpleCaseObject is available, then restore the case statement from the simpleCaseObject
+      if (changes.syntax.previousValue === 'fhirpath' && this.simpleCaseObject) {
+        this.cases = [...this.simpleCaseObject.cases];
+        this.simpleDefaultCase = this.simpleCaseObject.defaultCase;
+        this.outputExpressions = this.simpleCaseObject.outputExpressions;
+      }
+      
       this.parseSimpleCases();
-      this.onChange();
+      this.onChange(false);
     } else if (changes.syntax && this.syntax === 'fhirpath' && changes.syntax.firstChange === false) {
+      // Store the simple cases to the simpleCaseObject
+      if (changes.syntax.previousValue === 'simple') {
+        this.simpleCaseObject = {
+          cases: [...this.cases],
+          defaultCase: this.simpleDefaultCase,
+          outputExpressions: this.outputExpressions
+        }
+      }
       this.outputExpressions = true;
       this.parseIif(this.expression, 0);
-      this.onChange();
+      this.onChange(false);
     }
   }
 
@@ -174,7 +191,11 @@ export class CaseStatementsComponent implements OnInit, OnChanges, OnDestroy, Af
   /**
    * Angular lifecycle hook for changes
    */
-  onChange(): void {
+  onChange(shouldResetSimple = true): void {
+    // Clear the stored simpleCaseObject if there is changes to the fhirpath expression
+    if (this.syntax === "fhirpath" && shouldResetSimple && this.simpleCaseObject) {
+      this.simpleCaseObject = null;
+    }
     this.hasError = false;
     this.hasWarning = false;
     this.output = this.getIif(0);

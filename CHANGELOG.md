@@ -2,6 +2,10 @@
 
 This project follows [Semantic Versioning](http://semver.org/).
 
+## [3.1.29] 2025-03-26
+### Changed
+- Fixed the issue where the Easy Path case statement is cleared out when switching from Easy Path to FHIRPath and back.
+
 ## [3.1.26] 2024-10-08
 ### Changed
 - Set the Expression Editor, Query Observation and Scoring Items Selection components to use ViewEncapsulation.ShadowDom to prevent them from being affected by global or parent styles.
