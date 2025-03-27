@@ -932,10 +932,23 @@ export class ExpressionEditorService {
     });
     if (this.syntaxType === 'simple' || simpleExpression) {
       if (finalExpression && finalExpression.hasOwnProperty('valueExpression') && finalExpression.valueExpression) {
-        if (!finalExpression.valueExpression.extension) {
-          finalExpression.valueExpression.extension = [];
+        if (simpleExpression) {
+          if (!finalExpression.valueExpression.extension) {
+            finalExpression.valueExpression.extension = [];
+          }
+          this.findOrAddExtension(finalExpression.valueExpression.extension, ExpressionEditorService.SIMPLE_SYNTAX_EXTENSION, 'String', simpleExpression);
+        } else {
+          // remove Simple Syntax extension
+          if ('extension' in finalExpression.valueExpression) {
+            const idx = finalExpression.valueExpression.extension.findIndex( ext => ext.url === ExpressionEditorService.SIMPLE_SYNTAX_EXTENSION);
+            if (idx !== -1) {
+              finalExpression.valueExpression.extension.splice(idx, 1);
+              if (finalExpression.valueExpression.extension.length === 0) {
+                delete finalExpression.valueExpression.extension;
+              }
+            }
+          }
         }
-        this.findOrAddExtension(finalExpression.valueExpression.extension, ExpressionEditorService.SIMPLE_SYNTAX_EXTENSION, 'String', simpleExpression);
       }
     }
 
