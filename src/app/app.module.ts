@@ -11,18 +11,24 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { environment } from '../environments/environment';
 import { RouterModule } from '@angular/router';
 
-@NgModule({ declarations: [
-        AppComponent
-    ],
-    bootstrap: [
-        AppComponent
-    ], imports: [BrowserModule,
-        FormsModule,
-        ExpressionEditorModule,
-        A11yModule,
-        MatTooltipModule,
-        RouterModule.forRoot([])], providers: [
-        { provide: ENVIRONMENT_TOKEN, useValue: environment },
-        provideHttpClient(withInterceptorsFromDi())
-    ] })
+@NgModule({
+  declarations: [
+    AppComponent
+  ],
+  bootstrap: [
+    AppComponent
+  ],
+  imports: [
+    BrowserModule,
+    FormsModule,
+    ExpressionEditorModule,
+    A11yModule,
+    MatTooltipModule,
+    RouterModule.forRoot([])
+  ],
+  providers: [
+    { provide: ENVIRONMENT_TOKEN, useValue: environment },
+    provideHttpClient(withInterceptorsFromDi())
+  ]
+})
 export class AppModule { }
