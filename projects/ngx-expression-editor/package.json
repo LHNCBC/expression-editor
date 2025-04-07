@@ -1,12 +1,12 @@
 {
   "name": "ngx-expression-editor",
-  "version": "3.1.31",
+  "version": "3.2.0",
   "peerDependencies": {
-    "@angular/animations": "~17.3.4",
-    "@angular/cdk": "~17.3.4",
-    "@angular/common": "~17.3.4",
-    "@angular/core": "~17.3.4",
-    "@angular/material": "^17.3.4"
+    "@angular/animations": "~19.2.3",
+    "@angular/cdk": "^19.2.3",
+    "@angular/common": "~19.2.3",
+    "@angular/core": "~19.2.3",
+    "@angular/material": "^19.2.3"
   },
   "dependencies": {
     "tslib": "^2.0.0",

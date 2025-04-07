@@ -1,7 +1,8 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import 'zone.js/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { QueryObservationComponent } from './query-observation.component';
-import { HttpClientModule } from '@angular/common/http';
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { ExpressionValidatorDirective } from '../../directives/expression/expression-validator.directive';
 
@@ -9,13 +10,14 @@ describe('QueryObservationComponent', () => {
   let component: QueryObservationComponent;
   let fixture: ComponentFixture<QueryObservationComponent>;
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [ HttpClientModule, FormsModule ],
-      declarations: [ QueryObservationComponent, ExpressionValidatorDirective ]
+  beforeEach(waitForAsync(() => {
+    TestBed.configureTestingModule({
+      declarations: [QueryObservationComponent, ExpressionValidatorDirective],
+      imports: [FormsModule],
+      providers: [provideHttpClient(withInterceptorsFromDi())]
     })
     .compileComponents();
-  });
+  }));
 
   beforeEach(() => {
     fixture = TestBed.createComponent(QueryObservationComponent);

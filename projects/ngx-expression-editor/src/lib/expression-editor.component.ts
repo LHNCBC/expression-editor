@@ -10,7 +10,8 @@ import { ENVIRONMENT_TOKEN } from './environment-token';
   selector: 'lhc-expression-editor',
   templateUrl: 'expression-editor.component.html',
   styleUrls: ['expression-editor.component.css'],
-  encapsulation: ViewEncapsulation.ShadowDom
+  encapsulation: ViewEncapsulation.ShadowDom,
+  standalone: false
 })
 export class ExpressionEditorComponent implements OnInit, OnChanges, OnDestroy {
   @Input() advancedInterface = true;

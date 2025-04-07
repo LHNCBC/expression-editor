@@ -6,7 +6,8 @@ import { SimpleStyle } from '../../expression-editor.service';
 @Component({
   selector: 'lhc-fhirpath-expression-help-dialog',
   templateUrl: './fhirpath-expression-help-dialog.component.html',
-  styleUrls: ['./fhirpath-expression-help-dialog.component.css']
+  styleUrls: ['./fhirpath-expression-help-dialog.component.css'],
+  standalone: false
 })
 
 export class FhirpathExpressionHelpDialogComponent extends BaseDialogComponent {

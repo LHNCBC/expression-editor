@@ -10,8 +10,8 @@ import { ExpressionValidatorDirective } from '../../directives/expression/expres
   selector: 'lhc-query-observation',
   templateUrl: './query-observation.component.html',
   styleUrls: ['../../../../../node_modules/autocomplete-lhc/source/auto_completion.css', './query-observation.component.css'],
-
-  encapsulation: ViewEncapsulation.ShadowDom
+  encapsulation: ViewEncapsulation.ShadowDom,
+  standalone: false
 })
 export class QueryObservationComponent implements OnInit, AfterViewInit, OnDestroy {
   queryUrl = 'https://clinicaltables.nlm.nih.gov/api/loinc_items/v3/search?df=text,LOINC_NUM';

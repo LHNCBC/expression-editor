@@ -11,7 +11,8 @@ import { createDisplayOption } from '../assets/js/common-utils.js';
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css']
+  styleUrls: ['./app.component.css'],
+  standalone: false
 })
 export class AppComponent implements OnInit, OnDestroy {
   @ViewChild('autoComplete', {static: false}) autoCompleteElement: ElementRef;

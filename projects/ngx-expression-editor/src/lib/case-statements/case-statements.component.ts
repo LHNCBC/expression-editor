@@ -12,7 +12,8 @@ import * as constants from "../validation";
 @Component({
   selector: 'lhc-case-statements',
   templateUrl: './case-statements.component.html',
-  styleUrls: ['../expression-editor.component.css', './case-statements.component.css']
+  styleUrls: ['../expression-editor.component.css', './case-statements.component.css'],
+  standalone: false
 })
 export class CaseStatementsComponent implements OnInit, OnChanges, OnDestroy, AfterViewInit {
   @Input() lhcStyle: SimpleStyle = {};

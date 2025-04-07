@@ -5,7 +5,8 @@ import { LiveAnnouncer } from '@angular/cdk/a11y';
 @Component({
   selector: 'lhc-calculate-sum-prompt',
   templateUrl: './calculate-sum-prompt.component.html',
-  styleUrls: ['../expression-editor.component.css', './calculate-sum-prompt.component.css']
+  styleUrls: ['../expression-editor.component.css', './calculate-sum-prompt.component.css'],
+  standalone: false
 })
 export class CalculateSumPromptComponent implements OnInit {
   @Input() lhcStyle: SimpleStyle = {};

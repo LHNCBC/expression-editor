@@ -88,7 +88,8 @@ const expressionEditorDialogStyle = {
 @Component({
   selector: 'lhc-base-dialog',
   templateUrl: './base-dialog.component.html',
-  styleUrls: ['./base-dialog.component.css']
+  styleUrls: ['./base-dialog.component.css'],
+  standalone: false
 })
 export class BaseDialogComponent implements OnInit {
   @Input() customDialogStyle: DialogStyle = {};

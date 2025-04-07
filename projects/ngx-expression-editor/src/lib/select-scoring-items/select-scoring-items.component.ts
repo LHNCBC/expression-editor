@@ -8,7 +8,8 @@ import { LiveAnnouncer } from '@angular/cdk/a11y';
   selector: 'lhc-select-scoring-items',
   templateUrl: './select-scoring-items.component.html',
   styleUrls: ['../../../../../node_modules/@bugsplat/angular-tree-component/css/angular-tree-component.css', '../expression-editor.component.css', './select-scoring-items.component.css'],
-  encapsulation: ViewEncapsulation.ShadowDom
+  encapsulation: ViewEncapsulation.ShadowDom,
+  standalone: false
 })
 export class SelectScoringItemsComponent implements OnInit {
   @Input() lhcStyle: SimpleStyle = {};

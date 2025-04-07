@@ -1,4 +1,6 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import 'zone.js/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+
 import { FormsModule } from '@angular/forms';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -10,13 +12,13 @@ describe('CaseStatementsComponent', () => {
   let component: CaseStatementsComponent;
   let fixture: ComponentFixture<CaseStatementsComponent>;
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
+  beforeEach(waitForAsync(() => {
+    TestBed.configureTestingModule({
       declarations: [ CaseStatementsComponent, SyntaxPreviewComponent ],
       imports: [ FormsModule, MatSnackBarModule, MatTooltipModule ]
     })
     .compileComponents();
-  });
+  }));
 
   beforeEach(() => {
     fixture = TestBed.createComponent(CaseStatementsComponent);

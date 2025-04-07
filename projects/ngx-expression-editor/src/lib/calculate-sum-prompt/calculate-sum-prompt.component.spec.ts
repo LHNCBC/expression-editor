@@ -1,4 +1,5 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import 'zone.js/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { CalculateSumPromptComponent } from './calculate-sum-prompt.component';
 import { BaseDialogComponent } from '../dialogs/base-dialog/base-dialog.component';
@@ -8,8 +9,8 @@ describe('CalculateSumPromptComponent', () => {
   let component: CalculateSumPromptComponent;
   let fixture: ComponentFixture<CalculateSumPromptComponent>;
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
+  beforeEach(waitForAsync(() => {
+    TestBed.configureTestingModule({
       declarations: [
         CalculateSumPromptComponent,
         BaseDialogComponent
@@ -17,7 +18,7 @@ describe('CalculateSumPromptComponent', () => {
       imports: [ MatTooltipModule ]
     })
     .compileComponents();
-  });
+  }));
 
   beforeEach(() => {
     fixture = TestBed.createComponent(CalculateSumPromptComponent);

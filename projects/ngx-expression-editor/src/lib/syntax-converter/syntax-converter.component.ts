@@ -7,7 +7,8 @@ import { NgModel } from '@angular/forms';
 @Component({
   selector: 'lhc-syntax-converter',
   templateUrl: './syntax-converter.component.html',
-  styleUrls: ['../expression-editor.component.css', './syntax-converter.component.css']
+  styleUrls: ['../expression-editor.component.css', './syntax-converter.component.css'],
+  standalone: false
 })
 export class SyntaxConverterComponent implements OnInit, OnChanges, OnDestroy {
   @Input() simple: string;

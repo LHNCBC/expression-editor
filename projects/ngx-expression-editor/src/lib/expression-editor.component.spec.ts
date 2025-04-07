@@ -1,4 +1,5 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import 'zone.js/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { ExpressionEditorComponent } from './expression-editor.component';
 import { UneditableVariablesComponent } from './uneditable-variables/uneditable-variables.component';
@@ -21,8 +22,8 @@ describe('ExpressionEditorComponent', () => {
     appTitle: "Expression Editor"
   };
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
+  beforeEach(waitForAsync(() => {
+    TestBed.configureTestingModule({
       declarations: [
         ExpressionEditorComponent,
         UneditableVariablesComponent,
@@ -37,7 +38,7 @@ describe('ExpressionEditorComponent', () => {
       ],
     })
     .compileComponents();
-  });
+  }));
 
   beforeEach(() => {
     fixture = TestBed.createComponent(ExpressionEditorComponent);
