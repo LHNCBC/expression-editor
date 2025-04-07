@@ -220,7 +220,7 @@ export class CaseStatementsComponent implements OnInit, OnChanges, OnDestroy, Af
     // Clear the stored simpleCaseObject if there is changes to the fhirpath expression
     if (this.syntax === "fhirpath" && shouldResetSimple && this.simpleCaseObject) {
       // Aside from clearing the simpleCaseObject, we also need to clear out the simpleDefaultCase.
-      this.simpleDefaultCase = '';
+      this.simpleDefaultCase = undefined;
       this.simpleCaseObject = null;
     }
     this.hasError = false;

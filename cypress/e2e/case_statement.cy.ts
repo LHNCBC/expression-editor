@@ -10,9 +10,7 @@ describe(Cypress.env("appName"), () => {
       });
 
       it('should cycle through empty case statment correctly from Easy Path Expression to FHIRPath Expression and back', () => {
-        //cy.intercept('/bmisimple.json').as('bmisimple');
         cy.get('select#questionnaire-select').select('BMI Calculation (Easy Path expression)');
-        //cy.wait('@bmisimple');
 
         // The demo has 'BMI (/39156-5) selected by default
         cy.get('#question').should('have.value', 'BMI (/39156-5)');
@@ -61,9 +59,7 @@ describe(Cypress.env("appName"), () => {
       });
 
       it('should cycle through case statement correctly from Easy Path Expression to FHIRPath Expression and back', () => {
-        //cy.intercept('/bmisimple.json').as('bmisimple');
         cy.get('select#questionnaire-select').select('BMI Calculation (Easy Path expression)');
-        //cy.wait('@bmisimple');
 
         // The demo has 'BMI (/39156-5) selected by default
         cy.get('#question').should('have.value', 'BMI (/39156-5)');
@@ -140,10 +136,120 @@ describe(Cypress.env("appName"), () => {
         });
       });
 
-      it('should cycle through case statment with "Required" error correctly from Easy Path Expression to FHIRPath Expression and back', () => {
-        //cy.intercept('/bmisimple.json').as('bmisimple');
+      it('should cycle through case statement correctly from Easy Path Expression to FHIRPath Expression and back with changes in FHIRPath', () => {
         cy.get('select#questionnaire-select').select('BMI Calculation (Easy Path expression)');
-        //cy.wait('@bmisimple');
+
+        // The demo has 'BMI (/39156-5) selected by default
+        cy.get('#question').should('have.value', 'BMI (/39156-5)');
+        // Click the button to edit the expression
+        cy.get('button#openExpressionEditor').should('exist').click();
+        // The Expression Editor dialog should now appear
+        cy.get('lhc-expression-editor').shadow().within(() => {
+          cy.get('#expression-editor-base-dialog').should('exist');
+
+          cy.title().should('eq', Cypress.env("appName"));
+
+          // Variables section
+          cy.get('lhc-variables > h2').should('contain', 'Item Variables');
+          cy.get('#variables-section .variable-row').should('have.length', 2);
+
+          // The 'Output Expression' section should be visible
+          cy.get('#final-expression-section').should('exist')
+            .scrollIntoView().should('be.visible');
+
+          // Check the "Case Statements Helper" checkbox
+          cy.get('#case-statements').check();
+
+          // The variable type should default to Easy Path Expression
+          cy.get('#output-expression-type').should('exist').should('have.value', 'simple');
+
+          // Use expressions checkbox should be checked
+          cy.get('#output-expressions').should('be.checked')
+
+          cy.get('#case-condition-0').should('not.have.class', 'field-error');
+          cy.get('#case-output-0').should('not.have.class', 'field-error');
+          cy.get('.default').should('not.have.class', 'field-error');
+          
+          // Populate case statements
+          cy.get('#case-condition-0').clear().type('a > 1');
+          cy.get('#case-output-0').clear().type("a");
+          cy.get('#add-case').click();
+          cy.get('#case-condition-1').clear().type('a < 5');
+          cy.get('#case-output-1').clear().type("b");
+          cy.get('.default').clear().type("'large'");
+
+          // Select FHIRPath Expression variable type
+          cy.get('#output-expression-type').select('fhirpath');
+
+          cy.get('#case-condition-0').should('not.have.class', 'field-error');
+          cy.get('#case-output-0').should('not.have.class', 'field-error');
+          cy.get('#case-condition-1').should('not.have.class', 'field-error');
+          cy.get('#case-output-1').should('not.have.class', 'field-error');
+          cy.get('.default').should('not.have.class', 'field-error');
+
+          // The Case Statement should be converted to FHIRPath
+          cy.get('#case-condition-0').should('have.value', '%a > 1');
+          cy.get('#case-output-0').should('have.value', '%a');
+          cy.get('#case-condition-1').should('have.value', '%a < 5');
+          cy.get('#case-output-1').should('have.value', '%b');
+          cy.get('.default').should('have.value', "'large'");
+
+          // Update condition 1
+          cy.get('#case-condition-1').clear().type('%a < 7');
+
+          // Select Easy Path Expression variable type
+          cy.get('#output-expression-type').select('simple');
+          
+          // Dialog should get displayed
+          cy.get('lhc-fhirpath-easypath-conversion-confirmation-dialog #expression-conversion-base-dialog')
+            .should('exist')
+            .scrollIntoView()
+            .should('be.visible')
+            .within( ()=> {
+              // Select 'Yes' to convert from 'FHIRPath Expression' to 'Easy Path Expression'
+              cy.get('#yes-button').should('exist').click();
+            });
+
+          // The dialog should now disappeared
+          cy.get('lhc-fhirpath-easypath-conversion-confirmation-dialog #expression-conversion-base-dialog')
+            .should('not.exist');
+
+          for (let i = 0; i < 2; i++) {
+            // the Case Statement now should be empty but no erors
+            cy.get('#case-condition-0').should('have.value', '');
+            cy.get('#case-condition-0').should('not.have.class', 'field-error');
+            cy.get('#case-output-0').should('have.value', '');
+            cy.get('#case-output-0').should('not.have.class', 'field-error');
+            cy.get('#case-condition-1').should('have.value', '');
+            cy.get('#case-condition-1').should('not.have.class', 'field-error');
+            cy.get('#case-output-1').should('have.value', '');
+            cy.get('#case-output-1').should('not.have.class', 'field-error');
+            cy.get('.default').should('have.value', '');
+            cy.get('.default').should('not.have.class', 'field-error');
+
+            // Select Easy Path Expression variable type
+            cy.get('#output-expression-type').select('simple');   
+
+            // the Case Statement now should be empty but no erors
+            cy.get('#case-condition-0').should('have.value', '');
+            cy.get('#case-condition-0').should('not.have.class', 'field-error');
+            cy.get('#case-output-0').should('have.value', '');
+            cy.get('#case-output-0').should('not.have.class', 'field-error');
+            cy.get('#case-condition-1').should('have.value', '');
+            cy.get('#case-condition-1').should('not.have.class', 'field-error');
+            cy.get('#case-output-1').should('have.value', '');
+            cy.get('#case-output-1').should('not.have.class', 'field-error');
+            cy.get('.default').should('have.value', '');
+            cy.get('.default').should('not.have.class', 'field-error');
+
+            // Select Easy Path Expression variable type
+            cy.get('#output-expression-type').select('fhirpath');
+          }
+        });
+      });
+
+      it('should cycle through case statment with "Required" error correctly from Easy Path Expression to FHIRPath Expression and back', () => {
+        cy.get('select#questionnaire-select').select('BMI Calculation (Easy Path expression)');
 
         // The demo has 'BMI (/39156-5) selected by default
         cy.get('#question').should('have.value', 'BMI (/39156-5)');
@@ -228,9 +334,7 @@ describe(Cypress.env("appName"), () => {
       });
 
       it('should cycle through case statment with "Not valid" error correctly from Easy Path Expression to FHIRPath Expression and back', () => {
-        //cy.intercept('/bmisimple.json').as('bmisimple');
         cy.get('select#questionnaire-select').select('BMI Calculation (Easy Path expression)');
-        //cy.wait('@bmisimple');
 
         // The demo has 'BMI (/39156-5) selected by default
         cy.get('#question').should('have.value', 'BMI (/39156-5)');
@@ -318,9 +422,7 @@ describe(Cypress.env("appName"), () => {
       });
 
       it('should export simple syntax extension for Easy Path Expression and "use expressions" unchecked', () => {
-        //cy.intercept('/bmisimple.json').as('bmisimple');
         cy.get('select#questionnaire-select').select('BMI Calculation (Easy Path expression with cases)');
-        //cy.wait('@bmisimple');
 
         // The demo has 'BMI (/39156-5) selected by default
         cy.get('#question').should('have.value', 'BMI (/39156-5)');
@@ -405,9 +507,7 @@ describe(Cypress.env("appName"), () => {
       });
 
       it('should export simple syntax extension for Easy Path Expression and "use expressions" checked', () => {
-        //cy.intercept('/bmisimple.json').as('bmisimple');
         cy.get('select#questionnaire-select').select('BMI Calculation (Easy Path expression with cases)');
-        //cy.wait('@bmisimple');
 
         // The demo has 'BMI (/39156-5) selected by default
         cy.get('#question').should('have.value', 'BMI (/39156-5)');
