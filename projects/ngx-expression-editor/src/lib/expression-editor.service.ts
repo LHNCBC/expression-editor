@@ -124,7 +124,11 @@ export class ExpressionEditorService {
 
   static ENVIRONMENT_VARIABLES = ['resource', 'rootResource', 'sct', 'loinc', 'vs-', 'ext-', 'context', 'questionnaire', 'qitem'];
   static COMMON_LAUNCH_CONTEXT_VARIABLES = ['patient', 'encounter', 'practitioner', 'organization', 'user', 'relatedPerson'];
-    
+
+  static EXP_REQUIRED_ERR_MSG = "Required";
+  static EXP_NOT_VALID_ERR_MSG = "Not valid";
+  static EXP_LAUNCH_CONTEXT_ERR_MSG = "Launch context";
+
   syntaxType = 'fhirpath';
   linkIdContext: string;
   uneditableVariablesChange: Subject<UneditableVariable[]> =
@@ -932,10 +936,23 @@ export class ExpressionEditorService {
     });
     if (this.syntaxType === 'simple' || simpleExpression) {
       if (finalExpression && finalExpression.hasOwnProperty('valueExpression') && finalExpression.valueExpression) {
-        if (!finalExpression.valueExpression.extension) {
-          finalExpression.valueExpression.extension = [];
-        }
-        this.findOrAddExtension(finalExpression.valueExpression.extension, ExpressionEditorService.SIMPLE_SYNTAX_EXTENSION, 'String', simpleExpression);
+        if (simpleExpression) {
+          if (!finalExpression.valueExpression.extension) {
+            finalExpression.valueExpression.extension = [];
+          }
+          this.findOrAddExtension(finalExpression.valueExpression.extension, ExpressionEditorService.SIMPLE_SYNTAX_EXTENSION, 'String', simpleExpression);
+        } else {
+          // remove Simple Syntax extension
+          if ('extension' in finalExpression.valueExpression) {
+            const idx = finalExpression.valueExpression.extension.findIndex( ext => ext.url === ExpressionEditorService.SIMPLE_SYNTAX_EXTENSION);
+            if (idx !== -1) {
+              finalExpression.valueExpression.extension.splice(idx, 1);
+              if (finalExpression.valueExpression.extension.length === 0) {
+                delete finalExpression.valueExpression.extension;
+              }
+            }
+          }
+        }      
       }
     }
 
