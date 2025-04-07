@@ -14,36 +14,37 @@ describe(Cypress.env("appName"), () => {
         // Click the button to edit the expression
         cy.get('button#openExpressionEditor').should('exist').click();
         // The Expression Editor dialog should now appear
-        cy.get('lhc-expression-editor #expression-editor-base-dialog').should('exist');
+        cy.get('lhc-expression-editor').shadow().within(() => {
+          cy.get('#expression-editor-base-dialog').should('exist');
 
-        cy.get('#variables-section .variable-row').should('have.length', 2);
+          cy.get('#variables-section .variable-row').should('have.length', 2);
 
-        // Add a variable
-        cy.get('#add-variable').click();
-        cy.get('#variables-section .variable-row').should('have.length', 3);
+          // Add a variable
+          cy.get('#add-variable').click();
+          cy.get('#variables-section .variable-row').should('have.length', 3);
 
-        // The 'Save' button should be enabled.
-        cy.get('#export').should('not.have.class', 'disabled');
+          // The 'Save' button should be enabled.
+          cy.get('#export').should('not.have.class', 'disabled');
 
-        cy.get('div#row-2')
-          .within(() => {
-            cy.get('#variable-label-2').should('not.have.class', 'field-error');
-            cy.get('#variable-label-2').clear().type('aaa');
-            cy.get('#variable-label-2').should('not.have.class', 'field-error');
-          
-            cy.get('#variable-type-2').select('simple');
-            cy.get('input.simple-expression')
-              .should('exist')
-              .should('be.visible')
-              .type('1 + 1');
-          });
+          cy.get('div#row-2')
+            .within(() => {
+              cy.get('#variable-label-2').should('not.have.class', 'field-error');
+              cy.get('#variable-label-2').clear().type('aaa');
+              cy.get('#variable-label-2').should('not.have.class', 'field-error');
+            
+              cy.get('#variable-type-2').select('simple');
+              cy.get('input.simple-expression')
+                .should('exist')
+                .should('be.visible')
+                .type('1 + 1');
+            });
 
-        // The 'Save' button should still be enabled.
-        cy.get('#export').should('not.have.class', 'disabled');
+          // The 'Save' button should still be enabled.
+          cy.get('#export').should('not.have.class', 'disabled');
 
-        // Click Save
-        cy.get('#export').click();
-
+          // Click Save
+          cy.get('#export').click();
+        });
         // Export output should not be empty
         cy.get('pre#output').should('exist').should('not.be.empty');
       });
@@ -54,33 +55,34 @@ describe(Cypress.env("appName"), () => {
         // Click the button to edit the expression
         cy.get('button#openExpressionEditor').should('exist').click();
         // The Expression Editor dialog should now appear
-        cy.get('lhc-expression-editor #expression-editor-base-dialog').should('exist');
+        cy.get('lhc-expression-editor').shadow().within(() => {
+          cy.get('#expression-editor-base-dialog').should('exist');
 
-        cy.get('#variables-section .variable-row').should('have.length', 2);
+          cy.get('#variables-section .variable-row').should('have.length', 2);
 
-        // Add a variable
-        cy.get('#add-variable').click();
-        cy.get('#variables-section .variable-row').should('have.length', 3);
+          // Add a variable
+          cy.get('#add-variable').click();
+          cy.get('#variables-section .variable-row').should('have.length', 3);
 
-        // The 'Save' button should be enabled.
-        cy.get('#export').should('not.have.class', 'disabled');
+          // The 'Save' button should be enabled.
+          cy.get('#export').should('not.have.class', 'disabled');
 
-        cy.get('div#row-2')
-          .within(() => {
-            cy.get('#variable-label-2').should('not.have.class', 'field-error');
-            cy.get('#variable-label-2').clear();
-            cy.get('#variable-label-2').should('have.class', 'field-error');
-          });
+          cy.get('div#row-2')
+            .within(() => {
+              cy.get('#variable-label-2').should('not.have.class', 'field-error');
+              cy.get('#variable-label-2').clear();
+              cy.get('#variable-label-2').should('have.class', 'field-error');
+            });
 
-        // The 'Save' button should be disabled.
-        cy.get('#export').should('have.class', 'disabled');
+          // The 'Save' button should be disabled.
+          cy.get('#export').should('have.class', 'disabled');
 
-        // Click Save, nothing should happen
-        cy.get('#export').click();
-
+          // Click Save, nothing should happen
+          cy.get('#export').click();
+        });
         // The Expression Editor dialog should stay visible.
-        cy.get('lhc-expression-editor #expression-editor-base-dialog').should('exist');
-
+        cy.get('lhc-expression-editor').shadow()
+          .find('#expression-editor-base-dialog').should('exist');
       });
 
       it('should display error if name is blank', () => {
@@ -89,21 +91,23 @@ describe(Cypress.env("appName"), () => {
         // Click the button to edit the expression
         cy.get('button#openExpressionEditor').should('exist').click();
         // The Expression Editor dialog should now appear
-        cy.get('lhc-expression-editor #expression-editor-base-dialog').should('exist');
+        cy.get('lhc-expression-editor').shadow().within(() => {
+          cy.get('#expression-editor-base-dialog').should('exist');
 
-        cy.get('#variables-section .variable-row').should('have.length', 2);
+          cy.get('#variables-section .variable-row').should('have.length', 2);
 
-        // Add a variable
-        cy.get('#add-variable').click();
-        cy.get('#variables-section .variable-row').should('have.length', 3);
+          // Add a variable
+          cy.get('#add-variable').click();
+          cy.get('#variables-section .variable-row').should('have.length', 3);
 
-        cy.get('div#row-2')
-          .within(() => {
-            cy.get('#variable-label-2').should('not.have.class', 'field-error');
-            cy.get('#variable-label-2').clear();
-            cy.get('#variable-label-2').should('have.class', 'field-error');
-            cy.get('div#variable-name-error > p').should('contain.text', constants.VARIABLE_NAME_REQUIRED);
-          });
+          cy.get('div#row-2')
+            .within(() => {
+              cy.get('#variable-label-2').should('not.have.class', 'field-error');
+              cy.get('#variable-label-2').clear();
+              cy.get('#variable-label-2').should('have.class', 'field-error');
+              cy.get('div#variable-name-error > p').should('contain.text', constants.VARIABLE_NAME_REQUIRED);
+            });
+        });
       });
 
       it('should display error if the entered variable name already exists in the same scope', () => {
@@ -112,23 +116,25 @@ describe(Cypress.env("appName"), () => {
         // Click the button to edit the expression
         cy.get('button#openExpressionEditor').should('exist').click();
         // The Expression Editor dialog should now appear
-        cy.get('lhc-expression-editor #expression-editor-base-dialog').should('exist');
+        cy.get('lhc-expression-editor').shadow().within(() => {
+          cy.get('#expression-editor-base-dialog').should('exist');
 
-        cy.get('#variables-section .variable-row').should('have.length', 2);
+          cy.get('#variables-section .variable-row').should('have.length', 2);
 
-        // Add a variable
-        cy.get('#add-variable').click();
-        cy.get('#variables-section .variable-row').should('have.length', 3);
+          // Add a variable
+          cy.get('#add-variable').click();
+          cy.get('#variables-section .variable-row').should('have.length', 3);
 
-        cy.get('div#row-2')
-          .within(() => {
-            cy.get('#variable-label-2').should('not.have.class', 'field-error');
-            cy.get('#variable-label-2').clear().type('a');
-            cy.get('#variable-label-2').should('have.class', 'field-error');
+          cy.get('div#row-2')
+            .within(() => {
+              cy.get('#variable-label-2').should('not.have.class', 'field-error');
+              cy.get('#variable-label-2').clear().type('a');
+              cy.get('#variable-label-2').should('have.class', 'field-error');
 
-            cy.get('div#variable-name-error > p')
-              .should('contain.text', constants.VARIABLE_NAME_EXISTS_IN_ITEM);
-          });
+              cy.get('div#variable-name-error > p')
+                .should('contain.text', constants.VARIABLE_NAME_EXISTS_IN_ITEM);
+            });
+        });
       });
 
       /**
@@ -177,61 +183,63 @@ describe(Cypress.env("appName"), () => {
         // Click the button to edit the expression
         cy.get('button#openExpressionEditor').should('exist').click();
         // The Expression Editor dialog should now appear
-        cy.get('lhc-expression-editor #expression-editor-base-dialog').should('exist');
+        cy.get('lhc-expression-editor').shadow().within(() => {
+          cy.get('#expression-editor-base-dialog').should('exist');
 
-        cy.get('#variables-section .variable-row').should('have.length', 2);
+          cy.get('#variables-section .variable-row').should('have.length', 2);
 
-        // Add a variable
-        cy.get('#add-variable').click();
-        cy.get('#variables-section .variable-row').should('have.length', 3);
+          // Add a variable
+          cy.get('#add-variable').click();
+          cy.get('#variables-section .variable-row').should('have.length', 3);
 
-        cy.get('div#row-2')
-          .within(() => {
-            cy.get('#variable-label-2').should('not.have.class', 'field-error');
-            // type variable name 'resource'
-            cy.get('#variable-label-2').clear().type('resource');
-            cy.get('#variable-label-2').should('have.class', 'field-error');
-            cy.get('div#variable-name-error > p')
-              .should('contain.text', constants.VARIABLE_NAME_MATCHES_RESERVED_WORD);
+          cy.get('div#row-2')
+            .within(() => {
+              cy.get('#variable-label-2').should('not.have.class', 'field-error');
+              // type variable name 'resource'
+              cy.get('#variable-label-2').clear().type('resource');
+              cy.get('#variable-label-2').should('have.class', 'field-error');
+              cy.get('div#variable-name-error > p')
+                .should('contain.text', constants.VARIABLE_NAME_MATCHES_RESERVED_WORD);
 
-            // reset variable name back to 'c'
-            cy.get('#variable-label-2').clear().type('c');
-            cy.get('#variable-label-2').should('not.have.class', 'field-error');
-            cy.get('div#variable-name-error > p').should('not.exist');
+              // reset variable name back to 'c'
+              cy.get('#variable-label-2').clear().type('c');
+              cy.get('#variable-label-2').should('not.have.class', 'field-error');
+              cy.get('div#variable-name-error > p').should('not.exist');
 
-            // type variable name 'context'
-            cy.get('#variable-label-2').clear().type('context');
-            cy.get('#variable-label-2').should('have.class', 'field-error');
-            cy.get('div#variable-name-error > p')
-              .should('contain.text', constants.VARIABLE_NAME_MATCHES_RESERVED_WORD);
+              // type variable name 'context'
+              cy.get('#variable-label-2').clear().type('context');
+              cy.get('#variable-label-2').should('have.class', 'field-error');
+              cy.get('div#variable-name-error > p')
+                .should('contain.text', constants.VARIABLE_NAME_MATCHES_RESERVED_WORD);
 
-            // reset variable name back to 'c'
-            cy.get('#variable-label-2').clear().type('c');
-            cy.get('#variable-label-2').should('not.have.class', 'field-error');
-            cy.get('div#variable-name-error > p').should('not.exist');
-            
-            // type variable name 'questionnaire'
-            cy.get('#variable-label-2').clear().type('questionnaire');
-            cy.get('#variable-label-2').should('have.class', 'field-error');
-            cy.get('div#variable-name-error > p')
-              .should('contain.text', constants.VARIABLE_NAME_MATCHES_RESERVED_WORD);
+              // reset variable name back to 'c'
+              cy.get('#variable-label-2').clear().type('c');
+              cy.get('#variable-label-2').should('not.have.class', 'field-error');
+              cy.get('div#variable-name-error > p').should('not.exist');
+              
+              // type variable name 'questionnaire'
+              cy.get('#variable-label-2').clear().type('questionnaire');
+              cy.get('#variable-label-2').should('have.class', 'field-error');
+              cy.get('div#variable-name-error > p')
+                .should('contain.text', constants.VARIABLE_NAME_MATCHES_RESERVED_WORD);
 
-            // reset variable name back to 'c'
-            cy.get('#variable-label-2').clear().type('c');
-            cy.get('#variable-label-2').should('not.have.class', 'field-error');
-            cy.get('div#variable-name-error > p').should('not.exist');
+              // reset variable name back to 'c'
+              cy.get('#variable-label-2').clear().type('c');
+              cy.get('#variable-label-2').should('not.have.class', 'field-error');
+              cy.get('div#variable-name-error > p').should('not.exist');
 
-            // type variable name 'qitem'
-            cy.get('#variable-label-2').clear().type('qitem');
-            cy.get('#variable-label-2').should('have.class', 'field-error');
-            cy.get('div#variable-name-error > p')
-              .should('contain.text', constants.VARIABLE_NAME_MATCHES_RESERVED_WORD);
+              // type variable name 'qitem'
+              cy.get('#variable-label-2').clear().type('qitem');
+              cy.get('#variable-label-2').should('have.class', 'field-error');
+              cy.get('div#variable-name-error > p')
+                .should('contain.text', constants.VARIABLE_NAME_MATCHES_RESERVED_WORD);
 
-            // reset variable name back to 'c'
-            cy.get('#variable-label-2').clear().type('c');
-            cy.get('#variable-label-2').should('not.have.class', 'field-error');
-            cy.get('div#variable-name-error > p').should('not.exist');
-          });
+              // reset variable name back to 'c'
+              cy.get('#variable-label-2').clear().type('c');
+              cy.get('#variable-label-2').should('not.have.class', 'field-error');
+              cy.get('div#variable-name-error > p').should('not.exist');
+            });
+        });
       });
 
       /**
@@ -256,111 +264,113 @@ describe(Cypress.env("appName"), () => {
         // Click the button to edit the expression
         cy.get('button#openExpressionEditor').should('exist').click();
         // The Expression Editor dialog should now appear
-        cy.get('lhc-expression-editor #expression-editor-base-dialog').should('exist');
+        cy.get('lhc-expression-editor').shadow().within(() => {
+          cy.get('#expression-editor-base-dialog').should('exist');
 
-        cy.get('#variables-section .variable-row').should('have.length', 2);
+          cy.get('#variables-section .variable-row').should('have.length', 2);
 
-        // Add a variable
-        cy.get('#add-variable').click();
-        cy.get('#variables-section .variable-row').should('have.length', 3);
+          // Add a variable
+          cy.get('#add-variable').click();
+          cy.get('#variables-section .variable-row').should('have.length', 3);
 
-        cy.get('div#row-2')
-          .within(() => {
-            cy.get('#variable-label-2').should('not.have.class', 'field-error');
-            // type variable name 'sct'
-            cy.get('#variable-label-2').clear().type('sct');
-            cy.get('#variable-label-2').should('have.class', 'field-error');
-            cy.get('div#variable-name-error > p')
-              .should('contain.text', constants.VARIABLE_NAME_MATCHES_RESERVED_WORD);
+          cy.get('div#row-2')
+            .within(() => {
+              cy.get('#variable-label-2').should('not.have.class', 'field-error');
+              // type variable name 'sct'
+              cy.get('#variable-label-2').clear().type('sct');
+              cy.get('#variable-label-2').should('have.class', 'field-error');
+              cy.get('div#variable-name-error > p')
+                .should('contain.text', constants.VARIABLE_NAME_MATCHES_RESERVED_WORD);
 
-            // reset variable name back to 'c'
-            cy.get('#variable-label-2').clear().type('c');
-            cy.get('#variable-label-2').should('not.have.class', 'field-error');
-            cy.get('div#variable-name-error > p').should('not.exist');
+              // reset variable name back to 'c'
+              cy.get('#variable-label-2').clear().type('c');
+              cy.get('#variable-label-2').should('not.have.class', 'field-error');
+              cy.get('div#variable-name-error > p').should('not.exist');
 
-            // type variable name 'loinc'
-            cy.get('#variable-label-2').clear().type('loinc');
-            cy.get('#variable-label-2').should('have.class', 'field-error');
-            cy.get('div#variable-name-error > p')
-              .should('contain.text', constants.VARIABLE_NAME_MATCHES_RESERVED_WORD);
+              // type variable name 'loinc'
+              cy.get('#variable-label-2').clear().type('loinc');
+              cy.get('#variable-label-2').should('have.class', 'field-error');
+              cy.get('div#variable-name-error > p')
+                .should('contain.text', constants.VARIABLE_NAME_MATCHES_RESERVED_WORD);
 
-            // reset variable name back to 'c'
-            cy.get('#variable-label-2').clear().type('c');
-            cy.get('#variable-label-2').should('not.have.class', 'field-error');
-            cy.get('div#variable-name-error > p').should('not.exist');
+              // reset variable name back to 'c'
+              cy.get('#variable-label-2').clear().type('c');
+              cy.get('#variable-label-2').should('not.have.class', 'field-error');
+              cy.get('div#variable-name-error > p').should('not.exist');
 
-            // type variable name 'vs'
-            cy.get('#variable-label-2').clear().type('vs');
-            cy.get('#variable-label-2').should('not.have.class', 'field-error');
-            cy.get('div#variable-name-error > p').should('not.exist');
+              // type variable name 'vs'
+              cy.get('#variable-label-2').clear().type('vs');
+              cy.get('#variable-label-2').should('not.have.class', 'field-error');
+              cy.get('div#variable-name-error > p').should('not.exist');
             
-            // type variable name 'vs-'
-            cy.get('#variable-label-2').clear().type('vs-');
-            cy.get('#variable-label-2').should('have.class', 'field-error');
-            cy.get('div#variable-name-error > p')
-              .should('contain.text', constants.getStartWithsErrorMessage('vs-'));
+              // type variable name 'vs-'
+              cy.get('#variable-label-2').clear().type('vs-');
+              cy.get('#variable-label-2').should('have.class', 'field-error');
+              cy.get('div#variable-name-error > p')
+                .should('contain.text', constants.getStartWithsErrorMessage('vs-'));
 
-            // type variable name 'vsa-'
-            cy.get('#variable-label-2').clear().type('vsa-');
-            cy.get('#variable-label-2').should('not.have.class', 'field-error');
-            cy.get('div#variable-name-error > p').should('not.exist');
+              // type variable name 'vsa-'
+              cy.get('#variable-label-2').clear().type('vsa-');
+              cy.get('#variable-label-2').should('not.have.class', 'field-error');
+              cy.get('div#variable-name-error > p').should('not.exist');
 
-            // type variable name 'vs-*'
-            cy.get('#variable-label-2').clear().type('vs-a');
-            cy.get('#variable-label-2').should('have.class', 'field-error');
-            cy.get('div#variable-name-error > p')
-              .should('contain.text', constants.getStartWithsErrorMessage('vs-a'));
+              // type variable name 'vs-*'
+              cy.get('#variable-label-2').clear().type('vs-a');
+              cy.get('#variable-label-2').should('have.class', 'field-error');
+              cy.get('div#variable-name-error > p')
+                .should('contain.text', constants.getStartWithsErrorMessage('vs-a'));
 
-            // type variable name 'avs-*'
-            cy.get('#variable-label-2').clear().type('avs-a');
-            cy.get('#variable-label-2').should('not.have.class', 'field-error');
-            cy.get('div#variable-name-error > p').should('not.exist');
+              // type variable name 'avs-*'
+              cy.get('#variable-label-2').clear().type('avs-a');
+              cy.get('#variable-label-2').should('not.have.class', 'field-error');
+              cy.get('div#variable-name-error > p').should('not.exist');
 
-            // type variable name 'vs-*-*'
-            cy.get('#variable-label-2').clear().type('vs-a-2');
-            cy.get('#variable-label-2').should('have.class', 'field-error');
-            cy.get('div#variable-name-error > p')
-              .should('contain.text', constants.getStartWithsErrorMessage('vs-a-2'));
+              // type variable name 'vs-*-*'
+              cy.get('#variable-label-2').clear().type('vs-a-2');
+              cy.get('#variable-label-2').should('have.class', 'field-error');
+              cy.get('div#variable-name-error > p')
+                .should('contain.text', constants.getStartWithsErrorMessage('vs-a-2'));
 
-            // reset variable name back to 'c'
-            cy.get('#variable-label-2').clear().type('c');
-            cy.get('#variable-label-2').should('not.have.class', 'field-error');
-            cy.get('div#variable-name-error > p').should('not.exist');
-            
-            // type variable name 'ext'
-            cy.get('#variable-label-2').clear().type('ext');
-            cy.get('#variable-label-2').should('not.have.class', 'field-error');
-            cy.get('div#variable-name-error > p').should('not.exist');
+              // reset variable name back to 'c'
+              cy.get('#variable-label-2').clear().type('c');
+              cy.get('#variable-label-2').should('not.have.class', 'field-error');
+              cy.get('div#variable-name-error > p').should('not.exist');
+              
+              // type variable name 'ext'
+              cy.get('#variable-label-2').clear().type('ext');
+              cy.get('#variable-label-2').should('not.have.class', 'field-error');
+              cy.get('div#variable-name-error > p').should('not.exist');
 
-            // type variable name 'ext-'
-            cy.get('#variable-label-2').clear().type('ext-');
-            cy.get('#variable-label-2').should('have.class', 'field-error');
-            cy.get('div#variable-name-error > p')
-              .should('contain.text', constants.getStartWithsErrorMessage('ext-'));
+              // type variable name 'ext-'
+              cy.get('#variable-label-2').clear().type('ext-');
+              cy.get('#variable-label-2').should('have.class', 'field-error');
+              cy.get('div#variable-name-error > p')
+                .should('contain.text', constants.getStartWithsErrorMessage('ext-'));
 
-            // type variable name 'ext-*'
-            cy.get('#variable-label-2').clear().type('ext-a');
-            cy.get('#variable-label-2').should('have.class', 'field-error');
-            cy.get('div#variable-name-error > p')
-              .should('contain.text', constants.getStartWithsErrorMessage('ext-a'));
+              // type variable name 'ext-*'
+              cy.get('#variable-label-2').clear().type('ext-a');
+              cy.get('#variable-label-2').should('have.class', 'field-error');
+              cy.get('div#variable-name-error > p')
+                .should('contain.text', constants.getStartWithsErrorMessage('ext-a'));
 
-            // type variable name 'aext-*'
-            cy.get('#variable-label-2').clear().type('aext-a');
-            cy.get('#variable-label-2').should('not.have.class', 'field-error');
-            cy.get('div#variable-name-error > p').should('not.exist');
-            
-            // type variable name 'ext-*-*'
-            cy.get('#variable-label-2').clear().type('ext-a-2');
-            cy.get('#variable-label-2').should('have.class', 'field-error');
-            cy.get('div#variable-name-error > p')
-              .should('contain.text', constants.getStartWithsErrorMessage('ext-a-2'));
+              // type variable name 'aext-*'
+              cy.get('#variable-label-2').clear().type('aext-a');
+              cy.get('#variable-label-2').should('not.have.class', 'field-error');
+              cy.get('div#variable-name-error > p').should('not.exist');
+              
+              // type variable name 'ext-*-*'
+              cy.get('#variable-label-2').clear().type('ext-a-2');
+              cy.get('#variable-label-2').should('have.class', 'field-error');
+              cy.get('div#variable-name-error > p')
+                .should('contain.text', constants.getStartWithsErrorMessage('ext-a-2'));
 
-            // type variable name 'ucum'
-            cy.get('#variable-label-2').clear().type('ucum');
-            cy.get('#variable-label-2').should('have.class', 'field-error');
-            cy.get('div#variable-name-error > p')
-              .should('contain.text', constants.VARIABLE_NAME_MATCHES_RESERVED_WORD);
-          });
+              // type variable name 'ucum'
+              cy.get('#variable-label-2').clear().type('ucum');
+              cy.get('#variable-label-2').should('have.class', 'field-error');
+              cy.get('div#variable-name-error > p')
+                .should('contain.text', constants.VARIABLE_NAME_MATCHES_RESERVED_WORD);
+            });
+        });
       });
     });
 
@@ -371,26 +381,28 @@ describe(Cypress.env("appName"), () => {
         // Click the button to edit the expression
         cy.get('button#openExpressionEditor').should('exist').click();
         // The Expression Editor dialog should now appear
-        cy.get('lhc-expression-editor #expression-editor-base-dialog').should('exist');
+        cy.get('lhc-expression-editor').shadow().within(() => {
+          cy.get('#expression-editor-base-dialog').should('exist');
 
-        // Uneditable variables section should still only have one item
-        cy.get('#uneditable-variables-section .variable-row').should('have.length', 1);
-        cy.get('#uneditable-variables-section .variable-row > div.variable-column-label').should('have.text', 'patient');
+          // Uneditable variables section should still only have one item
+          cy.get('#uneditable-variables-section .variable-row').should('have.length', 1);
+          cy.get('#uneditable-variables-section .variable-row > div.variable-column-label').should('have.text', 'patient');
 
-        cy.get('#variables-section .variable-row').should('have.length', 3);
+          cy.get('#variables-section .variable-row').should('have.length', 3);
 
-        // Add a variable
-        cy.get('#add-variable').click();
-        cy.get('#variables-section .variable-row').should('have.length', 4);
+          // Add a variable
+          cy.get('#add-variable').click();
+          cy.get('#variables-section .variable-row').should('have.length', 4);
 
-        cy.get('div#row-3')
-          .within(() => {
-            cy.get('#variable-label-3').should('not.have.class', 'field-error');
-            cy.get('#variable-label-3').clear().type('patient');
-            cy.get('#variable-label-3').should('have.class', 'field-error');
-            cy.get('div#variable-name-error > p')
-              .should('contain.text', constants.VARIABLE_NAME_EXISTS_IN_ITEM);
-          });
+          cy.get('div#row-3')
+            .within(() => {
+              cy.get('#variable-label-3').should('not.have.class', 'field-error');
+              cy.get('#variable-label-3').clear().type('patient');
+              cy.get('#variable-label-3').should('have.class', 'field-error');
+              cy.get('div#variable-name-error > p')
+                .should('contain.text', constants.VARIABLE_NAME_EXISTS_IN_ITEM);
+            });
+        });
       });
     });
   });

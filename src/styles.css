@@ -4,20 +4,9 @@ body { font-family: Roboto, "Helvetica Neue", sans-serif; }
 
 body > .container { margin: 0 2em; }
 
-.autocomp_selected {
-  border: none !important;
-  padding: 0 !important;
-  display: block !important;
-}
-
-.autocomp_selected > ul {
-  margin: 0 !important;
-}
-
 .autocomp_selected > input {
   margin-bottom: 0 !important;
 }
-
 
 /* For Scoring Items Tree View */
 
@@ -37,68 +26,6 @@ button {
 button.btn-secondary {
   height: 2.0rem;
   padding: 0 1em;
-}
-
-div.items-tree {
-  margin-top: 10px;
-  border: 1px solid #000;
-  overflow-y: auto;
-  padding: 10px 0 10px 0;
-  max-height: 50vh;
-}
-
-div.scoring-items-selection-body {
-  padding: 10px 0 30px 0;
-}
-
-/* container for select/unselect/expand/collapse buttons */
-.button-container {
-  display: inline-block;
-}
-
-/* space between 2 button groups */
-.tree-button-group {
-  margin-left: 40px;
-}
-
-.node-wrapper > input, .node-wrapper > tree-node-expander, .node-wrapper span {
-  display: inline-block;
-}
-
-tree-node > input[type=checkbox] {
-  display: inline-block;
-}
-
-/* Position all checkboxes at 0 pixels */
-.tree-node-checkbox {
-  position: absolute;
-  left: 0px;
-}
-
-/* These are used for drawing the branch lines */
-.node-content-wrapper, .tree-children {
-  position: relative;
-}
-
-.node-content-wrapper::before, .tree-children::after {
-  content: "";
-  position: absolute;
-}
-
-tree-node-children .node-content-wrapper::before {
-  border-bottom: 2px solid green;
-  border-left: 2px solid green;
-  height: 28px;
-  top: -17px;
-  width: 20px;
-  left: -28px;
-  z-index: 0;
-}
-
-/* To avoid the branch line drawing over the expander */
-tree-node-expander {
-  z-index: 10;
-  background-color: white;
 }
 
 button:disabled {
@@ -124,30 +51,6 @@ button:disabled {
 
 lhc-expression-editor input {
   margin-bottom: 0.5rem !important;
-}
-
-input.field-error {
-  margin-bottom: 0.5rem !important;
-  border: 4px solid red !important;
-}
-
-.name-error {
-  padding-left: 25px;
-  padding-right: 5px;
-}
-
-.expression-error {
-  color: red !important;
-  margin-top: 0px;
-  font-size: 0.8rem;
-}
-
-.fhirpath-error {
-  color: red !important;
-}
-
-span.autocomp_selected > ul > li > button {
-  height: 100%;
 }
 
 .visually-hidden {

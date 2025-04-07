@@ -88,10 +88,18 @@
     [expressionUri]="linkId ? expressionUri : ''"
     [userExpressionChoices]=userExpressionChoices
     [lhcStyle]="{
-      buttonPrimary: { backgroundColor: 'navy', color: 'white' },
-      buttonSecondary: { backgroundColor: 'darkgreen', color: 'white' },
+      buttonPrimary: { backgroundColor: '#0d6efd', color: 'white' },
+      buttonSecondary: { backgroundColor: 'rgb(240, 240, 240)', color: 'black' },
+      buttonTertiary: { backgroundColor: 'rgb(25, 135, 8)', color: 'white' },
       input: { backgroundColor: '#ffe' },
-      select: { backgroundColor: '#ffe' }
+      select: { backgroundColor: '#ffe' },
+      titleBar: {
+        padding: '10px 20px 10px 20px',
+        height: '20px',
+        backgroundColor: 'rgb(50, 98, 149)',
+        color: 'white',
+        verticalAlign: 'middle'
+      }
     }"
     [display]="display"
     [doNotAskToCalculateScore]="doNotAskToCalculateScore"

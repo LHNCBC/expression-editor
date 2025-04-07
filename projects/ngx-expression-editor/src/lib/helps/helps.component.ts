@@ -1,5 +1,6 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { LiveAnnouncer } from '@angular/cdk/a11y';
+import { SimpleStyle } from '../expression-editor.service';
 
 @Component({
   selector: 'lhc-helps',
@@ -10,6 +11,7 @@ export class HelpsComponent implements OnInit {
 
   @Input() type: string;
   @Input() index;
+  @Input() lhcStyle: SimpleStyle = {};
   @Output() helpDialogClose: EventEmitter<any> = new EventEmitter<any>();
   
   showHelp = false;

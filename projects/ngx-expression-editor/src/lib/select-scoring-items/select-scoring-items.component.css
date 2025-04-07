@@ -24,7 +24,8 @@ div.items-tree {
 }
 
 div.scoring-items-selection-body {
-  padding: 10px 0 30px 0;
+  padding: 10px 10px 0px 0px;
+  margin-bottom: 10px;
 }
 
 /* container for select/unselect/expand/collapse buttons */
@@ -73,8 +74,9 @@ tree-node-children .node-content-wrapper::before {
 
 /* To avoid the branch line drawing over the expander */
 tree-node-expander {
+  margin-top: -2px;
   z-index: 10;
-  background-color: white;
+  background-color: transparent;
 }
 
 button:disabled {
@@ -82,3 +84,30 @@ button:disabled {
   opacity: 0.6;
   cursor: not-allowed;
 }
+
+div.base-modal-body {
+  margin: 0px 0px 20px 20px !important;
+  max-height: 60vh !important;
+  overflow-y: auto !important;
+  text-align: left !important;
+}
+
+.node-wrapper {
+  display: flex !important;
+  align-items: flex-start !important;
+}
+
+.node-wrapper > input, .node-wrapper > tree-node-expander, .node-wrapper span {
+  display: inline-block !important;
+}
+
+lhc-expression-editor input {
+  margin-bottom: .5rem !important;
+}
+
+.toggle-children-wrapper-expanded .toggle-children {
+  transform: rotate(90deg) !important;
+}
+
+
+

@@ -25,6 +25,9 @@ export class ExpressionValidatorDirective {
     if (this.param.type === 'fhirpath' ) {
       const variableNames = this.expressionEditorService.getContextVariableNamesForExpressionValidation();
       this.param['variableNames'] = JSON.stringify(variableNames);
+
+      const launchContext = this.expressionEditorService.getCommonLaunchContext();
+      this.param['launchContext'] = JSON.stringify(launchContext);
     }
 
     // the result is either null or error object

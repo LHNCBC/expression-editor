@@ -14,10 +14,17 @@ export interface SimpleStyle {
   variableRow?: object;
   buttonPrimary?: object;
   buttonSecondary?: object;
+  buttonTertiary?: object;
   buttonDanger?: object;
   input?: object;
   select?: object;
   description?: object;
+  body?: {
+    [key: string]: string | undefined;
+  };
+  titleBar?:  {
+    [key: string]: string | undefined;
+  };
 }
 
 export interface DisplaySectionControl {
@@ -61,12 +68,12 @@ interface Scoring {
 
 class ItemVariableError {
   name: boolean;
-  expression: boolean;
+  expression: { type: string, status: boolean };
   timeInterval?: boolean;
 
   constructor(name: boolean, expression: boolean, timeInterval: boolean = false) {
     this.name = name;
-    this.expression = expression;
+    this.expression = { type: "error", status: expression };
     this.timeInterval = timeInterval;
   }
 };
@@ -115,7 +122,10 @@ export class ExpressionEditorService {
   static FHIR_QUERY_OBS_FIELDS = ['code', 'date', 'patient', '_sort', '_count'];
   static APP_NAME = "Expression Editor";
 
-  syntaxType = 'simple';
+  static ENVIRONMENT_VARIABLES = ['resource', 'rootResource', 'sct', 'loinc', 'vs-', 'ext-', 'context', 'questionnaire', 'qitem'];
+  static COMMON_LAUNCH_CONTEXT_VARIABLES = ['patient', 'encounter', 'practitioner', 'organization', 'user', 'relatedPerson'];
+    
+  syntaxType = 'fhirpath';
   linkIdContext: string;
   uneditableVariablesChange: Subject<UneditableVariable[]> =
     new Subject<UneditableVariable[]>();
@@ -157,6 +167,8 @@ export class ExpressionEditorService {
   private itemVariablesErrors: ItemVariableError[] = [];
   private outputExpressionError = false;
   private caseStatementError = false;
+  private outputExpressionWarning = false;
+  private caseStatementWarning = false;
 
   dialogStack = new Stack();
 
@@ -523,7 +535,7 @@ export class ExpressionEditorService {
       }
 
       this.linkIdToQuestion = {};
-      this.needsAdvancedInterface = false;
+      this.needsAdvancedInterface = true;
       this.caseStatements = false;
       this.processItem(this.fhir.item);
 
@@ -593,9 +605,9 @@ export class ExpressionEditorService {
             this.simpleExpression = simpleSyntax;
           }
         } else {
-          // Reset input to be a blank simple expression if there is nothing on
+          // Reset input to be a blank fhirpath expression if there is nothing on
           // the form
-          this.syntaxType = 'simple';
+          this.syntaxType = 'fhirpath';
           this.simpleExpression = '';
           this.finalExpression = '';
           this.finalExpressionExtension = {
@@ -864,9 +876,11 @@ export class ExpressionEditorService {
   /**
    * Add variables and finalExpression and return the new FHIR Questionnaire
    * @param url Extension URL to use for the expression
-   * @param finalExpression
+   * @param finalExpression - output expression in FHIRPath format
+   * @param simpleExpression - when available, the output expression in Easy Path format will be embedded
+   *                           as a 'simple-syntax' extension within the output expression.
    */
-  export(url: string, finalExpression): object {
+  export(url: string, finalExpression, simpleExpression = ''): object {
     // Check to see if there are any errors from the validation
     const validationResult = this.getValidationResult();
     if (validationResult.hasError)
@@ -917,10 +931,26 @@ export class ExpressionEditorService {
         variablesPresentInitially.push(e);
       }
     });
-
-    if (this.syntaxType === 'simple') {
-      if (finalExpression && finalExpression.hasOwnProperty('valueExpression') && finalExpression.valueExpression) 
-        this.findOrAddExtension(finalExpression.valueExpression.extension, ExpressionEditorService.SIMPLE_SYNTAX_EXTENSION, 'String', this.simpleExpression);
+    if (this.syntaxType === 'simple' || simpleExpression) {
+      if (finalExpression && finalExpression.hasOwnProperty('valueExpression') && finalExpression.valueExpression) {
+        if (simpleExpression) {
+          if (!finalExpression.valueExpression.extension) {
+            finalExpression.valueExpression.extension = [];
+          }
+          this.findOrAddExtension(finalExpression.valueExpression.extension, ExpressionEditorService.SIMPLE_SYNTAX_EXTENSION, 'String', simpleExpression);
+        } else {
+          // remove Simple Syntax extension
+          if ('extension' in finalExpression.valueExpression) {
+            const idx = finalExpression.valueExpression.extension.findIndex( ext => ext.url === ExpressionEditorService.SIMPLE_SYNTAX_EXTENSION);
+            if (idx !== -1) {
+              finalExpression.valueExpression.extension.splice(idx, 1);
+              if (finalExpression.valueExpression.extension.length === 0) {
+                delete finalExpression.valueExpression.extension;
+              }
+            }
+          }
+        }
+      }
     }
 
     if (this.linkIdContext !== undefined && this.linkIdContext !== null && this.linkIdContext !== '') {
@@ -1866,22 +1896,34 @@ export class ExpressionEditorService {
    * @param result - result of the validation.  Null if there is no error or object containing the
    *                 validation error, error message, and aria error message.
    */
-  notifyValidationResult(param:ValidationParam, result: any ): void {   
+  notifyValidationResult(param:ValidationParam, result: any ): void {
     if (param.section === SectionTypes.ItemVariables) {
       // In the Item Variables Section, there are 2 fields: name and expression
       if (this.itemVariablesErrors.length > 0) {
-        const tmpItemVariableError = {...this.itemVariablesErrors[param.index]};   
-        tmpItemVariableError[param.field] = (result) ? true : false;
+        const tmpItemVariableError = {...this.itemVariablesErrors[param.index]};
+
+        if (param.field === "expression") {
+          tmpItemVariableError[param.field] = { 
+            type: (result && result.hasOwnProperty('invalidExpressionWarning')) ? "warning" : "error",
+            status: (result) ? true : false
+          };
+        } else {
+          tmpItemVariableError[param.field] = (result) ? true : false;
+        }
         this.itemVariablesErrors[param.index] = tmpItemVariableError;
       }
         
     } else if (param.section === SectionTypes.OutputExpression) {
       if (param.field === "expression") {
-        this.outputExpressionError = (result) ? true : false;
+        this.outputExpressionError = (result && !result.hasOwnProperty('invalidExpressionWarning')) ? true : false;
+        this.outputExpressionWarning = (result && result.hasOwnProperty('invalidExpressionWarning')) ? true : false;
         this.caseStatementError = false;
+        this.caseStatementWarning = false;
       } else if (param.field === "case") {
         this.outputExpressionError = false;
-        this.caseStatementError = (result) ? true : false;
+        this.outputExpressionWarning = false;
+        this.caseStatementError = (result && result.hasOwnProperty('CaseStatementError')) ? result.CaseStatementError : false;
+        this.caseStatementWarning = (result && result.hasOwnProperty('CaseStatementWarning')) ? result.CaseStatementWarning : false;
       }
     }
 
@@ -1905,12 +1947,27 @@ export class ExpressionEditorService {
   hasValidationErrors(): boolean {
     return (
       this.itemVariablesErrors.some( 
-        item => (item.name === true || item.expression === true || item.timeInterval === true)) ||
+        item => (item.name === true || (item.expression.type === "error" && item.expression.status === true) || item.timeInterval === true)) ||
       this.outputExpressionError ||
       this.caseStatementError
     );
   };
 
+  /**
+   * Check for validation warnings in both the 'Item Variables' and the 'Output Expression' sections. The
+   * validation warnings include expressions that may contain launch context variables that may not have
+   * been defined.
+   * @return true if any warning occurs in either the 'Item Variables' section or the 'Output Expression' section
+   */
+  hasValidationWarning(): boolean {
+    return (
+      this.itemVariablesErrors.some( 
+        item => (item.expression.type === "warning" && item.expression.status === true)) ||
+      this.outputExpressionWarning ||
+      this.caseStatementWarning
+    );
+  };
+  
   /**
    * Get the validation result based on the validation in both the 'Item Variables' and the 'Output Expression'
    * sections. 
@@ -1920,9 +1977,14 @@ export class ExpressionEditorService {
     return {
       "hasError" : this.hasValidationErrors(),
       "errorInItemVariables": this.itemVariablesErrors.some(
-        item => (item?.name === true || item?.expression === true || item?.timeInterval === true)),
+        item => (item?.name === true || (item?.expression.type === "error" && item?.expression.status === true) || item?.timeInterval === true)),
       "errorInOutputExpression": this.outputExpressionError,
-      "errorInOutputCaseStatement": this.caseStatementError     
+      "errorInOutputCaseStatement": this.caseStatementError,
+      "hasWarning" : this.hasValidationWarning(),
+      "warningInItemVariables": this.itemVariablesErrors.some(
+        item => (item?.expression.type === "warning" && item?.expression.status === true)),
+      "warningInOutputExpression": this.outputExpressionWarning,
+      "warningInOutputCaseStatement": this.caseStatementWarning
     };
   };
   
@@ -1935,6 +1997,9 @@ export class ExpressionEditorService {
     this.outputExpressionError = false;
 
     this.caseStatementError = false;
+
+    this.outputExpressionWarning = false;
+    this.caseStatementWarning = false;
   };
 
   /**
@@ -1963,6 +2028,7 @@ export class ExpressionEditorService {
   }
 
   /**
+   * Reference: https://build.fhir.org/ig/HL7/sdc/expressions.html#extract-extensions
    * Compose the object that contains context variable names and environment variable names
    * as keys used by fhirpath.js to validate the expression.
    * @return object with context variable names and environment variable names as keys
@@ -1970,20 +2036,31 @@ export class ExpressionEditorService {
   getContextVariableNamesForExpressionValidation(): any {
     const names = this.getVariableNames();
 
-    const newObj = {};
-    names.forEach(key => {
-      newObj[key] = 1;
+    const contextVariables = names.reduce((acc, key) => {
+      acc[key] = 1;
+      return acc;
+    }, {});
+
+    ExpressionEditorService.ENVIRONMENT_VARIABLES.forEach(envVar => {
+      contextVariables[envVar] = 1;
     });
 
-    // Adding environment variables
-    newObj['resource'] = 1;
-    newObj['rootResource'] = 1;
-    newObj['sct'] = 1;
-    newObj['loinc'] = 1;
+    return contextVariables;
+  }
 
-    // This is required to support scoring FHIRPath expressions
-    newObj['questionnaire'] = 1;
 
-    return newObj;
+
+  /**
+   * Get common launch context variables.
+   * @return An object with common launch context variable names as keys.
+   */
+  getCommonLaunchContext(): any {
+    const contextVariables = {};
+
+    ExpressionEditorService.COMMON_LAUNCH_CONTEXT_VARIABLES.forEach(contextVar => {
+      contextVariables[contextVar] = 1;
+    });
+
+    return contextVariables;
   }
 }

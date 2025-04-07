@@ -13,7 +13,6 @@
       <div class="case-condition-column" *ngIf="syntax !== 'simple'">
         <div style="flex-direction:column; flex: 0 0 100%;">
           <div style="display:flex; flex: 0 0 100%;">
-
             <svg cdkDragHandle xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
                 class="handle" viewBox="0 0 16 16">
               <path d="M7 2a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zM7 5a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 
@@ -23,13 +22,19 @@
             </svg>
             <input type="text" [id]="'case-condition-' + i" [(ngModel)]="caseStatement.condition"
                   (ngModelChange)="onChange()" [style]="lhcStyle.input" class="condition" aria-label="Case condition"
-                  [class.field-error]="caseConditionRef?.invalid" [attr.aria-invalid]="caseConditionRef?.invalid"
+                  [class.field-error]="caseConditionRef?.invalid && caseConditionRef?.errors?.message"
+                  [class.field-warning]="caseConditionRef?.invalid && caseConditionRef?.errors?.warning?.message"
+                  
+                  [attr.aria-invalid]="caseConditionRef?.invalid"
                   #caseConditionRef="ngModel" />
             <span class="arrow">→</span>
           </div>
           <div [id]="'case-condition-' + i + '-error'" class="row error-span" style="margin-left: 20px;">
-            <p class="expression-error" *ngIf="caseConditionRef?.invalid">
+            <p class="expression-error" *ngIf="caseConditionRef?.invalid && caseConditionRef?.errors?.message">
               {{caseConditionRef?.errors?.message}}
+            </p>
+            <p class="expression-warning" *ngIf="caseConditionRef?.invalid && caseConditionRef?.errors?.warning?.message">
+              {{caseConditionRef?.errors?.warning?.message}}
             </p>
           </div>
         </div>
@@ -62,11 +67,16 @@
         <div style="flex-direction:column; flex: 0 0 100%;">
           <input type="text" [id]="'case-output-' + i" [(ngModel)]="caseStatement.output"
                  (ngModelChange)="onChange()" [style]="lhcStyle.input" class="output" aria-label="Case output"
-                 [class.field-error]="caseOutputRef?.invalid" [attr.aria-invalid]="caseOutputRef?.invalid"
+                 [class.field-error]="caseOutputRef?.invalid && caseOutputRef?.errors?.message" [attr.aria-invalid]="caseOutputRef?.invalid"
+                 [class.field-warning]="caseOutputRef?.invalid && caseOutputRef?.errors?.warning?.message"
+                  
                  #caseOutputRef="ngModel" />
           <div [id]="'case-output-' + i + '-error'" class="row error-span">
-            <p class="expression-error" *ngIf="caseOutputRef?.invalid">
+            <p class="expression-error" *ngIf="caseOutputRef?.invalid && caseOutputRef?.errors?.message">
               {{caseOutputRef?.errors?.message}}
+            </p>
+            <p class="expression-warning" *ngIf="caseOutputRef?.invalid && caseOutputRef?.errors?.warning?.message">
+              {{caseOutputRef?.errors?.warning?.message}}
             </p>
           </div>        
         </div>
@@ -93,33 +103,36 @@
 </div>
 
 <button id="add-case" class="btn btn-secondary mt-2" (click)="onAdd()" [ngStyle]="lhcStyle.buttonSecondary">Add case</button>
-
 <div class="case-row">
   <div class="case-condition-column"></div>
   <div class="case-output-column" *ngIf="syntax !== 'simple'">
     <label>
       <input type="text" [(ngModel)]="defaultCase" (ngModelChange)="onChange()"
-             [style]="lhcStyle.input" class="default" [class.field-error]="caseDefaultRef?.invalid"
+             [style]="lhcStyle.input" class="default"
+             [class.field-error]="caseDefaultRef?.invalid && caseDefaultRef?.errors?.message"
+             [class.field-warning]="caseDefaultRef?.invalid && caseDefaultRef?.errors?.warning?.message"
              [attr.aria-invalid]="caseDefaultRef?.invalid" #caseDefaultRef="ngModel" />
     </label>
     <div id="default-case-error" class="row error-span">
-      <p class="expression-error" *ngIf="caseDefaultRef?.invalid">
+      <p class="expression-error" *ngIf="caseDefaultRef?.invalid && caseDefaultRef?.errors?.message">
         {{caseDefaultRef?.errors?.message}}
       </p>
-    
+      <p class="expression-warning" *ngIf="caseDefaultRef?.invalid && caseDefaultRef?.errors?.warning?.message">
+        {{caseDefaultRef?.errors?.warning?.message}}
+      </p>     
     </div> 
   </div>
   <div class="case-output-column" *ngIf="syntax === 'simple'">
     <label>
       <input type="text" [(ngModel)]="simpleDefaultCase" (ngModelChange)="onChange()"
-             [style]="lhcStyle.input" class="default" [class.field-error]="caseDefaultRef?.invalid"
+             [style]="lhcStyle.input" class="default"
+             [class.field-error]="caseDefaultRef?.invalid"
              [attr.aria-invalid]="caseDefaultRef?.invalid" #caseDefaultRef="ngModel" />
     </label>
     <div id="default-case-error" class="row error-span">
       <p class="expression-error" *ngIf="caseDefaultRef?.invalid">
         {{caseDefaultRef?.errors?.message}}
-      </p>
-    
+      </p> 
     </div> 
   </div>
 
@@ -134,5 +147,5 @@
 </div>
 <lhc-syntax-preview [lhcStyle]="lhcStyle" [syntax]="output"
                     [hasError]="hasError"
-                    *ngIf="!hidePreview">
+                    *ngIf="!hidePreview && !hasError && !hasWarning">
 </lhc-syntax-preview>

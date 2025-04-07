@@ -2,7 +2,8 @@
   [titleBarLabel]="'Calculate Sum of Scores'"
   [name]="'calculate-sum'"
   [dialogType]="'confirmation'"
-  (dialogClose)="onDialogCloseClick()">
+  (dialogClose)="onDialogCloseClick()"
+  [lhcStyle]="lhcStyle">
 
   <div class="score-modal">
     <p [style]="lhcStyle.description">It looks like this might be a score calculation.</p>
@@ -17,7 +18,7 @@
     <div class="button-div">
       <button (click)="onSelectItemsClick()" [style]="lhcStyle.buttonPrimary"
               id="score-items-selection" [matTooltip]="selectItemsAriaDescription">Yes</button>
-      <button (click)="onCloseClick()" id="skip-score-items-selection"
+      <button (click)="onCloseClick()" id="skip-score-items-selection" [style]="lhcStyle.buttonSecondary"
               [matTooltip]="skipSelectItemsAriaDescription">No</button>
     </div>
   </div>

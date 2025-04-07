@@ -54,7 +54,11 @@ describe('ExpressionEditorComponent', () => {
       hasError: false,
       errorInItemVariables: false,
       errorInOutputExpression: false,
-      errorInOutputCaseStatement: false
+      errorInOutputCaseStatement: false,
+      hasWarning: false,
+      warningInItemVariables: false,
+      warningInOutputExpression: false,
+      warningInOutputCaseStatement: false
     }
 
     expect(component.composeAriaValidationErrorMessage(validationResult)).toEqual("");
@@ -65,7 +69,11 @@ describe('ExpressionEditorComponent', () => {
       hasError: true,
       errorInItemVariables: true,
       errorInOutputExpression: false,
-      errorInOutputCaseStatement: false
+      errorInOutputCaseStatement: false,
+      hasWarning: false,
+      warningInItemVariables: false,
+      warningInOutputExpression: false,
+      warningInOutputCaseStatement: false
     }
 
     expect(component.composeAriaValidationErrorMessage(validationResult))
@@ -77,7 +85,11 @@ describe('ExpressionEditorComponent', () => {
       hasError: true,
       errorInItemVariables: false,
       errorInOutputExpression: true,
-      errorInOutputCaseStatement: false
+      errorInOutputCaseStatement: false,
+      hasWarning: false,
+      warningInItemVariables: false,
+      warningInOutputExpression: false,
+      warningInOutputCaseStatement: false
     }
 
     expect(component.composeAriaValidationErrorMessage(validationResult))
@@ -90,7 +102,11 @@ describe('ExpressionEditorComponent', () => {
       hasError: true,
       errorInItemVariables: false,
       errorInOutputExpression: false,
-      errorInOutputCaseStatement: true
+      errorInOutputCaseStatement: true,
+      hasWarning: false,
+      warningInItemVariables: false,
+      warningInOutputExpression: false,
+      warningInOutputCaseStatement: false
     }
 
     expect(component.composeAriaValidationErrorMessage(validationResult))
@@ -103,7 +119,11 @@ describe('ExpressionEditorComponent', () => {
       hasError: true,
       errorInItemVariables: true,
       errorInOutputExpression: true,
-      errorInOutputCaseStatement: false
+      errorInOutputCaseStatement: false,
+      hasWarning: false,
+      warningInItemVariables: false,
+      warningInOutputExpression: false,
+      warningInOutputCaseStatement: false
     }
 
     expect(component.composeAriaValidationErrorMessage(validationResult))

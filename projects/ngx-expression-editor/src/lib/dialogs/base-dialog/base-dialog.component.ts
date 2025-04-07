@@ -1,5 +1,5 @@
 import { Component, EventEmitter, OnInit, Input, Output, ViewChild, ElementRef, HostListener } from '@angular/core';
-import { DialogStyle, DialogTypes } from '../../expression-editor.service';
+import { DialogStyle, DialogTypes, SimpleStyle } from '../../expression-editor.service';
 import copy from 'fast-copy';
 import { LiveAnnouncer } from '@angular/cdk/a11y';
 import { ExpressionEditorService } from '../../expression-editor.service';
@@ -18,7 +18,7 @@ const confirmationDialogStyle = {
     'vertical-align': 'middle'
   },
   dialogHeaderDiv: {
-    'margin': '30px 20px 0px 20px',
+    'margin': '20px 20px 0px 20px',
     'text-align': 'center'
   },
   dialogBodyDiv: {
@@ -75,7 +75,7 @@ const expressionEditorDialogStyle = {
     'vertical-align': 'middle'
   },
   dialogHeaderDiv: {
-    'margin': '30px 20px 0px 20px',
+    'margin': '20px 20px 0px 20px',
     'font-size': '24px',
     'text-align': 'left'},
   dialogBodyDiv: {
@@ -92,6 +92,7 @@ const expressionEditorDialogStyle = {
 })
 export class BaseDialogComponent implements OnInit {
   @Input() customDialogStyle: DialogStyle = {};
+  @Input() lhcStyle: SimpleStyle = {};
   @Input() dialogType: DialogTypes;
   @Input() displayTitleBar: boolean = true;
   @Input() titleBarLabel: string = '';
@@ -122,6 +123,7 @@ export class BaseDialogComponent implements OnInit {
 
   timeout = 0;
   dialogName = "";
+  isHovered = false;
 
   constructor(protected liveAnnouncer: LiveAnnouncer, protected expressionEditorService?: ExpressionEditorService ) {};
 
@@ -158,6 +160,24 @@ export class BaseDialogComponent implements OnInit {
    * @returns updated css styles
    */
   applyCustomDialogStyle(sourceDialogStyle, customDialogStyle) {
+    if (!this.customDialogStyle.dialogContentDiv)
+      this.customDialogStyle.dialogContentDiv = {};
+    if (!this.customDialogStyle.dialogHeaderDiv)
+      this.customDialogStyle.dialogHeaderDiv = {};
+    if (!this.customDialogStyle.dialogFooterDiv)
+      this.customDialogStyle.dialogFooterDiv = {};
+
+    if (this.lhcStyle?.body?.backgroundColor) {
+      this.customDialogStyle.dialogContentDiv['backgroundColor'] = this.lhcStyle.body.backgroundColor;
+      this.customDialogStyle.dialogHeaderDiv['backgroundColor'] = this.lhcStyle.body.backgroundColo;
+      this.customDialogStyle.dialogFooterDiv['backgroundColor'] = this.lhcStyle.body.backgroundColor;
+    }
+    if (this.lhcStyle?.body?.color) {
+      this.customDialogStyle.dialogContentDiv['color'] = this.lhcStyle.body.color;
+      this.customDialogStyle.dialogHeaderDiv['color'] = this.lhcStyle.body.color;
+      this.customDialogStyle.dialogFooterDiv['color'] = this.lhcStyle.body.color;
+    }
+
     Object.keys(customDialogStyle).forEach((key) => {
       const val = customDialogStyle[key];
       Object.keys(val).forEach((propKey) => {

@@ -2,6 +2,7 @@ import { Component, Input, Output, EventEmitter, OnInit, OnChanges, OnDestroy, V
 import { EasyPathExpressionsPipe } from '../easy-path-expressions.pipe';
 import { ExpressionEditorService, SimpleStyle } from '../expression-editor.service';
 import { SectionTypes } from '../variable';
+import { NgModel } from '@angular/forms';
 
 @Component({
   selector: 'lhc-syntax-converter',
@@ -16,11 +17,12 @@ export class SyntaxConverterComponent implements OnInit, OnChanges, OnDestroy {
   @Input() variableName: string;
 
   @Input() validateInput = false;
+  @Input() multipleLines = false;
 
   @Output() simpleChange = new EventEmitter<string>();
   @Output() expressionChange = new EventEmitter<string>();
  
-  @ViewChild('exp') expRef;
+  @ViewChild('inputRef') inputRef!: NgModel;
 
   performValidationSubscription;
   fhirPathExpression: string;
@@ -37,10 +39,10 @@ export class SyntaxConverterComponent implements OnInit, OnChanges, OnDestroy {
     // performValidationSubscription is triggered when the 'Save' button is clicked, allowing each
     // subscribed component to validate the expression data.
     this.performValidationSubscription = this.expressionEditorService.performValidationChange.subscribe((validation) => {  
-      if (this.expRef) {
-        this.expRef.control.markAsTouched();
-        this.expRef.control.markAsDirty();
-        this.expRef.control.setValue(this.simple);
+      if (this.inputRef) {
+        this.inputRef.control.markAsTouched();
+        this.inputRef.control.markAsDirty();
+        this.inputRef.control.setValue(this.simple);
       }
 
       this.onExpressionChange(this.simple);
@@ -66,13 +68,13 @@ export class SyntaxConverterComponent implements OnInit, OnChanges, OnDestroy {
         JSON.stringify(changes.variables.previousValue) !== JSON.stringify(changes.variables.currentValue))) {
       this.onExpressionChange(this.simple);
 
-      if (this.expRef) {
+      if (this.inputRef) {
         setTimeout(() => {
           if (changes.simple) {
-            this.expRef.control.markAsTouched();
-            this.expRef.control.markAsDirty();
+            this.inputRef.control.markAsTouched();
+            this.inputRef.control.markAsDirty();
           }
-          this.expRef.control.setValue(this.simple);
+          this.inputRef.control.setValue(this.simple);
         }, 0);
       }
     }
@@ -87,7 +89,7 @@ export class SyntaxConverterComponent implements OnInit, OnChanges, OnDestroy {
     const fhirPath: string = (simple) ? this.jsToFhirPathPipe.transform(simple, this.variables) : "";
     this.fhirPathExpression = fhirPath;
     this.hasError = false;
-    if (fhirPath === 'Not valid' || (fhirPath === "" && simple !== undefined && this.expRef?.dirty))
+    if (fhirPath === 'Not valid' || (fhirPath === "" && simple !== undefined && this.inputRef?.dirty))
       this.hasError = true;
 
     this.simpleChange.emit(simple);

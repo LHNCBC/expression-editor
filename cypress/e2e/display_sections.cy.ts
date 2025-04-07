@@ -18,13 +18,14 @@ describe('Expression editor', () => {
         cy.get('button#openExpressionEditor').should('exist').click();
 
         // The Expression Editor dialog should now appear
-        cy.get('lhc-expression-editor #expression-editor-base-dialog').should('exist');
+        cy.get('lhc-expression-editor').shadow().within(() => {
+          cy.get('#expression-editor-base-dialog').should('exist');
 
-        cy.get('#title-section').should('exist');
-        cy.get('#uneditable-variables-section').should('exist');
-        cy.get('#variables-section').should('exist');
-        cy.get('#final-expression-section').should('exist');
-
+          cy.get('#title-section').should('exist');
+          cy.get('#uneditable-variables-section').should('exist');
+          cy.get('#variables-section').should('exist');
+          cy.get('#final-expression-section').should('exist');
+        });
       });
 
       it('should hide the title section', () => {
@@ -43,12 +44,14 @@ describe('Expression editor', () => {
         cy.get('button#openExpressionEditor').should('exist').click();
 
         // The Expression Editor dialog should now appear
-        cy.get('lhc-expression-editor #expression-editor-base-dialog').should('exist');
+        cy.get('lhc-expression-editor').shadow().within(() => {
+          cy.get('#expression-editor-base-dialog').should('exist');
 
-        cy.get('#title-section').should('not.exist');
-        cy.get('#uneditable-variables-section').should('exist');
-        cy.get('#variables-section').should('exist');
-        cy.get('#final-expression-section').should('exist');
+          cy.get('#title-section').should('not.exist');
+          cy.get('#uneditable-variables-section').should('exist');
+          cy.get('#variables-section').should('exist');
+          cy.get('#final-expression-section').should('exist');
+        });
       });
 
       it('should hide the Uneditable Variables and Item Variables sections', () => {
@@ -66,12 +69,14 @@ describe('Expression editor', () => {
         cy.get('button#openExpressionEditor').should('exist').click();
 
         // The Expression Editor dialog should now appear
-        cy.get('lhc-expression-editor #expression-editor-base-dialog').should('exist');
+        cy.get('lhc-expression-editor').shadow().within(() => {
+          cy.get('#expression-editor-base-dialog').should('exist');
 
-        cy.get('#title-section').should('exist');
-        cy.get('#uneditable-variables-section').should('not.exist');
-        cy.get('#variables-section').should('not.exist');
-        cy.get('#final-expression-section').should('exist');
+          cy.get('#title-section').should('exist');
+          cy.get('#uneditable-variables-section').should('not.exist');
+          cy.get('#variables-section').should('not.exist');
+          cy.get('#final-expression-section').should('exist');
+        });
       });
 
       it('should hide the Output Expression section', () => {
@@ -89,12 +94,14 @@ describe('Expression editor', () => {
         cy.get('button#openExpressionEditor').should('exist').click();
 
         // The Expression Editor dialog should now appear
-        cy.get('lhc-expression-editor #expression-editor-base-dialog').should('exist');
+        cy.get('lhc-expression-editor').shadow().within(() => {
+          cy.get('#expression-editor-base-dialog').should('exist');
 
-        cy.get('#title-section').should('exist');
-        cy.get('#uneditable-variables-section').should('exist');
-        cy.get('#variables-section').should('exist');
-        cy.get('#final-expression-section').should('not.exist');
+          cy.get('#title-section').should('exist');
+          cy.get('#uneditable-variables-section').should('exist');
+          cy.get('#variables-section').should('exist');
+          cy.get('#final-expression-section').should('not.exist');
+        });
       });
     });
   });

@@ -10,11 +10,13 @@
 
   <lhc-fhirpath-expression-help-dialog
     *ngIf="(type==='expression' || type==='fhirpath') && showHelp"
-    (onCloseHelp)="closeHelp()">
+    (onCloseHelp)="closeHelp()"
+    [lhcStyle]="lhcStyle">
   </lhc-fhirpath-expression-help-dialog>
 
   <lhc-easy-path-expression-help-dialog
     *ngIf="type==='simple' && showHelp"
-    (onCloseHelp)="closeHelp()">
+    (onCloseHelp)="closeHelp()"
+    [lhcStyle]="lhcStyle">
   </lhc-easy-path-expression-help-dialog>
 </div>

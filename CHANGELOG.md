@@ -2,6 +2,10 @@
 
 This project follows [Semantic Versioning](http://semver.org/).
 
+## [3.1.26] 2024-10-08
+### Changed
+- Set the Expression Editor, Query Observation and Scoring Items Selection components to use ViewEncapsulation.ShadowDom to prevent them from being affected by global or parent styles.
+
 ## [3.1.25] 2024-11-29
 ### Changed
 - Updated the Node.js version to 22.

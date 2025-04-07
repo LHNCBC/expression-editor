@@ -10,6 +10,7 @@ import { LiveAnnouncer } from '@angular/cdk/a11y';
   styleUrls: ['./easy-path-expression-help-dialog.component.css']
 })
 export class EasyPathExpressionHelpDialogComponent extends BaseDialogComponent {
+  @Input() lhcStyle: SimpleStyle = {};
   @Output() onCloseHelp: EventEmitter<any> = new EventEmitter<any>();
   
   arrow_arr = ["arrow right", "arrow down"];
