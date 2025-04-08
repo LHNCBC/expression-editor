@@ -5,7 +5,8 @@ import { LiveAnnouncer } from '@angular/cdk/a11y';
 
 @Component({
   selector: 'lhc-fhirpath-easypath-conversion-confirmation-dialog',
-  templateUrl: './fhirpath-easypath-conversion-confirmation-dialog.component.html'
+  templateUrl: './fhirpath-easypath-conversion-confirmation-dialog.component.html',
+  standalone: false
 })
 export class FhirpathEasypathConversionConfirmationDialogComponent extends BaseDialogComponent {
 

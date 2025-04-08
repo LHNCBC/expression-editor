@@ -5,7 +5,8 @@ import { SimpleStyle } from '../expression-editor.service';
 @Component({
   selector: 'lhc-helps',
   templateUrl: './helps.component.html',
-  styleUrls: ['./helps.component.css']
+  styleUrls: ['./helps.component.css'],
+  standalone: false
 })
 export class HelpsComponent implements OnInit {
 

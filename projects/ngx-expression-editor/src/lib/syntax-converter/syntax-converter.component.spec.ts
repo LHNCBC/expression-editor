@@ -1,4 +1,6 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import 'zone.js/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+
 import { FormsModule } from '@angular/forms';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
@@ -13,13 +15,13 @@ describe('SyntaxConverterComponent', () => {
   let component: SyntaxConverterComponent;
   let fixture: ComponentFixture<SyntaxConverterComponent>;
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
+  beforeEach(waitForAsync(() => {
+    TestBed.configureTestingModule({
       declarations: [ SyntaxConverterComponent, SyntaxPreviewComponent, HelpsComponent, EasyPathExpressionHelpDialogComponent, ExpressionValidatorDirective ],
       imports: [ FormsModule, MatSnackBarModule, MatTooltipModule ]
     })
     .compileComponents();
-  });
+  }));
 
   beforeEach(() => {
     fixture = TestBed.createComponent(SyntaxConverterComponent);

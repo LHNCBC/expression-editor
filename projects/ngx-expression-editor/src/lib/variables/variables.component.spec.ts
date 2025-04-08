@@ -1,4 +1,5 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import 'zone.js/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { VariablesComponent } from './variables.component';
 import { FormsModule } from '@angular/forms';
@@ -11,13 +12,13 @@ describe('VariablesComponent', () => {
   let component: VariablesComponent;
   let fixture: ComponentFixture<VariablesComponent>;
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
+  beforeEach(waitForAsync(() => {
+    TestBed.configureTestingModule({
       imports: [ FormsModule, MatTooltipModule ],
       declarations: [ VariablesComponent, HelpsComponent, FhirpathExpressionHelpDialogComponent ]
     })
     .compileComponents();
-  });
+  }));
 
   beforeEach(() => {
     fixture = TestBed.createComponent(VariablesComponent);

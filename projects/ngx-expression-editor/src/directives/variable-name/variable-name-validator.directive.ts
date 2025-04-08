@@ -10,7 +10,8 @@ import { ValidationParam } from '../../lib/variable';
     provide: NG_VALIDATORS,
     useExisting: VariableNameValidatorDirective,
     multi: true
-  }]
+  }],
+  standalone: false
 })
 export class VariableNameValidatorDirective implements Validator {
   @Input('lhcVariableNameValidatorParams') param: ValidationParam;

@@ -2,7 +2,8 @@ import { Pipe, PipeTransform } from '@angular/core';
 import * as easyPathExpressions from 'easy-path-expressions';
 
 @Pipe({
-  name: 'easyPathExpressions'
+  name: 'easyPathExpressions',
+  standalone: false
 })
 export class EasyPathExpressionsPipe implements PipeTransform {
 

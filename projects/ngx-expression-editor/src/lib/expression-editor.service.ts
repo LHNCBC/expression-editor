@@ -880,8 +880,9 @@ export class ExpressionEditorService {
   /**
    * Add variables and finalExpression and return the new FHIR Questionnaire
    * @param url Extension URL to use for the expression
-   * @param finalExpression
-   * @param simpleExpression
+   * @param finalExpression - output expression in FHIRPath format
+   * @param simpleExpression - when available, the output expression in Easy Path format will be embedded
+   *                           as a 'simple-syntax' extension within the output expression.
    */
   export(url: string, finalExpression, simpleExpression = ''): object {
     // Check to see if there are any errors from the validation
@@ -952,7 +953,7 @@ export class ExpressionEditorService {
               }
             }
           }
-        }      
+        }
       }
     }
 

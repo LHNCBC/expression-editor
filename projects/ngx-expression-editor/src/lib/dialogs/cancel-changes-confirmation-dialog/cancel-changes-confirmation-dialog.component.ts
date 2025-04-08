@@ -5,7 +5,8 @@ import { LiveAnnouncer } from '@angular/cdk/a11y';
 
 @Component({
   selector: 'lhc-cancel-changes-confirmation-dialog',
-  templateUrl: './cancel-changes-confirmation-dialog.component.html'
+  templateUrl: './cancel-changes-confirmation-dialog.component.html',
+  standalone: false
 })
 export class CancelChangesConfirmationDialogComponent extends BaseDialogComponent {
   @Input() lhcStyle: SimpleStyle = {};

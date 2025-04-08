@@ -7,7 +7,8 @@ import { LiveAnnouncer } from '@angular/cdk/a11y';
 @Component({
   selector: 'lhc-easy-path-expression-help-dialog',
   templateUrl: './easy-path-expression-help-dialog.component.html',
-  styleUrls: ['./easy-path-expression-help-dialog.component.css']
+  styleUrls: ['./easy-path-expression-help-dialog.component.css'],
+  standalone: false
 })
 export class EasyPathExpressionHelpDialogComponent extends BaseDialogComponent {
   @Input() lhcStyle: SimpleStyle = {};

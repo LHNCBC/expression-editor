@@ -1205,5 +1205,119 @@ describe(Cypress.env("appName"), () => {
         });
       });
     });
+
+    describe('export', () => {
+      it('should the output expression contain the simple-task extension for output type Easy Path expression', () => {
+        cy.get('select#questionnaire-select').select('BMI Calculation (Easy Path expression)');
+  
+        // The demo has '(/39156-5) selected by default
+        cy.get('#question').should('contain.value', '(/39156-5)');
+        // Click the button to edit the expression
+        cy.get('button#openExpressionEditor').should('exist').click();
+  
+        // The Expression Editor dialog should now appear
+        cy.get('lhc-expression-editor').shadow().within(() => {
+          cy.get('#expression-editor-base-dialog').should('exist');
+  
+          // Should have two variables
+          cy.get('#variables-section .variable-row').should('have.length', 2);
+  
+          // The variable type should default to Easy Path Expression
+          cy.get('#output-expression-type').should('exist').should('have.value', 'simple');
+  
+          // Output Expression section
+          cy.get('#final-expression-section').within(() => {
+            cy.get('#simple-expression-final').should('contain.value', 'a/b^2');
+            cy.get('lhc-syntax-preview pre').should('contain.text', '%a/%b.power(2)');
+          });
+  
+          // Click Save
+          cy.get('#export').click();
+        });
+  
+        // The Expression Editor dialog should be closed
+        cy.get('lhc-expression-editor').should('not.exist', {timeout: 10000});
+
+        // Checking the output, it should have the new variable created under the 
+        cy.get('pre#output').should('not.be.empty').invoke('text').then((jsonData) => {
+          // Parse the JSON data
+          const parsedData = JSON.parse(jsonData);
+  
+          expect(parsedData.item).to.exist;
+          expect(parsedData.item).to.have.lengthOf(5);
+          expect(parsedData.item[3].linkId).to.exist;
+          expect(parsedData.item[3].linkId).to.have.string('/39156-5');
+          expect(parsedData.item[3].extension).to.exist;
+          expect(parsedData.item[3].extension).to.have.lengthOf(4);
+          expect(parsedData.item[3].extension[3].url)
+                  .to.have.string('http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression');
+          expect(parsedData.item[3].extension[3].valueExpression).to.exist;
+          expect(parsedData.item[3].extension[3].valueExpression.expression).to.exist;
+          expect(parsedData.item[3].extension[3].valueExpression.expression).to.have.string('%a/%b.power(2)');
+          expect(parsedData.item[3].extension[3].valueExpression.extension).to.exist;
+          expect(parsedData.item[3].extension[3].valueExpression.extension).to.have.lengthOf(1);
+          expect(parsedData.item[3].extension[3].valueExpression.extension[0].url).to.exist;
+          expect(parsedData.item[3].extension[3].valueExpression.extension[0].url)
+                  .to.have.string('http://lhcforms.nlm.nih.gov/fhirExt/simple-syntax')
+          expect(parsedData.item[3].extension[3].valueExpression.extension[0].valueString).to.exist;
+          expect(parsedData.item[3].extension[3].valueExpression.extension[0].valueString).to.have.string('a/b^2');
+        });
+      });
+
+      it('should remove the simple-task extension from the output expression when switching to output type FHIRPath expression', () => {
+        cy.get('select#questionnaire-select').select('BMI Calculation (Easy Path expression)');
+  
+        // The demo has '(/39156-5) selected by default
+        cy.get('#question').should('contain.value', '(/39156-5)');
+        // Click the button to edit the expression
+        cy.get('button#openExpressionEditor').should('exist').click();
+  
+        // The Expression Editor dialog should now appear
+        cy.get('lhc-expression-editor').shadow().within(() => {
+          cy.get('#expression-editor-base-dialog').should('exist');
+  
+          // Should have two variables
+          cy.get('#variables-section .variable-row').should('have.length', 2);
+  
+          // The variable type should default to Easy Path Expression
+          cy.get('#output-expression-type').should('exist').should('have.value', 'simple');
+  
+          // Output Expression section
+          cy.get('#final-expression-section').within(() => {
+            cy.get('#simple-expression-final').should('contain.value', 'a/b^2');
+            cy.get('lhc-syntax-preview pre').should('contain.text', '%a/%b.power(2)');
+          });
+  
+          // Select FHIRPath Expression variable type
+          cy.get('#output-expression-type').select('fhirpath');
+          cy.get('#final-expression').should('have.value', '%a/%b.power(2)');
+
+          // Click Save
+          cy.get('#export').click();
+        });
+    
+        // The Expression Editor dialog should be closed
+        cy.get('lhc-expression-editor').should('not.exist', {timeout: 10000});
+
+        // Checking the output, it should have the new variable created under the 
+        cy.get('pre#output').should('not.be.empty').invoke('text').then((jsonData) => {
+          // Parse the JSON data
+          const parsedData = JSON.parse(jsonData);
+  
+          expect(parsedData.item).to.exist;
+          expect(parsedData.item).to.have.lengthOf(5);
+          expect(parsedData.item[3].linkId).to.exist;
+          expect(parsedData.item[3].linkId).to.have.string('/39156-5');
+          expect(parsedData.item[3].extension).to.exist;
+          expect(parsedData.item[3].extension).to.have.lengthOf(4);
+          expect(parsedData.item[3].extension[3].url)
+                  .to.have.string('http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression');
+          expect(parsedData.item[3].extension[3].valueExpression).to.exist;
+          expect(parsedData.item[3].extension[3].valueExpression.expression).to.exist;
+          expect(parsedData.item[3].extension[3].valueExpression.expression).to.have.string('%a/%b.power(2)');
+          expect(parsedData.item[3].extension[3].valueExpression.extension).not.to.exist;     
+        });
+      });      
+    });
   });
 });

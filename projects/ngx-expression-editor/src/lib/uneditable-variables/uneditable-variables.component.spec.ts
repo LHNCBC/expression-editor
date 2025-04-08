@@ -1,4 +1,5 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import 'zone.js/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { UneditableVariablesComponent } from './uneditable-variables.component';
 
@@ -6,12 +7,12 @@ describe('UneditableVariablesComponent', () => {
   let component: UneditableVariablesComponent;
   let fixture: ComponentFixture<UneditableVariablesComponent>;
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
+  beforeEach(waitForAsync(() => {
+    TestBed.configureTestingModule({
       declarations: [ UneditableVariablesComponent ]
     })
     .compileComponents();
-  });
+  }));
 
   beforeEach(() => {
     fixture = TestBed.createComponent(UneditableVariablesComponent);
