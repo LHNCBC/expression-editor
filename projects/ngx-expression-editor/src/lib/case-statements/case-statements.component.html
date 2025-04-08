@@ -3,7 +3,7 @@
     <div class="case-condition-column">When expression is true</div>
     <div class="case-output-column">
       Output
-      <input type="checkbox" id="output-expressions" [(ngModel)]="outputExpressions" (change)="onChange()">
+      <input type="checkbox" id="output-expressions" [(ngModel)]="outputExpressions" (change)="onChange(false)">
       <label for="output-expressions">Use expressions (strings if unchecked)</label>
     </div>
   </div>

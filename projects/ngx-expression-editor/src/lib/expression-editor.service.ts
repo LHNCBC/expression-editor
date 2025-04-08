@@ -124,7 +124,11 @@ export class ExpressionEditorService {
 
   static ENVIRONMENT_VARIABLES = ['resource', 'rootResource', 'sct', 'loinc', 'vs-', 'ext-', 'context', 'questionnaire', 'qitem'];
   static COMMON_LAUNCH_CONTEXT_VARIABLES = ['patient', 'encounter', 'practitioner', 'organization', 'user', 'relatedPerson'];
-    
+
+  static EXP_REQUIRED_ERR_MSG = "Required";
+  static EXP_NOT_VALID_ERR_MSG = "Not valid";
+  static EXP_LAUNCH_CONTEXT_ERR_MSG = "Launch context";
+
   syntaxType = 'fhirpath';
   linkIdContext: string;
   uneditableVariablesChange: Subject<UneditableVariable[]> =

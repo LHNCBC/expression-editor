@@ -29,6 +29,8 @@ export class CaseStatementsComponent implements OnInit, OnChanges, OnDestroy, Af
   @ViewChild('caseDefaultRef') caseDefaultRef: NgModel;
 
   STRING_REGEX = /^'(.*)'$/;
+  static EMPTY_IIF = "iif(,,)";
+
   pipe = new EasyPathExpressionsPipe();
   outputExpressions = true;
   defaultCase: string;
@@ -49,6 +51,8 @@ export class CaseStatementsComponent implements OnInit, OnChanges, OnDestroy, Af
 
   caseAriaWarningMessages = [];
   caseAriaWarningMessage = '';
+
+  simpleCaseObject;
 
   constructor(private expressionEditorService: ExpressionEditorService,
               private liveAnnouncer: LiveAnnouncer,
@@ -123,6 +127,11 @@ export class CaseStatementsComponent implements OnInit, OnChanges, OnDestroy, Af
         e.simpleOutput = this.removeQuotes(e.simpleOutput);
       });
       this.simpleDefaultCase = this.removeQuotes(this.simpleDefaultCase);
+    } else if (outputString && !defaultIsString) {
+      // If the simple expression for the case statment is empty, set the output expressions checkbox to check
+      if (this.simpleExpression === CaseStatementsComponent.EMPTY_IIF) {
+        this.outputExpressions = true;
+      }
     }
   }
 
@@ -144,13 +153,46 @@ export class CaseStatementsComponent implements OnInit, OnChanges, OnDestroy, Af
    * Angular lifecycle hook for changes
    */
   ngOnChanges(changes): void {
-    if (changes.syntax && this.syntax === 'simple' && changes.syntax.firstChange === false) {
+    if (changes.syntax && this.syntax === 'simple') {
+      if (changes.syntax.firstChange === false) {
+        // If the simpleCaseObject is available, then restore the case statement from the simpleCaseObject
+        if (changes.syntax.previousValue === 'fhirpath') {
+          if (this.simpleCaseObject) {
+            this.cases = [...this.simpleCaseObject.cases];
+            this.simpleDefaultCase = this.simpleCaseObject.defaultCase;
+            this.outputExpressions = this.simpleCaseObject.outputExpressions;
+          } else {
+            // In the case the simpleCaseObject is not available (no Easy Path version for the Case Statements)
+            // Reset the cases to empty
+            const len = this.cases.length;
+            this.cases = [];
+            for (let i = 0; i < len; i++) {
+              this.cases.push({condition: undefined, simpleCondition: undefined, output: undefined, simpleOutput: undefined});
+            }
+            this.defaultCase = '';
+            this.outputExpressions = false;
+            this.expression = '';
+            this.defaultCaseWarning = '';
+          }
+        }
+      }
+
       this.parseSimpleCases();
-      this.onChange();
+      this.onChange(false);
     } else if (changes.syntax && this.syntax === 'fhirpath' && changes.syntax.firstChange === false) {
+      // Store the simple cases to the simpleCaseObject
+      if (!('previousValue' in changes.syntax)) {
+        this.simpleCaseObject = null;
+      } else if (changes.syntax.previousValue === 'simple') {
+        this.simpleCaseObject = {
+          cases: [...this.cases],
+          defaultCase: this.simpleDefaultCase,
+          outputExpressions: this.outputExpressions
+        }
+      }
       this.outputExpressions = true;
       this.parseIif(this.expression, 0);
-      this.onChange();
+      this.onChange(false);
     }
   }
 
@@ -175,11 +217,21 @@ export class CaseStatementsComponent implements OnInit, OnChanges, OnDestroy, Af
   /**
    * Angular lifecycle hook for changes
    */
-  onChange(): void {
+  onChange(shouldResetSimple = true): void {
+    // Clear the stored simpleCaseObject if there is changes to the fhirpath expression
+    if (this.syntax === "fhirpath" && shouldResetSimple && this.simpleCaseObject) {
+      // Aside from clearing the simpleCaseObject, we also need to clear out the simpleDefaultCase.
+      this.simpleDefaultCase = undefined;
+      this.simpleCaseObject = null;
+    }
     this.hasError = false;
     this.hasWarning = false;
     this.output = this.getIif(0);
     this.expressionChange.emit(this.output);
+
+    if (this.syntax === "simple") {
+      this.simpleExpression = this.getSimpleIif(0);
+    }
     this.simpleChange.emit(this.simpleExpression);
 
     this.changeDetectorRef.detectChanges();
@@ -194,7 +246,7 @@ export class CaseStatementsComponent implements OnInit, OnChanges, OnDestroy, Af
    */
   composeErrorResultObject(key: string, result: string): ValidationError {
     let errorObj = null;
-    if (result === 'Not valid') {
+    if (result === ExpressionEditorService.EXP_NOT_VALID_ERR_MSG) {
       const notValidAriaMessage = (key !== 'default case') ?
         `One of the ${key}s in the Output Expression section is no longer valid.` :
         `The ${key} in the Output Expression section is no longer valid.`;
@@ -204,13 +256,13 @@ export class CaseStatementsComponent implements OnInit, OnChanges, OnDestroy, Af
         "message": `The ${key} is invalid.`,
         "ariaMessage": notValidAriaMessage
       };
-    } else if (result === 'Required') {
+    } else if (result === ExpressionEditorService.EXP_REQUIRED_ERR_MSG) {
       errorObj = {
         "invalidCaseStatementError": true,
         "message": `The ${key} is required.`,
         "ariaMessage": `The ${key} is required.`
       };
-    } else if (result === 'Launch context') {
+    } else if (result === ExpressionEditorService.EXP_LAUNCH_CONTEXT_ERR_MSG) {
       errorObj = {
         "invalidCaseStatementWarning": true,
         "message": `The ${key} may contain launch context variable that have not been defined.`,
@@ -276,8 +328,8 @@ export class CaseStatementsComponent implements OnInit, OnChanges, OnDestroy, Af
 
       if ((c.dirty && c.control.value === "") ||
         (c.control.value) ||
-        (caseError && caseError?.[type] && caseError[type] !== 'Required') ||
-        (caseError[type] === 'Required' && caseTokens[tokenIndex].indexOf('Required') > -1)) {
+        (caseError && caseError?.[type] && caseError[type] !== ExpressionEditorService.EXP_REQUIRED_ERR_MSG) ||
+        (caseError[type] === ExpressionEditorService.EXP_REQUIRED_ERR_MSG && caseTokens[tokenIndex].indexOf(ExpressionEditorService.EXP_REQUIRED_ERR_MSG) > -1)) {
         
         result = this.setElementError(c, index, type);
       }
@@ -313,8 +365,8 @@ export class CaseStatementsComponent implements OnInit, OnChanges, OnDestroy, Af
     // Use the output to check if there is an error.
     const outputTokens = this.output.split(',');
 
-    if ((this.caseDefaultRef.dirty) || (this.caseDefaultRef.control.value) || (this.defaultCaseError && this.defaultCaseError !== 'Required') ||
-        (this.defaultCaseError === 'Required' && outputTokens[outputTokens.length - 1].indexOf('Required') > -1)) {
+    if ((this.caseDefaultRef.dirty) || (this.caseDefaultRef.control.value) || (this.defaultCaseError && this.defaultCaseError !== ExpressionEditorService.EXP_REQUIRED_ERR_MSG) ||
+        (this.defaultCaseError === ExpressionEditorService.EXP_REQUIRED_ERR_MSG && outputTokens[outputTokens.length - 1].indexOf(ExpressionEditorService.EXP_REQUIRED_ERR_MSG) > -1)) {
       result = this.composeErrorResultObject('default case', this.defaultCaseError);
     }
 
@@ -485,7 +537,7 @@ export class CaseStatementsComponent implements OnInit, OnChanges, OnDestroy, Af
   }
 
   /**
-   * Check results from calling transformIfSimple() on case statement condition, output, and default case
+   * Check results from calling transformIfSimple() on ctransformIfSimplease statement condition, output, and default case
    * and set the error if any. If the result from the transformation is blank, then the error is now set 
    * to 'Required'.
    * @param level - case statement index row
@@ -497,30 +549,30 @@ export class CaseStatementsComponent implements OnInit, OnChanges, OnDestroy, Af
     this.cases[level].error = {};
     this.cases[level].warning = {};
 
-    if (condition === 'Not valid') {
+    if (condition === ExpressionEditorService.EXP_NOT_VALID_ERR_MSG) {
       this.cases[level].error['condition'] = condition;
-    } else if (condition === 'Launch context') {
+    } else if (condition === ExpressionEditorService.EXP_LAUNCH_CONTEXT_ERR_MSG) {
       this.cases[level].warning['condition'] = condition;
-    } else if (condition === '' || condition === 'Required') {
-      this.cases[level].error['condition'] = 'Required';
+    } else if (condition === '' || condition === ExpressionEditorService.EXP_REQUIRED_ERR_MSG) {
+      this.cases[level].error['condition'] = ExpressionEditorService.EXP_REQUIRED_ERR_MSG;
     }
 
-    if (output === 'Not valid') {
+    if (output === ExpressionEditorService.EXP_NOT_VALID_ERR_MSG) {
       this.cases[level].error['output'] = output;
-    } else if (output === 'Launch context') {
+    } else if (output === ExpressionEditorService.EXP_LAUNCH_CONTEXT_ERR_MSG) {
       this.cases[level].warning['output'] = output;
-    } else if (output === '' || output === "''" || output === 'Required') {
-      this.cases[level].error['output'] = 'Required';
+    } else if (output === '' || output === "''" || output === ExpressionEditorService.EXP_REQUIRED_ERR_MSG) {
+      this.cases[level].error['output'] = ExpressionEditorService.EXP_REQUIRED_ERR_MSG;
     }
 
-    if (defaultCase === 'Not valid') {
+    if (defaultCase === ExpressionEditorService.EXP_NOT_VALID_ERR_MSG) {
       this.defaultCaseError = defaultCase;
       this.defaultCaseWarning = '';
-    } else if (defaultCase === 'Launch context') {
+    } else if (defaultCase === ExpressionEditorService.EXP_LAUNCH_CONTEXT_ERR_MSG) {
       this.defaultCaseWarning = defaultCase;
       this.defaultCaseError = '';
-    } else if (defaultCase === '' || defaultCase === 'Required') {
-      this.defaultCaseError = 'Required';
+    } else if ( defaultCase === ExpressionEditorService.EXP_REQUIRED_ERR_MSG) {
+      this.defaultCaseError = ExpressionEditorService.EXP_REQUIRED_ERR_MSG;
     } else {
       this.defaultCaseError = '';
       this.defaultCaseWarning = '';
@@ -534,27 +586,28 @@ export class CaseStatementsComponent implements OnInit, OnChanges, OnDestroy, Af
   getIif(level: number): string {
     const isSimple = this.syntax === 'simple';
     // Added check for when the simpleOutput and simpleCondition are empty.
-    let output = this.cases[level].simpleOutput === '' &&
-                 this.cases[level].simpleOutput === this.cases[level].output ? "" :
-                                                      this.transformIfSimple(isSimple ?
-                                                      this.cases[level].simpleOutput :
-                                                      this.cases[level].output, true);
-    let condition = this.cases[level].simpleCondition === '' &&
-                    this.cases[level].simpleCondition === this.cases[level].condition ? "" :
-                                                            this.transformIfSimple(isSimple ?
-                                                            this.cases[level].simpleCondition :
-                                                            this.cases[level].condition, false);
+    let condition = this.transformIfSimple(
+                      "condition",
+                      isSimple ? this.cases[level].simpleCondition : this.cases[level].condition,
+                      false,
+                      (this.cases[level].simpleCondition === '' && this.cases[level].simpleCondition === this.cases[level].condition),
+                      this.caseConditionRefs?.get(level));
 
-    let defaultCase = this.transformIfSimple(isSimple ?
-      this.simpleDefaultCase : this.defaultCase, true);
+    let output = this.transformIfSimple(
+                   "output",
+                   isSimple ? this.cases[level].simpleOutput : this.cases[level].output,
+                   true,
+                   (this.cases[level].simpleOutput === '' && this.cases[level].simpleOutput === this.cases[level].output),
+                   this.caseOutputRefs?.get(level));
+
+    let defaultCase = this.transformIfSimple(
+                        "default",
+                        isSimple ? this.simpleDefaultCase : this.defaultCase,
+                        true,
+                        (this.simpleDefaultCase === '' && this.simpleDefaultCase === this.defaultCase),
+                        this.caseDefaultRef);
 
     this.setCaseStatementsErrors(level, condition, output, defaultCase);
-
-    if (condition === 'Not valid') {
-      condition = (isSimple) ?
-        this.cases[level].simpleCondition :
-        this.cases[level].condition, false;
-    }
 
     if (level === 0) {
       const previousValue = this.hidePreview;
@@ -566,13 +619,13 @@ export class CaseStatementsComponent implements OnInit, OnChanges, OnDestroy, Af
     }
 
     if (!isSimple) {
-      if (condition === 'Launch context') {
+      if (condition === ExpressionEditorService.EXP_LAUNCH_CONTEXT_ERR_MSG) {
         condition = this.cases[level].condition;
       }
-      if (output === 'Launch context') {
+      if (output === ExpressionEditorService.EXP_LAUNCH_CONTEXT_ERR_MSG) {
         output = this.cases[level].output;
       }
-      if (defaultCase === 'Launch context') {
+      if (defaultCase === ExpressionEditorService.EXP_LAUNCH_CONTEXT_ERR_MSG) {
         defaultCase = this.defaultCase;
       }
     }
@@ -585,31 +638,68 @@ export class CaseStatementsComponent implements OnInit, OnChanges, OnDestroy, Af
   }
 
   /**
+   * Get an Easy Path iif expression given a nesting level
+   * @param level - nesting level
+   */
+  getSimpleIif(level: number): string {
+    const isSimple = this.syntax === 'simple';
+
+    const condition = this.cases[level].simpleCondition ?? '';
+    const output = this.cases[level].simpleOutput ?? '';
+    const defaultCase = this.simpleDefaultCase ?? '';
+
+    if (level === this.cases.length - 1) {
+      return `iif(${condition},${output},${defaultCase})`;
+    } else {
+      return `iif(${condition},${output},${this.getSimpleIif(level + 1)})`;
+    }
+  }
+
+  /**
    * Transform the expression parameter if the syntax type is Easy Path,
    * otherwise return the expression. Additionally if this is an output column
    * and output expressions are off surround with quotes.
+   * @param caseType - case statement type to be transformed (condition, output, default)
    * @param expression - Easy Path or FHIRPath expression
    * @param isOutput - True if processing the Case output or default case.
+   * @param isBothExpressionsEmpty - True if both the FHIRPath expression and Easy Path expression are empty, otherwise false.
+   * @param ref - ngModel reference to a specific input field.
    * @return FHIRPath Expression
    */
-  transformIfSimple(expression: string, isOutput: boolean): string {
+  transformIfSimple(caseType: string, expression: string, isOutput: boolean, isBothExpressionsEmpty: boolean, ref: NgModel): string {
     if (expression === undefined) {
       return '';
     }
 
     let processedExpression = expression;
 
+    // In the case that the case statement is empty and the field has not been touched or modified, just return ""
+    if (isBothExpressionsEmpty && (!ref || ref?.control?.pristine && ref?.control?.status === "VALID")) {
+      return "";
+    }
+
     if (isOutput && !this.outputExpressions) {
       processedExpression = `'${processedExpression}'`;  // TODO should we escape the expression?
     }
 
     if (this.syntax === 'simple' && !(isOutput && !this.outputExpressions)) {
+      if ((caseType !== "default" && ref && ref?.control?.pristine && ref?.control?.untouched && expression === "" && ref?.control.status === "INVALID") ||
+          (caseType === "default" && ref && ref?.control?.dirty && ref?.control?.touched && !isBothExpressionsEmpty && expression === "") ||
+          (caseType === "default" && ref && ref?.control?.pristine && ref?.control?.untouched && !isBothExpressionsEmpty && expression === "" && ref?.control.status === "INVALID") ||
+          (ref && ref?.control?.dirty && ref?.control?.touched && expression === "")) {
+
+        return ExpressionEditorService.EXP_REQUIRED_ERR_MSG;
+      }
+
       return this.pipe.transform(processedExpression, this.expressionEditorService.variables.map(e => e.label));
     } else {
       // Calling fhirpath.evaluate only on Case condition.
       if (this.outputExpressions) {
-        if (!processedExpression) {
-          return 'Required';
+        if (!processedExpression) { 
+          if (ref && ref?.control?.dirty) {
+            return ExpressionEditorService.EXP_REQUIRED_ERR_MSG;
+          }
+          return '';
         }
         try {
           const variableNames = this.expressionEditorService.getContextVariableNamesForExpressionValidation();
@@ -621,7 +711,7 @@ export class CaseStatementsComponent implements OnInit, OnChanges, OnDestroy, Af
             const launchContext = this.expressionEditorService.getCommonLaunchContext();
             const result = fhirpath.evaluate({}, processedExpression, launchContext);
           } catch (e2) {
-            return 'Not valid';
+            return ExpressionEditorService.EXP_NOT_VALID_ERR_MSG;
           }
 
           // Attempting to access an undefined environment variable: Patient
@@ -633,10 +723,14 @@ export class CaseStatementsComponent implements OnInit, OnChanges, OnDestroy, Af
             variableName = match[1];
           }
 
-          return 'Launch context';
+          return ExpressionEditorService.EXP_LAUNCH_CONTEXT_ERR_MSG;
         }
-      } else
+      } else {
+        if (!processedExpression && ref && ref?.control?.dirty) {
+          return ExpressionEditorService.EXP_REQUIRED_ERR_MSG;
+        }
         return processedExpression;
+      }
     }
   }
 
