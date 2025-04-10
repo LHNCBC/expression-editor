@@ -1,6 +1,6 @@
 # The LHC Expression Editor
 
-A widget to add FHIRPath expressions to a given FHIR Questionnaire.
+A widget to add and edit FHIRPath expressions to a given FHIR Questionnaire.
 
 ## Usage
 

@@ -1,7 +1,7 @@
 {
   "name": "@lhncbc/expression-editor",
   "version": "3.2.1",
-  "description": "A widget to add FHIRPath expressions to a given FHIR Questionnaire.",
+  "description": "A widget to add and edit FHIRPath expressions to a given FHIR Questionnaire.",
   "license": "SEE LICENSE IN LICENSE.md",
   "repository": {
     "type": "git",
