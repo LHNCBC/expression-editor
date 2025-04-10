@@ -53,7 +53,7 @@ object.
 
 ### Use as an Angular Component
 
-1. Install in your project using `npm install --save-prod ngx-expression-editor`
+1. Install in your project using `npm install --save-prod @lhncbc/expression-editor`
 2. Make sure your application has `@angular/animations`, `@angular/cdk`,
    `@angular/common`, `@angular/core` and `@angular/material` as dependencies
    since they are needed as peer dependencies by the Expression Editor.
@@ -90,9 +90,9 @@ To retrieve data use the `(save)` attribute.
 
 ### Use as a Web Component
 
-1. Install in your project using `npm install --save-prod expression-editor`
+1. Install in your project using `npm install --save-prod @lhncbc/expression-editor`
 2. Import jQuery.
-4. Import the JavaScript file `expression-editor.js` on the page or integrate it as
+4. Import the JavaScript file `dist/expression-editor/expression-editor.js` on the page or integrate it as
   part of your build process (webpack, etc.)
 5. Add the <lhc-expression-editor> tag along with necessary [attributes](#attributes-available) to the HTML.
 6. Add event handlers for the `save` event.
