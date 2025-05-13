@@ -2,7 +2,12 @@
 
 This project follows [Semantic Versioning](http://semver.org/).
 
-## [3.1.30] 2025-03-26
+## [3.2.2] 2025-05-12
+### Fixed
+- Resolved an issue in which questionnaire variables were not shown when loading from a file.
+- Hide the 'question' variable type when there are no items.
+
+## [3.2.1] 2025-03-26
 ### Changed
 - Fixed the issue where the Easy Path case statement is cleared out when switching from Easy Path to FHIRPath and back.
 
