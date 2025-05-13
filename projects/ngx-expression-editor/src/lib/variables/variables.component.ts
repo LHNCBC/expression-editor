@@ -45,6 +45,16 @@ export class VariablesComponent implements OnInit, OnChanges, OnDestroy {
     this.variables = this.expressionEditorService.variables;
     this.variableSubscription = this.expressionEditorService.variablesChange.subscribe((variables) => {
       this.variables = variables;
+
+      // Remove 'question' from this.variableType where there are no items/questions.
+      if ((this.expressionEditorService.questions?.length ?? 0) === 0) {
+        this.variableType = { ...AllVariableType };
+        delete this.variableType.question;
+      } else {
+        if (!('question' in this.variableType)) {
+          this.variableType = AllVariableType;
+        }
+      }
     });
 
     // performValidationSubscription is triggered when the 'Save' button is clicked, allowing each
@@ -88,16 +98,6 @@ export class VariablesComponent implements OnInit, OnChanges, OnDestroy {
             }
           });
         }, 0);
-      }
-      
-      // Remove 'question' from this.variableType where there are no items/questions.
-      if ((this.expressionEditorService.questions?.length ?? 0) === 0) {
-        this.variableType = { ...AllVariableType };
-        delete this.variableType.question;
-      } else {
-        if (!('question' in this.variableType)) {
-          this.variableType = AllVariableType;
-        }
       }
     }
   }
