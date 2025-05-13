@@ -197,9 +197,12 @@ export class ExpressionEditorService {
     const existingNames = this.variables.map((e) => e.label)
       .concat(this.uneditableVariables.map((e) => e.name));
 
+    // This was added to handle the scenario where Questionnaire-level variables are being edited and no items are available.
+    // In that case, the default is set to 'simple' instead.
+    const defaultType = Array.isArray(this.questions) && this.questions.length > 0 ? 'question' : 'simple';
     this.variables.push({
       label: this.getNewLabelName(existingNames),
-      type: 'question',
+      type: defaultType,
       expression: ''
     });
     this.variablesChange.next(this.variables);
@@ -527,8 +530,9 @@ export class ExpressionEditorService {
     this.fhir = copy(questionnaire);
     const loadSuccess = this.fhir.resourceType === 'Questionnaire';
     
-    if (loadSuccess && this.fhir.item && this.fhir.item.length) {
-      if (!this.doNotAskToCalculateScore) {
+    // this.linkIdContext is not set at the questionnaire level.
+    if (loadSuccess && ((this.fhir.item && this.fhir.item.length) || !this.linkIdContext)) {
+      if (!this.doNotAskToCalculateScore && this.linkIdContext) {
         // If there is at least one score question we will ask the user if they
         // want to calculate the score
         const scoreMinQuestions = 1;
@@ -636,12 +640,14 @@ export class ExpressionEditorService {
    * @private
    */
   private processItem(items): void {
-    items.forEach((e) => {
-      this.linkIdToQuestion[e.linkId] = e;
-      if (e.item) {
-        this.processItem(e.item);
-      }
-    });
+    if (Array.isArray(items) && items.length > 0) {
+      items.forEach((e) => {
+        this.linkIdToQuestion[e.linkId] = e;
+        if (e.item) {
+          this.processItem(e.item);
+        }
+      });
+    }
   }
 
   /**

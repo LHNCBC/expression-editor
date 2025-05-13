@@ -89,6 +89,16 @@ export class VariablesComponent implements OnInit, OnChanges, OnDestroy {
           });
         }, 0);
       }
+      
+      // Remove 'question' from this.variableType where there are no items/questions.
+      if ((this.expressionEditorService.questions?.length ?? 0) === 0) {
+        this.variableType = { ...AllVariableType };
+        delete this.variableType.question;
+      } else {
+        if (!('question' in this.variableType)) {
+          this.variableType = AllVariableType;
+        }
+      }
     }
   }
 
