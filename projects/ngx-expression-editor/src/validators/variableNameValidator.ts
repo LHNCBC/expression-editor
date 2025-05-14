@@ -12,6 +12,11 @@ export function variableNameValidator(expressionEditorService: ExpressionEditorS
     const launchContextVariableNames = expressionEditorService.getCurrentContextUneditableVariableNames();
     const contextVariableNames = expressionEditorService.getCurrentContextVariableNames();
 
+    let itemsVariablesNames = [];
+    if (!expressionEditorService.linkIdContext) {
+      itemsVariablesNames = expressionEditorService.getVariableNamesFromItems();
+    }
+
     contextVariableNames.splice(param.index, 1);
 
     const startWithReservedWordsPattern = new RegExp(StartsWithReservedWords.join("|"), "i");
@@ -41,12 +46,18 @@ export function variableNameValidator(expressionEditorService: ExpressionEditorS
         'reservedWordsNameError': true,
         'message': constants.VARIABLE_NAME_MATCHES_RESERVED_WORD,
         'ariaMessage': constants.VARIABLE_NAME_MATCHES_RESERVED_WORD
-      };  
+      };
     } else if (launchContextVariableNames.includes(control.value)) {
-      return { 
+      return {
         'launchContextNameError': true,
         'message': constants.VARIABLE_NAME_EXISTS_IN_ITEM,
         'ariaMessage': constants.VARIABLE_NAME_EXISTS_IN_ITEM
+      };
+    } else if (itemsVariablesNames.includes(control.value)) {
+      return {
+        'duplicateVariableNameError': true,
+        'message': constants.VARIABLE_NAME_EXISTS_IN_ITEM_LEVEL,
+        'ariaMessage': constants.VARIABLE_NAME_EXISTS_IN_ITEM_LEVEL
       };
     } else
       return null;

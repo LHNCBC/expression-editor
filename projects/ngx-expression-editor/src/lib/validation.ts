@@ -14,6 +14,7 @@ export const INVALID_CASES_EXPRESSION = "Some or all cases in the Output Express
 
 export const VARIABLE_NAME_REQUIRED = "Variable name is required.";
 export const VARIABLE_NAME_EXISTS_IN_ITEM = "Variable name is already in use on this item.";
+export const VARIABLE_NAME_EXISTS_IN_ITEM_LEVEL = "Variable name is already in use on one of the items.";
 export const VARIABLE_NAME_MATCHES_RESERVED_WORD = "Variable name matches a reserved word.";
 
 export function getStartWithsErrorMessage(val:string): string {
