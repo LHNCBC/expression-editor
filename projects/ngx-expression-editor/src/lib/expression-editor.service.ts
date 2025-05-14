@@ -190,12 +190,36 @@ export class ExpressionEditorService {
   }
 
   /**
+   * Extract all variable names from the variable extensions of a list of items.
+   * @returns - An array of variable names.
+   */
+  getVariableNamesFromItems(): string[] {
+    const variableNames: string[] = [];
+    if (Array.isArray(this.fhir.item) && this.fhir.item.length > 0) {
+      this.fhir.item.forEach(item => {
+        if (Array.isArray(item.extension) && item.extension.length > 0) {
+          item.extension.forEach(extension => {
+            if (extension.url === this.VARIABLE_EXTENSION) {
+              variableNames.push(extension?.valueExpression?.name);
+            }
+          });
+        }
+      });
+    }
+    return variableNames;
+  }
+
+  /**
    * Create a new variable
    */
   addVariable(): void {
+    let variableNamesFromItems = [];
+    if (!this.linkIdContext && (this.fhir?.item?.length ?? 0) > 0) {
+      variableNamesFromItems = this.getVariableNamesFromItems();
+    }
     // Get all the existing variable names
     const existingNames = this.variables.map((e) => e.label)
-      .concat(this.uneditableVariables.map((e) => e.name));
+      .concat(this.uneditableVariables.map((e) => e.name)).concat(variableNamesFromItems);
 
     // This was added to handle the scenario where Questionnaire-level variables are being edited and no items are available.
     // In that case, the default is set to 'simple' instead.
@@ -648,6 +672,14 @@ export class ExpressionEditorService {
         }
       });
     }
+  }
+
+  /**
+   * Check whether the questionnaire has either questions or items.
+   * @returns - 'true' if either 'questions' or 'items' has content, otherwise false.
+   */
+  hasQuestionsOrItems(): boolean {
+    return ((this.questions?.length ?? 0) > 0 || (this.fhir.item?.length ?? 0) > 0);
   }
 
   /**
