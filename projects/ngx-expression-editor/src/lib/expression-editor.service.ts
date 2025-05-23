@@ -190,16 +190,43 @@ export class ExpressionEditorService {
   }
 
   /**
+   * Extract all variable names from the variable extensions of a list of items.
+   * @returns - An array of variable names.
+   */
+  getVariableNamesFromItems(): string[] {
+    const variableNames: string[] = [];
+    if (Array.isArray(this.fhir.item) && this.fhir.item.length > 0) {
+      this.fhir.item.forEach(item => {
+        if (Array.isArray(item.extension) && item.extension.length > 0) {
+          item.extension.forEach(extension => {
+            if (extension.url === this.VARIABLE_EXTENSION) {
+              variableNames.push(extension?.valueExpression?.name);
+            }
+          });
+        }
+      });
+    }
+    return variableNames;
+  }
+
+  /**
    * Create a new variable
    */
   addVariable(): void {
+    let variableNamesFromItems = [];
+    if (!this.linkIdContext && (this.fhir?.item?.length ?? 0) > 0) {
+      variableNamesFromItems = this.getVariableNamesFromItems();
+    }
     // Get all the existing variable names
     const existingNames = this.variables.map((e) => e.label)
-      .concat(this.uneditableVariables.map((e) => e.name));
+      .concat(this.uneditableVariables.map((e) => e.name)).concat(variableNamesFromItems);
 
+    // This was added to handle the scenario where Questionnaire-level variables are being edited and no items are available.
+    // In that case, the default is set to 'simple' instead.
+    const defaultType = Array.isArray(this.questions) && this.questions.length > 0 ? 'question' : 'simple';
     this.variables.push({
       label: this.getNewLabelName(existingNames),
-      type: 'question',
+      type: defaultType,
       expression: ''
     });
     this.variablesChange.next(this.variables);
@@ -527,8 +554,9 @@ export class ExpressionEditorService {
     this.fhir = copy(questionnaire);
     const loadSuccess = this.fhir.resourceType === 'Questionnaire';
     
-    if (loadSuccess && this.fhir.item && this.fhir.item.length) {
-      if (!this.doNotAskToCalculateScore) {
+    // this.linkIdContext is not set at the questionnaire level.
+    if (loadSuccess && ((this.fhir.item && this.fhir.item.length) || !this.linkIdContext)) {
+      if (!this.doNotAskToCalculateScore && this.linkIdContext) {
         // If there is at least one score question we will ask the user if they
         // want to calculate the score
         const scoreMinQuestions = 1;
@@ -636,12 +664,22 @@ export class ExpressionEditorService {
    * @private
    */
   private processItem(items): void {
-    items.forEach((e) => {
-      this.linkIdToQuestion[e.linkId] = e;
-      if (e.item) {
-        this.processItem(e.item);
-      }
-    });
+    if (Array.isArray(items) && items.length > 0) {
+      items.forEach((e) => {
+        this.linkIdToQuestion[e.linkId] = e;
+        if (e.item) {
+          this.processItem(e.item);
+        }
+      });
+    }
+  }
+
+  /**
+   * Check whether the questionnaire has either questions or items.
+   * @returns - 'true' if either 'questions' or 'items' has content, otherwise false.
+   */
+  hasQuestionsOrItems(): boolean {
+    return ((this.questions?.length ?? 0) > 0 || (this.fhir.item?.length ?? 0) > 0);
   }
 
   /**

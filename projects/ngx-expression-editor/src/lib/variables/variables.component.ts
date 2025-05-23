@@ -45,6 +45,16 @@ export class VariablesComponent implements OnInit, OnChanges, OnDestroy {
     this.variables = this.expressionEditorService.variables;
     this.variableSubscription = this.expressionEditorService.variablesChange.subscribe((variables) => {
       this.variables = variables;
+
+      // Remove 'question' from this.variableType where there are no items/questions.
+      if (!this.expressionEditorService.hasQuestionsOrItems()) {
+        this.variableType = { ...AllVariableType };
+        delete this.variableType.question;
+      } else {
+        if (!('question' in this.variableType)) {
+          this.variableType = AllVariableType;
+        }
+      }
     });
 
     // performValidationSubscription is triggered when the 'Save' button is clicked, allowing each

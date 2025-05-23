@@ -1,3 +1,5 @@
+import * as constants from "../../projects/ngx-expression-editor/src/lib/validation";
+
 describe(Cypress.env("appName") + ' demo', () => {
   beforeEach(() => {
     cy.visit('/');
@@ -577,5 +579,223 @@ describe(Cypress.env("appName") + ' demo', () => {
       cy.get('lhc-calculate-sum-prompt > div > div.score-modal').should('not.exist');
     });
 
+    it('should create variables at the Questionnaire-level', () => {
+      cy.get('select#questionnaire-select').select('Upload your own questionnaire');
+
+      // Select file to upload
+      cy.get('#file-upload').attachFile('bmi.json');
+
+      // By default, the 'Root level' checkbox is checked
+      cy.get('#root-level').should('exist').should('be.checked');
+
+      // Click the button to edit the expression
+      cy.get('button#openExpressionEditor').should('exist').click();
+
+      cy.get('lhc-expression-editor').shadow().within(() => {
+        cy.get('#expression-editor-base-dialog').should('exist');
+
+        // Add 4 new items
+        // Add variable of variable type "FHIRPath Expression"
+        cy.get('#add-variable').click();
+        cy.get('#variables-section .variable-row').should('have.length', 1);
+        cy.get('div#row-0').within(() => {
+          cy.get('#variable-label-0').clear().type('a_fhirpath_exp');
+          cy.get('#variable-type-0').select('FHIRPath Expression');
+          cy.get('#variable-expression-0').clear().type("%resource.item.where(linkId='/8302-2').answer.value");
+        });
+
+        // Add variable of variable type "FHIR Query"
+        cy.get('#add-variable').click();
+        cy.get('#variables-section .variable-row').should('have.length', 2);
+        cy.get('div#row-1').within(() => {
+          cy.get('#variable-label-1').clear().type('b_fhir_query');
+          cy.get('#variable-type-1').select('FHIR Query');
+          cy.get('#variable-expression-1').clear().type("%resource.item.where(linkId='/8352-7').answer.value");
+        });
+
+        // Add variable of variable type "FHIR Query (Observation)"
+        cy.get('#add-variable').click();
+        cy.get('#variables-section .variable-row').should('have.length', 3);
+        cy.get('div#row-2').within(() => {
+          cy.get('#variable-label-2').clear().type('c_fhir_obs');
+          cy.get('#variable-type-2').select('FHIR Query (Observation)');
+          cy.get('lhc-query-observation').shadow().find('#autocomplete-2').type('weight');
+        });
+      });
+      cy.get('span#completionOptions').contains('29463-7').click();
+
+      cy.get('lhc-expression-editor').shadow().within(() => {
+        // Add variable of variable type "Question"
+        cy.get('#add-variable').click();
+        cy.get('#variables-section .variable-row').should('have.length', 4);
+        cy.get('div#row-3').within(() => {
+          cy.get('#variable-label-3').clear().type('d_question');
+          cy.get('#variable-type-3').should('have.value', 'question');
+          cy.get('#question-3').clear().type('Weight');
+        });
+      });
+      cy.get('span#completionOptions').contains('29463-7').click();
+
+      cy.get('lhc-expression-editor').shadow().within(() => {
+        // Add variable of variable type "Easy Path Expression"
+        cy.get('#add-variable').click();
+        cy.get('#variables-section .variable-row').should('have.length', 5);
+        cy.get('div#row-4').within(() => {
+          cy.get('#variable-label-4').clear().type('e_simple');
+          cy.get('#variable-type-4').select('Easy Path Expression');
+          cy.get('#simple-expression-4').type('1 + 1');
+        });      
+
+        // Click Save
+        cy.get('#export').click();
+      });
+
+      // Checking the output, it should have the new variables
+      cy.get('pre#output').invoke('text').then((jsonData) => {
+        // Parse the JSON data
+        const parsedData = JSON.parse(jsonData);
+
+        expect(parsedData.extension).to.exist;
+        expect(parsedData.extension).to.have.lengthOf(6);
+        expect(parsedData.extension[0].url).to.exist;
+        expect(parsedData.extension[0].url).to.have.string('http://hl7.org/fhir/StructureDefinition/variable');
+        expect(parsedData.extension[0].valueExpression).to.exist;
+        expect(parsedData.extension[0].valueExpression.name).to.equal('a_fhirpath_exp');
+
+        expect(parsedData.extension[1].url).to.have.string('http://hl7.org/fhir/StructureDefinition/variable');
+        expect(parsedData.extension[1].valueExpression).to.exist;
+        expect(parsedData.extension[1].valueExpression.name).to.equal('b_fhir_query');
+
+        expect(parsedData.extension[2].url).to.have.string('http://hl7.org/fhir/StructureDefinition/variable');
+        expect(parsedData.extension[2].valueExpression).to.exist;
+        expect(parsedData.extension[2].valueExpression.name).to.equal('c_fhir_obs');
+
+        expect(parsedData.extension[3].url).to.have.string('http://hl7.org/fhir/StructureDefinition/variable');
+        expect(parsedData.extension[3].valueExpression).to.exist;
+        expect(parsedData.extension[3].valueExpression.name).to.equal('d_question');
+
+        expect(parsedData.extension[4].url).to.have.string('http://hl7.org/fhir/StructureDefinition/variable');
+        expect(parsedData.extension[4].valueExpression).to.exist;
+        expect(parsedData.extension[4].valueExpression.name).to.equal('e_simple');
+      });
+    });
+
+    it('should display variables at the Questionnaire-level', () => {
+      cy.get('select#questionnaire-select').select('Upload your own questionnaire');
+
+      // Select file to upload
+      cy.get('#file-upload').attachFile('questionnaire_level_variables.json');
+
+      // The 'Root level' checkbox should be displayed and checked.
+      cy.get('#root-level').should('exist').should('be.checked');
+
+      // Click the button to edit the expression
+      cy.get('button#openExpressionEditor').should('exist').click();
+
+      cy.get('lhc-expression-editor').shadow().within(() => {
+        cy.get('#expression-editor-base-dialog').should('exist');
+
+        cy.get('#variables-section .variable-row').should('have.length', 5);
+
+        cy.get('div#row-0').within(() => {
+          cy.get('#variable-label-0').should('have.value', 'a_fhirpath_exp');
+          cy.get('#variable-type-0').should('have.value', 'expression');
+          cy.get('#variable-expression-0').should('have.value', "%resource.item.where(linkId='/8302-2').answer.value");
+        });
+
+        cy.get('div#row-1').within(() => {
+          cy.get('#variable-label-1').should('have.value', 'b_fhir_query');
+          cy.get('#variable-type-1').should('have.value', 'query');
+          cy.get('#variable-expression-1').should('have.value', "%resource.item.where(linkId='/8352-7').answer.value");
+        });
+
+        cy.get('div#row-2').within(() => {
+          cy.get('#variable-label-2').should('have.value', 'c_fhir_obs');
+          cy.get('#variable-type-2').should('have.value', 'queryObservation');
+          cy.get('lhc-query-observation').shadow().within(() => {
+            cy.get('div.time-input>input').should('have.value', '1');
+            cy.get('div.time-select>select').should('have.value', 'months');
+          });
+        });
+
+        cy.get('div#row-3').within(() => {
+          cy.get('#variable-label-3').should('have.value', 'd_question');
+          cy.get('#variable-type-3').should('have.value', 'question');
+          cy.get('#question-3').should('have.value', 'Weight (/29463-7)');
+          // default value is ''
+          cy.get('div.unit-select > select').should('have.value', '');
+          cy.get('lhc-syntax-preview pre').should('contain.text',
+            "%resource.item.where(linkId='/29463-7').answer.value"
+          );
+        });
+
+        cy.get('div#row-4').within(() => {
+          cy.get('#variable-label-4').should('have.value', 'e_simple');
+          cy.get('#variable-type-4').should('have.value', 'simple');
+          cy.get('#simple-expression-4').should('have.value', '1 + 1');
+        });
+      });
+    });
+
+    it('should allow access to Questionnaire-level variables within the item scope', () => {
+      cy.get('select#questionnaire-select').select('Upload your own questionnaire');
+
+      // Select file to upload
+      cy.get('#file-upload').attachFile('questionnaire_level_variables.json');
+
+      // The 'Root level' checkbox should be displayed and checked.
+      cy.get('#root-level').should('exist').should('be.checked');
+
+      // Updating the linkId should update the Expression Editor instantly
+      cy.get('#question').type('bmi');
+      cy.get('span#completionOptions > ul > li').contains('39156-5').click();
+
+      // Click the button to edit the expression
+      cy.get('button#openExpressionEditor').should('exist').click();
+
+      // The Expression Editor dialog should now appear
+      cy.get('lhc-expression-editor').shadow().within(() => {
+        cy.get('#expression-editor-base-dialog').should('exist');
+
+        cy.get('lhc-uneditable-variables .variable-row').as('uneditableVariables');
+        cy.get('@uneditableVariables').should('have.length', 6);
+
+        cy.get('@uneditableVariables').eq(0).within(() => {
+          cy.get('.variable-column-label').should('have.text', 'a_fhirpath_exp');
+          cy.get('.variable-column-type').should('have.text', 'Variable');
+          cy.get('.variable-column-details').should('have.text', "%resource.item.where(linkId='/8302-2').answer.value");
+        });
+
+        cy.get('@uneditableVariables').eq(1).within(() => {
+          cy.get('.variable-column-label').should('have.text', 'b_fhir_query');
+          cy.get('.variable-column-type').should('have.text', 'Variable');
+          cy.get('.variable-column-details').should('have.text', "%resource.item.where(linkId='/8352-7').answer.value");
+        });
+
+        cy.get('@uneditableVariables').eq(2).within(() => {
+          cy.get('.variable-column-label').should('have.text', 'c_fhir_obs');
+          cy.get('.variable-column-type').should('have.text', 'Variable');
+          cy.get('.variable-column-details').should('have.text', "Observation?code=http%3A%2F%2Floinc.org%7C29463-7&date=gt{{today()-1 months}}&patient={{%patient.id}}&_sort=-date&_count=1");
+        });
+
+        cy.get('@uneditableVariables').eq(3).within(() => {
+          cy.get('.variable-column-label').should('have.text', 'd_question');
+          cy.get('.variable-column-type').should('have.text', 'Variable');
+          cy.get('.variable-column-details').should('have.text', "%resource.item.where(linkId='/29463-7').answer.value");
+        });
+
+        cy.get('@uneditableVariables').eq(4).within(() => {
+          cy.get('.variable-column-label').should('have.text', 'e_simple');
+          cy.get('.variable-column-type').should('have.text', 'Variable');
+          cy.get('.variable-column-details').should('have.text', "1 + 1");
+        });
+
+        cy.get('@uneditableVariables').eq(5).within(() => {
+          cy.get('.variable-column-label').should('have.text', 'patient');
+          cy.get('.variable-column-type').should('have.text', 'Patient');
+          cy.get('.variable-column-details').should('have.text', "For filling in patient information as the subject for the form");
+        });
+      });
+    });
   });
 });
