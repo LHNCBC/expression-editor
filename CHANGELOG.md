@@ -2,6 +2,10 @@
 
 This project follows [Semantic Versioning](http://semver.org/).
 
+## [3.3.0] 2025-06-24
+### Changed
+- Updated to autocomplete-lhc version 20.0.0.
+
 ## [3.2.2] 2025-05-12
 ### Fixed
 - Resolved an issue in which questionnaire variables were not shown when loading from a file.
