@@ -79,7 +79,7 @@
               (change)="onTypeChange($event)"
               aria-label="Expression syntax type"
               [ngStyle]="defaultLhcStyle.select">
-              <option value="simple">Easy Path Expression</option>
+              <option *ngIf="!isAnswerExpression" value="simple">Easy Path Expression</option>
               <option value="fhirpath">FHIRPath Expression</option>
             </select>
             <lhc-helps
@@ -160,7 +160,7 @@
         </div>
       </section>
       <button class="primary" [ngClass]="{'disabled': validationError}"
-              [attr.aria-label]="validationErrorMessage" (click)="export()" [matTooltip]="matToolTip" 
+              [attr.aria-label]="validationErrorMessage" (click)="export()" [matTooltip]="matToolTip"
               [ngStyle]="defaultLhcStyle.buttonPrimary" id="export">{{submitButtonName}}</button>
       <button (click)="cancelExpressionEditorChanges()" id="cancel-changes"
               matTooltip="Cancel the {{appName}}" [ngStyle]="defaultLhcStyle.buttonSecondary" >Cancel</button>

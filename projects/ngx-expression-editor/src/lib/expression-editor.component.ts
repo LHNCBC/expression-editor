@@ -64,6 +64,8 @@ export class ExpressionEditorComponent implements OnInit, OnChanges, OnDestroy {
   openExpressionEditorLabel;
   openExpressionEditorTooltip;
 
+  isAnswerExpression = false;
+
   private calculateSumSubscription;
   private finalExpressionSubscription;
   private variablesSubscription;
@@ -193,7 +195,7 @@ export class ExpressionEditorComponent implements OnInit, OnChanges, OnDestroy {
         // The validationError represents the current status while the validation.hasError flag
         // represents the new status. If the status changes from 'true' to 'false', indicating
         // that all errors have been resolved, the lifeAnnouncer will announce that all issues
-        // have been resolved.   
+        // have been resolved.
         if (this.validationError) {
           this.validationError = validation.hasError;
           this.liveAnnouncer.announce(this.noErrorMessage);
@@ -294,6 +296,7 @@ export class ExpressionEditorComponent implements OnInit, OnChanges, OnDestroy {
     this.hideExpressionEditor = false;
     this.doNotAskToCalculateScore = false;
     this.resetVariablesOnQuestionnaireChange();
+    this.isAnswerExpression = this.variableService.isAnswerExpression(this.expressionUri);
     this.reload();
   }
 
@@ -372,7 +375,7 @@ export class ExpressionEditorComponent implements OnInit, OnChanges, OnDestroy {
 
   /**
    * Cancelling changes to the Expression Editor
-   * 
+   *
    */
   cancelExpressionEditorChanges(): void {
     this.liveAnnouncer.announce(`Cancel changes to the ${this.appName}`);
@@ -449,7 +452,7 @@ export class ExpressionEditorComponent implements OnInit, OnChanges, OnDestroy {
    * values
    * @param reviewFHIRPath - true if the 'Review FHIRPath' button is clicked. Selected items will be
    *                         reviewed in the Expression Editor. false if the 'Done' (export scoring data)
-   *                         button is clicked. The selected items will be exported. 
+   *                         button is clicked. The selected items will be exported.
    */
   addSumOfScores(reviewFHIRPath: boolean): void {
     this.calculateSum = false;
