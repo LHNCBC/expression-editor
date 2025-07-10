@@ -63,7 +63,7 @@ interface WhereConditionExpression {
 interface Scoring {
   foundLinkId : boolean;
   // array of scoring items
-  scoreItems: any[];   
+  scoreItems: any[];
 }
 
 class ItemVariableError {
@@ -157,12 +157,14 @@ export class ExpressionEditorService {
   private LANGUAGE_FHIR_QUERY = 'application/x-fhir-query';
   private QUESTION_REGEX = /^%resource\.item\.where\(linkId='(.*)'\)\.answer\.value(?:\*(\d*\.?\d*))?$/;
   private QUERY_REGEX = /^Observation\?code=(.+)&date=gt{{today\(\)-(\d+)\s+(\S+)}}&patient={{%patient.id}}&_sort=-date&_count=1$/;
-  
+
   private QUERY_DATE_REGEX = /gt{{today\(\)-(\d+)\s+(\S+)}}/;
 
   private VARIABLE_EXTENSION = 'http://hl7.org/fhir/StructureDefinition/variable';
-  private CALCULATED_EXPRESSION = 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression';
+  private CALCULATED_EXPRESSION_URI = 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression';
   private LAUNCH_CONTEXT_URI = 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-launchContext';
+
+  private ANSWER_EXPRESSION_URI = "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-answerExpression";
 
   private linkIdToQuestion = {};
   private fhir;
@@ -417,7 +419,7 @@ export class ExpressionEditorService {
   };
 
   /**
-   * Returns expression language based on the variableType if available; 
+   * Returns expression language based on the variableType if available;
    * otherwise, returns from the extension valueExpression language
    * @param extension - FHIR extension
    * @param variableType - Custom extension variable type
@@ -553,7 +555,7 @@ export class ExpressionEditorService {
     this.linkIdContext = linkIdContext;
     this.fhir = copy(questionnaire);
     const loadSuccess = this.fhir.resourceType === 'Questionnaire';
-    
+
     // this.linkIdContext is not set at the questionnaire level.
     if (loadSuccess && ((this.fhir.item && this.fhir.item.length) || !this.linkIdContext)) {
       if (!this.doNotAskToCalculateScore && this.linkIdContext) {
@@ -751,7 +753,7 @@ export class ExpressionEditorService {
 
       let linkId: string;
       let factor: string;
-      
+
       if (matches) {
         linkId = matches[1];
         factor = matches[2];
@@ -939,12 +941,12 @@ export class ExpressionEditorService {
         valueExpression: {
           name: e.label,
           language: (e.type.indexOf('query') > -1 )? this.LANGUAGE_FHIR_QUERY : this.LANGUAGE_FHIRPATH,
-          expression: (e.type === 'expression' || e.type === 'query' || e.type === 'queryObservation') ? 
+          expression: (e.type === 'expression' || e.type === 'query' || e.type === 'queryObservation') ?
             this.encodeQueryURIExpression(e.expression) : e.expression,
           extension: [{
             "url": "http://lhcforms.nlm.nih.gov/fhirExt/expression-editor-variable-type",
             "valueString": e.type
-          }] 
+          }]
         }
       };
 
@@ -1047,7 +1049,7 @@ export class ExpressionEditorService {
           ]
         });
 
-        // Check to see if the uneditable variable already exists. Add to 
+        // Check to see if the uneditable variable already exists. Add to
         // uneditableVariables if not.
         const exists = (u) => u.name === name && u.type === type;
         if (!this.uneditableVariables.some(exists)) {
@@ -1141,17 +1143,17 @@ export class ExpressionEditorService {
   }
 
   /**
-   * Build up the item where condition expressions to be used in the scoring expression. One noticable 
+   * Build up the item where condition expressions to be used in the scoring expression. One noticable
    * difference between items not in a group and items in a group is the generated expression.
    * In the case of items in a group, the where condition starts from the top node item and
    * works its way down the tree to the destination node.
    * An alternative approach is to use "repeat(item).where(linkId = 'xxx')" syntax. However, it may
-   * lead to a potential performance impact when searching through a large number of items. 
+   * lead to a potential performance impact when searching through a large number of items.
    * @param items - Questionnaire items
    * @param linkId - link id of the total score item
    * @return Array of WhereConditionExpression object(s) which consist of
    *         - itemQuery - query to select the item
-   *         - answerOptionQuery - query to select a sub-item answer from the answer of the main item. 
+   *         - answerOptionQuery - query to select a sub-item answer from the answer of the main item.
    */
   composeItemsWhereConditionExpressions(items, linkId: string): Array<WhereConditionExpression> {
     const expressions = [];
@@ -1197,10 +1199,10 @@ export class ExpressionEditorService {
 
   /**
    * Construct scoring expressions for variables to be used in the scoring calculation. The
-   * scoring expression is used to retrieve the "score" (valueDecimal) for the given item. 
+   * scoring expression is used to retrieve the "score" (valueDecimal) for the given item.
    * @param items - Questionnaire items
    * @param linkId - link id of the total score item
-   * @return Array of scoring expressions 
+   * @return Array of scoring expressions
    */
   composeScoringItemsExpressions(items, linkId: string): Array<string> {
     // Retrieve itmes where expressions
@@ -1263,7 +1265,7 @@ export class ExpressionEditorService {
 
     const sumString = variableNames.map((e) => `iif(%${e}.exists(), %${e}, 0)`).join(' + ');
     const totalCalculation = {
-      url: this.CALCULATED_EXPRESSION,
+      url: this.CALCULATED_EXPRESSION_URI,
       valueExpression: {
         description: 'Total score calculation',
         language: this.LANGUAGE_FHIRPATH,
@@ -1287,10 +1289,10 @@ export class ExpressionEditorService {
   /**
    * Returns extension that contain a score expression
    * @param extension - array of valueExpression extensions
-   * @return score expression extension 
+   * @return score expression extension
    */
   private getScoreExpressionExtension(extension): any {
-    return extension.find((e) =>   
+    return extension.find((e) =>
       e.url === ExpressionEditorService.SCORE_EXPRESSION_EXTENSION_LINKIDS);
   }
 
@@ -1566,7 +1568,7 @@ export class ExpressionEditorService {
             scoreItems.push(item);
           }
         }
-        
+
         if (foundLinkId)
           break;
       } else if (this.itemHasScore(item)) {
@@ -1593,21 +1595,31 @@ export class ExpressionEditorService {
    * @return true if the expression is a calculated expression
    */
   isCalculatedExpression(expressionUri: string): boolean {
-    return (expressionUri === this.CALCULATED_EXPRESSION);
+    return (expressionUri === this.CALCULATED_EXPRESSION_URI);
+  }
+
+  /**
+   * Determine whether the expression uri is an answer expression
+   * @param expressionUri - URI of expression extension on linkIdContext question
+   *  to extract and modify
+   * @return true if the expression is an answer expression
+   */
+  isAnswerExpression(expressionUri: string): boolean {
+    return (expressionUri === this.ANSWER_EXPRESSION_URI);
   }
 
   /**
    * Determine if the given item has a calculated expression that is not extended with
-   * our custom total score extension. 
+   * our custom total score extension.
    * @param item - FHIR Item
-   * @return true if the calculated expression is found and does not contain the new 
+   * @return true if the calculated expression is found and does not contain the new
    * scoring extension
-   */ 
+   */
   hasStandardCalculatedExpressionForItem = (item) => {
-    const scoreExtension = item.extension.find((extension) => extension.url === this.CALCULATED_EXPRESSION);
+    const scoreExtension = item.extension.find((extension) => extension.url === this.CALCULATED_EXPRESSION_URI);
     if (scoreExtension && scoreExtension.valueExpression) {
       const newScoringExtension = (scoreExtension.valueExpression.extension &&
-                  scoreExtension.valueExpression.extension.some((ext) => 
+                  scoreExtension.valueExpression.extension.some((ext) =>
                     ext.url === ExpressionEditorService.SCORE_EXPRESSION_EXTENSION_LINKIDS
                   )
                 );
@@ -1675,7 +1687,7 @@ export class ExpressionEditorService {
    *   from items prior to the selected item.  So if the first question is selected, then it will not
    *   get a prompt for score calculation.
    * - The selected item must not contain the standard implementation of the pre-selected scoring items
-   *   (missing the new scoring extension). 
+   *   (missing the new scoring extension).
    * @param questionnaire - FHIR Questionnaire
    * @param linkIdContext - link id of the selected item
    * @param expressionUri - Expression to process
@@ -1696,7 +1708,7 @@ export class ExpressionEditorService {
     return shouldCalculateScore;
   }
 
-  /** 
+  /**
    * Performs URL decode.  Returns input str as is if URL decode failed.
    * @param str - input url string
    * @private
@@ -1782,7 +1794,7 @@ export class ExpressionEditorService {
    * Parse FHIR Query expression with parameters in any order.
    * @param expression - FHIR query expression
    * @returns array result that contains the expression, codes,
-   * time interval, and time interval unit, or an empty array. 
+   * time interval, and time interval unit, or an empty array.
    * If not all the required keys are present, the
    * decodeFHIRQueryObservationURIExpression function returns null,
    * resulting in an empty array being returned.
@@ -1795,7 +1807,7 @@ export class ExpressionEditorService {
       return obs;
 
     const dateMatches = decodedParams['date'].match(this.QUERY_DATE_REGEX);
-    
+
     if (dateMatches && dateMatches.length === 3) {
       const timeInterval = dateMatches[1];
       const timeIntervalUnits = dateMatches[2];
@@ -1815,7 +1827,7 @@ export class ExpressionEditorService {
    *         True if matching opening and closing double braces found
    *         False if an opening or closing double braces is not found
    *         False if a closing double brace occurs before an opening double brace
-   *         False if double braces are found to be nested within each other  
+   *         False if double braces are found to be nested within each other
    */
   isValidDoubleBracesSyntax(paramValue: string): boolean {
     let not_done = true;
@@ -1831,7 +1843,7 @@ export class ExpressionEditorService {
       else {
         if (closeDblBracesIdx < openDblBracesIdx)
           return false;
-        
+
         const nextOpenDblBracesIdx = paramValue.indexOf("{{", openDblBracesIdx + 2);
         if (nextOpenDblBracesIdx === -1)
           return true;
@@ -1848,14 +1860,14 @@ export class ExpressionEditorService {
    * Perform URL encode while ignoring the {{}} and the content inside.
    * @param paramValue - URL param value
    * @return URL-encoded paramValue if paramValue contains no opening and closing double braces
-   *         URL-encoded paramValue if paramValue contains the correct order and number of 
+   *         URL-encoded paramValue if paramValue contains the correct order and number of
    *           opening and closing double braces.  URL encode only the portions of the string
-   *           that are not enclosed in dobule braces  
+   *           that are not enclosed in dobule braces
    *         Non URL-encoded paramValue if the string starts with an opening double brace and
    *           ends with a closing double brace
    *         Non URL-encoded paramValue if the count number of opening double braces does not
    *           match the count number of the closing double braces
-   *         Non URL-encoded paramValue if the result from the isValidDoubleBracesSyntax 
+   *         Non URL-encoded paramValue if the result from the isValidDoubleBracesSyntax
    *           function is "false"
    */
   encodeParamValue(paramValue: string): string {
@@ -1881,7 +1893,7 @@ export class ExpressionEditorService {
         const openDblBracesIdx = paramValue.indexOf("{{", indexLoc);
         const closeDblBracesIdx = paramValue.indexOf("}}", openDblBracesIdx);
 
-        if (openDblBracesIdx > indexLoc) 
+        if (openDblBracesIdx > indexLoc)
           tmpStr += encodeURIComponent(paramValue.substring(indexLoc, openDblBracesIdx));
         tmpStr += paramValue.substring(openDblBracesIdx, closeDblBracesIdx + 2);
 
@@ -1922,7 +1934,7 @@ export class ExpressionEditorService {
     }
     return queryString;
   };
-  
+
   /**
    * Get uneditable and editable variable names
    */
@@ -1934,7 +1946,7 @@ export class ExpressionEditorService {
   /**
    * Generate a validation result to notify subscribers. If the result.hasError is false, the 'Save' button
    * is enabled; othewise, the 'Save' button is disabled.
-   * @param param - contains the section, field information along with any other optional fields  
+   * @param param - contains the section, field information along with any other optional fields
    * @param result - result of the validation.  Null if there is no error or object containing the
    *                 validation error, error message, and aria error message.
    */
@@ -1945,7 +1957,7 @@ export class ExpressionEditorService {
         const tmpItemVariableError = {...this.itemVariablesErrors[param.index]};
 
         if (param.field === "expression") {
-          tmpItemVariableError[param.field] = { 
+          tmpItemVariableError[param.field] = {
             type: (result && result.hasOwnProperty('invalidExpressionWarning')) ? "warning" : "error",
             status: (result) ? true : false
           };
@@ -1954,7 +1966,7 @@ export class ExpressionEditorService {
         }
         this.itemVariablesErrors[param.index] = tmpItemVariableError;
       }
-        
+
     } else if (param.section === SectionTypes.OutputExpression) {
       if (param.field === "expression") {
         this.outputExpressionError = (result && !result.hasOwnProperty('invalidExpressionWarning')) ? true : false;
@@ -1988,7 +2000,7 @@ export class ExpressionEditorService {
    */
   hasValidationErrors(): boolean {
     return (
-      this.itemVariablesErrors.some( 
+      this.itemVariablesErrors.some(
         item => (item.name === true || (item.expression.type === "error" && item.expression.status === true) || item.timeInterval === true)) ||
       this.outputExpressionError ||
       this.caseStatementError
@@ -2003,16 +2015,16 @@ export class ExpressionEditorService {
    */
   hasValidationWarning(): boolean {
     return (
-      this.itemVariablesErrors.some( 
+      this.itemVariablesErrors.some(
         item => (item.expression.type === "warning" && item.expression.status === true)) ||
       this.outputExpressionWarning ||
       this.caseStatementWarning
     );
   };
-  
+
   /**
    * Get the validation result based on the validation in both the 'Item Variables' and the 'Output Expression'
-   * sections. 
+   * sections.
    * @return ValidationResult object containing result from the validation
    */
   getValidationResult(): ValidationResult {
@@ -2029,7 +2041,7 @@ export class ExpressionEditorService {
       "warningInOutputCaseStatement": this.caseStatementWarning
     };
   };
-  
+
   /**
    * Reset the validation errors. This function gets called when the questionnaire, question,
    * or output expression changes.

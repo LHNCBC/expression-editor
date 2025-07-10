@@ -2,6 +2,10 @@
 
 This project follows [Semantic Versioning](http://semver.org/).
 
+## [3.3.1] 2025-07-07
+### Changed
+- Removed Easy Path Expression from the Output Expression option if the expression uri is of type Answer Expression.
+
 ## [3.3.0] 2025-06-24
 ### Changed
 - Updated to autocomplete-lhc version 20.0.0.
@@ -33,7 +37,7 @@ This project follows [Semantic Versioning](http://semver.org/).
 
 ## [3.1.22] 2024-06-03
 ### Fixed
-- Fixed FHIR Query Observation unit issue 
+- Fixed FHIR Query Observation unit issue
 
 ## [3.1.21] 2024-05-13
 ### Added
@@ -43,7 +47,7 @@ This project follows [Semantic Versioning](http://semver.org/).
 ### Changed
 - Enable the 'Open Rule Editor' button only if the questionnaire is selected and either the 'Root level' checkbox or Question drop-down is selected.
 - Allowed FHIR Query with parameters to be parsed in any order
-- Added logic for the screen reader to announce the reason wny the 'Done' button is disabled. 
+- Added logic for the screen reader to announce the reason wny the 'Done' button is disabled.
 - Upgraded Cypress from version 9.7.0 to 13.7.3.
 - Upgraded Angular from version 15.2.4 to 17.3.4
 
@@ -112,22 +116,22 @@ This project follows [Semantic Versioning](http://semver.org/).
 
 ## [3.1.5] 2023-10-20
 ### Added
-- Added help sections for Easy Path Expressions and FHIRPath Expressions 
+- Added help sections for Easy Path Expressions and FHIRPath Expressions
 
 ## [3.1.4] 2023-08-17
 ### Added
-- Added autocomplete to question selection 
+- Added autocomplete to question selection
 
 ## [3.1.3] 2023-08-14
 ### Changed
 - Upgrade to Angular v15.2.4
 - Upgrade dependencies
-- Fixed Cypress test 
+- Fixed Cypress test
 
 ## [3.1.2] 2023-08-08
 ### Changed
 - Upgrade to Node v16.15.0
-- Renamed bashrc to bashrc.rule_editor 
+- Renamed bashrc to bashrc.rule_editor
 
 ## [3.1.1] 2022-03-31
 ### Changed
