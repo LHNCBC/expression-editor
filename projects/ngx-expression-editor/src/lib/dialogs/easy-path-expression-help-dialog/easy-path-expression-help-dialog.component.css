@@ -68,7 +68,7 @@
   }
 
   .flex_label {
-    flex: 0 0 105px;
+    flex: 0 0 95px;
   }
 
   .flex_data {
@@ -76,11 +76,14 @@
   }
 
   div.flex_container>strong.flex_label {
-    padding-right: 20px;
     font-family: Lato;
   }
 
   div.flex_container>pre {
     flex: 0 0 100%;
     margin-left: -10px;
+  }
+
+  div.help_item_detail {
+    margin-bottom: 10px;
   }

@@ -10,23 +10,23 @@
     expressions into FHIRPath notation. Easy Path Expressions can be written
     using numbers, variable names, mathematical operators, and various functions.
   </label>
- 
+
   <section id="usableOperators" class="help_section" >
     <strong>
       <a href="#"
-        
-        (focus)="getLiveAnncounementForSection()" 
+
+        (focus)="getLiveAnncounementForSection()"
         (click)="toggleUsableOperatorsSection()">Usable Operators
       </a>
       <i [class]="help_arrow_ops"></i>
     </strong>
     <ul *ngIf="sectionArr[0] && !operatorItemsReadOnly" id="clickableOperator" >
       <li class="text" *ngFor="let item of usableOperators" >
-        <a href="#" 
-          (focus)="getLiveAnnouncementForItem(usableOperators2[item])" 
+        <a href="#"
+          (focus)="getLiveAnnouncementForItem(usableOperators2[item])"
           (click)="toggleUsableOperatorItem(item)">{{item}}
         </a>
-        <div id="operator-detail" *ngIf="usableOperators2[item].display">
+        <div id="operator-detail" *ngIf="usableOperators2[item].display" class="help_item_detail">
           <p id="description" class="flex_container">
             <strong class="flex_label">Description:</strong>
             <span class="flex_data">{{usableOperators2[item].description}}</span>
@@ -41,9 +41,14 @@
           </p>
           <div id="examples" class="flex_container">
             <strong class="flex_label">Example:</strong>
-            <pre class="help_example flex_data" *ngFor="let ex of usableOperators2[item].example">
-              {{ex}}
-            </pre>
+            <span class="flex_data">
+              <ng-container *ngFor="let ex of usableOperators2[item].example; let i = index">
+                <ng-container *ngIf="i > 0">
+                  <br />
+                </ng-container>
+                <span class="help_example"><code>{{ex}}</code></span>
+              </ng-container>
+            </span>
           </div>
         </div>
       </li>
@@ -56,8 +61,8 @@
 
   <section id="usableFunctions" class="help_section"  >
     <strong>
-      <a href="#" 
-        (focus)="getLiveAnncounementForSection()" 
+      <a href="#"
+        (focus)="getLiveAnncounementForSection()"
         (click)="toggleUsableFunctionsSection()" >Usable Functions
       </a>
       <i [class]="help_arrow_funcs"></i>
@@ -65,12 +70,12 @@
 
     <ul *ngIf="sectionArr[1] && !functionItemsReadOnly" id="clickableFunction" >
       <li *ngFor="let func of usableFunctions" >
-        <a href="#" 
-          (focus)="getLiveAnnouncementForItem(usableFunctions2[func])" 
-          (click)="toggleUsableFunctionItem(func)" 
+        <a href="#"
+          (focus)="getLiveAnnouncementForItem(usableFunctions2[func])"
+          (click)="toggleUsableFunctionItem(func)"
           class="help_item" >{{func}}
         </a>
-        <div id="function-detail" *ngIf="usableFunctions2[func].display">
+        <div id="function-detail" *ngIf="usableFunctions2[func].display" class="help_item_detail">
           <p class="flex_container">
             <strong class="flex_label">Description:</strong>
             <span class="flex_data">{{usableFunctions2[func].description}}</span>
@@ -85,9 +90,14 @@
           </p>
           <div id="examples" class="flex_container">
             <strong class="flex_label">Example:</strong>
-            <pre class="help_example flex_data" *ngFor="let ex of usableFunctions2[func].example">
-              {{ex}}
-            </pre>
+            <span class="flex_data">
+              <ng-container *ngFor="let ex of usableFunctions2[func].example; let i = index">
+                <ng-container *ngIf="i > 0">
+                  <br />
+                </ng-container>
+                <span class="help_example"><code>{{ex}}</code></span>
+              </ng-container>
+            </span>
           </div>
         </div>
       </li>
