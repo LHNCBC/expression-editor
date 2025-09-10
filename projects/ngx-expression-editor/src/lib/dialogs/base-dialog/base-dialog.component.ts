@@ -29,9 +29,9 @@ const confirmationDialogStyle = {
     'margin': '0px 10px',
     'text-align': 'center'
   },
-  buttonPrimary: { 
+  buttonPrimary: {
     'background-color': 'navy',
-    'color': 'white' 
+    'color': 'white'
   }
 };
 
@@ -53,7 +53,7 @@ const helpDialogStyle = {
     'text-align': 'left'
   },
   dialogBodyDiv: {
-    'margin': '20px',
+    'margin': '0px 20px',
     'text-align': 'left',
     'max-height': '60vh',
     'overflow-y': 'auto'
@@ -61,7 +61,7 @@ const helpDialogStyle = {
 };
 
 const expressionEditorDialogStyle = {
-  dialogContentDiv: { 
+  dialogContentDiv: {
     'width': '90%',
     'border-radius': '10px',
     'max-height': '85vh',
@@ -108,7 +108,7 @@ export class BaseDialogComponent implements OnInit {
   @Output() yes: EventEmitter<any> = new EventEmitter<any>();
   @Output() no: EventEmitter<any> = new EventEmitter<any>();
   @Output() dialogClose: EventEmitter<any> = new EventEmitter<any>();
-  
+
   @ViewChild('overlay') overlayRef: ElementRef;
   @ViewChild('modal') modal: ElementRef;
 
@@ -247,7 +247,7 @@ export class BaseDialogComponent implements OnInit {
             (this.expressionEditorService && this.expressionEditorService.dialogStack.peek() === this.dialogName)) {
           this.onDialogClose();
           event.stopPropagation();
-          
+
           if (this.dialogName !== "#expression-editor-base-dialog > div")
             this.expressionEditorService.dialogStack.pop();
         }

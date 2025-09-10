@@ -46,25 +46,25 @@ describe(Cypress.env("appName"), () => {
           cy.get('#variable-type-1 > option').should('have.length', 5);
           cy.get('#variable-type-1').select('simple').should('have.value', 'simple');
           cy.get('#exp-help-button-1').should('exist').click();
-          cy.get('#usableOperators>strong>a').should('exist').click();
-          cy.get('#usableOperators>ul>li').should('exist').should('have.length', 17);
+          cy.get('#usableOperators > strong > a').should('exist').click();
+          cy.get('#usableOperators > ul > li').should('exist').should('have.length', 17);
 
           // Accessing the first operator in the list.
-          cy.get('#usableOperators>ul>li')
+          cy.get('#usableOperators > ul > li')
             .eq(0)
             .within(() => {
               cy.get('a').should('contain', '+');
               cy.get('a').click();
-              cy.get('div#operator-detail>p').should('have.length', 3);
-              cy.get('div#operator-detail>p').eq(0).find('strong').should('contain', 'Description:');
-              cy.get('div#operator-detail>p').eq(0).find('span').should('include.text', 'The Addition operator denoted by a plus symbol.');
-              cy.get('div#operator-detail>p').eq(1).find('strong').should('contain', 'Usage:');
-              cy.get('div#operator-detail>p').eq(1).find('span').should('contain', 'operand1 + operand2');
-              cy.get('div#operator-detail>p').eq(2).find('strong').should('contain', 'Output:');
-              cy.get('div#operator-detail>p').eq(2).find('span').should('contain', 'integer, number or string');
-              cy.get('div#operator-detail>div>pre').should('have.length', 1);
-              cy.get('div#operator-detail>div>strong').should('contain', 'Example:');
-              cy.get('div#operator-detail>div>pre.help_example').eq(0).should('contain', '2 + 2 returns 4');
+              cy.get('div#operator-detail > p').should('have.length', 3);
+              cy.get('div#operator-detail > p').eq(0).find('strong').should('contain', 'Description:');
+              cy.get('div#operator-detail > p').eq(0).find('span').should('include.text', 'The Addition operator denoted by a plus symbol.');
+              cy.get('div#operator-detail > p').eq(1).find('strong').should('contain', 'Usage:');
+              cy.get('div#operator-detail > p').eq(1).find('span').should('contain', 'operand1 + operand2');
+              cy.get('div#operator-detail > p').eq(2).find('strong').should('contain', 'Output:');
+              cy.get('div#operator-detail > p').eq(2).find('span').should('contain', 'integer, number or string');
+              cy.get('div#operator-detail > div#examples > span.flex_data > span.help_example').should('have.length', 1);
+              cy.get('div#operator-detail > div#examples > strong').should('contain', 'Example:');
+              cy.get('div#operator-detail > div#examples > span.flex_data > span.help_example').eq(0).should('contain', '2 + 2 returns 4');
             });
 
           // Accessing the last operator in the list.
@@ -80,9 +80,9 @@ describe(Cypress.env("appName"), () => {
               cy.get('p').eq(1).find('span').should('contain', 'operand1 implies operand2');
               cy.get('p').eq(2).find('strong').should('contain', 'Output:');
               cy.get('p').eq(2).find('span').should('contain', 'boolean');
-              cy.get('div>pre').should('have.length', 1);
-              cy.get('div>strong').should('contain', 'Example:');
-              cy.get('div>pre.help_example').eq(0).should('contain', 'a implies b');
+              cy.get('div#examples > span.flex_data > span.help_example').should('have.length', 1);
+              cy.get('div#examples > strong').should('contain', 'Example:');
+              cy.get('div#examples > span.flex_data > span.help_example').eq(0).should('contain', 'a implies b');
             });
         });
       });
@@ -104,11 +104,11 @@ describe(Cypress.env("appName"), () => {
           cy.get('#variable-type-1 > option').should('have.length', 5);
           cy.get('#variable-type-1').select('simple').should('have.value', 'simple');
           cy.get('#exp-help-button-1').should('exist').click();
-          cy.get('#usableFunctions>strong>a').should('exist').click();
-          cy.get('#usableFunctions>ul>li').should('exist').should('have.length', 10);
+          cy.get('#usableFunctions > strong > a').should('exist').click();
+          cy.get('#usableFunctions > ul > li').should('exist').should('have.length', 10);
 
           // Accessing the first function in the list
-          cy.get('#usableFunctions>ul>li')
+          cy.get('#usableFunctions > ul > li')
             .eq(0)
             .within(() => {
               cy.get('a.help_item').should('contain', 'CEILING()');
@@ -121,9 +121,9 @@ describe(Cypress.env("appName"), () => {
                 .should('contain', 'CEILING([expression]) where expression can be numbers, variable names, mathematical operators, and various functions');
               cy.get('p').eq(2).find('strong').should('contain', 'Output:');
               cy.get('p').eq(2).find('span').should('contain', 'integer');
-              cy.get('div>pre').should('have.length', 4);
-              cy.get('div>strong').should('contain', 'Example:');
-              cy.get('div>pre.help_example').eq(0).should('contain', 'CEILING(0.95) returns 1');
+              cy.get('div#examples > span.flex_data > span.help_example').should('have.length', 4);
+              cy.get('div#examples > strong').should('contain', 'Example:');
+              cy.get('div#examples > span.flex_data > span.help_example').eq(0).should('contain', 'CEILING(0.95) returns 1');
             });
 
           // Accessing the last function in the list
@@ -140,9 +140,9 @@ describe(Cypress.env("appName"), () => {
               cy.get('p').eq(1).find('span').should('contain', 'LENGTH([expression])');
               cy.get('p').eq(2).find('strong').should('contain', 'Output:');
               cy.get('p').eq(2).find('span').should('contain', 'integer');
-              cy.get('div>pre').should('have.length', 1);
-              cy.get('div>strong').should('contain', 'Example:');
-              cy.get('div>pre.help_example').eq(0).should('contain', 'LENGTH(\'abc\') returns 3');
+              cy.get('div#examples > span.flex_data > span.help_example').should('have.length', 1);
+              cy.get('div#examples > strong').should('contain', 'Example:');
+              cy.get('div#examples > span.flex_data > span.help_example').eq(0).should('contain', 'LENGTH(\'abc\') returns 3');
             });
         });
       });
@@ -205,7 +205,7 @@ describe(Cypress.env("appName"), () => {
           cy.get('#exp-help-button-final').should('exist').click();
           cy.get('lhc-easy-path-expression-help-dialog #easy-path-help-base-dialog').should('exist');
         });
-      });   
+      });
     });
   });
 
@@ -258,7 +258,7 @@ describe(Cypress.env("appName"), () => {
           cy.get('#links > ul > li').eq(1).find('a').should('have.text', 'FHIR extensions to FHIRPath ');
         });
       });
-      
+
       it('should be able to close the modal dialog', () => {
         cy.get('select#questionnaire-select').select('BMI Calculation');
 
@@ -323,8 +323,8 @@ describe(Cypress.env("appName"), () => {
           cy.get('#exp-help-button-final').should('exist').click();
           cy.get('lhc-fhirpath-expression-help-dialog #fhirpath-help-base-dialog').should('exist');
         });
-      });   
-    });    
+      });
+    });
   });
 });
 

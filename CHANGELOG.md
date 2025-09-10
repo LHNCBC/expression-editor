@@ -2,6 +2,10 @@
 
 This project follows [Semantic Versioning](http://semver.org/).
 
+## [3.3.2] 2025-08-26
+### Fixed
+- Addressed styling issues affecting the help dialog.
+
 ## [3.3.1] 2025-07-07
 ### Changed
 - Removed Easy Path Expression from the Output Expression option if the expression uri is of type Answer Expression.
