@@ -53,7 +53,11 @@
       </section>
 
       <section id="variables-section" class="mb-3" *ngIf="display.itemVariablesSection">
-        <lhc-variables [lhcStyle]="defaultLhcStyle" [advancedInterface]="advancedInterface"></lhc-variables>
+        <lhc-variables
+          [variableLevel]="itemLinkId ? 'item' : 'form'"
+          [lhcStyle]="defaultLhcStyle"
+          [advancedInterface]="advancedInterface">
+        </lhc-variables>
       </section>
 
       <section id="final-expression-section" class="mb-3" *ngIf="display.outputExpressionSection && expressionUri && itemLinkId">

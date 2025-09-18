@@ -1,4 +1,4 @@
-<h2 [style]="lhcStyle.h2">Item Variables</h2>
+<h2 [style]="lhcStyle.h2">{{ variableTitle }}</h2>
 
 <lhc-fhirpath-easypath-conversion-confirmation-dialog
   *ngIf="showConfirmDialog"
@@ -30,10 +30,10 @@
             fill="currentColor"
             class="handle"
             viewBox="0 0 16 16">
-            <path d="M7 2a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zM7 
-              5a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zM7 
-              8a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm-3 
-              3a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm-3 
+            <path d="M7 2a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zM7
+              5a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zM7
+              8a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm-3
+              3a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm-3
               3a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>
           </svg>
           <input
@@ -108,8 +108,8 @@
             [(ngModel)]="variable.expression"
             (change)="onExpressionChange($event, i)"
             [style]="lhcStyle.input"
-            aria-label="FHIRPath Expression" 
-            
+            aria-label="FHIRPath Expression"
+
             [class.field-error]="exp.errors && !exp.errors?.hasOwnProperty('invalidExpressionWarning')"
             [class.field-warning]="exp.errors && exp.errors?.hasOwnProperty('invalidExpressionWarning')"
 
@@ -119,7 +119,7 @@
             [lhcExpressionValidatorParams]="{'section': 'Item Variables',
                                              'field': 'expression', 'type': 'fhirpath',
                                              'id': 'variable-expression-' + i, 'index': i}"
-            
+
             />
           <div id="expression-error" role="alert" class="row error-span" *ngIf="exp.errors">
             <p class="expression-error" *ngIf="exp.errors && !exp.errors?.hasOwnProperty('invalidExpressionWarning')">
@@ -134,11 +134,11 @@
           <input
             [id]="'variable-expression-' + i"
             [(ngModel)]="variable.expression"
-            (change)="onExpressionChange($event, i)" 
+            (change)="onExpressionChange($event, i)"
             [style]="lhcStyle.input"
             aria-label="FHIR Query"
             placeholder="x-fhir-query"
-            
+
             [class.field-error]="exp.errors"
             #exp="ngModel"
             lhcExpressionValidator
@@ -168,13 +168,13 @@
     </div>
     <div
       *ngIf="!variables.length"
-      class="no-variables">No variables, please 
+      class="no-variables">No variables, please
       <a href="#" (click)="onAdd()">add one</a>.
     </div>
   </div>
 </div>
 
-<button 
+<button
   id="add-variable"
   class="btn btn-secondary mt-2"
   (click)="onAdd()"

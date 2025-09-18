@@ -17,12 +17,17 @@ export class VariablesComponent implements OnInit, OnChanges, OnDestroy {
 
   @ViewChildren('exp') expressionRefs: QueryList<NgModel>;
 
+  /**
+   * Indicates if the variables are form-level or item-level.
+   * Possible values: 'form' | 'item'
+   */
+  @Input() variableLevel: 'form' | 'item' = 'item';
+
   appName = ExpressionEditorService.APP_NAME;
 
   variableType: any = SimpleVariableType;
   variableSubscription;
   performValidationSubscription;
-
   variables: Variable[];
 
   previousVariable;
@@ -31,12 +36,19 @@ export class VariablesComponent implements OnInit, OnChanges, OnDestroy {
   showConfirmDialog = false;
 
   dialogTitle = "Converting FHIRPath Expression to Easy Path Expression";
-  dialogPrompt1 = `The ${this.appName} does not support conversion from FHIRPath Expression ` + 
+  dialogPrompt1 = `The ${this.appName} does not support conversion from FHIRPath Expression ` +
                   `to Easy Path Expression. Switching to the Easy Path Expression may ` +
                   `result in field not getting populated.`;
   dialogPrompt2 = "Proceed?";
 
   constructor(private expressionEditorService: ExpressionEditorService) {}
+
+  /**
+   * Returns the variable title based on the variable level.
+   */
+  get variableTitle(): string {
+    return `${this.variableLevel.charAt(0).toUpperCase()}${this.variableLevel.slice(1)} Variables`;
+  }
 
   /**
    * Angular lifecycle hook called when the component is initialized
@@ -170,7 +182,7 @@ export class VariablesComponent implements OnInit, OnChanges, OnDestroy {
     const previousValue = this.variables[i].type;
     if (previousValue === 'expression' && event.target.value === 'simple') {
       this.currentVariableIdx = i;
-          
+
       this.currentVariable = copy(this.variables[i]);
 
       if (this.currentVariable?.expression && !this.currentVariable?.simple) {
@@ -185,7 +197,7 @@ export class VariablesComponent implements OnInit, OnChanges, OnDestroy {
 
     } else {
       this.variables[i].type = event.target.value;
-    
+
       this.currentVariable = copy(this.variables[i]);
 
       if (event.target.value === 'query' || event.target.value === 'expression') {
