@@ -2,6 +2,10 @@
 
 This project follows [Semantic Versioning](http://semver.org/).
 
+## [3.3.3] 2025-09-18
+### Fixed
+- Prevent dialog from closing before validation finishes.
+
 ## [3.3.2] 2025-08-26
 ### Fixed
 - Addressed styling issues affecting the help dialog.
