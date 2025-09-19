@@ -55,6 +55,7 @@
       <section id="variables-section" class="mb-3" *ngIf="display.itemVariablesSection">
         <lhc-variables
           [variableLevel]="itemLinkId ? 'item' : 'form'"
+          [sectionType]="display.outputExpressionSection ? 'output_expression' : 'variable'"
           [lhcStyle]="defaultLhcStyle"
           [advancedInterface]="advancedInterface">
         </lhc-variables>

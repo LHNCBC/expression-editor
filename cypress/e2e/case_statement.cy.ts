@@ -39,18 +39,18 @@ describe(Cypress.env("appName"), () => {
           cy.get('#case-condition-0').should('not.have.class', 'field-error');
           cy.get('#case-output-0').should('not.have.class', 'field-error');
           cy.get('.default').should('not.have.class', 'field-error');
-          
+
           for (let i = 0; i < 2; i++) {
             // Select FHIRPath Expression variable type
             cy.get('#output-expression-type').select('fhirpath');
-  
+
             cy.get('#case-condition-0').should('not.have.class', 'field-error');
             cy.get('#case-output-0').should('not.have.class', 'field-error');
             cy.get('.default').should('not.have.class', 'field-error');
-  
+
             // Select Easy Path Expression variable type
-            cy.get('#output-expression-type').select('simple');          
-            
+            cy.get('#output-expression-type').select('simple');
+
             cy.get('#case-condition-0').should('not.have.class', 'field-error');
             cy.get('#case-output-0').should('not.have.class', 'field-error');
             cy.get('.default').should('not.have.class', 'field-error');
@@ -91,7 +91,7 @@ describe(Cypress.env("appName"), () => {
           cy.get('#case-condition-0').should('not.have.class', 'field-error');
           cy.get('#case-output-0').should('not.have.class', 'field-error');
           cy.get('.default').should('not.have.class', 'field-error');
-          
+
           // Populate case statements
           cy.get('#case-condition-0').clear().type('a > 1');
           cy.get('#case-output-0').clear().type("a");
@@ -118,8 +118,8 @@ describe(Cypress.env("appName"), () => {
             cy.get('.default').should('have.value', "'large'");
 
             // Select Easy Path Expression variable type
-            cy.get('#output-expression-type').select('simple');          
-            
+            cy.get('#output-expression-type').select('simple');
+
             cy.get('#case-condition-0').should('not.have.class', 'field-error');
             cy.get('#case-output-0').should('not.have.class', 'field-error');
             cy.get('#case-condition-1').should('not.have.class', 'field-error');
@@ -169,7 +169,7 @@ describe(Cypress.env("appName"), () => {
           cy.get('#case-condition-0').should('not.have.class', 'field-error');
           cy.get('#case-output-0').should('not.have.class', 'field-error');
           cy.get('.default').should('not.have.class', 'field-error');
-          
+
           // Populate case statements
           cy.get('#case-condition-0').clear().type('a > 1');
           cy.get('#case-output-0').clear().type("a");
@@ -199,7 +199,7 @@ describe(Cypress.env("appName"), () => {
 
           // Select Easy Path Expression variable type
           cy.get('#output-expression-type').select('simple');
-          
+
           // Dialog should get displayed
           cy.get('lhc-fhirpath-easypath-conversion-confirmation-dialog #expression-conversion-base-dialog')
             .should('exist')
@@ -228,7 +228,7 @@ describe(Cypress.env("appName"), () => {
             cy.get('.default').should('not.have.class', 'field-error');
 
             // Select Easy Path Expression variable type
-            cy.get('#output-expression-type').select('simple');   
+            cy.get('#output-expression-type').select('simple');
 
             // the Case Statement now should be empty but no erors
             cy.get('#case-condition-0').should('have.value', '');
@@ -281,7 +281,7 @@ describe(Cypress.env("appName"), () => {
           cy.get('#case-condition-0').should('not.have.class', 'field-error');
           cy.get('#case-output-0').should('not.have.class', 'field-error');
           cy.get('.default').should('not.have.class', 'field-error');
-          
+
           // Populate case statements
           cy.get('#case-condition-0').clear().type('a > 1');
           cy.get('#case-output-0').clear().type("a");
@@ -327,8 +327,8 @@ describe(Cypress.env("appName"), () => {
             cy.get('#default-case-error').should('contain.text', 'The default case is required.');
 
             // Select Easy Path Expression variable type
-            cy.get('#output-expression-type').select('simple');          
-            
+            cy.get('#output-expression-type').select('simple');
+
           }
         });
       });
@@ -366,7 +366,7 @@ describe(Cypress.env("appName"), () => {
           cy.get('#case-condition-0').should('not.have.class', 'field-error');
           cy.get('#case-output-0').should('not.have.class', 'field-error');
           cy.get('.default').should('not.have.class', 'field-error');
-          
+
           // Populate case statements
           cy.get('#case-condition-0').clear().type('a > 1');
           cy.get('#case-output-0').clear().type("a");
@@ -415,8 +415,8 @@ describe(Cypress.env("appName"), () => {
             cy.get('#default-case-error').should('contain.text', 'The default case is invalid.');
 
             // Select Easy Path Expression variable type
-            cy.get('#output-expression-type').select('simple');          
-            
+            cy.get('#output-expression-type').select('simple');
+
           }
         });
       });
@@ -466,12 +466,12 @@ describe(Cypress.env("appName"), () => {
           cy.get('#case-output-2').should('not.have.class', 'field-error');
           cy.get('.default').should('have.value', 'obese');
           cy.get('.default').should('not.have.class', 'field-error');
-          
+
           // The preview should display the expression
           cy.get('lhc-syntax-preview pre').should('contain.text', "iif(%bmi<18.5,'underweight',iif(%bmi<25,'normal',iif(%bmi<30,'overweight','obese')))");
 
           // Click Save
-          cy.get('#export').click();          
+          cy.get('#export').click();
         });
 
         // Checking the output, it should have the new variables
@@ -485,9 +485,6 @@ describe(Cypress.env("appName"), () => {
           expect(parsedData.item[3].linkId).to.have.string('/39156-5');
           expect(parsedData.item[3].extension).to.exist;
           expect(parsedData.item[3].extension).to.have.lengthOf(5);
-
-          console.log('LOOK HERE ', parsedData.item[3].extension[3]);
-          
           expect(parsedData.item[3].extension[4]).to.deep.equal(
             {
               "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression",
@@ -551,7 +548,7 @@ describe(Cypress.env("appName"), () => {
           cy.get('#case-output-2').should('not.have.class', 'field-error');
           cy.get('.default').should('have.value', 'obese');
           cy.get('.default').should('not.have.class', 'field-error');
-          
+
           // Check the 'use expressions' checkbox
           cy.get('#output-expressions').check();
 
@@ -575,7 +572,7 @@ describe(Cypress.env("appName"), () => {
           cy.get('lhc-syntax-preview pre').should('contain.text', "iif(%bmi<18.5,'underweight',iif(%bmi<25,'normal',iif(%bmi<30,'overweight','obese')))");
 
           // Click Save
-          cy.get('#export').click();          
+          cy.get('#export').click();
         });
 
         // Checking the output, it should have the new variables
@@ -589,9 +586,6 @@ describe(Cypress.env("appName"), () => {
           expect(parsedData.item[3].linkId).to.have.string('/39156-5');
           expect(parsedData.item[3].extension).to.exist;
           expect(parsedData.item[3].extension).to.have.lengthOf(5);
-
-          console.log('LOOK HERE ', parsedData.item[3].extension[3]);
-          
           expect(parsedData.item[3].extension[4]).to.deep.equal(
             {
               "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression",

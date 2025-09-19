@@ -15,7 +15,7 @@ describe(Cypress.env("appName"), () => {
         // The 'Open Expression Editor' should be enabled because by default
         // the Question BMI is selected
         cy.get('#openExpressionEditor').should('not.have.class', 'disabled');
-        
+
         cy.get('#question').clear().type('{enter}');
 
         cy.get('#useRootLevel').should('be.checked');
@@ -213,6 +213,7 @@ describe(Cypress.env("appName"), () => {
           // Variables section
           cy.get('lhc-variables > h2').should('contain', 'Item Variables');
           cy.get('#variables-section .variable-row').should('have.length', 0);
+          cy.get('lhc-variables div.no-variables').should('contain.text', 'There are currently no variables for this item.');
 
           // Output Expression section should be displayed
           cy.get('#final-expression-section h2').should('contain', 'Output Expression');
@@ -238,7 +239,7 @@ describe(Cypress.env("appName"), () => {
           cy.get('#final-expression-section #expression-error > p').should('contain.text', constants.EXPRESSION_REQUIRED);
           // As a result, the Save button is disabled
           cy.get('#export').should('have.class', 'disabled');
-        
+
           // Fix the expression in the Output Expression section
           cy.get('#simple-expression-final').clear().type('1 + 1');
 
@@ -250,11 +251,11 @@ describe(Cypress.env("appName"), () => {
           // Save (Export) should output the questionnaire for the given Variable Type
           cy.get('#export').click();
         });
-        
+
         // The Expression Editor dialog should be closed
         cy.get('lhc-expression-editor').should('not.exist', {timeout: 10000});
 
-        // Checking the output, it should have the new variable created under the 
+        // Checking the output, it should have the new variable created under the
         // "Clothing worn during measure" item extension
         cy.get('pre#output').should('not.be.empty').invoke('text').then((jsonData) => {
             // Parse the JSON data
@@ -288,8 +289,9 @@ describe(Cypress.env("appName"), () => {
 
           cy.title().should('eq', Cypress.env("appName"));
           // Variables section
-          cy.get('lhc-variables > h2').should('contain', 'Item Variables');
+          cy.get('lhc-variables > h2').should('contain', 'Form Variables');
           cy.get('#variables-section .variable-row').should('have.length', 0);
+          cy.get('lhc-variables div.no-variables').should('contain.text', 'There are currently no variables for this form.');
 
           // Output Expression section should be hidden
           cy.get('#final-expression-section').should('not.exist');
@@ -320,7 +322,7 @@ describe(Cypress.env("appName"), () => {
             expect(parsedData.extension[0].valueExpression.name).to.have.string('root_variable0');
         });
       });
-            
+
       it('should URL encoded the output for the x-fhir-output', () => {
         cy.get('#questionnaire-select').select('BMI Calculation (Easy Path expression)');
 
@@ -335,10 +337,10 @@ describe(Cypress.env("appName"), () => {
           // Add a variable
           cy.get('#add-variable').click();
           cy.get('#variables-section .variable-row').should('have.length', 3);
-          
+
           // Select FHIR Query (Observation) as Variable Type
           cy.get('#variable-type-2').select('FHIR Query (Observation)');
-          
+
           cy.get('lhc-query-observation').shadow().within(() => {
             // Select Code 1
             cy.get('#autocomplete-2').type('Vit A Bld-mCnc');
@@ -351,7 +353,7 @@ describe(Cypress.env("appName"), () => {
 
           cy.get('div#row-2 lhc-query-observation').shadow().within(() => {
             cy.get('div.query-select > span.autocomp_selected > ul > li')
-                  .should('have.text', '×Vit A Bld-mCnc - 2922-3'); 
+                  .should('have.text', '×Vit A Bld-mCnc - 2922-3');
             // Select Code 2
             cy.get('#autocomplete-2').type('CV B blend Ab Ser-Imp');
             //cy.contains('20996-5').click();
@@ -409,14 +411,14 @@ describe(Cypress.env("appName"), () => {
           cy.get('div#row-1')
             .within(() => {
               cy.get('#variable-type-1').should('have.value', 'question');
-              cy.get('#question-1').should('have.value', "Body height (/8302-2)" );    
+              cy.get('#question-1').should('have.value', "Body height (/8302-2)" );
               cy.get('div.unit-select>select').select('cm');
             });
 
           // Add a variable
           cy.get('#add-variable').should('exist').should('be.visible').click();
           cy.get('#variables-section .variable-row').should('have.length', 3);
-                  
+
           cy.get('div#row-2')
             .within(() => {
               cy.get('#variable-type-2').select('FHIR Query (Observation)');
@@ -589,7 +591,7 @@ describe(Cypress.env("appName"), () => {
             });
         });
       });
-      
+
       it('should retain Question setting when the Advanced Interface checkbox is clicked', () => {
         cy.get('select#questionnaire-select').select('BMI Calculation (Easy Path expression)');
 
@@ -649,7 +651,7 @@ describe(Cypress.env("appName"), () => {
         // The Expression Editor dialog should now appear
         cy.get('lhc-expression-editor').shadow().within(() => {
           cy.get('#expression-editor-base-dialog').should('exist');
-    
+
           cy.title().should('eq', Cypress.env("appName"));
 
           // Variables section
@@ -661,7 +663,7 @@ describe(Cypress.env("appName"), () => {
               cy.get('#variable-type-0')
                 .should('have.value', 'question')
                 .select('queryObservation');
-              cy.get('lhc-query-observation').shadow().within(() => {  
+              cy.get('lhc-query-observation').shadow().within(() => {
                 cy.get('#autocomplete-0').type('Vit A Bld-mCnc');
               });
             });
@@ -675,7 +677,7 @@ describe(Cypress.env("appName"), () => {
                 .select('query');
               cy.get('#variable-expression-0')
                 .should('exist')
-                .should('contain.value', 
+                .should('contain.value',
                   'Observation?code=http://loinc.org|2922-3&date=gt{{today()-1 months}}');
 
               // Replace Observation resource with Patient resource
@@ -790,7 +792,7 @@ describe(Cypress.env("appName"), () => {
 
         // Validate that the expression was updated correctly
         cy.get('pre#output')
-        .should('contain.text', '"expression": "Observation"');        
+        .should('contain.text', '"expression": "Observation"');
 
         // Click the button to edit the expression
         cy.get('button#openExpressionEditor').should('exist').click();
@@ -817,7 +819,7 @@ describe(Cypress.env("appName"), () => {
 
         // Validate that the expression was updated correctly
         cy.get('pre#output')
-          .should('contain.text', '"expression": "Observation?code=http%3A%2F%2Floinc.org%7C2922-3"');  
+          .should('contain.text', '"expression": "Observation?code=http%3A%2F%2Floinc.org%7C2922-3"');
 
         // Click the button to edit the expression
         cy.get('button#openExpressionEditor').should('exist').click();
@@ -844,8 +846,8 @@ describe(Cypress.env("appName"), () => {
 
         // Validate that the expression was updated correctly
         cy.get('pre#output')
-          .should('contain.text', 
-          '"expression": "Observation?code=http%3A%2F%2Floinc.org%7C2922-3&date=gt{{today()-1 months"');  
+          .should('contain.text',
+          '"expression": "Observation?code=http%3A%2F%2Floinc.org%7C2922-3&date=gt{{today()-1 months"');
 
         // Click the button to edit the expression
         cy.get('button#openExpressionEditor').should('exist').click();
@@ -873,8 +875,8 @@ describe(Cypress.env("appName"), () => {
 
         // Validate that the expression was updated correctly
         cy.get('pre#output')
-          .should('contain.text', 
-          '"expression": "Observation?code=http%3A%2F%2Floinc.org%7C2922-3&date=gt{{today()-1 months}}%20and%20{{today()}}"');  
+          .should('contain.text',
+          '"expression": "Observation?code=http%3A%2F%2Floinc.org%7C2922-3&date=gt{{today()-1 months}}%20and%20{{today()}}"');
       });
 
       it('should be able reselect the Variable type correctly once the Advanced Interface checkbox is unchecked', () => {
@@ -948,7 +950,7 @@ describe(Cypress.env("appName"), () => {
                 .should('be.visible')
                 .should('have.value', "%resource.item.where(linkId='/29463-7').answer.value");
 
-              // Reselect Question variable type, it still should show Question as Weight 
+              // Reselect Question variable type, it still should show Question as Weight
               cy.get('#variable-type-0').select('question');
               cy.get('#question-0')
                 .should('exist')
@@ -962,13 +964,13 @@ describe(Cypress.env("appName"), () => {
                 .should('be.visible')
                 .should('have.value', "%resource.item.where(linkId='/29463-7').answer.value");
 
-              // Reselect Question variable type, it still should show Question as Weight 
+              // Reselect Question variable type, it still should show Question as Weight
               cy.get('#variable-type-0').select('question');
               cy.get('#question-0')
                 .should('exist')
                 .should('be.visible')
-                .should('have.value', 'Weight (/29463-7)');   
-                
+                .should('have.value', 'Weight (/29463-7)');
+
               // Select FHIR Query Observation variable type
               cy.get('#variable-type-0').select('queryObservation');
               cy.get('lhc-query-observation').shadow().within(() => {
@@ -982,7 +984,7 @@ describe(Cypress.env("appName"), () => {
 
           cy.get('div#row-0')
             .within(() => {
-              // Reselect Question variable type, it should now be unselected 
+              // Reselect Question variable type, it should now be unselected
               cy.get('#variable-type-0').select('question');
               cy.get('#question-0')
                 .should('exist')
@@ -1006,7 +1008,7 @@ describe(Cypress.env("appName"), () => {
                 .should('be.visible')
                 .type('1 + 1');
 
-              // Reselect Question variable type, it should now be unselected 
+              // Reselect Question variable type, it should now be unselected
               cy.get('#variable-type-0').select('question');
               cy.get('#question-0')
                 .should('exist')
@@ -1056,7 +1058,7 @@ describe(Cypress.env("appName"), () => {
                 .should('be.visible')
                 .should('have.value', 'a + 1');
               cy.get('div.fhirpath > pre').should('contain.text', '%a + 1');
-              
+
               // Same with FHIR Query variable type
               cy.get('#variable-type-1').select('query');
               cy.get('#variable-expression-1')
@@ -1148,7 +1150,7 @@ describe(Cypress.env("appName"), () => {
                 .should('have.value', 'Body height (/8302-2)');
               cy.get('div.fhirpath > pre')
                 .should('contain.text', "%resource.item.where(linkId='/8302-2').answer.value");
-              
+
               // Same with FHIR Query variable type
               cy.get('#variable-type-1').select('query');
               cy.get('#variable-expression-1')
@@ -1248,11 +1250,11 @@ describe(Cypress.env("appName"), () => {
           // Variables section
           cy.get('lhc-variables > h2').should('contain', 'Item Variables');
           cy.get('#variables-section .variable-row').should('have.length', 2);
-          
-          // Output expression 
+
+          // Output expression
           cy.get('#simple-expression-final').clear().type('a + b');
           cy.get('lhc-syntax-preview>div>div>pre').should('not.have.text', 'Not valid');
-    
+
           // Add variable c
           cy.get('#add-variable').click();
           cy.get('#variables-section .variable-row').should('have.length', 3);
@@ -1260,14 +1262,14 @@ describe(Cypress.env("appName"), () => {
         });
         cy.get('span#completionOptions > ul > li').contains('39156-5').click();
         cy.get('lhc-expression-editor').shadow().within(() => {
-          // Confirm that variable c is available for Output expression 
+          // Confirm that variable c is available for Output expression
           cy.get('#simple-expression-final').clear().type('a + b + c');
           cy.get('#final-expression-section lhc-syntax-preview > div > div > pre').should('not.have.text', 'Not valid');
-    
+
           // Delete variable b
           cy.get('#remove-variable-1').click();
           cy.get('#variables-section .variable-row').should('have.length', 2);
-    
+
           // Confirm that variable b is no longer available for Output expression
           cy.get('#final-expression-section #expression-error > p').should('contain.text', constants.INVALID_EXPRESSION);
 
@@ -1379,7 +1381,7 @@ describe(Cypress.env("appName"), () => {
           // Variables section
           cy.get('lhc-variables > h2').should('contain', 'Item Variables');
           cy.get('#variables-section .variable-row').should('have.length', 2);
-          
+
           // Add variable c
           cy.get('#add-variable').click();
           cy.get('#variables-section .variable-row').should('have.length', 3);
@@ -1455,9 +1457,10 @@ describe(Cypress.env("appName"), () => {
             // Variables section
             cy.get('lhc-variables > h2').should('contain', 'Item Variables');
             cy.get('#variables-section .variable-row').should('have.length', 0);
-          
+            cy.get('lhc-variables div.no-variables').should('contain.text', 'There are currently no variables for this item.');
+
             cy.get('#add-variable').should('exist').should('be.visible');
-    
+
             cy.get('#export').should('exist').scrollIntoView().should('be.visible');
           });
         });
@@ -1483,7 +1486,7 @@ describe(Cypress.env("appName"), () => {
             });
 
           // Close the dialog by clicking 'x'
-          cy.get('#calculate-sum-title-bar > button.btn-close').click();          
+          cy.get('#calculate-sum-title-bar > button.btn-close').click();
         });
         cy.get('lhc-calculate-sum-prompt').should('not.exist');
 
@@ -1640,7 +1643,7 @@ describe(Cypress.env("appName"), () => {
                 // Select 3rd and 5th items
                 cy.get('@checkboxes').eq(2).check();
                 cy.get('@checkboxes').eq(4).check();
-                
+
                 // Validate to make sure that only those two items were selected
                 cy.get('@checkboxes').each(($checkbox, index) => {
                   if (index === 2 || index === 4)
@@ -1648,7 +1651,7 @@ describe(Cypress.env("appName"), () => {
                   else
                     cy.wrap($checkbox).should('not.be.checked');
                 });
-                
+
                 // Unselect 3rd and 5th items
                 cy.get('@checkboxes').eq(2).uncheck();
                 cy.get('@checkboxes').eq(4).uncheck();
@@ -1694,9 +1697,9 @@ describe(Cypress.env("appName"), () => {
             cy.get('#skip-export-score').click()
           });
         });
-        
+
         cy.get('lhc-select-scoring-items').should('not.exist');
-        
+
         // Should return back to the demo screen
         cy.get('app-root > h1').should('be.visible').should('contain.text', Cypress.env("appName") + ' Demo');
       });
@@ -1770,9 +1773,9 @@ describe(Cypress.env("appName"), () => {
             cy.get('lhc-base-dialog > #select-scoring-items-base-dialog').click(50, 50);
           });
         });
-        
+
         cy.get('lhc-select-scoring-items').should('not.exist');
-        
+
         // Should return back to the demo screen
         cy.get('app-root > h1').should('be.visible').should('contain.text', Cypress.env("appName") + ' Demo');
       });
@@ -1794,11 +1797,11 @@ describe(Cypress.env("appName"), () => {
               .within(() => {
                 cy.get('div.items-tree tree-node').should('have.length', 9);
                 cy.get('.angular-tree-component  [type="checkbox"]').as('checkboxes');
-                
+
                 // Select 3rd and 5th items
                 cy.get('@checkboxes').eq(2).check();
                 cy.get('@checkboxes').eq(4).check();
-                
+
                 // Validate to make sure that only those two items were selected
                 cy.get('@checkboxes').each(($checkbox, index) => {
                   if (index === 2 || index === 4)
@@ -1806,7 +1809,7 @@ describe(Cypress.env("appName"), () => {
                   else
                     cy.wrap($checkbox).should('not.be.checked');
                 });
-              });  
+              });
             cy.get('#export-score').click();
           });
         });
@@ -1840,11 +1843,11 @@ describe(Cypress.env("appName"), () => {
               .within(() => {
                 cy.get('div.items-tree tree-node').should('have.length', 9);
                 cy.get('.angular-tree-component  [type="checkbox"]').as('checkboxes');
-                
+
                 // Select 3rd and 5th items
                 cy.get('@checkboxes').eq(2).check();
                 cy.get('@checkboxes').eq(4).check();
-                
+
                 // Validate to make sure that only those two items were selected
                 cy.get('@checkboxes').each(($checkbox, index) => {
                   if (index === 2 || index === 4)
@@ -1852,21 +1855,21 @@ describe(Cypress.env("appName"), () => {
                   else
                     cy.wrap($checkbox).should('not.be.checked');
                 });
-              });  
+              });
             cy.get('#review-fhirpath').click();
           });
         });
         // the Expression-Editor panel should be hidden
         cy.get('lhc-select-scoring-items').should('not.exist');
-        
-        // Show the Expression Editor 
+
+        // Show the Expression Editor
         cy.get('lhc-expression-editor').shadow().within(() => {
           cy.get('lhc-base-dialog').should('exist');
 
           // Variables section
           cy.get('lhc-variables > h2').should('contain', 'Item Variables');
           cy.get('#variables-section .variable-row').should('have.length', 3);
-        
+
           // Click Save
           cy.get('#export').click();
         });
@@ -1892,13 +1895,13 @@ describe(Cypress.env("appName"), () => {
               cy.get('div.scoring-items-selection-body')
                 .within(() => {
                   cy.get('div.items-tree tree-node').should('have.length', 9);
-                  
+
                   // Check the Select All button
                   cy.get('#selectAll').should('exist').click();
                   cy.get('.angular-tree-component [type="checkbox"]').each(($checkbox) => {
                     cy.wrap($checkbox).should('be.checked');
                   });
-                });  
+                });
               cy.get('#export-score').click();
             });
         });
@@ -1974,7 +1977,7 @@ describe(Cypress.env("appName"), () => {
                 cy.get('div.items-tree tree-node').should('have.length', 26);
               });
           });
-        });  
+        });
       });
 
       it('should be able to collapse/expand the group', () => {
@@ -1991,7 +1994,7 @@ describe(Cypress.env("appName"), () => {
               .should('contain.text', 'Select items to include in the score calculation:');
             cy.get('div.scoring-items-selection-body')
               .within(() => {
-                // Expand All button should be visible and the tree should be expanded by default  
+                // Expand All button should be visible and the tree should be expanded by default
                 cy.get('#expandAll').should('exist').should('be.visible');
                 cy.get('div.items-tree tree-node').should('have.length', 26);
 
@@ -2043,16 +2046,16 @@ describe(Cypress.env("appName"), () => {
             cy.get('div.scoring-items-selection-body')
               .within(() => {
                 cy.get('div.items-tree tree-node').should('have.length', 26);
-                
+
                 // Check the Select All button
                 cy.get('#selectAll').should('exist').click();
                 cy.get('.angular-tree-component [type="checkbox"]').each(($checkbox) => {
                   cy.wrap($checkbox).should('be.checked');
                 });
-              });  
+              });
               cy.get('#export-score').click();
             });
-          }); 
+          });
 
           // One noticable difference between items not in a group and items in a group is the generated
           // expression. In the case of items in a group, the expression starts from the top node item and
@@ -2060,9 +2063,9 @@ describe(Cypress.env("appName"), () => {
 
           // Item in a group
           cy.get('#output')
-            .should('contain.text', 
+            .should('contain.text',
               "%questionnaire.item.where(linkId = '/45900-0').item.where(linkId = '/45900-0/44250-9').answerOption");
-          
+
           // Item not in a group
           cy.get('#output')
             .should('contain.text', "%questionnaire.item.where(linkId = '/44251-7').answerOption");
@@ -2075,7 +2078,7 @@ describe(Cypress.env("appName"), () => {
               '+ iif(%k.exists(), %k, 0) + iif(%l.exists(), %l, 0) + iif(%m.exists(), %m, 0) ' +
               '+ iif(%n.exists(), %n, 0) + iif(%o.exists(), %o, 0) + iif(%p.exists(), %p, 0) ' +
               '+ iif(%q.exists(), %q, 0) + iif(%r.exists(), %r, 0) + iif(%s.exists(), %s, 0) ' +
-              '+ iif(%t.exists(), %t, 0) + iif(%u.exists(), %u, 0) + iif(%v.exists(), %v, 0), {})"'); 
+              '+ iif(%t.exists(), %t, 0) + iif(%u.exists(), %u, 0) + iif(%v.exists(), %v, 0), {})"');
       });
 
       it('should not be able to export score if no scoring items selected', () => {
@@ -2121,7 +2124,7 @@ describe(Cypress.env("appName"), () => {
               .within(() => {
                 cy.get('div.items-tree tree-node').should('have.length', 26);
                 cy.get('.angular-tree-component  [type="checkbox"]').as('checkboxes');
-                
+
                 cy.get('@checkboxes').each(($checkbox, index) => {
                     cy.wrap($checkbox).should('be.checked');
                 });
@@ -2138,7 +2141,7 @@ describe(Cypress.env("appName"), () => {
               .within(() => {
                 cy.get('div.items-tree tree-node').should('have.length', 26);
                 cy.get('.angular-tree-component  [type="checkbox"]').as('checkboxes');
-                
+
                 cy.get('@checkboxes').each(($checkbox, index) => {
                   cy.wrap($checkbox).should('not.be.checked');
                 });
@@ -2164,7 +2167,7 @@ describe(Cypress.env("appName"), () => {
               .within(() => {
                 cy.get('div.items-tree tree-node').should('have.length', 26);
                 cy.get('.angular-tree-component  [type="checkbox"]').as('checkboxes');
-                
+
                 // Select an item from "Group 1"
                 cy.get('@checkboxes').eq(1).check();
 
@@ -2179,7 +2182,7 @@ describe(Cypress.env("appName"), () => {
 
                 // Select a parent item that has a child of type 'group'
                 cy.get('@checkboxes').eq(12).check();
-                
+
                 // Select a child item under the child of type 'group'
                 cy.get('@checkboxes').eq(14).check();
 
@@ -2191,7 +2194,7 @@ describe(Cypress.env("appName"), () => {
                   else
                     cy.wrap($checkbox).should('not.be.checked');
                 });
-              });  
+              });
             cy.get('#export-score').click();
           });
         });
@@ -2207,7 +2210,7 @@ describe(Cypress.env("appName"), () => {
 
           expect(parsedData.item).to.exist;
           expect(parsedData.item).to.have.lengthOf(10);
-        
+
           // the 9th item should be the total calculation
           expect(parsedData.item[8].linkId).to.exist;
           expect(parsedData.item[8].linkId).to.eq('/39156-5');
@@ -2251,7 +2254,7 @@ describe(Cypress.env("appName"), () => {
 .item.where(linkId = '/44260-8/45907-0').item.where(linkId = '/44260-8/45907-0/44255-8').answerOption";
           expect(parsedData.item[8].extension[9].valueExpression).to.exist;
           expect(parsedData.item[8].extension[9].valueExpression.name).to.eq('f');
-          expect(parsedData.item[8].extension[9].valueExpression.expression).to.have.string(variable9Exp);  
+          expect(parsedData.item[8].extension[9].valueExpression.expression).to.have.string(variable9Exp);
         });
 
       });
@@ -2268,20 +2271,20 @@ describe(Cypress.env("appName"), () => {
             cy.get('div.scoring-items-selection-body')
               .within(() => {
                 cy.get('div.items-tree tree-node').should('have.length', 26);
-                
+
                 // Check the Select All button
                 cy.get('#selectAll').should('exist').click();
                 cy.get('.angular-tree-component [type="checkbox"]').each(($checkbox) => {
                   cy.wrap($checkbox).should('be.checked');
                 });
-              });  
+              });
               cy.get('#export-score').click();
             });
           });
           cy.get('pre#output').invoke('text').then((jsonData) => {
             // Parse the JSON data
             const parsedData = JSON.parse(jsonData);
-  
+
             expect(parsedData.item).to.exist;
             expect(parsedData.item).to.have.lengthOf(10);
 
@@ -2296,27 +2299,27 @@ describe(Cypress.env("appName"), () => {
             expect(parsedData.item[2].type).to.eq('choice');
             expect(parsedData.item[2].linkId).to.eq('/44453-6');
             expect(parsedData.item[2].text).to.eq('Non-scoring item');
-            
+
             // Non-scoring item at parent level with child scoring items
             expect(parsedData.item[4].type).to.eq('choice');
             expect(parsedData.item[4].item).to.exist;
             expect(parsedData.item[4].item).to.have.lengthOf(3);
             expect(parsedData.item[4].linkId).to.eq('/44253-5');
-            expect(parsedData.item[4].text).to.eq('Non-scoring item and its child scoring items');            
+            expect(parsedData.item[4].text).to.eq('Non-scoring item and its child scoring items');
 
             // Non-scoring item at child level of non-scoring parent item
             expect(parsedData.item[4].type).to.eq('choice');
             expect(parsedData.item[4].item).to.exist;
             expect(parsedData.item[4].item).to.have.lengthOf(3);
             expect(parsedData.item[4].item[0].linkId).to.eq('/44253-5/46613-6');
-            expect(parsedData.item[4].item[0].text).to.eq('Non-scoring item - child of non-scoring item');            
+            expect(parsedData.item[4].item[0].text).to.eq('Non-scoring item - child of non-scoring item');
 
             // Non-scoring item at child level of scoring parent item
             expect(parsedData.item[5].type).to.eq('choice');
             expect(parsedData.item[5].item).to.exist;
             expect(parsedData.item[5].item).to.have.lengthOf(3);
             expect(parsedData.item[5].item[0].linkId).to.eq('/44252-5/46613-6');
-            expect(parsedData.item[5].item[0].text).to.eq('Non-scoring item - child of scoring item');            
+            expect(parsedData.item[5].item[0].text).to.eq('Non-scoring item - child of scoring item');
 
             // Non-scoring item at 3rd level of parent group and scoring item grand parent
             expect(parsedData.item[7].type).to.eq('choice');
@@ -2327,7 +2330,7 @@ describe(Cypress.env("appName"), () => {
             expect(parsedData.item[7].item[0].item).to.exist;
             expect(parsedData.item[7].item[0].item).to.have.lengthOf(5);
             expect(parsedData.item[7].item[0].item[3].linkId).to.eq('/44260-8/45907-0/46613-6');
-            expect(parsedData.item[7].item[0].item[3].text).to.eq('Non-scoring item - child of Sub group 1');            
+            expect(parsedData.item[7].item[0].item[3].text).to.eq('Non-scoring item - child of Sub group 1');
 
             expect(parsedData.item[7].item[1].type).to.eq('choice');
             expect(parsedData.item[7].item[1].linkId).to.eq('/44260-8/44253-5');
@@ -2335,7 +2338,7 @@ describe(Cypress.env("appName"), () => {
             expect(parsedData.item[7].item[1].hasScore).not.to.exist;
             expect(parsedData.item[7].item[1].item).to.have.lengthOf(3);
             expect(parsedData.item[7].item[1].item[0].linkId).to.eq('/44260-8/44253-5/46613-6');
-            expect(parsedData.item[7].item[1].item[0].text).to.eq('Non-scoring item - child of non-scoring item');            
+            expect(parsedData.item[7].item[1].item[0].text).to.eq('Non-scoring item - child of non-scoring item');
             expect(parsedData.item[7].item[1].item[2].linkId).to.eq('/44260-8/44253-5/44255-8');
             expect(parsedData.item[7].item[1].item[2].text).to.eq('Feeling down, depressed, or hopeless?');
 
@@ -2347,7 +2350,7 @@ describe(Cypress.env("appName"), () => {
             expect(parsedData.item[7].item[2].item[0].linkId).to.eq('/44260-8/44252-5/46613-6');
             expect(parsedData.item[7].item[2].item[0].text).to.eq('Non-scoring item - child of scoring item');
             expect(parsedData.item[7].item[2].item[2].linkId).to.eq('/44260-8/44252-5/44255-8');
-            expect(parsedData.item[7].item[2].item[2].text).to.eq('Feeling down, depressed, or hopeless?');             
+            expect(parsedData.item[7].item[2].item[2].text).to.eq('Feeling down, depressed, or hopeless?');
           });
       });
     });
@@ -2405,7 +2408,7 @@ describe(Cypress.env("appName"), () => {
                     cy.wrap($checkbox).should('be.checked');
                   else
                     cy.wrap($checkbox).should('not.be.checked');
-                });           
+                });
               });
 
             // Done button should now be enabled.
@@ -2413,7 +2416,7 @@ describe(Cypress.env("appName"), () => {
           });
         });
       });
-      
+
       it('should be able to deselect, select items and export correctly', () => {
         // The demo has '(/39156-5) selected by default
         cy.get('#question').should('contain.value', '(/39156-5)');
@@ -2446,7 +2449,7 @@ describe(Cypress.env("appName"), () => {
                     cy.wrap($checkbox).should('be.checked');
                   else
                     cy.wrap($checkbox).should('not.be.checked');
-                });            
+                });
               });
               cy.get('#export-score').click();
             });
@@ -2462,7 +2465,7 @@ describe(Cypress.env("appName"), () => {
 
             expect(parsedData.item).to.exist;
             expect(parsedData.item).to.have.lengthOf(8);
-            
+
             // the 7th item should be the total calculation
             expect(parsedData.item[6].linkId).to.exist;
             expect(parsedData.item[6].linkId).to.eq('/39156-5');
@@ -2554,10 +2557,10 @@ describe(Cypress.env("appName"), () => {
 
               // Remove first code
               cy.get(':nth-child(1) > button > span').click();
-              cy.contains('Observation?code=http://loinc.org|65972-2,http://loinc.org|29463-7&date=gt{{today()-7 days}}&patient={{%patient.id}}&_sort=-date&_count=1');    
+              cy.contains('Observation?code=http://loinc.org|65972-2,http://loinc.org|29463-7&date=gt{{today()-7 days}}&patient={{%patient.id}}&_sort=-date&_count=1');
             });
         });
-      }); 
+      });
     });
 
     describe('Case statements', () => {
@@ -2583,7 +2586,7 @@ describe(Cypress.env("appName"), () => {
           cy.get('#case-output-2').should('have.value', 'overweight');
           cy.get('.default').should('have.value', 'obese');
 
-          cy.get('lhc-case-statements lhc-syntax-preview > div > div > pre').should('contain.text', 
+          cy.get('lhc-case-statements lhc-syntax-preview > div > div > pre').should('contain.text',
             `iif(%bmi<18.5,'underweight',iif(%bmi<25,'normal',iif(%bmi<30,'overweight','obese')))`);
 
           // the 'Save' button should be enabled
@@ -2614,7 +2617,7 @@ describe(Cypress.env("appName"), () => {
           cy.get('.default').should('have.value', `'obese'`);
 
           // Check the output expression
-          cy.get('lhc-case-statements lhc-syntax-preview > div > div > pre').should('contain.text', 
+          cy.get('lhc-case-statements lhc-syntax-preview > div > div > pre').should('contain.text',
           `iif(%bmi<18.5,'underweight',iif(%bmi<25,'normal',iif(%bmi<30,'overweight','obese')))`);
 
           // the 'Save' button should be enabled
@@ -2668,9 +2671,9 @@ describe(Cypress.env("appName"), () => {
           cy.get('.default').type('obese');
 
           // Check the output expression
-          cy.get('lhc-case-statements lhc-syntax-preview > div > div > pre').should('contain.text', 
+          cy.get('lhc-case-statements lhc-syntax-preview > div > div > pre').should('contain.text',
             `iif(%bmi<18.5,'underweight',iif(%bmi<25,'normal',iif(%bmi<30,'overweight','obese')))`);
-            
+
           // the 'Save' button should be enabled
           cy.get('#export').should('not.have.class', 'disabled');
         });
@@ -2697,7 +2700,7 @@ describe(Cypress.env("appName"), () => {
           cy.get('#case-output-1').should('have.value', "'normal'");
           cy.get('#case-condition-2').should('have.value', '%bmi<30');
           cy.get('#case-output-2').should('have.value', "'overweight'");
-                
+
           // Change variable type to Easy Path Expression
           cy.get('#output-expression-type').should('exist').select('simple');
 
@@ -2795,7 +2798,7 @@ describe(Cypress.env("appName"), () => {
               // Click 'Yes' to confirm cancelling
               cy.get('#yes-button').click();
             });
-          
+
         });
 
         cy.get('lhc-expression-editor', {timeout: 10000}).should('not.exist');
@@ -2854,7 +2857,7 @@ describe(Cypress.env("appName"), () => {
           cy.get('#case-output-2').type('overweight');
           // Add a default value
           cy.get('.default').type('obese');
-  
+
           // Change output expression to FHIRPath Expression
           cy.get('#output-expression-type').should('exist').select('fhirpath');
 
@@ -2877,7 +2880,7 @@ describe(Cypress.env("appName"), () => {
           cy.get('#case-condition-1').should('have.value', 'a<25');
           cy.get('#case-output-1').should('have.value', "normal");
           cy.get('#case-condition-2').should('have.value', 'a<30');
-          cy.get('#case-output-2').should('have.value', "overweight");          
+          cy.get('#case-output-2').should('have.value', "overweight");
           cy.get('.default').should('have.value', "obese");
         });
       });

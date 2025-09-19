@@ -4,7 +4,10 @@ This project follows [Semantic Versioning](http://semver.org/).
 
 ## [3.3.3] 2025-09-18
 ### Fixed
-- Prevent dialog from closing before validation finishes.
+- Prevent the dialog from closing before validation is complete.
+### Changed
+- Updated variable title to display Form or Item Variables.
+- Updated empty variable list message.
 
 ## [3.3.2] 2025-08-26
 ### Fixed

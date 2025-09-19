@@ -1,4 +1,4 @@
-<h2 [style]="lhcStyle.h2">{{ variableTitle }}</h2>
+<h2 [style]="lhcStyle.h2">{{variableTitle}}</h2>
 
 <lhc-fhirpath-easypath-conversion-confirmation-dialog
   *ngIf="showConfirmDialog"
@@ -8,7 +8,7 @@
 </lhc-fhirpath-easypath-conversion-confirmation-dialog>
 
 <div class="container" [attr.aria-hidden]="showConfirmDialog ? 'true' : 'false' ">
-  <div class="variable-header" [style]="lhcStyle.variableHeader" aria-hidden="true">
+  <div *ngIf="variables.length > 0" class="variable-header" [style]="lhcStyle.variableHeader" aria-hidden="true">
     <div class="variable-column-label">Label</div>
     <div class="variable-column-type">Variable Type</div>
     <div class="variable-column-details">Question/FHIRPath Expression/FHIR Query</div>
@@ -166,11 +166,7 @@
         </button>
       </div>
     </div>
-    <div
-      *ngIf="!variables.length"
-      class="no-variables">No variables, please
-      <a href="#" (click)="onAdd()">add one</a>.
-    </div>
+    <div *ngIf="!variables.length" class="no-variables">{{emptyVariableListMessage}}</div>
   </div>
 </div>
 

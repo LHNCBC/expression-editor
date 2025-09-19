@@ -15,13 +15,19 @@ export class VariablesComponent implements OnInit, OnChanges, OnDestroy {
   @Input() lhcStyle: SimpleStyle = {};
   @Input() advancedInterface: boolean;
 
-  @ViewChildren('exp') expressionRefs: QueryList<NgModel>;
-
   /**
    * Indicates if the variables are form-level or item-level.
    * Possible values: 'form' | 'item'
    */
   @Input() variableLevel: 'form' | 'item' = 'item';
+
+  /**
+   * Identifies if this section is for variables or output expression.
+   * Possible values: 'variable' | 'output_expression'
+   */
+  @Input() sectionType: 'variable' | 'output_expression' = 'variable';
+
+  @ViewChildren('exp') expressionRefs: QueryList<NgModel>;
 
   appName = ExpressionEditorService.APP_NAME;
 
@@ -48,6 +54,13 @@ export class VariablesComponent implements OnInit, OnChanges, OnDestroy {
    */
   get variableTitle(): string {
     return `${this.variableLevel.charAt(0).toUpperCase()}${this.variableLevel.slice(1)} Variables`;
+  }
+
+  /**
+   * Returns a message when the variable list is empty, based on the variable level.
+   */
+  get emptyVariableListMessage(): string {
+    return `There are currently no variables for this ${this.variableLevel}.`;
   }
 
   /**
