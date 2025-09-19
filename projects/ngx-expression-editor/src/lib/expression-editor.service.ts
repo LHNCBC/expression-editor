@@ -744,7 +744,7 @@ export class ExpressionEditorService {
    * @private
    */
   private processVariable(name, expression, index?: number, extensions?, variableType?: string): Variable {
-    const matches = expression.match(this.QUESTION_REGEX);
+    const matches = (typeof expression === 'string') ? expression.match(this.QUESTION_REGEX) : null;
 
     const simpleExtension = extensions && extensions.find(e => e.url === ExpressionEditorService.SIMPLE_SYNTAX_EXTENSION);
 
@@ -1730,8 +1730,8 @@ export class ExpressionEditorService {
    */
   decodeQueryURIExpression(expression: string): string {
     const decodedParams: string[] = [];
-    const resourceArr = expression.split("?");
-    let queryString = resourceArr[0];
+    const resourceArr = (typeof expression === 'string') ? expression.split("?") : [];
+    let queryString = resourceArr.length > 0 ? resourceArr[0] : '';
 
     if (resourceArr.length > 1) {
       const queryParams = resourceArr[1].split('&');
