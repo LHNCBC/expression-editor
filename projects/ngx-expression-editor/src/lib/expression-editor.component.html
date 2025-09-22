@@ -69,8 +69,7 @@
             <option *ngFor="let choice of userExpressionChoices" [value]="choice.uri">{{choice.name}}</option>
           </select>
         </div>
-
-        <div class="checkbox">
+        <div class="checkbox" *ngIf="expressionType !== 'enableWhen'">
           <input type="checkbox" id="case-statements" [(ngModel)]="caseStatements">
           <label for="case-statements">Case Statements Helper</label>
         </div>
@@ -84,7 +83,7 @@
               (change)="onTypeChange($event)"
               aria-label="Expression syntax type"
               [ngStyle]="defaultLhcStyle.select">
-              <option *ngIf="!isAnswerExpression" value="simple">Easy Path Expression</option>
+              <option *ngIf="expressionType !== 'answer'" value="simple">Easy Path Expression</option>
               <option value="fhirpath">FHIRPath Expression</option>
             </select>
             <lhc-helps

@@ -161,10 +161,12 @@ export class ExpressionEditorService {
   private QUERY_DATE_REGEX = /gt{{today\(\)-(\d+)\s+(\S+)}}/;
 
   private VARIABLE_EXTENSION = 'http://hl7.org/fhir/StructureDefinition/variable';
+  private INITIAL_EXPRESSION_URI = 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression';
   private CALCULATED_EXPRESSION_URI = 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression';
   private LAUNCH_CONTEXT_URI = 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-launchContext';
 
   private ANSWER_EXPRESSION_URI = "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-answerExpression";
+  private ENABLEWHEN_EXPRESSION_URI = "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-enableWhenExpression";
 
   private linkIdToQuestion = {};
   private fhir;
@@ -1606,6 +1608,21 @@ export class ExpressionEditorService {
    */
   isAnswerExpression(expressionUri: string): boolean {
     return (expressionUri === this.ANSWER_EXPRESSION_URI);
+  }
+
+  /**
+   * Extracts the type keyword (such as 'enableWhen', 'initial', 'calculated', or 'answer')
+   * from a FHIR extension URI that ends with 'sdc-questionnaire-<Type>Expression'.
+   * Returns the extracted type as a string, or null if the input does not match the expected pattern.
+   * Useful for dynamically identifying the kind of expression extension based on its URI.
+   * @param expressionUri - The FHIR extension URI string
+   * @returns The extracted type keyword or null
+   */
+  getExpressionType(expressionUri: string): string | null {
+    if (typeof expressionUri !== 'string') return null;
+    // Match any prefix ending with sdc-questionnaire-<Type>Expression
+    const match = expressionUri.match(/sdc-questionnaire-([a-zA-Z]+)Expression$/);
+    return match ? match[1] : null;
   }
 
   /**

@@ -64,7 +64,7 @@ export class ExpressionEditorComponent implements OnInit, OnChanges, OnDestroy {
   openExpressionEditorLabel;
   openExpressionEditorTooltip;
 
-  isAnswerExpression = false;
+  expressionType;
 
   // Flag to track if export is pending after validation
   isExportPending = false;
@@ -305,7 +305,7 @@ export class ExpressionEditorComponent implements OnInit, OnChanges, OnDestroy {
     this.hideExpressionEditor = false;
     this.doNotAskToCalculateScore = false;
     this.resetVariablesOnQuestionnaireChange();
-    this.isAnswerExpression = this.variableService.isAnswerExpression(this.expressionUri);
+    this.expressionType = this.variableService.getExpressionType(this.expressionUri);
     this.reload();
   }
 
