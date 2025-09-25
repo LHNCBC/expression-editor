@@ -2,7 +2,7 @@
 
 This project follows [Semantic Versioning](http://semver.org/).
 
-## [3.3.3] 2025-09-18
+## [4.0.0] 2025-09-18
 ### Fixed
 - Prevent the dialog from closing before validation is complete.
 ### Changed
