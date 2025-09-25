@@ -64,7 +64,10 @@ export class ExpressionEditorComponent implements OnInit, OnChanges, OnDestroy {
   openExpressionEditorLabel;
   openExpressionEditorTooltip;
 
-  isAnswerExpression = false;
+  expressionType;
+
+  // Flag to track if export is pending after validation
+  isExportPending = false;
 
   private calculateSumSubscription;
   private finalExpressionSubscription;
@@ -191,6 +194,8 @@ export class ExpressionEditorComponent implements OnInit, OnChanges, OnDestroy {
         this.validationError = validation.hasError;
         this.validationErrorMessage = (this.validationError) ? this.composeAriaValidationErrorMessage(validation) : "";
         this.matToolTip = (this.validationErrorMessage) ? this.validationErrorMessage : `Save the ${this.appName}`;
+
+        this.isExportPending = false;
       } else {
         // The validationError represents the current status while the validation.hasError flag
         // represents the new status. If the status changes from 'true' to 'false', indicating
@@ -200,6 +205,10 @@ export class ExpressionEditorComponent implements OnInit, OnChanges, OnDestroy {
           this.validationError = validation.hasError;
           this.liveAnnouncer.announce(this.noErrorMessage);
         }
+        // If export was requested and validation passes, proceed to export
+        if (this.isExportPending) {
+          this.export();
+        }
       }
     });
 
@@ -208,7 +217,7 @@ export class ExpressionEditorComponent implements OnInit, OnChanges, OnDestroy {
     this.performValidationSubscription = this.variableService.performValidationChange.subscribe((validation) => {
       // By setting the setValue to blank on simple expression that is null, empty, or undefined,
       // it would force the validation to occurs.
-      if (this.expressionSyntax === "fhirpath" && this.finalExpression === "") {
+      if (this.expressionSyntax === "fhirpath" && this.finalExpression === "" && this.display.outputExpressionSection) {
         this.expRef.control.markAsTouched();
         this.expRef.control.markAsDirty();
         this.expRef.control.setValue("");
@@ -296,7 +305,7 @@ export class ExpressionEditorComponent implements OnInit, OnChanges, OnDestroy {
     this.hideExpressionEditor = false;
     this.doNotAskToCalculateScore = false;
     this.resetVariablesOnQuestionnaireChange();
-    this.isAnswerExpression = this.variableService.isAnswerExpression(this.expressionUri);
+    this.expressionType = this.variableService.getExpressionType(this.expressionUri);
     this.reload();
   }
 
@@ -340,15 +349,27 @@ export class ExpressionEditorComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   /**
+   * Pre-export function: triggers validation and sets export pending flag
+   */
+  preExport(): void {
+    if (this.display.itemVariablesSection && this.variables.length > 0) {
+      this.isExportPending = true;
+      // Trigger validation
+      this.variableService.notifyValidationCheck();
+    } else {
+      this.export();
+    }
+  }
+
+  /**
    * Export FHIR Questionnaire and download as a file
    */
   export(): void {
     this.liveAnnouncer.announce("Export Questionnaire data.");
+    this.isExportPending = false;
+
     setTimeout(() => {
       if (!this.validationError) {
-        if (this.display.outputExpressionSection) {
-          this.variableService.notifyValidationCheck();
-        }
         const finalExpression = this.finalExpressionExtension;
         if (finalExpression?.valueExpression) {
           finalExpression.valueExpression.expression = this.finalExpression;

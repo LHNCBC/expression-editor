@@ -53,7 +53,12 @@
       </section>
 
       <section id="variables-section" class="mb-3" *ngIf="display.itemVariablesSection">
-        <lhc-variables [lhcStyle]="defaultLhcStyle" [advancedInterface]="advancedInterface"></lhc-variables>
+        <lhc-variables
+          [variableLevel]="itemLinkId ? 'item' : 'form'"
+          [sectionType]="display.outputExpressionSection ? 'output_expression' : 'variable'"
+          [lhcStyle]="defaultLhcStyle"
+          [advancedInterface]="advancedInterface">
+        </lhc-variables>
       </section>
 
       <section id="final-expression-section" class="mb-3" *ngIf="display.outputExpressionSection && expressionUri && itemLinkId">
@@ -64,8 +69,7 @@
             <option *ngFor="let choice of userExpressionChoices" [value]="choice.uri">{{choice.name}}</option>
           </select>
         </div>
-
-        <div class="checkbox">
+        <div class="checkbox" *ngIf="expressionType !== 'enableWhen'">
           <input type="checkbox" id="case-statements" [(ngModel)]="caseStatements">
           <label for="case-statements">Case Statements Helper</label>
         </div>
@@ -79,7 +83,7 @@
               (change)="onTypeChange($event)"
               aria-label="Expression syntax type"
               [ngStyle]="defaultLhcStyle.select">
-              <option *ngIf="!isAnswerExpression" value="simple">Easy Path Expression</option>
+              <option *ngIf="expressionType !== 'answer'" value="simple">Easy Path Expression</option>
               <option value="fhirpath">FHIRPath Expression</option>
             </select>
             <lhc-helps
@@ -160,7 +164,7 @@
         </div>
       </section>
       <button class="primary" [ngClass]="{'disabled': validationError}"
-              [attr.aria-label]="validationErrorMessage" (click)="export()" [matTooltip]="matToolTip"
+              [attr.aria-label]="validationErrorMessage" (click)="preExport()" [matTooltip]="matToolTip"
               [ngStyle]="defaultLhcStyle.buttonPrimary" id="export">{{submitButtonName}}</button>
       <button (click)="cancelExpressionEditorChanges()" id="cancel-changes"
               matTooltip="Cancel the {{appName}}" [ngStyle]="defaultLhcStyle.buttonSecondary" >Cancel</button>

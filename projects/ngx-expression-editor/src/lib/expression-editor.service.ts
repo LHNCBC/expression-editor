@@ -161,10 +161,12 @@ export class ExpressionEditorService {
   private QUERY_DATE_REGEX = /gt{{today\(\)-(\d+)\s+(\S+)}}/;
 
   private VARIABLE_EXTENSION = 'http://hl7.org/fhir/StructureDefinition/variable';
+  private INITIAL_EXPRESSION_URI = 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression';
   private CALCULATED_EXPRESSION_URI = 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression';
   private LAUNCH_CONTEXT_URI = 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-launchContext';
 
   private ANSWER_EXPRESSION_URI = "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-answerExpression";
+  private ENABLEWHEN_EXPRESSION_URI = "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-enableWhenExpression";
 
   private linkIdToQuestion = {};
   private fhir;
@@ -744,7 +746,7 @@ export class ExpressionEditorService {
    * @private
    */
   private processVariable(name, expression, index?: number, extensions?, variableType?: string): Variable {
-    const matches = expression.match(this.QUESTION_REGEX);
+    const matches = (typeof expression === 'string') ? expression.match(this.QUESTION_REGEX) : null;
 
     const simpleExtension = extensions && extensions.find(e => e.url === ExpressionEditorService.SIMPLE_SYNTAX_EXTENSION);
 
@@ -1609,6 +1611,21 @@ export class ExpressionEditorService {
   }
 
   /**
+   * Extracts the type keyword (such as 'enableWhen', 'initial', 'calculated', or 'answer')
+   * from a FHIR extension URI that ends with 'sdc-questionnaire-<Type>Expression'.
+   * Returns the extracted type as a string, or null if the input does not match the expected pattern.
+   * Useful for dynamically identifying the kind of expression extension based on its URI.
+   * @param expressionUri - The FHIR extension URI string
+   * @returns The extracted type keyword or null
+   */
+  getExpressionType(expressionUri: string): string | null {
+    if (typeof expressionUri !== 'string') return null;
+    // Match any prefix ending with sdc-questionnaire-<Type>Expression
+    const match = expressionUri.match(/sdc-questionnaire-([a-zA-Z]+)Expression$/);
+    return match ? match[1] : null;
+  }
+
+  /**
    * Determine if the given item has a calculated expression that is not extended with
    * our custom total score extension.
    * @param item - FHIR Item
@@ -1730,8 +1747,8 @@ export class ExpressionEditorService {
    */
   decodeQueryURIExpression(expression: string): string {
     const decodedParams: string[] = [];
-    const resourceArr = expression.split("?");
-    let queryString = resourceArr[0];
+    const resourceArr = (typeof expression === 'string') ? expression.split("?") : [];
+    let queryString = resourceArr.length > 0 ? resourceArr[0] : '';
 
     if (resourceArr.length > 1) {
       const queryParams = resourceArr[1].split('&');
