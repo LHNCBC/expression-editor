@@ -2,6 +2,10 @@
 
 This project follows [Semantic Versioning](http://semver.org/).
 
+## [4.0.1] 2025-12-02
+### Fixed
+- Fixed vulnerability issues.
+
 ## [4.0.0] 2025-09-18
 ### Fixed
 - Prevent the dialog from closing before validation is complete.
