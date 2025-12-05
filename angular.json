@@ -115,19 +115,6 @@
             ]
           }
         },
-        "lint": {
-          "builder": "@angular-devkit/build-angular:tslint",
-          "options": {
-            "tsConfig": [
-              "tsconfig.app.json",
-              "tsconfig.spec.json",
-              "cypress/tsconfig.json"
-            ],
-            "exclude": [
-              "**/node_modules/**"
-            ]
-          }
-        },
         "e2e": {
           "builder": "@cypress/schematic:cypress",
           "options": {
@@ -155,9 +142,18 @@
         "cypress-open": {
           "builder": "@cypress/schematic:cypress",
           "options": {
-            "devServerTarget": "demo:serve"
+            "devServerTarget": "demo:serve",
             "watch": true,
             "headless": false
+          }
+        },
+        "lint": {
+          "builder": "@angular-eslint/builder:lint",
+          "options": {
+            "lintFilePatterns": [
+              "src/**/*.ts",
+              "src/**/*.html"
+            ]
           }
         }
       }
@@ -188,19 +184,6 @@
             "karmaConfig": "projects/ngx-expression-editor/karma.conf.js",
             "scripts": [
               "./node_modules/jquery/dist/jquery.min.js"
-            ]
-          }
-        },
-        "lint": {
-          "builder": "@angular-devkit/build-angular:tslint",
-          "options": {
-            "tsConfig": [
-              "projects/ngx-expression-editor/tsconfig.lib.json",
-              "projects/ngx-expression-editor/tsconfig.spec.json",
-              "projects/ngx-expression-editor/cypress/tsconfig.json"
-            ],
-            "exclude": [
-              "**/node_modules/**"
             ]
           }
         },
@@ -235,6 +218,16 @@
             "production": {
               "devServerTarget": "ngx-expression-editor:serve:production"
             }
+          }
+        },
+        "lint": {
+          "builder": "@angular-eslint/builder:lint",
+          "options": {
+            "lintFilePatterns": [
+              "projects/ngx-expression-editor/**/*.ts",
+              "projects/ngx-expression-editor/**/*.html"
+            ],
+            "eslintConfig": "projects/ngx-expression-editor/eslint.config.js"
           }
         }
       }
@@ -315,19 +308,6 @@
             "buildTarget": "expression-editor:build"
           }
         },
-        "lint": {
-          "builder": "@angular-devkit/build-angular:tslint",
-          "options": {
-            "tsConfig": [
-              "projects/expression-editor/tsconfig.app.json",
-              "projects/expression-editor/tsconfig.spec.json",
-              "projects/expression-editor/cypress/tsconfig.json"
-            ],
-            "exclude": [
-              "**/node_modules/**"
-            ]
-          }
-        },
         "cypress-run": {
           "builder": "@cypress/schematic:cypress",
           "options": {
@@ -359,6 +339,16 @@
             "production": {
               "devServerTarget": "expression-editor:serve:production"
             }
+          }
+        },
+        "lint": {
+          "builder": "@angular-eslint/builder:lint",
+          "options": {
+            "lintFilePatterns": [
+              "projects/expression-editor/**/*.ts",
+              "projects/expression-editor/**/*.html"
+            ],
+            "eslintConfig": "projects/expression-editor/eslint.config.js"
           }
         }
       }
