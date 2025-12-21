@@ -1,35 +1,47 @@
 <div class="form-inline question">
   <div class="question-select">
     <input [style]="lhcStyle.input" placeholder="Select" class="query-autocomplete"
-           #autoComplete id="question-{{index}}"
+      #autoComplete id="question-{{index}}"
 
-           [attr.aria-invalid]="question.invalid"
-           [attr.aria-label]="question?.errors?.ariaMessage"
-           [class.field-error]="question.errors"
-           (ngModel)="variable.expression"
-           #question="ngModel"
-           lhcExpressionValidator
-           [lhcExpressionValidateInput]="'true'"
+      [attr.aria-invalid]="question.invalid"
+      [attr.aria-label]="question?.errors?.ariaMessage"
+      [class.field-error]="question.errors"
+      (ngModel)="variable.expression"
+      #question="ngModel"
+      lhcExpressionValidator
+      [lhcExpressionValidateInput]="'true'"
            [lhcExpressionValidatorParams]="{'section': 'Item Variables',
                                             'field': 'expression', 'type': 'question',
                                             'linkId': linkId, 'index': index}"
-    />
+      />
   </div>
 
   <div class="unit-select">
-    <select *ngIf="conversionOptions" [(ngModel)]="toUnit" [style]="lhcStyle.select"
-            (change)="onChange(false)" aria-label="Unit conversion">
-      <option value="">Keep form units ({{unit}})</option>
-      <option *ngFor="let u of conversionOptions" value="{{u.unit}}">Convert to {{u.unit}}</option>
-    </select>
+    @if (conversionOptions) {
+      <select [(ngModel)]="toUnit" [style]="lhcStyle.select"
+        (change)="onChange(false)" aria-label="Unit conversion">
+        <option value="">Keep form units ({{unit}})</option>
+        @for (u of conversionOptions; track u) {
+          <option value="{{u.unit}}">Convert to {{u.unit}}</option>
+        }
+      </select>
+    }
 
-    <div *ngIf="isNonConvertibleUnit" class="detail">Unit: {{unit}}</div>
-    <div *ngIf="itemHasScore" class="detail">Score</div>
+    @if (isNonConvertibleUnit) {
+      <div class="detail">Unit: {{unit}}</div>
+    }
+    @if (itemHasScore) {
+      <div class="detail">Score</div>
+    }
   </div>
 </div>
-<lhc-syntax-preview [syntax]="expression" [lhcStyle]="lhcStyle" *ngIf="!question.errors"></lhc-syntax-preview>
+@if (!question.errors) {
+  <lhc-syntax-preview [syntax]="expression" [lhcStyle]="lhcStyle"></lhc-syntax-preview>
+}
 <div id="expression-error" role="alert" class="row error-span">
-  <p class="expression-error" *ngIf="question.errors">
-    {{question.errors.message}}
-  </p>
+  @if (question.errors) {
+    <p class="expression-error">
+      {{question.errors.message}}
+    </p>
+  }
 </div>

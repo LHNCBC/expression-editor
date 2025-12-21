@@ -1,4 +1,4 @@
-<div 
+<div
   role="dialog"
   aria-modal="true"
   cdkTrapFocusAutoCapture
@@ -10,18 +10,20 @@
   class="base-modal">
 
   <div class="base-modal-content base-content" #modal [style]="dialogStyle.dialogContentDiv">
-    <div attr.id="{{name}}-title-bar" class="base-modal-header" [ngStyle]="lhcStyle.titleBar" *ngIf="displayTitleBar" >
-      <span attr.id="{{name}}-title">{{titleBarLabel}}</span>
-      <button type="button" class="btn-close btn-close-white svg" aria-label="Close" (click)="onDialogClose()" >
-        <svg viewBox="0 0 24 24" (mouseenter)="isHovered=true" (mouseleave)="isHovered=false" 
+    @if (displayTitleBar) {
+      <div attr.id="{{name}}-title-bar" class="base-modal-header" [ngStyle]="lhcStyle.titleBar" >
+        <span attr.id="{{name}}-title">{{titleBarLabel}}</span>
+        <button type="button" class="btn-close btn-close-white svg" aria-label="Close" (click)="onDialogClose()" >
+          <svg viewBox="0 0 24 24" (mouseenter)="isHovered=true" (mouseleave)="isHovered=false"
              [style]="{'fill': isHovered ? lhcStyle.titleBar?.color : lhcStyle.titleBar?.backgroundColor,
                          'stroke': isHovered ?  lhcStyle.titleBar?.backgroundColor : lhcStyle.titleBar?.color}">
-          <circle cx="12" cy="12" r="10"></circle>
-          <line x1="15" y1="9" x2="9" y2="15"></line>
-          <line x1="9" y1="9" x2="15" y2="15"></line> 
-        </svg>
-      </button>
-    </div>
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="15" y1="9" x2="9" y2="15"></line>
+            <line x1="9" y1="9" x2="15" y2="15"></line>
+          </svg>
+        </button>
+      </div>
+    }
     <div class="base-modal-body" [style]="dialogStyle.dialogBodyDiv">
       <div [style]="dialogStyle.dialogHeaderDiv">
         <h2 attr.id="{{name}}-dialog-title">{{headerLabel}}</h2>
@@ -31,8 +33,12 @@
       </div>
     </div>
     <div class="base-modal-footer" [style]="dialogStyle.dialogFooterDiv">
-      <button [id]="yesButtonId" class="primary" [ngStyle]="lhcStyle.buttonPrimary" (click)="onYes()" *ngIf="yes.observed" >{{yesButtonLabel}}</button>
-      <button [id]="noButtonId" (click)="onNo()" [ngStyle]="lhcStyle.buttonSecondary" *ngIf="no.observed">{{noButtonLabel}}</button>
+      @if (yesHasObservers) {
+        <button [id]="yesButtonId" class="primary" [ngStyle]="lhcStyle.buttonPrimary" (click)="onYes()" >{{yesButtonLabel}}</button>
+      }
+      @if (noHasObservers) {
+        <button [id]="noButtonId" (click)="onNo()" [ngStyle]="lhcStyle.buttonSecondary">{{noButtonLabel}}</button>
+      }
     </div>
   </div>
 </div>

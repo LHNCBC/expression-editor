@@ -1,69 +1,78 @@
 <div>
-  <div> 
-    <ng-container *ngIf="!multipleLines; else multiLinesInput">
-      <input
-        *ngIf="index !== 'final'"
-        [(ngModel)]="simple"
-        [id]="'simple-expression-' + index"
-        (ngModelChange)="onExpressionChange($event)"
-        class="simple-expression"
-        aria-label="Easy Path Expression Text Input"
-        [style]="lhcStyle.input"
-        [attr.aria-invalid]="hasError"
-        aria-describedby="fhirpath-error"
-        spellcheck="false"
-
-        [class.field-error]="inputRef?.errors && !inputRef?.errors?.hasOwnProperty('invalidExpressionWarning')"
-        [class.field-warning]="inputRef?.errors && inputRef?.errors?.hasOwnProperty('invalidExpressionWarning')"
-        #inputRef="ngModel"
-        lhcExpressionValidator
-        [lhcExpressionValidateInput]="validateInput"
+  <div>
+    @if (!multipleLines) {
+      @if (index !== 'final') {
+        <input
+          [(ngModel)]="simple"
+          [id]="'simple-expression-' + index"
+          (ngModelChange)="onExpressionChange($event)"
+          class="simple-expression"
+          aria-label="Easy Path Expression Text Input"
+          [style]="lhcStyle.input"
+          [attr.aria-invalid]="hasError"
+          aria-describedby="fhirpath-error"
+          spellcheck="false"
+          [class.field-error]="inputRef?.errors && !inputRef?.errors?.hasOwnProperty('invalidExpressionWarning')"
+          [class.field-warning]="inputRef?.errors && inputRef?.errors?.hasOwnProperty('invalidExpressionWarning')"
+          #inputRef="ngModel"
+          lhcExpressionValidator
+          [lhcExpressionValidateInput]="validateInput"
         [lhcExpressionValidatorParams]="{'section': (index === 'final') ? 'Output Expression' : 'Item Variables',
                                          'field': 'expression', 'type': 'simple', 'index': index,
                                          'variables' : variables}"
-      />
-    </ng-container>
-
-    <ng-template #multiLinesInput>
-
-      <textarea
-        *ngIf="index === 'final'"
-        row="1"
-        [(ngModel)]="simple"
-        [id]="'simple-expression-' + index"
-        (ngModelChange)="onExpressionChange($event)"
-        class="simple-expression textarea"
-        aria-label="Easy Path Expression Text Input"
-        [style]="lhcStyle.input"
-        [attr.aria-invalid]="hasError"
-        aria-describedby="fhirpath-error"
-        spellcheck="false"    
-        [class.field-error]="inputRef?.errors"
-        #inputRef="ngModel"
-        lhcExpressionValidator
-        [lhcExpressionValidateInput]="validateInput"
+          />
+      }
+    } @else {
+      @if (index === 'final') {
+        <textarea
+          row="1"
+          [(ngModel)]="simple"
+          [id]="'simple-expression-' + index"
+          (ngModelChange)="onExpressionChange($event)"
+          class="simple-expression textarea"
+          aria-label="Easy Path Expression Text Input"
+          [style]="lhcStyle.input"
+          [attr.aria-invalid]="hasError"
+          aria-describedby="fhirpath-error"
+          spellcheck="false"
+          [class.field-error]="inputRef?.errors"
+          #inputRef="ngModel"
+          lhcExpressionValidator
+          [lhcExpressionValidateInput]="validateInput"
         [lhcExpressionValidatorParams]="{'section': (index === 'final') ? 'Output Expression' : 'Item Variables',
                                          'field': 'expression', 'type': 'simple', 'index': index,
                                          'variables' : variables}"
-      ></textarea>
-    </ng-template>
+        ></textarea>
+      }
+    }
 
-    <div id="expression-audible-error" role="alert" *ngIf="inputRef?.errors" class="visually-hidden" >
-      {{inputRef?.errors.ariaMessage}}
-    </div>
-    <div id="expression-error" class="row error-span" *ngIf="inputRef?.errors">
-      <p class="expression-error" *ngIf="inputRef?.errors && !inputRef?.errors?.hasOwnProperty('invalidExpressionWarning')">
-        {{inputRef?.errors.message}}
-      </p>
-      <p class="expression-warning" *ngIf="inputRef?.errors && inputRef?.errors?.hasOwnProperty('invalidExpressionWarning')">
-        {{inputRef?.errors.message}}
-      </p>
-    </div>
 
-    <lhc-syntax-preview *ngIf="!inputRef?.errors"
-      [syntax]="fhirPathExpression"
-      [lhcStyle]="{'width': 'auto'}"
-      [hasError]="hasError">
-    </lhc-syntax-preview>
+    @if (inputRef?.errors) {
+      <div id="expression-audible-error" role="alert" class="visually-hidden" >
+        {{inputRef?.errors.ariaMessage}}
+      </div>
+    }
+    @if (inputRef?.errors) {
+      <div id="expression-error" class="row error-span">
+        @if (inputRef?.errors && !inputRef?.errors?.hasOwnProperty('invalidExpressionWarning')) {
+          <p class="expression-error">
+            {{inputRef?.errors.message}}
+          </p>
+        }
+        @if (inputRef?.errors && inputRef?.errors?.hasOwnProperty('invalidExpressionWarning')) {
+          <p class="expression-warning">
+            {{inputRef?.errors.message}}
+          </p>
+        }
+      </div>
+    }
+
+    @if (!inputRef?.errors) {
+      <lhc-syntax-preview
+        [syntax]="fhirPathExpression"
+        [lhcStyle]="{'width': 'auto'}"
+        [hasError]="hasError">
+      </lhc-syntax-preview>
+    }
   </div>
 </div>

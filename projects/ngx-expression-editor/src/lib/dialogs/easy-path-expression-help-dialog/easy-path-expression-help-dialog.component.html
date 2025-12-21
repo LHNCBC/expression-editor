@@ -20,42 +20,52 @@
       </a>
       <i [class]="help_arrow_ops"></i>
     </strong>
-    <ul *ngIf="sectionArr[0] && !operatorItemsReadOnly" id="clickableOperator" >
-      <li class="text" *ngFor="let item of usableOperators" >
-        <a href="#"
-          (focus)="getLiveAnnouncementForItem(usableOperators2[item])"
-          (click)="toggleUsableOperatorItem(item)">{{item}}
-        </a>
-        <div id="operator-detail" *ngIf="usableOperators2[item].display" class="help_item_detail">
-          <p id="description" class="flex_container">
-            <strong class="flex_label">Description:</strong>
-            <span class="flex_data">{{usableOperators2[item].description}}</span>
-          </p>
-          <p id="usage" class="flex_container">
-            <strong class="flex_label">Usage:</strong>
-            <span class="flex_data">{{usableOperators2[item].usage}}</span>
-          </p>
-          <p id="output" class="flex_container">
-            <strong class="flex_label">Output:</strong>
-            <span class="flex_data">{{usableOperators2[item].output}}</span>
-          </p>
-          <div id="examples" class="flex_container">
-            <strong class="flex_label">Example:</strong>
-            <span class="flex_data">
-              <ng-container *ngFor="let ex of usableOperators2[item].example; let i = index">
-                <ng-container *ngIf="i > 0">
-                  <br />
-                </ng-container>
-                <span class="help_example"><code>{{ex}}</code></span>
-              </ng-container>
-            </span>
-          </div>
-        </div>
-      </li>
-    </ul>
-     <ul *ngIf="sectionArr[0] && operatorItemsReadOnly" >
-       <li *ngFor="let item of usableOperators">{{item}}</li>
-     </ul>
+    @if (sectionArr[0] && !operatorItemsReadOnly) {
+      <ul id="clickableOperator" >
+        @for (item of usableOperators; track item) {
+          <li class="text" >
+            <a href="#"
+              (focus)="getLiveAnnouncementForItem(usableOperators2[item])"
+              (click)="toggleUsableOperatorItem(item)">{{item}}
+            </a>
+            @if (usableOperators2[item].display) {
+              <div id="operator-detail" class="help_item_detail">
+                <p id="description" class="flex_container">
+                  <strong class="flex_label">Description:</strong>
+                  <span class="flex_data">{{usableOperators2[item].description}}</span>
+                </p>
+                <p id="usage" class="flex_container">
+                  <strong class="flex_label">Usage:</strong>
+                  <span class="flex_data">{{usableOperators2[item].usage}}</span>
+                </p>
+                <p id="output" class="flex_container">
+                  <strong class="flex_label">Output:</strong>
+                  <span class="flex_data">{{usableOperators2[item].output}}</span>
+                </p>
+                <div id="examples" class="flex_container">
+                  <strong class="flex_label">Example:</strong>
+                  <span class="flex_data">
+                    @for (ex of usableOperators2[item].example; track ex; let i = $index) {
+                      @if (i > 0) {
+                        <br />
+                      }
+                      <span class="help_example"><code>{{ex}}</code></span>
+                    }
+                  </span>
+                </div>
+              </div>
+            }
+          </li>
+        }
+      </ul>
+    }
+    @if (sectionArr[0] && operatorItemsReadOnly) {
+      <ul >
+        @for (item of usableOperators; track item) {
+          <li>{{item}}</li>
+        }
+      </ul>
+    }
 
   </section>
 
@@ -68,43 +78,53 @@
       <i [class]="help_arrow_funcs"></i>
     </strong>
 
-    <ul *ngIf="sectionArr[1] && !functionItemsReadOnly" id="clickableFunction" >
-      <li *ngFor="let func of usableFunctions" >
-        <a href="#"
-          (focus)="getLiveAnnouncementForItem(usableFunctions2[func])"
-          (click)="toggleUsableFunctionItem(func)"
-          class="help_item" >{{func}}
-        </a>
-        <div id="function-detail" *ngIf="usableFunctions2[func].display" class="help_item_detail">
-          <p class="flex_container">
-            <strong class="flex_label">Description:</strong>
-            <span class="flex_data">{{usableFunctions2[func].description}}</span>
-          </p>
-          <p class="flex_container">
-            <strong class="flex_label">Usage:</strong>
-            <span class="flex_data">{{usableFunctions2[func].usage}}</span>
-          </p>
-          <p class="flex_container">
-            <strong class="flex_label">Output:</strong>
-            <span class="flex_data">{{usableFunctions2[func].output}}</span>
-          </p>
-          <div id="examples" class="flex_container">
-            <strong class="flex_label">Example:</strong>
-            <span class="flex_data">
-              <ng-container *ngFor="let ex of usableFunctions2[func].example; let i = index">
-                <ng-container *ngIf="i > 0">
-                  <br />
-                </ng-container>
-                <span class="help_example"><code>{{ex}}</code></span>
-              </ng-container>
-            </span>
-          </div>
-        </div>
-      </li>
-    </ul>
-    <ul *ngIf="sectionArr[1] && functionItemsReadOnly" >
-      <li *ngFor="let func of usableFunctions">{{func}}</li>
-    </ul>
+    @if (sectionArr[1] && !functionItemsReadOnly) {
+      <ul id="clickableFunction" >
+        @for (func of usableFunctions; track func) {
+          <li >
+            <a href="#"
+              (focus)="getLiveAnnouncementForItem(usableFunctions2[func])"
+              (click)="toggleUsableFunctionItem(func)"
+              class="help_item" >{{func}}
+            </a>
+            @if (usableFunctions2[func].display) {
+              <div id="function-detail" class="help_item_detail">
+                <p class="flex_container">
+                  <strong class="flex_label">Description:</strong>
+                  <span class="flex_data">{{usableFunctions2[func].description}}</span>
+                </p>
+                <p class="flex_container">
+                  <strong class="flex_label">Usage:</strong>
+                  <span class="flex_data">{{usableFunctions2[func].usage}}</span>
+                </p>
+                <p class="flex_container">
+                  <strong class="flex_label">Output:</strong>
+                  <span class="flex_data">{{usableFunctions2[func].output}}</span>
+                </p>
+                <div id="examples" class="flex_container">
+                  <strong class="flex_label">Example:</strong>
+                  <span class="flex_data">
+                    @for (ex of usableFunctions2[func].example; track ex; let i = $index) {
+                      @if (i > 0) {
+                        <br />
+                      }
+                      <span class="help_example"><code>{{ex}}</code></span>
+                    }
+                  </span>
+                </div>
+              </div>
+            }
+          </li>
+        }
+      </ul>
+    }
+    @if (sectionArr[1] && functionItemsReadOnly) {
+      <ul >
+        @for (func of usableFunctions; track func) {
+          <li>{{func}}</li>
+        }
+      </ul>
+    }
   </section>
 
 </lhc-base-dialog>

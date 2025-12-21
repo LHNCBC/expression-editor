@@ -1,22 +1,25 @@
 <div class="help">
-  <button 
-    class="help"
-    [id]="'exp-help-button-' + index"
-    (click)="openHelp()" 
-    *ngIf="type==='expression' || type==='fhirpath' || type==='simple'"
-    [attr.aria-label]="matToolTip"
-    [matTooltip]="matToolTip" >?
-  </button>
+  @if (type==='expression' || type==='fhirpath' || type==='simple') {
+    <button
+      class="help"
+      [id]="'exp-help-button-' + index"
+      (click)="openHelp()"
+      [attr.aria-label]="matToolTip"
+      [matTooltip]="matToolTip" >?
+    </button>
+  }
 
-  <lhc-fhirpath-expression-help-dialog
-    *ngIf="(type==='expression' || type==='fhirpath') && showHelp"
-    (onCloseHelp)="closeHelp()"
-    [lhcStyle]="lhcStyle">
-  </lhc-fhirpath-expression-help-dialog>
+  @if ((type==='expression' || type==='fhirpath') && showHelp) {
+    <lhc-fhirpath-expression-help-dialog
+      (onCloseHelp)="closeHelp()"
+      [lhcStyle]="lhcStyle">
+    </lhc-fhirpath-expression-help-dialog>
+  }
 
-  <lhc-easy-path-expression-help-dialog
-    *ngIf="type==='simple' && showHelp"
-    (onCloseHelp)="closeHelp()"
-    [lhcStyle]="lhcStyle">
-  </lhc-easy-path-expression-help-dialog>
+  @if (type==='simple' && showHelp) {
+    <lhc-easy-path-expression-help-dialog
+      (onCloseHelp)="closeHelp()"
+      [lhcStyle]="lhcStyle">
+    </lhc-easy-path-expression-help-dialog>
+  }
 </div>

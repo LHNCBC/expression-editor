@@ -254,4 +254,24 @@ export class BaseDialogComponent implements OnInit {
       }
     }
   }
+
+  /**
+   * Indicates whether the `yes` EventEmitter has any active observers.
+   *
+   * Used to determine if the parent component is listening for the
+   * `yes` event before emitting or conditionally rendering UI.
+   */
+  get yesHasObservers(): boolean {
+    return (this.yes as any).observers?.length > 0;
+  }
+
+  /**
+   * Indicates whether the `no` EventEmitter has any active observers.
+   *
+   * Used to determine if the parent component is listening for the
+   * `no` event before emitting or conditionally rendering UI.
+   */
+  get noHasObservers(): boolean {
+    return (this.no as any).observers?.length > 0;
+  }
 }
