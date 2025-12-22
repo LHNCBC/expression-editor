@@ -1,6 +1,6 @@
 {
   "name": "ngx-expression-editor",
-  "version": "4.1.0",
+  "version": "5.0.0",
   "peerDependencies": {
     "@angular/animations": "~20.3.15",
     "@angular/cdk": "^20.2.14",
