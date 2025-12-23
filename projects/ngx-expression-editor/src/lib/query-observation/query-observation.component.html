@@ -1,34 +1,34 @@
 <div class="form-inline query">
   <div class="query-select">
     <input [style]="lhcStyle.input" placeholder="LOINC Name / LOINC Number / Other Code"
-           class="query-autocomplete" #autoComplete id="autocomplete-{{index}}" 
+      class="query-autocomplete" #autoComplete id="autocomplete-{{index}}"
 
-           [class.field-error]="qobs.errors"
-           (ngModel)="codes"
-           #qobs="ngModel"
-           lhcExpressionValidator
-           [lhcExpressionValidateInput]="'true'"
+      [class.field-error]="qobs.errors"
+      (ngModel)="codes"
+      #qobs="ngModel"
+      lhcExpressionValidator
+      [lhcExpressionValidateInput]="'true'"
            [lhcExpressionValidatorParams]="{'section': 'Item Variables',
                                             'field': 'expression', 'type': 'queryObservation',
                                             'codes': codes, 'index': index}"
-     
-          />
+
+      />
   </div>
   <div class="time-input">
     <input [style]="lhcStyle.input" [(ngModel)]="timeInterval" (change)="onChange(false)"
-           aria-label="Time interval" type="number" min="1" 
-           [class.field-error]="timeintv.errors"
-           #timeintv="ngModel"
-           lhcExpressionValidator
-           [lhcExpressionValidateInput]="'true'"
+      aria-label="Time interval" type="number" min="1"
+      [class.field-error]="timeintv.errors"
+      #timeintv="ngModel"
+      lhcExpressionValidator
+      [lhcExpressionValidateInput]="'true'"
            [lhcExpressionValidatorParams]="{'section': 'Item Variables',
                                             'field': 'timeInterval', 'type': 'queryObservation',
                                             'index': index}"
-    />
+      />
   </div>
   <div class="time-select">
     <select [style]="lhcStyle.input" [(ngModel)]="timeIntervalUnit"
-            (change)="onChange(false)" aria-label="Time interval units">
+      (change)="onChange(false)" aria-label="Time interval units">
       <option value="days">Day(s)</option>
       <option value="weeks">Week(s)</option>
       <option value="months">Month(s)</option>
@@ -36,14 +36,22 @@
     </select>
   </div>
 </div>
-<div class="syntax-preview text-muted" [ngStyle]="lhcStyle" *ngIf="codes.length && !qobs.errors">
-  x-fhir-query: <pre class="d-inline text-muted" title="{{expression}}">{{expression}}</pre>
-</div>
-<div id="expression-error" role="alert" class="row error-span" *ngIf="qobs.errors || timeintv.errors">
-  <p class="expression-error" *ngIf="qobs.errors">
-    {{qobs.errors.message}}
-  </p>
-  <p class="expression-error" *ngIf="timeintv.errors">
-    {{timeintv.errors.message}}
-  </p>
-</div>
+@if (codes.length && !qobs.errors) {
+  <div class="syntax-preview text-muted" [ngStyle]="lhcStyle">
+    x-fhir-query: <pre class="d-inline text-muted" title="{{expression}}">{{expression}}</pre>
+  </div>
+}
+@if (qobs.errors || timeintv.errors) {
+  <div id="expression-error" role="alert" class="row error-span">
+    @if (qobs.errors) {
+      <p class="expression-error">
+        {{qobs.errors.message}}
+      </p>
+    }
+    @if (timeintv.errors) {
+      <p class="expression-error">
+        {{timeintv.errors.message}}
+      </p>
+    }
+  </div>
+}

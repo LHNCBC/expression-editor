@@ -1,7 +1,6 @@
 import { Component, EventEmitter, Input, OnInit, Output, ViewChild, ViewEncapsulation } from '@angular/core';
 import { DialogStyle, ExpressionEditorService, SimpleStyle } from '../expression-editor.service';
-import {ITreeOptions, KEYS, TREE_ACTIONS, TreeComponent} from '@bugsplat/angular-tree-component';
-import {TreeNode} from '@bugsplat/angular-tree-component/lib/defs/api';
+import {ITreeOptions, KEYS, TREE_ACTIONS, TreeComponent, TreeNode} from '@bugsplat/angular-tree-component';
 import { LiveAnnouncer } from '@angular/cdk/a11y';
 
 @Component({
@@ -113,7 +112,7 @@ export class SelectScoringItemsComponent implements OnInit {
   /**
    * Check to see if child items exist.
    * @param items - Questionnaire item array
-   * @return True if any item has at least one child 
+   * @return True if any item has at least one child
    */
   private hasChildItems(items): boolean {
     return items.some((item) => {
@@ -132,7 +131,7 @@ export class SelectScoringItemsComponent implements OnInit {
       this.matToolTip = "";
       this.validationErrorMessage = this.matToolTip;
     } else {
-      this.matToolTip = 
+      this.matToolTip =
         "The 'done' button is disabled because at least one scoring item selection is required.";;
       this.validationErrorMessage = this.matToolTip;
     }
@@ -144,15 +143,15 @@ export class SelectScoringItemsComponent implements OnInit {
    */
   setSelectAllState(status) {
     const toggleItemHierarchy = (node, status) => {
-      // Only toggle if node.isActive is opposite from status 
+      // Only toggle if node.isActive is opposite from status
       if (node.data.type === 'choice' && status !== node.isActive && node.data.hasScore)
         node.toggleActivated(true);
-  
+
       if (node.hasChildren) {
         node.children.forEach((subItem) => toggleItemHierarchy(subItem, status));
       }
     };
-    
+
     if (this.scoringItems.length > 0) {
       this.itemTree.treeModel.getVisibleRoots().forEach((item) => toggleItemHierarchy(item, status));
       this.setScoreSelectedStatus(status);
@@ -177,7 +176,7 @@ export class SelectScoringItemsComponent implements OnInit {
   onCloseClick(): void {
     this.liveAnnouncer.announce("Cancel Select scoring items");
     this.expressionEditorService.dialogStack.pop();
- 
+
     setTimeout(() => {
       this.dialogClose.emit();
       this.expressionEditorService.toggleScoreCalculation();
@@ -207,10 +206,10 @@ export class SelectScoringItemsComponent implements OnInit {
     }, 0);
 
   }
-  
+
   /**
    * If the questionnaire already contains selected items for the calculation,
-   * toggle selection that match the link ids. 
+   * toggle selection that match the link ids.
    */
   private checkCheckboxScoringItems(): void {
     if (this.selectedLinkIds && this.selectedLinkIds.length > 0) {
@@ -223,12 +222,12 @@ export class SelectScoringItemsComponent implements OnInit {
           this.setScoreSelectedStatus(true);
         }
       });
-    }    
+    }
   }
 
   /**
    * This gets called when the angular-tree-model tree model is created. Check for
-   * pre-selected items and expand the tree if it contains grandchildren nodes. 
+   * pre-selected items and expand the tree if it contains grandchildren nodes.
    * @param tree - tree model
    */
   onTreeLoad(tree): void {
@@ -243,7 +242,7 @@ export class SelectScoringItemsComponent implements OnInit {
 
   /**
    * This function is invoked when a scoring item checkbox is clicked, whether for
-   * selection or deselection. It checks the number of active nodes and enables the 
+   * selection or deselection. It checks the number of active nodes and enables the
    * 'Done' button if at least one item is selected.
    */
   onScoringItemCheckboxClick(node): void {

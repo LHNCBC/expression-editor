@@ -1,174 +1,217 @@
-<lhc-calculate-sum-prompt
-  *ngIf="calculateSum && !loadError && !selectItems"
-  (selectItems)="selectItemsForSumOfScores()"
-  (no)="closeDialog()"
-  (dialogClose)="closeScoreingDialog()"
-  [lhcStyle]="defaultLhcStyle">
-</lhc-calculate-sum-prompt>
-<lhc-select-scoring-items
-  *ngIf="calculateSum && !loadError && selectItems"
-  (export)="addSumOfScores(false)"
-  (review)="addSumOfScores(true)"
-  (dialogClose)="closeScoreingDialog()"
-  [items]="fhirQuestionnaire.item"
-  [lhcStyle]="defaultLhcStyle">
-</lhc-select-scoring-items>
+@if (calculateSum && !loadError) {
+  @if (!selectItems) {
+    <lhc-calculate-sum-prompt
+      (selectItems)="selectItemsForSumOfScores()"
+      (no)="closeDialog()"
+      (dialogClose)="closeScoreingDialog()"
+      [lhcStyle]="defaultLhcStyle">
+    </lhc-calculate-sum-prompt>
+  } @else {
+    <lhc-select-scoring-items
+      (export)="addSumOfScores(false)"
+      (review)="addSumOfScores(true)"
+      (dialogClose)="closeScoreingDialog()"
+      [items]="fhirQuestionnaire.item"
+      [lhcStyle]="defaultLhcStyle">
+    </lhc-select-scoring-items>
+  }
+} @else if (!loadError && !hideExpressionEditor) {
+  <lhc-base-dialog
+    [name]="'expression-editor'"
+    [titleBarLabel]="appName"
+    [dialogType]="'expression-editor'"
+    [customDialogStyle]=""
+    [lhcStyle]="defaultLhcStyle"
+    (dialogClose)="closeDialog()">
 
-<lhc-base-dialog
-  *ngIf="!calculateSum && !loadError && !hideExpressionEditor"
-  [name]="'expression-editor'"
-  [titleBarLabel]="appName"
-  [dialogType]="'expression-editor'"
-  [customDialogStyle]=""
-  [lhcStyle]="defaultLhcStyle"
-  (dialogClose)="closeDialog()">
+  @if (showCancelConfirmationDialog) {
+    <lhc-cancel-changes-confirmation-dialog
+      (confirmationYes)="confirmCancel(false)"
+      (confirmationNo)="discardCancel()"
+      (dialogClose)="discardCancel()"
+      [lhcStyle]="defaultLhcStyle">
+    </lhc-cancel-changes-confirmation-dialog>
+  }
 
-  <lhc-cancel-changes-confirmation-dialog
-    *ngIf="!calculateSum && !loadError && !hideExpressionEditor && showCancelConfirmationDialog"
-    (confirmationYes)="confirmCancel(false)"
-    (confirmationNo)="discardCancel()"
-    (dialogClose)="discardCancel()"
-    [lhcStyle]="defaultLhcStyle">
-  </lhc-cancel-changes-confirmation-dialog>
-
-  <lhc-fhirpath-easypath-conversion-confirmation-dialog
-    *ngIf="showConfirmDialog"
-    (confirmationYes)="convertFHIRPathToEasyPath($event)"
-    (confirmationNo)="closeConvertDialog()"
-    (dialogClose)="closeConvertDialog()"
-    [lhcStyle]="defaultLhcStyle">
-  </lhc-fhirpath-easypath-conversion-confirmation-dialog>
+  @if (showConfirmDialog) {
+    <lhc-fhirpath-easypath-conversion-confirmation-dialog
+      (confirmationYes)="convertFHIRPathToEasyPath($event)"
+      (confirmationNo)="closeConvertDialog()"
+      (dialogClose)="closeConvertDialog()"
+      [lhcStyle]="defaultLhcStyle">
+    </lhc-fhirpath-easypath-conversion-confirmation-dialog>
+  }
 
   <div class="expression-editor" [attr.aria-hidden]="showCancelConfirmationDialog || showConfirmDialog ? 'true' : 'false' ">
-    <div *ngIf="loadError" class="error">{{errorLoading}}</div>
+    @if (loadError) {
+      <div class="error">{{errorLoading}}</div>
+    }
+    @if (!calculateSum && !loadError) {
+      <div>
+        @if (display.titleSection) {
+          <section id="title-section">
+            <h1 [style]="defaultLhcStyle.h1">{{titleName}}</h1>
+          </section>
+        }
 
-    <div *ngIf="!calculateSum && !loadError">
-      <section id="title-section" *ngIf="display.titleSection">
-        <h1 [style]="defaultLhcStyle.h1">{{titleName}}</h1>
+        @if (display.uneditableVariablesSection) {
+          <section id="uneditable-variables-section" class="mb-3">
+            <lhc-uneditable-variables></lhc-uneditable-variables>
+          </section>
+        }
 
-      </section>
-
-      <section id="uneditable-variables-section" class="mb-3" *ngIf="display.uneditableVariablesSection">
-        <lhc-uneditable-variables></lhc-uneditable-variables>
-      </section>
-
-      <section id="variables-section" class="mb-3" *ngIf="display.itemVariablesSection">
-        <lhc-variables
-          [variableLevel]="itemLinkId ? 'item' : 'form'"
-          [sectionType]="display.outputExpressionSection ? 'output_expression' : 'variable'"
-          [lhcStyle]="defaultLhcStyle"
-          [advancedInterface]="advancedInterface">
-        </lhc-variables>
-      </section>
-
-      <section id="final-expression-section" class="mb-3" *ngIf="display.outputExpressionSection && expressionUri && itemLinkId">
-        <h2 [style]="defaultLhcStyle.h2">{{expressionLabel}}</h2>
-        <div class="expression-type flex-vertical" *ngIf="userExpressionChoices">
-          <label for="expression-type">Expression Type</label>
-          <select id="expression-type" class="form-control" aria-label="Expression type" [ngStyle]="defaultLhcStyle.select" [(ngModel)]="finalExpressionExtension.url">
-            <option *ngFor="let choice of userExpressionChoices" [value]="choice.uri">{{choice.name}}</option>
-          </select>
-        </div>
-        <div class="checkbox" *ngIf="expressionType !== 'enableWhen'">
-          <input type="checkbox" id="case-statements" [(ngModel)]="caseStatements">
-          <label for="case-statements">Case Statements Helper</label>
-        </div>
-
-        <div [ngClass]="{ 'flex-container' : !caseStatements }">
-          <div class="expression-type" *ngIf="advancedInterface" [ngClass]="{ 'flex-item-3' : !caseStatements }">
-            <select
-              id="output-expression-type"
-              class="form-control"
-              [ngModel]="expressionSyntax"
-              (change)="onTypeChange($event)"
-              aria-label="Expression syntax type"
-              [ngStyle]="defaultLhcStyle.select">
-              <option *ngIf="expressionType !== 'answer'" value="simple">Easy Path Expression</option>
-              <option value="fhirpath">FHIRPath Expression</option>
-            </select>
-            <lhc-helps
-              [type]="expressionSyntax"
-              [index]="'final'"
-              class="flex-item"
-              [lhcStyle]="defaultLhcStyle">
-            </lhc-helps>
-          </div>
-
-          <div *ngIf="!caseStatements" class="expression flex-item-grow" [ngSwitch]="expressionSyntax">
-            <lhc-helps
-              *ngIf="!advancedInterface"
-              [type]="'simple'"
-              [index]="'final'"
-              class="flex-item help"
-              [lhcStyle]="defaultLhcStyle">
-            </lhc-helps>
-            <lhc-syntax-converter
-              *ngSwitchCase="'simple'"
-              id="variable-expression-final"
-              [index]="'final'"
-              [simple]="simpleExpression"
-              [variables]="variables"
-              (expressionChange)="updateFinalExpression($event)"
-              (simpleChange)="updateSimpleExpression($event)"
+        @if (display.itemVariablesSection) {
+          <section id="variables-section" class="mb-3">
+            <lhc-variables
+              [variableLevel]="itemLinkId ? 'item' : 'form'"
+              [sectionType]="display.outputExpressionSection ? 'output_expression' : 'variable'"
               [lhcStyle]="defaultLhcStyle"
-              [multipleLines]="true"
-              [validateInput]="true" >
-            </lhc-syntax-converter>
+              [advancedInterface]="advancedInterface">
+            </lhc-variables>
+          </section>
+        }
 
-            <div *ngSwitchCase="'fhirpath'" class="flex-vertical">
-              <div>
-                <textarea
-                  row="1"
-                  aria-label="FHIRPath"
-                  id="final-expression"
-                  class="form-control"
-                  [(ngModel)]="finalExpression"
-                  [ngStyle]="defaultLhcStyle.input"
-                  class="flex-item textarea"
-                  spellcheck="false"
-                  [class.field-error]="exp.errors && !exp.errors?.hasOwnProperty('invalidExpressionWarning')"
-                  [class.field-warning]="exp.errors && exp.errors?.hasOwnProperty('invalidExpressionWarning')"
-                  #exp="ngModel"
-                  lhcExpressionValidator
-                  [lhcExpressionValidateInput]="true"
-                  [lhcExpressionValidatorParams]="{'section': 'Output Expression',
-                                                  'field': 'expression',
-                                                  'type': 'fhirpath'}"
-                ></textarea>
+        @if (display.outputExpressionSection && expressionUri && itemLinkId) {
+          <section id="final-expression-section" class="mb-3">
+            <h2 [style]="defaultLhcStyle.h2">{{expressionLabel}}</h2>
+
+            @if (userExpressionChoices) {
+              <div class="expression-type flex-vertical">
+                <label for="expression-type">Expression Type</label>
+                <select id="expression-type" class="form-control" aria-label="Expression type" [ngStyle]="defaultLhcStyle.select" [(ngModel)]="finalExpressionExtension.url">
+
+                  @for (choice of userExpressionChoices; track choice.uri) {
+                    <option [value]="choice.uri">{{choice.name}}</option>
+                  }
+
+                </select>
               </div>
-              <div id="expression-audible-error" role="alert" *ngIf="exp.errors"
-                class="row error-span visually-hidden">
-                <p class="expression-error">
-                  {{exp.errors.ariaMessage}}
-                </p>
+            }
+
+            @if (expressionType !== 'enableWhen') {
+              <div class="checkbox">
+                <input type="checkbox" id="case-statements" [(ngModel)]="caseStatements">
+                <label for="case-statements">Case Statements Helper</label>
               </div>
-              <div id="expression-error" class="row error-span">
-                <p class="expression-error" *ngIf="exp.errors && !exp.errors?.hasOwnProperty('invalidExpressionWarning')">
-                  {{exp.errors.message}}
-                </p>
-                <p class="expression-warning" *ngIf="exp.errors && exp.errors?.hasOwnProperty('invalidExpressionWarning')">
-                  {{exp.errors.message}}
-                </p>
-              </div>
+            }
+
+            <div [ngClass]="{ 'flex-container' : !caseStatements }">
+              @if (advancedInterface) {
+                <div class="expression-type" [ngClass]="{ 'flex-item-3' : !caseStatements }">
+                  <select
+                    id="output-expression-type"
+                    class="form-control"
+                    [ngModel]="expressionSyntax"
+                    (change)="onTypeChange($event)"
+                    aria-label="Expression syntax type"
+                    [ngStyle]="defaultLhcStyle.select">
+                    @if (expressionType !== 'answer') {
+                      <option value="simple">Easy Path Expression</option>
+                    }
+                    <option value="fhirpath">FHIRPath Expression</option>
+                  </select>
+                  <lhc-helps
+                    [type]="expressionSyntax"
+                    [index]="'final'"
+                    class="flex-item"
+                    [lhcStyle]="defaultLhcStyle">
+                  </lhc-helps>
+                </div>
+              }
+
+              @if (!caseStatements) {
+                <div class="expression flex-item-grow">
+
+                  @if (!advancedInterface) {
+                    <lhc-helps
+                      [type]="'simple'"
+                      [index]="'final'"
+                      class="flex-item help"
+                      [lhcStyle]="defaultLhcStyle">
+                    </lhc-helps>
+                  }
+
+                  @switch (expressionSyntax) {
+                    @case ('simple') {
+                      <lhc-syntax-converter
+                        id="variable-expression-final"
+                        [index]="'final'"
+                        [simple]="simpleExpression"
+                        [variables]="variables"
+                        (expressionChange)="updateFinalExpression($event)"
+                        (simpleChange)="updateSimpleExpression($event)"
+                        [lhcStyle]="defaultLhcStyle"
+                        [multipleLines]="true"
+                        [validateInput]="true" >
+                      </lhc-syntax-converter>
+                    }
+
+                    @case ('fhirpath') {
+                      <div class="flex-vertical">
+                        <div>
+                          <textarea
+                            row="1"
+                            aria-label="FHIRPath"
+                            id="final-expression"
+                            class="form-control"
+                            [(ngModel)]="finalExpression"
+                            [ngStyle]="defaultLhcStyle.input"
+                            class="flex-item textarea"
+                            spellcheck="false"
+                            [class.field-error]="exp.errors && !exp.errors?.hasOwnProperty('invalidExpressionWarning')"
+                            [class.field-warning]="exp.errors && exp.errors?.hasOwnProperty('invalidExpressionWarning')"
+                            #exp="ngModel"
+                            lhcExpressionValidator
+                            [lhcExpressionValidateInput]="true"
+                            [lhcExpressionValidatorParams]="{'section': 'Output Expression',
+                                                            'field': 'expression',
+                                                            'type': 'fhirpath'}"
+                          ></textarea>
+                        </div>
+                        @if (exp.errors) {
+                          <div id="expression-audible-error" role="alert"
+                            class="row error-span visually-hidden">
+                            <p class="expression-error">
+                              {{exp.errors.ariaMessage}}
+                            </p>
+                          </div>
+                        }
+                        <div id="expression-error" class="row error-span">
+
+                          @if (exp.errors) {
+                            <p
+                              [class.expression-error]="!exp.errors?.hasOwnProperty('invalidExpressionWarning')"
+                              [class.expression-warning]="exp.errors?.hasOwnProperty('invalidExpressionWarning')"
+                            >
+                              {{exp.errors.message}}
+                            </p>
+                          }
+                        </div>
+                      </div>
+                    }
+                  }
+                </div>
+              } @else {
+                <lhc-case-statements
+                  [syntax]="expressionSyntax"
+                  [simpleExpression]="simpleExpression"
+                  [expression]="finalExpression"
+                  [lhcStyle]="defaultLhcStyle"
+                  (expressionChange)="updateFinalExpression($event)"
+                  (simpleChange)="updateSimpleExpression($event)">
+                </lhc-case-statements>
+              }
             </div>
-          </div>
-          <lhc-case-statements
-            *ngIf="caseStatements"
-            [syntax]="expressionSyntax"
-            [simpleExpression]="simpleExpression"
-            [expression]="finalExpression"
-            [lhcStyle]="defaultLhcStyle"
-            (expressionChange)="updateFinalExpression($event)"
-            (simpleChange)="updateSimpleExpression($event)">
-          </lhc-case-statements>
-        </div>
-      </section>
-      <button class="primary" [ngClass]="{'disabled': validationError}"
-              [attr.aria-label]="validationErrorMessage" (click)="preExport()" [matTooltip]="matToolTip"
-              [ngStyle]="defaultLhcStyle.buttonPrimary" id="export">{{submitButtonName}}</button>
-      <button (click)="cancelExpressionEditorChanges()" id="cancel-changes"
-              matTooltip="Cancel the {{appName}}" [ngStyle]="defaultLhcStyle.buttonSecondary" >Cancel</button>
-    </div>
+          </section>
+        }
+        <button class="primary" [ngClass]="{'disabled': validationError}"
+                [attr.aria-label]="validationErrorMessage" (click)="preExport()" [matTooltip]="matToolTip"
+                [ngStyle]="defaultLhcStyle.buttonPrimary" id="export">{{submitButtonName}}</button>
+        <button (click)="cancelExpressionEditorChanges()" id="cancel-changes"
+                matTooltip="Cancel the {{appName}}" [ngStyle]="defaultLhcStyle.buttonSecondary" >Cancel</button>
+      </div>
+    }
   </div>
 
-</lhc-base-dialog>
+  </lhc-base-dialog>
+}

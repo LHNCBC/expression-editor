@@ -1,16 +1,19 @@
-<div *ngIf="uneditableVariables.length">
-  <h2>Variables in Scope for This Item</h2>
-
-  <div class="container">
-    <div class="variable-header">
-      <div class="variable-column-label">Label</div>
-      <div class="variable-column-type">Variable Type</div>
-      <div class="variable-column-details">Description/Expression</div>
-    </div>
-    <div class="variable-row" *ngFor="let variable of uneditableVariables">
-      <div class="variable-column-label">{{variable.name}}</div>
-      <div class="variable-column-type">{{variable.type}}</div>
-      <div class="variable-column-details">{{variable.description}}</div>
+@if (uneditableVariables.length) {
+  <div>
+    <h2>Variables in Scope for This Item</h2>
+    <div class="container">
+      <div class="variable-header">
+        <div class="variable-column-label">Label</div>
+        <div class="variable-column-type">Variable Type</div>
+        <div class="variable-column-details">Description/Expression</div>
+      </div>
+      @for (variable of uneditableVariables; track variable) {
+        <div class="variable-row">
+          <div class="variable-column-label">{{variable.name}}</div>
+          <div class="variable-column-type">{{variable.type}}</div>
+          <div class="variable-column-details">{{variable.description}}</div>
+        </div>
+      }
     </div>
   </div>
-</div>
+}

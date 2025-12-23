@@ -23,63 +23,75 @@
   </select>
 </label>
 
-<span *ngIf="questionnaire != 'upload'" class="checkbox">
-  <input type="checkbox" id="useRootLevel"
-         aria-labelledby="rootLevelCheckboxLabel"
-         [(ngModel)]="rootLevel" (change)="toggleRootLevel($event)">
-  <label id="rootLevelCheckboxLabel" for="useRootLevel">Root level</label>
-</span>
-
-<label *ngIf="questionnaire != 'upload'" >
-  Question:
-  <input placeholder="Please select" class="query-autocomplete" #autoComplete id="question" />
-</label>
-
-<div *ngIf="questionnaire == 'upload'" id="upload">
-  <p>Please specify the questionnaire, item Link ID, and the corresponding Expression URI where the output should be placed:</p>
-  <label>Questionnaire:
-    <input type="file" id="file-upload" [(ngModel)]="file" accept=".json" (change)="prepareForImport($event)">
-  </label>
-  <span *ngIf="fhirQuestionnaire">
-    <label>
-      <input type="checkbox" id="root-level" [(ngModel)]="rootLevel" (change)="toggleRootLevel()">
-      Root level
-    </label>
-
-    <label>
-      Question:
-      <input placeholder="Please select" class="query-autocomplete" #autoComplete id="question" />
-    </label>
-
-    <label [hidden]="!linkId">
-      Output Expression:
-      <div id="expression-entry">
-        <select (change)="expressionChange($event)">
-          <option value="">None</option>
-          <option *ngFor="let expressionType of expressionTypes; let i = index" [value]="i" [selected]="expressionType.selected">
-            {{expressionType.name}}
-          </option>
-          <option value="custom">Other...</option>
-        </select>
-        <input *ngIf="customExpressionUri" required type="text" id="expression-uri" [(ngModel)]="expressionUri">
-      </div>
-    </label>
+@if (questionnaire != 'upload') {
+  <span class="checkbox">
+    <input type="checkbox" id="useRootLevel"
+      aria-labelledby="rootLevelCheckboxLabel"
+      [(ngModel)]="rootLevel" (change)="toggleRootLevel($event)">
+    <label id="rootLevelCheckboxLabel" for="useRootLevel">Root level</label>
   </span>
-</div>
+}
+
+@if (questionnaire != 'upload') {
+  <label >
+    Question:
+    <input placeholder="Please select" class="query-autocomplete" #autoComplete id="question" />
+  </label>
+}
+
+@if (questionnaire == 'upload') {
+  <div id="upload">
+    <p>Please specify the questionnaire, item Link ID, and the corresponding Expression URI where the output should be placed:</p>
+    <label>Questionnaire:
+      <input type="file" id="file-upload" [(ngModel)]="file" accept=".json" (change)="prepareForImport($event)">
+    </label>
+    @if (fhirQuestionnaire) {
+      <span>
+        <label>
+          <input type="checkbox" id="root-level" [(ngModel)]="rootLevel" (change)="toggleRootLevel()">
+          Root level
+        </label>
+        <label>
+          Question:
+          <input placeholder="Please select" class="query-autocomplete" #autoComplete id="question" />
+        </label>
+        <label [hidden]="!linkId">
+          Output Expression:
+          <div id="expression-entry">
+            <select (change)="expressionChange($event)">
+              <option value="">None</option>
+              @for (expressionType of expressionTypes; track expressionType; let i = $index) {
+                <option [value]="i" [selected]="expressionType.selected">
+                  {{expressionType.name}}
+                </option>
+              }
+              <option value="custom">Other...</option>
+            </select>
+            @if (customExpressionUri) {
+              <input required type="text" id="expression-uri" [(ngModel)]="expressionUri">
+            }
+          </div>
+        </label>
+      </span>
+    }
+  </div>
+}
 
 <div class="btn">
-  <button class="primary btn" (click)="openExpressionEditorDialog()" 
+  <button class="primary btn" (click)="openExpressionEditorDialog()"
     [attr.aria-label]="openExpressionEditorLabel" [attr.matTooltip]="openExpressionEditorTooltip"
     id="openExpressionEditor" [ngClass]="{'disabled': !canOpenExpressionEditor()}"
-    >Open {{appName}}</button>
+  >Open {{appName}}</button>
 </div>
 
-<div class="error" *ngIf="error">
-  {{error}}
-</div>
+@if (error) {
+  <div class="error">
+    {{error}}
+  </div>
+}
 
+@if (displayExpressionEditor) {
   <lhc-expression-editor
-    *ngIf="displayExpressionEditor"
     [fhirQuestionnaire]="fhirQuestionnaire"
     [itemLinkId]="linkId"
     [titleName]="appTitle"
@@ -101,16 +113,21 @@
         verticalAlign: 'middle'
       }
     }"
-    [display]="display"
-    [doNotAskToCalculateScore]="doNotAskToCalculateScore"
-    (save)="onSave($event)"
-    (cancel)="closeExpressionEditorDialog()">
-  </lhc-expression-editor>
+  [display]="display"
+  [doNotAskToCalculateScore]="doNotAskToCalculateScore"
+  (save)="onSave($event)"
+  (cancel)="closeExpressionEditorDialog()">
+</lhc-expression-editor>
+}
 
-<div *ngIf="displayExpressionEditorResult">
-  <hr>
-  <button *ngIf="fhirPreview" (click)="downloadJson(fhirPreview)" class="download">
-    Download Questionnaire
-  </button>
-  <pre id="output">{{fhirPreview}}</pre>
-</div>
+@if (displayExpressionEditorResult) {
+  <div>
+    <hr>
+      @if (fhirPreview) {
+        <button (click)="downloadJson(fhirPreview)" class="download">
+          Download Questionnaire
+        </button>
+      }
+      <pre id="output">{{fhirPreview}}</pre>
+    </div>
+  }

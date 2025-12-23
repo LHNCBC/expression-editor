@@ -2,6 +2,11 @@
 
 This project follows [Semantic Versioning](http://semver.org/).
 
+## [5.0.0] 2025-12-20
+### Changed
+- Upgraded Angular to version 20 (breaking change).
+- Migrated templates to Angular control flow.
+
 ## [4.0.1] 2025-12-02
 ### Fixed
 - Fixed vulnerability issues.

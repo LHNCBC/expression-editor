@@ -24,25 +24,27 @@
         </button>
       </div>
     </div>
-    <div class="button-container">  
-      <div *ngIf="hasChildren" class="tree-button-group">
-        <button
-          class="btn btn-secondary mt-2"
-          (click)="setExpandAllState(true)"
-          [ngStyle]="lhcStyle.buttonSecondary"
-          id="expandAll">Expand All
-        </button>
-        <button
-          class="btn btn-secondary mt-2"
-          (click)="setExpandAllState(false)"
-          [ngStyle]="lhcStyle.buttonSecondary"
-          id="collapseAll">Collapse All
-        </button>
-      </div>
+    <div class="button-container">
+      @if (hasChildren) {
+        <div class="tree-button-group">
+          <button
+            class="btn btn-secondary mt-2"
+            (click)="setExpandAllState(true)"
+            [ngStyle]="lhcStyle.buttonSecondary"
+            id="expandAll">Expand All
+          </button>
+          <button
+            class="btn btn-secondary mt-2"
+            (click)="setExpandAllState(false)"
+            [ngStyle]="lhcStyle.buttonSecondary"
+            id="collapseAll">Collapse All
+          </button>
+        </div>
+      }
     </div>
 
     <div class="items-tree">
-      <tree-root #itemTree id="tree2" [focused]="true" 
+      <tree-root #itemTree id="tree2" [focused]="true"
         [nodes]="scoringItems"
         [options]="options"
         (initialized)="onTreeLoad($event)"
@@ -62,10 +64,12 @@
             [class.tree-node-focused]="node.isFocused">
 
             <div class="node-wrapper" [style.padding-left]="node.getNodePadding()">
-              <input type="checkbox" style="margin-top:6px;" 
-                *ngIf="node.data.type =='choice' && node.data.hasScore" class="tree-node-checkbox"
-                [checked]="node.isActive"
-                (change)="onScoringItemCheckboxClick(node);" attr.aria-label="{{node.data.text}}" />
+              @if (node.data.type =='choice' && node.data.hasScore) {
+                <input type="checkbox" style="margin-top:6px;"
+                  class="tree-node-checkbox"
+                  [checked]="node.isActive"
+                  (change)="onScoringItemCheckboxClick(node);" attr.aria-label="{{node.data.text}}" />
+              }
               <span  style="margin: 10px;"></span>
               <tree-node-expander [node]="node"></tree-node-expander>
               <div
@@ -91,20 +95,20 @@
       <p>
         {{doneSelectionAriaDescription}}
       </p>
-      <p>  
+      <p>
         {{reviewFHIRPathAriaDesription}}
       </p>
     </div>
 
     <button class="primary" [ngClass]="{'disabled': !hasScoreSelected}"
-            [attr.aria-label]="validationErrorMessage" [matTooltip]="matToolTip"
-            (click)="onExportClick(false)" [style]="lhcStyle.buttonPrimary"
-            id="export-score">Done</button>
+      [attr.aria-label]="validationErrorMessage" [matTooltip]="matToolTip"
+      (click)="onExportClick(false)" [style]="lhcStyle.buttonPrimary"
+    id="export-score">Done</button>
     <button class="secondary" [ngClass]="{'disabled': !hasScoreSelected}"
-            [attr.aria-label]="validationErrorMessage" [matTooltip]="matToolTip"
-            (click)="onExportClick(true)" [style]="lhcStyle.buttonTertiary"
-            id="review-fhirpath">Review FHIRPath</button>
-  
+      [attr.aria-label]="validationErrorMessage" [matTooltip]="matToolTip"
+      (click)="onExportClick(true)" [style]="lhcStyle.buttonTertiary"
+    id="review-fhirpath">Review FHIRPath</button>
+
     <button (click)="onCloseClick()" id="skip-export-score" [style]="lhcStyle.buttonSecondary">Cancel</button>
   </div>
 
