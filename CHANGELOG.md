@@ -2,6 +2,10 @@
 
 This project follows [Semantic Versioning](http://semver.org/).
 
+## [5.0.1] 2025-12-24
+### Fixed
+- Added exports for web and Angular components to resolve build error.
+
 ## [5.0.0] 2025-12-20
 ### Changed
 - Upgraded Angular to version 20 (breaking change).
