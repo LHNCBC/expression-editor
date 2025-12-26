@@ -1,6 +1,6 @@
 {
   "name": "@lhncbc/expression-editor",
-  "version": "5.0.0",
+  "version": "5.0.1",
   "description": "A widget to add and edit FHIRPath expressions to a given FHIR Questionnaire.",
   "license": "SEE LICENSE IN LICENSE.md",
   "repository": {
@@ -9,7 +9,17 @@
   },
   "homepage": "https://github.com/LHNCBC/expression-editor",
   "main": "./dist/ngx-expression-editor/fesm2022/ngx-expression-editor.mjs",
-  "types": "./dist/ngx-expression-editor/public-api.d.ts",
+  "exports": {
+    "./ngx-expression-editor": {
+      "types": "./dist/ngx-expression-editor/index.d.ts",
+      "import": "./dist/ngx-expression-editor/fesm2022/ngx-expression-editor.mjs",
+      "default": "./dist/ngx-expression-editor/fesm2022/ngx-expression-editor.mjs"
+    },
+    "./expression-editor": {
+      "default": "./dist/expression-editor/expression-editor.js"
+    }
+  },
+
   "scripts": {
     "ng": "ng",
     "start": "ng build --watch ngx-expression-editor & sleep 25; ng serve --port 4202; s=$?; kill %1; exit $s",
