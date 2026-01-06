@@ -127,3 +127,20 @@ button {
   display: flex;
   flex-direction: column;
 }
+
+.section-header {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  gap: 0.5rem;
+}
+
+.arrow {
+  display: inline-block;
+  transition: transform 0.2s ease;
+}
+
+/* Down arrow when expanded */
+.arrow.expanded {
+  transform: rotate(90deg);
+}

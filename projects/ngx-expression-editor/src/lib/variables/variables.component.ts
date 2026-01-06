@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, OnDestroy, OnInit, ViewChildren, QueryList } from '@angular/core';
+import { Component, Input, OnChanges, OnDestroy, OnInit, ViewChildren, QueryList, inject } from '@angular/core';
 import { Variable, AllVariableType, SimpleVariableType } from '../variable';
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { ExpressionEditorService, SimpleStyle } from '../expression-editor.service';
@@ -20,6 +20,8 @@ export class VariablesComponent implements OnInit, OnChanges, OnDestroy {
    * Possible values: 'form' | 'item'
    */
   @Input() variableLevel: 'form' | 'item' = 'item';
+
+  @Input() itemVariablesSectionExpanded = true;
 
   /**
    * Identifies if this section is for variables or output expression.
@@ -47,7 +49,9 @@ export class VariablesComponent implements OnInit, OnChanges, OnDestroy {
                   `result in field not getting populated.`;
   dialogPrompt2 = "Proceed?";
 
-  constructor(private expressionEditorService: ExpressionEditorService) {}
+  isExpanded = true;
+
+  private expressionEditorService = inject(ExpressionEditorService);
 
   /**
    * Returns the variable title based on the variable level.
@@ -68,6 +72,7 @@ export class VariablesComponent implements OnInit, OnChanges, OnDestroy {
    */
   ngOnInit(): void {
     this.variables = this.expressionEditorService.variables;
+    this.isExpanded = this.itemVariablesSectionExpanded;
     this.variableSubscription = this.expressionEditorService.variablesChange.subscribe((variables) => {
       this.variables = variables;
 
@@ -238,7 +243,7 @@ export class VariablesComponent implements OnInit, OnChanges, OnDestroy {
    * Get the labels of available variables at the current index
    * @param i - Index of the currently edited variable
    */
-  getAvailableVariables(i: number): Array<string> {
+  getAvailableVariables(i: number): string[] {
     const uneditableVariables = this.expressionEditorService.uneditableVariables.map((e) => e.name);
     // Only return variables up to but not including index
     const editableVariables = this.variables.map((e) => e.label).slice(0, i);
@@ -267,5 +272,12 @@ export class VariablesComponent implements OnInit, OnChanges, OnDestroy {
       this.variables[i].simple = easyPath;
       delete this.variables[i].linkId;
     }
+  }
+
+  /**
+   * Toggles the expanded state of the component.
+   */
+  toggle() {
+    this.isExpanded = !this.isExpanded;
   }
 }

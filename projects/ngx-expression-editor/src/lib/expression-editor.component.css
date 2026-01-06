@@ -196,3 +196,7 @@ textarea.field-error {
   white-space: nowrap;
   width: 1px;
 }
+
+.final-expression-title {
+  padding-left: 15px;
+}

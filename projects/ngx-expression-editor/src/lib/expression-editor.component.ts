@@ -1,9 +1,13 @@
-import { ChangeDetectorRef, Component, EventEmitter, Inject, Input, OnChanges, OnDestroy, OnInit, Output, ViewChild, ViewEncapsulation } from '@angular/core';
+import { ChangeDetectorRef, Component, EventEmitter, inject, Input, OnChanges, OnDestroy, OnInit, Output, ViewChild, ViewEncapsulation } from '@angular/core';
 
 import { ExpressionEditorService, SimpleStyle, DisplaySectionControl } from './expression-editor.service';
 import { LiveAnnouncer } from '@angular/cdk/a11y';
 import { ValidationResult } from './variable';
 import { ENVIRONMENT_TOKEN } from './environment-token';
+
+interface AppEnvironment {
+  appName?: string;
+}
 
 @Component({
   // tslint:disable-next-line:component-selector
@@ -115,7 +119,10 @@ export class ExpressionEditorComponent implements OnInit, OnChanges, OnDestroy {
     }
   };
 
-  constructor(@Inject(ENVIRONMENT_TOKEN) private environment: any, private variableService: ExpressionEditorService, private liveAnnouncer: LiveAnnouncer, private changeDetectorRef: ChangeDetectorRef) { }
+  private environment = inject<AppEnvironment>(ENVIRONMENT_TOKEN);
+  private variableService = inject(ExpressionEditorService);
+  private liveAnnouncer = inject(LiveAnnouncer);
+  private changeDetectorRef = inject(ChangeDetectorRef);
 
   /**
    * Updates the 'defaultStyles' JSON object by merging it with the 'customStyles' JSON object.
@@ -304,6 +311,15 @@ export class ExpressionEditorComponent implements OnInit, OnChanges, OnDestroy {
     this.selectItems = false;
     this.hideExpressionEditor = false;
     this.doNotAskToCalculateScore = false;
+
+    this.display = {
+      titleSection: 'titleSection' in this.display ? this.display.titleSection : true,
+      uneditableVariablesSection: 'uneditableVariablesSection' in this.display ? this.display.uneditableVariablesSection : true,
+      itemVariablesSection: 'itemVariablesSection' in this.display ? this.display.itemVariablesSection : true,
+      itemVariablesSectionExpanded: 'itemVariablesSectionExpanded' in this.display ? this.display.itemVariablesSectionExpanded : true,
+      outputExpressionSection: 'outputExpressionSection' in this.display ? this.display.outputExpressionSection : true
+    };
+
     this.resetVariablesOnQuestionnaireChange();
     this.expressionType = this.variableService.getExpressionType(this.expressionUri);
     this.reload();
@@ -338,14 +354,6 @@ export class ExpressionEditorComponent implements OnInit, OnChanges, OnDestroy {
     this.finalExpressionExtension = this.variableService.finalExpressionExtension;
     this.finalExpression = this.variableService.finalExpression;
     this.variables = this.variableService.getVariableNames();
-
-    this.display = {
-      titleSection: 'titleSection' in this.display ? this.display.titleSection : true,
-      uneditableVariablesSection: 'uneditableVariablesSection' in this.display ? this.display.uneditableVariablesSection : true,
-      itemVariablesSection: 'itemVariablesSection' in this.display ? this.display.itemVariablesSection : true,
-      outputExpressionSection: 'outputExpressionSection' in this.display ? this.display.outputExpressionSection : true
-    };
-
   }
 
   /**

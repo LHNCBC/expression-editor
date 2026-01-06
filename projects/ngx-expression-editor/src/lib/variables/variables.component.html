@@ -1,202 +1,214 @@
-<h2 [style]="lhcStyle.h2">{{variableTitle}}</h2>
+<h2 [style]="lhcStyle.h2"
+    class="section-header"
+    role="button"
+    tabindex="0"
+    [attr.aria-expanded]="isExpanded"
+    (click)="toggle()"
+    (keydown.enter)="toggle()"
+    (keydown.space)="toggle()">
+  <span class="arrow" [class.expanded]="isExpanded">›</span>
+  {{variableTitle}} ({{variables.length}})
+</h2>
 
-@if (showConfirmDialog) {
-  <lhc-fhirpath-easypath-conversion-confirmation-dialog
-    (confirmationYes)="convertFHIRPathToEasyPath($event)"
-    (confirmationNo)="closeConvertDialog()"
-    [lhcStyle]="lhcStyle">
-  </lhc-fhirpath-easypath-conversion-confirmation-dialog>
-}
-
-<div class="container" [attr.aria-hidden]="showConfirmDialog ? 'true' : 'false' ">
-  @if (variables.length > 0) {
-    <div class="variable-header" [style]="lhcStyle.variableHeader" aria-hidden="true">
-      <div class="variable-column-label">Label</div>
-      <div class="variable-column-type">Variable Type</div>
-      <div class="variable-column-details">Question/FHIRPath Expression/FHIR Query</div>
-    </div>
+@if(isExpanded) {
+  @if (showConfirmDialog) {
+    <lhc-fhirpath-easypath-conversion-confirmation-dialog
+      (confirmationYes)="convertFHIRPathToEasyPath($event)"
+      (confirmationNo)="closeConvertDialog()"
+      [lhcStyle]="lhcStyle">
+    </lhc-fhirpath-easypath-conversion-confirmation-dialog>
   }
-  <div cdkDropList (cdkDropListDropped)="drop($event)">
-    @for (variable of variables; track variable; let i = $index) {
-      <div
-        class="variable-row drag-variable"
-        [style]="lhcStyle.variableRow"
-        [id]="'row-' + i"
-        cdkDrag>
-        <div class="variable-column-label variable-column-nowrap">
-          <!-- Inline SVG for the row drag and drop handle -->
-          <div class="variable-row-nowrap">
-            <svg
-              cdkDragHandle xmlns="http://www.w3.org/2000/svg"
-              width="20"
-              height="20"
-              fill="currentColor"
-              class="handle"
-              viewBox="0 0 16 16">
-            <path d="M7 2a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zM7
-              5a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zM7
-              8a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm-3
-              3a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm-3
-              3a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>
-            </svg>
-            <input
-              [id]="'variable-label-' + i"
-              [(ngModel)]="variable.label"
-              (change)="onNameChange()"
-              [style]="lhcStyle.input"
-              class="label"
-              [attr.aria-label]="nameRef.errors ? nameRef.errors.message : 'Variable label'"
-              [attr.aria-invalid]="nameRef.errors"
-              [class.field-error]="nameRef.errors"
-              #nameRef="ngModel"
-              lhcVariableNameValidator
-            [lhcVariableNameValidatorParams]="{'section': 'Item Variables',
-                                               'field': 'name',
-                                               'name': variable.label, 'index': i}"
-              />
-          </div>
-          @if (nameRef.errors) {
-            <div id="variable-name-error" role="alert" class="row error-span name-error">
-              <p class="expression-error" >
-                {{nameRef.errors.message}}
-              </p>
-            </div>
-          }
-        </div>
-        <div class="variable-column-type">
-          <select
-            [id]="'variable-type-' + i"
-            [ngModel]="variable.type"
-            (change)="onTypeChange($event, i)"
-            [style]="lhcStyle.select"
-            aria-label="Variable type">
-            @for (type of variableType | keyvalue; track type) {
-              <option value="{{type.key}}">{{type.value}}</option>
-            }
-          </select>
-          <lhc-helps
-            [type]="variable.type"
-            [index]="i"
-            class="flex-item"
-            [lhcStyle]="lhcStyle">
-          </lhc-helps>
-        </div>
-        <div class="variable-column-details">
-          @switch (variable.type) {
-            @case ('question') {
-              <lhc-question
-                [variable]="variable"
-                [index]="i"
-                [lhcStyle]="lhcStyle">
-              </lhc-question>
-            }
-            @case ('queryObservation') {
-              <lhc-query-observation
-                [variable]="variable"
-                [index]="i"
-                [lhcStyle]="lhcStyle">
-              </lhc-query-observation>
-            }
-            @case ('simple') {
-              <div class="form-inline">
-                <lhc-syntax-converter
-                  [id]="'variable-expression-' + i"
-                  [simple]="variable.simple"
-                  [index]="i"
-                  [variables]="getAvailableVariables(i)"
-                  [variableName]="variable.label"
-                  [lhcStyle]="lhcStyle"
-                  (simpleChange)="updateSimpleExpression(i, $event)"
-                  (expressionChange)="updateExpression(i, $event)"
-                  [validateInput]="true"
-                  >
-                </lhc-syntax-converter>
-              </div>
-            }
-            @case ('expression') {
-              <div class="form-inline">
-                <input
-                  [id]="'variable-expression-' + i"
-                  [(ngModel)]="variable.expression"
-                  (change)="onExpressionChange($event, i)"
-                  [style]="lhcStyle.input"
-                  aria-label="FHIRPath Expression"
-                  [class.field-error]="exp.errors && !exp.errors?.hasOwnProperty('invalidExpressionWarning')"
-                  [class.field-warning]="exp.errors && exp.errors?.hasOwnProperty('invalidExpressionWarning')"
-                  #exp="ngModel"
-                  lhcExpressionValidator
-                  [lhcExpressionValidateInput]="'true'"
-            [lhcExpressionValidatorParams]="{'section': 'Item Variables',
-                                             'field': 'expression', 'type': 'fhirpath',
-                                             'id': 'variable-expression-' + i, 'index': i}"
-                  />
-                @if (exp.errors) {
-                  <div id="expression-error" role="alert" class="row error-span">
-                    @if (exp.errors && !exp.errors?.hasOwnProperty('invalidExpressionWarning')) {
-                      <p class="expression-error">
-                        {{exp.errors.message}}
-                      </p>
-                    }
-                    @if (exp.errors && exp.errors?.hasOwnProperty('invalidExpressionWarning')) {
-                      <p class="expression-warning">
-                        {{exp.errors.message}}
-                      </p>
-                    }
-                  </div>
-                }
-              </div>
-            }
-            @case ('query') {
-              <div class="form-inline">
-                <input
-                  [id]="'variable-expression-' + i"
-                  [(ngModel)]="variable.expression"
-                  (change)="onExpressionChange($event, i)"
-                  [style]="lhcStyle.input"
-                  aria-label="FHIR Query"
-                  placeholder="x-fhir-query"
-                  [class.field-error]="exp.errors"
-                  #exp="ngModel"
-                  lhcExpressionValidator
-                  [lhcExpressionValidateInput]="'true'"
-            [lhcExpressionValidatorParams]="{'section': 'Item Variables',
-                                             'field': 'expression', 'type': 'query',
-                                             'id': 'variable-expression-' + i, 'name': variableName, 'index': i}"
-                  />
-                @if (exp.errors) {
-                  <div id="expression-error" role="alert" class="row error-span">
-                    <p class="expression-error" >
-                      {{exp.errors.message}}
-                    </p>
-                  </div>
-                }
-              </div>
-            }
-          }
-        </div>
-        <div class="variable-column-actions">
-          <button
-            [id]="'remove-variable-' + i"
-            class="btn btn-danger remove-variable"
-            aria-label="Remove variable"
-            title="Remove variable"
-            [style]="lhcStyle.buttonDanger"
-            matTooltip="Remove variable"
-            (click)="onRemove(i)">x
-          </button>
-        </div>
+
+  <div class="container" [attr.aria-hidden]="showConfirmDialog ? 'true' : 'false' ">
+    @if (variables.length > 0) {
+      <div class="variable-header" [style]="lhcStyle.variableHeader" aria-hidden="true">
+        <div class="variable-column-label">Label</div>
+        <div class="variable-column-type">Variable Type</div>
+        <div class="variable-column-details">Question/FHIRPath Expression/FHIR Query</div>
       </div>
     }
-    @if (!variables.length) {
-      <div class="no-variables">{{emptyVariableListMessage}}</div>
-    }
+    <div cdkDropList (cdkDropListDropped)="drop($event)">
+      @for (variable of variables; track variable; let i = $index) {
+        <div
+          class="variable-row drag-variable"
+          [style]="lhcStyle.variableRow"
+          [id]="'row-' + i"
+          cdkDrag>
+          <div class="variable-column-label variable-column-nowrap">
+            <!-- Inline SVG for the row drag and drop handle -->
+            <div class="variable-row-nowrap">
+              <svg
+                cdkDragHandle xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                fill="currentColor"
+                class="handle"
+                viewBox="0 0 16 16">
+              <path d="M7 2a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zM7
+                5a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zM7
+                8a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm-3
+                3a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm-3
+                3a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>
+              </svg>
+              <input
+                [id]="'variable-label-' + i"
+                [(ngModel)]="variable.label"
+                (change)="onNameChange()"
+                [style]="lhcStyle.input"
+                class="label"
+                [attr.aria-label]="nameRef.errors ? nameRef.errors.message : 'Variable label'"
+                [attr.aria-invalid]="nameRef.errors"
+                [class.field-error]="nameRef.errors"
+                #nameRef="ngModel"
+                lhcVariableNameValidator
+              [lhcVariableNameValidatorParams]="{'section': 'Item Variables',
+                                                 'field': 'name',
+                                                 'name': variable.label, 'index': i}"
+                />
+            </div>
+            @if (nameRef.errors) {
+              <div id="variable-name-error" role="alert" class="row error-span name-error">
+                <p class="expression-error" >
+                  {{nameRef.errors.message}}
+                </p>
+              </div>
+            }
+          </div>
+          <div class="variable-column-type">
+            <select
+              [id]="'variable-type-' + i"
+              [ngModel]="variable.type"
+              (change)="onTypeChange($event, i)"
+              [style]="lhcStyle.select"
+              aria-label="Variable type">
+              @for (type of variableType | keyvalue; track type) {
+                <option value="{{type.key}}">{{type.value}}</option>
+              }
+            </select>
+            <lhc-helps
+              [type]="variable.type"
+              [index]="i"
+              class="flex-item"
+              [lhcStyle]="lhcStyle">
+            </lhc-helps>
+          </div>
+          <div class="variable-column-details">
+            @switch (variable.type) {
+              @case ('question') {
+                <lhc-question
+                  [variable]="variable"
+                  [index]="i"
+                  [lhcStyle]="lhcStyle">
+                </lhc-question>
+              }
+              @case ('queryObservation') {
+                <lhc-query-observation
+                  [variable]="variable"
+                  [index]="i"
+                  [lhcStyle]="lhcStyle">
+                </lhc-query-observation>
+              }
+              @case ('simple') {
+                <div class="form-inline">
+                  <lhc-syntax-converter
+                    [id]="'variable-expression-' + i"
+                    [simple]="variable.simple"
+                    [index]="i"
+                    [variables]="getAvailableVariables(i)"
+                    [variableName]="variable.label"
+                    [lhcStyle]="lhcStyle"
+                    (simpleChange)="updateSimpleExpression(i, $event)"
+                    (expressionChange)="updateExpression(i, $event)"
+                    [validateInput]="true"
+                    >
+                  </lhc-syntax-converter>
+                </div>
+              }
+              @case ('expression') {
+                <div class="form-inline">
+                  <input
+                    [id]="'variable-expression-' + i"
+                    [(ngModel)]="variable.expression"
+                    (change)="onExpressionChange($event, i)"
+                    [style]="lhcStyle.input"
+                    aria-label="FHIRPath Expression"
+                    [class.field-error]="exp.errors && !exp.errors?.hasOwnProperty('invalidExpressionWarning')"
+                    [class.field-warning]="exp.errors && exp.errors?.hasOwnProperty('invalidExpressionWarning')"
+                    #exp="ngModel"
+                    lhcExpressionValidator
+                    [lhcExpressionValidateInput]="'true'"
+              [lhcExpressionValidatorParams]="{'section': 'Item Variables',
+                                               'field': 'expression', 'type': 'fhirpath',
+                                               'id': 'variable-expression-' + i, 'index': i}"
+                    />
+                  @if (exp.errors) {
+                    <div id="expression-error" role="alert" class="row error-span">
+                      @if (exp.errors && !exp.errors?.hasOwnProperty('invalidExpressionWarning')) {
+                        <p class="expression-error">
+                          {{exp.errors.message}}
+                        </p>
+                      }
+                      @if (exp.errors && exp.errors?.hasOwnProperty('invalidExpressionWarning')) {
+                        <p class="expression-warning">
+                          {{exp.errors.message}}
+                        </p>
+                      }
+                    </div>
+                  }
+                </div>
+              }
+              @case ('query') {
+                <div class="form-inline">
+                  <input
+                    [id]="'variable-expression-' + i"
+                    [(ngModel)]="variable.expression"
+                    (change)="onExpressionChange($event, i)"
+                    [style]="lhcStyle.input"
+                    aria-label="FHIR Query"
+                    placeholder="x-fhir-query"
+                    [class.field-error]="exp.errors"
+                    #exp="ngModel"
+                    lhcExpressionValidator
+                    [lhcExpressionValidateInput]="'true'"
+              [lhcExpressionValidatorParams]="{'section': 'Item Variables',
+                                               'field': 'expression', 'type': 'query',
+                                               'id': 'variable-expression-' + i, 'name': variableName, 'index': i}"
+                    />
+                  @if (exp.errors) {
+                    <div id="expression-error" role="alert" class="row error-span">
+                      <p class="expression-error" >
+                        {{exp.errors.message}}
+                      </p>
+                    </div>
+                  }
+                </div>
+              }
+            }
+          </div>
+          <div class="variable-column-actions">
+            <button
+              [id]="'remove-variable-' + i"
+              class="btn btn-danger remove-variable"
+              aria-label="Remove variable"
+              title="Remove variable"
+              [style]="lhcStyle.buttonDanger"
+              matTooltip="Remove variable"
+              (click)="onRemove(i)">x
+            </button>
+          </div>
+        </div>
+      }
+      @if (!variables.length) {
+        <div class="no-variables">{{emptyVariableListMessage}}</div>
+      }
+    </div>
   </div>
-</div>
 
-<button
-  id="add-variable"
-  class="btn btn-secondary mt-2"
-  (click)="onAdd()"
-  matTooltip="Add variable"
-  [ngStyle]="lhcStyle.buttonTertiary">Add variable
-</button>
+  <button
+    id="add-variable"
+    class="btn btn-secondary mt-2"
+    (click)="onAdd()"
+    matTooltip="Add variable"
+    [ngStyle]="lhcStyle.buttonTertiary">Add variable
+  </button>
+}
