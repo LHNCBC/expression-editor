@@ -26,6 +26,7 @@ export interface SimpleStyle {
 export interface DisplaySectionControl {
   titleSection?: boolean,
   uneditableVariablesSection?: boolean;
+  uneditableVariablesSectionExpanded?: boolean;
   itemVariablesSection?: boolean;
   itemVariablesSectionExpanded?: boolean;
   outputExpressionSection?: boolean;

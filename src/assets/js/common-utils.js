@@ -5,11 +5,11 @@
  * @param hiddenSectionStr - a comma-separated list of section names to be
  * hidden. Possible values are:
  *
- *  "titleSection", "uneditableVariablesSection", "itemVariablesSection",
- *  "itemVariablesSectionExpanded" and "outputExpressionSection"
+ *  "titleSection", "uneditableVariablesSection", "uneditableVariablesSectionExpanded",
+ *  "itemVariablesSection", "itemVariablesSectionExpanded" and "outputExpressionSection"
  */
 export function createDisplayOption(hiddenSectionStr) {
-  const displaySections = ["titleSection", "uneditableVariablesSection",
+  const displaySections = ["titleSection", "uneditableVariablesSection", "uneditableVariablesSectionExpanded",
                            "itemVariablesSection", "itemVariablesSectionExpanded", "outputExpressionSection"];
   const sections = hiddenSectionStr.split(",");
   const display = {};

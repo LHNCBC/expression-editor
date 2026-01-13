@@ -2,15 +2,15 @@
     class="section-header"
     role="button"
     tabindex="0"
-    [attr.aria-expanded]="isExpanded"
+    [attr.aria-expanded]="isSectionExpanded"
     (click)="toggle()"
     (keydown.enter)="toggle()"
     (keydown.space)="toggle()">
-  <span class="arrow" [class.expanded]="isExpanded">›</span>
+  <span class="arrow" [class.expanded]="isSectionExpanded">›</span>
   {{variableTitle}} ({{variables.length}})
 </h2>
 
-@if(isExpanded) {
+@if(isSectionExpanded) {
   @if (showConfirmDialog) {
     <lhc-fhirpath-easypath-conversion-confirmation-dialog
       (confirmationYes)="convertFHIRPathToEasyPath($event)"

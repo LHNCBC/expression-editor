@@ -8,7 +8,7 @@ import { NgModel } from '@angular/forms';
 @Component({
   selector: 'lhc-variables',
   templateUrl: './variables.component.html',
-  styleUrls: ['./variables.component.css'],
+  styleUrls: ['./variables.component.css', '../styles/section.css'],
   standalone: false
 })
 export class VariablesComponent implements OnInit, OnChanges, OnDestroy {
@@ -21,7 +21,7 @@ export class VariablesComponent implements OnInit, OnChanges, OnDestroy {
    */
   @Input() variableLevel: 'form' | 'item' = 'item';
 
-  @Input() itemVariablesSectionExpanded = true;
+  @Input() isSectionExpanded = true;
 
   /**
    * Identifies if this section is for variables or output expression.
@@ -49,8 +49,6 @@ export class VariablesComponent implements OnInit, OnChanges, OnDestroy {
                   `result in field not getting populated.`;
   dialogPrompt2 = "Proceed?";
 
-  isExpanded = true;
-
   private expressionEditorService = inject(ExpressionEditorService);
 
   /**
@@ -72,7 +70,6 @@ export class VariablesComponent implements OnInit, OnChanges, OnDestroy {
    */
   ngOnInit(): void {
     this.variables = this.expressionEditorService.variables;
-    this.isExpanded = this.itemVariablesSectionExpanded;
     this.variableSubscription = this.expressionEditorService.variablesChange.subscribe((variables) => {
       this.variables = variables;
 
@@ -278,6 +275,6 @@ export class VariablesComponent implements OnInit, OnChanges, OnDestroy {
    * Toggles the expanded state of the component.
    */
   toggle() {
-    this.isExpanded = !this.isExpanded;
+    this.isSectionExpanded = !this.isSectionExpanded;
   }
 }

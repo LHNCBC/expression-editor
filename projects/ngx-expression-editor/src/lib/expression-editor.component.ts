@@ -228,6 +228,10 @@ export class ExpressionEditorComponent implements OnInit, OnChanges, OnDestroy {
         this.expRef.control.markAsTouched();
         this.expRef.control.markAsDirty();
         this.expRef.control.setValue("");
+      } else if (this.finalExpression) {
+        this.expRef.control.markAsTouched();
+        this.expRef.control.markAsDirty();
+        this.expRef.control.setValue(this.finalExpression);
       }
     });
   }
@@ -315,6 +319,7 @@ export class ExpressionEditorComponent implements OnInit, OnChanges, OnDestroy {
     this.display = {
       titleSection: 'titleSection' in this.display ? this.display.titleSection : true,
       uneditableVariablesSection: 'uneditableVariablesSection' in this.display ? this.display.uneditableVariablesSection : true,
+      uneditableVariablesSectionExpanded: 'uneditableVariablesSectionExpanded' in this.display ? this.display.uneditableVariablesSectionExpanded : true,
       itemVariablesSection: 'itemVariablesSection' in this.display ? this.display.itemVariablesSection : true,
       itemVariablesSectionExpanded: 'itemVariablesSectionExpanded' in this.display ? this.display.itemVariablesSectionExpanded : true,
       outputExpressionSection: 'outputExpressionSection' in this.display ? this.display.outputExpressionSection : true

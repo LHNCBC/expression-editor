@@ -56,7 +56,10 @@
 
         @if (display.uneditableVariablesSection) {
           <section id="uneditable-variables-section" class="mb-3">
-            <lhc-uneditable-variables></lhc-uneditable-variables>
+            <lhc-uneditable-variables
+              [lhcStyle]="defaultLhcStyle"
+              [isSectionExpanded]="display.uneditableVariablesSectionExpanded">
+            </lhc-uneditable-variables>
           </section>
         }
 
@@ -66,7 +69,7 @@
               [variableLevel]="itemLinkId ? 'item' : 'form'"
               [sectionType]="display.outputExpressionSection ? 'output_expression' : 'variable'"
               [lhcStyle]="defaultLhcStyle"
-              [itemVariablesSectionExpanded]="display.itemVariablesSectionExpanded"
+              [isSectionExpanded]="display.itemVariablesSectionExpanded"
               [advancedInterface]="advancedInterface">
             </lhc-variables>
           </section>
