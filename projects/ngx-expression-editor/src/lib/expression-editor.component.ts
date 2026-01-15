@@ -317,7 +317,7 @@ export class ExpressionEditorComponent implements OnInit, OnChanges, OnDestroy {
     this.doNotAskToCalculateScore = false;
 
     this.display = {
-      titleSection: !!this.display?.titleSection,
+      titleSection: this.display?.titleSection ?? true,
       uneditableVariablesSection: 'uneditableVariablesSection' in this.display ? this.display.uneditableVariablesSection : true,
       uneditableVariablesSectionExpanded: 'uneditableVariablesSectionExpanded' in this.display ? this.display.uneditableVariablesSectionExpanded : true,
       itemVariablesSection: 'itemVariablesSection' in this.display ? this.display.itemVariablesSection : true,
