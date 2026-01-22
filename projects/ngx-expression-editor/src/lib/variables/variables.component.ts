@@ -86,12 +86,15 @@ export class VariablesComponent implements OnInit, OnChanges, OnDestroy {
 
     // performValidationSubscription is triggered when the 'Save' button is clicked, allowing each
     // subscribed component to validate the expression data.
-    this.performValidationSubscription = this.expressionEditorService.performValidationChange.subscribe((validation) => {
-      this.expressionRefs.forEach((e, index) => {
+    this.performValidationSubscription = this.expressionEditorService.performValidationChange.subscribe(() => {
+      this.expressionRefs.forEach((e) => {
+        e.control.markAsTouched();
+        e.control.markAsDirty();
+
         if (!e.control.value || e.control.value === "") {
-          e.control.markAsTouched();
-          e.control.markAsDirty();
           e.control.setValue("");
+        } else {
+          e.control.setValue(e.control.value);
         }
       });
     });
