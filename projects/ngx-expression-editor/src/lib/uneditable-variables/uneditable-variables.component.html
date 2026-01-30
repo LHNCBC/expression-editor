@@ -1,19 +1,32 @@
 @if (uneditableVariables.length) {
   <div>
-    <h2>Variables in Scope for This Item</h2>
-    <div class="container">
-      <div class="variable-header">
-        <div class="variable-column-label">Label</div>
-        <div class="variable-column-type">Variable Type</div>
-        <div class="variable-column-details">Description/Expression</div>
-      </div>
-      @for (variable of uneditableVariables; track variable) {
-        <div class="variable-row">
-          <div class="variable-column-label">{{variable.name}}</div>
-          <div class="variable-column-type">{{variable.type}}</div>
-          <div class="variable-column-details">{{variable.description}}</div>
+    <h2 [style]="lhcStyle.h2"
+        class="section-header"
+        role="button"
+        tabindex="0"
+        [attr.aria-expanded]="isSectionExpanded"
+        (click)="toggle()"
+        (keydown.enter)="toggle()"
+        (keydown.space)="toggle()">
+      <span class="arrow" [class.expanded]="isSectionExpanded">›</span>
+      Variables in Scope for This Item ({{uneditableVariables.length}})
+    </h2>
+
+    @if(isSectionExpanded) {
+      <div class="container">
+        <div class="variable-header">
+          <div class="variable-column-label">Label</div>
+          <div class="variable-column-type">Variable Type</div>
+          <div class="variable-column-details">Description/Expression</div>
         </div>
-      }
-    </div>
+        @for (variable of uneditableVariables; track variable) {
+          <div class="variable-row">
+            <div class="variable-column-label">{{variable.name}}</div>
+            <div class="variable-column-type">{{variable.type}}</div>
+            <div class="variable-column-details">{{variable.description}}</div>
+          </div>
+        }
+      </div>
+    }
   </div>
 }

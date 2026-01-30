@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, OnDestroy, OnInit, ViewChildren, QueryList } from '@angular/core';
+import { Component, Input, OnChanges, OnDestroy, OnInit, ViewChildren, QueryList, inject } from '@angular/core';
 import { Variable, AllVariableType, SimpleVariableType } from '../variable';
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { ExpressionEditorService, SimpleStyle } from '../expression-editor.service';
@@ -8,7 +8,7 @@ import { NgModel } from '@angular/forms';
 @Component({
   selector: 'lhc-variables',
   templateUrl: './variables.component.html',
-  styleUrls: ['./variables.component.css'],
+  styleUrls: ['./variables.component.css', '../styles/section.css'],
   standalone: false
 })
 export class VariablesComponent implements OnInit, OnChanges, OnDestroy {
@@ -20,6 +20,8 @@ export class VariablesComponent implements OnInit, OnChanges, OnDestroy {
    * Possible values: 'form' | 'item'
    */
   @Input() variableLevel: 'form' | 'item' = 'item';
+
+  @Input() isSectionExpanded = true;
 
   /**
    * Identifies if this section is for variables or output expression.
@@ -47,7 +49,7 @@ export class VariablesComponent implements OnInit, OnChanges, OnDestroy {
                   `result in field not getting populated.`;
   dialogPrompt2 = "Proceed?";
 
-  constructor(private expressionEditorService: ExpressionEditorService) {}
+  private expressionEditorService = inject(ExpressionEditorService);
 
   /**
    * Returns the variable title based on the variable level.
@@ -84,12 +86,15 @@ export class VariablesComponent implements OnInit, OnChanges, OnDestroy {
 
     // performValidationSubscription is triggered when the 'Save' button is clicked, allowing each
     // subscribed component to validate the expression data.
-    this.performValidationSubscription = this.expressionEditorService.performValidationChange.subscribe((validation) => {
-      this.expressionRefs.forEach((e, index) => {
+    this.performValidationSubscription = this.expressionEditorService.performValidationChange.subscribe(() => {
+      this.expressionRefs.forEach((e) => {
+        e.control.markAsTouched();
+        e.control.markAsDirty();
+
         if (!e.control.value || e.control.value === "") {
-          e.control.markAsTouched();
-          e.control.markAsDirty();
           e.control.setValue("");
+        } else {
+          e.control.setValue(e.control.value);
         }
       });
     });
@@ -238,7 +243,7 @@ export class VariablesComponent implements OnInit, OnChanges, OnDestroy {
    * Get the labels of available variables at the current index
    * @param i - Index of the currently edited variable
    */
-  getAvailableVariables(i: number): Array<string> {
+  getAvailableVariables(i: number): string[] {
     const uneditableVariables = this.expressionEditorService.uneditableVariables.map((e) => e.name);
     // Only return variables up to but not including index
     const editableVariables = this.variables.map((e) => e.label).slice(0, i);
@@ -267,5 +272,12 @@ export class VariablesComponent implements OnInit, OnChanges, OnDestroy {
       this.variables[i].simple = easyPath;
       delete this.variables[i].linkId;
     }
+  }
+
+  /**
+   * Toggles the expanded state of the component.
+   */
+  toggle() {
+    this.isSectionExpanded = !this.isSectionExpanded;
   }
 }

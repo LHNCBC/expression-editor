@@ -2,6 +2,10 @@
 
 This project follows [Semantic Versioning](http://semver.org/).
 
+## [5.0.4] 2026-01-29
+### Changed
+- Added a feature flag enabling collapsible behavior for the Uneditable Variables and Item Variables sections.
+
 ## [5.0.3] 2026-01-21
 ### Fixed
 - Restored the missing `dist` folder in the npm package.

@@ -56,7 +56,10 @@
 
         @if (display.uneditableVariablesSection) {
           <section id="uneditable-variables-section" class="mb-3">
-            <lhc-uneditable-variables></lhc-uneditable-variables>
+            <lhc-uneditable-variables
+              [lhcStyle]="defaultLhcStyle"
+              [isSectionExpanded]="display.uneditableVariablesSectionExpanded">
+            </lhc-uneditable-variables>
           </section>
         }
 
@@ -66,6 +69,7 @@
               [variableLevel]="itemLinkId ? 'item' : 'form'"
               [sectionType]="display.outputExpressionSection ? 'output_expression' : 'variable'"
               [lhcStyle]="defaultLhcStyle"
+              [isSectionExpanded]="display.itemVariablesSectionExpanded"
               [advancedInterface]="advancedInterface">
             </lhc-variables>
           </section>
@@ -73,7 +77,7 @@
 
         @if (display.outputExpressionSection && expressionUri && itemLinkId) {
           <section id="final-expression-section" class="mb-3">
-            <h2 [style]="defaultLhcStyle.h2">{{expressionLabel}}</h2>
+            <h2 [style]="defaultLhcStyle.h2" class="final-expression-title">{{expressionLabel}}</h2>
 
             @if (userExpressionChoices) {
               <div class="expression-type flex-vertical">

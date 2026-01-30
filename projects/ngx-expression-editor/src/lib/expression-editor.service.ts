@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Subject } from 'rxjs';
 import copy from 'fast-copy';
 
-import { CASE_REGEX, Question, SectionTypes, UneditableVariable, ValidationError, ValidationParam, ValidationResult, Variable } from './variable';
+import { CASE_REGEX, Question, SectionTypes, UneditableVariable, ValidationParam, ValidationResult, Variable } from './variable';
 import { UNIT_CONVERSION } from './units';
 import { moveItemInArray } from '@angular/cdk/drag-drop';
 
@@ -19,24 +19,22 @@ export interface SimpleStyle {
   input?: object;
   select?: object;
   description?: object;
-  body?: {
-    [key: string]: string | undefined;
-  };
-  titleBar?:  {
-    [key: string]: string | undefined;
-  };
+  body?: Record<string, string | undefined>;
+  titleBar?: Record<string, string | undefined>;
 }
 
 export interface DisplaySectionControl {
   titleSection?: boolean,
   uneditableVariablesSection?: boolean;
+  uneditableVariablesSectionExpanded?: boolean;
   itemVariablesSection?: boolean;
+  itemVariablesSectionExpanded?: boolean;
   outputExpressionSection?: boolean;
 }
 
 export enum DialogTypes {
   Confirmation = "confirmation",
-  Help =  "help"
+  Help = "help"
 };
 
 export enum DialogSize {
@@ -61,7 +59,7 @@ interface WhereConditionExpression {
 }
 
 interface Scoring {
-  foundLinkId : boolean;
+  foundLinkId: boolean;
   // array of scoring items
   scoreItems: any[];
 }
@@ -71,7 +69,7 @@ class ItemVariableError {
   expression: { type: string, status: boolean };
   timeInterval?: boolean;
 
-  constructor(name: boolean, expression: boolean, timeInterval: boolean = false) {
+  constructor(name: boolean, expression: boolean, timeInterval = false) {
     this.name = name;
     this.expression = { type: "error", status: expression };
     this.timeInterval = timeInterval;
@@ -344,7 +342,7 @@ export class ExpressionEditorService {
    * @param ancestors - Array of ancestor items. Empty array for root level
    * @return
    */
-  getAncestors(items, itemLinkId, ancestors): Array<any> {
+  getAncestors(items, itemLinkId, ancestors): any[] {
     for (const currentItem of items) {
       if (currentItem.linkId === itemLinkId) {
         return ancestors;
@@ -447,7 +445,7 @@ export class ExpressionEditorService {
 
     // Add an index to each extension which we will then use to get the
     // variables back in the correct order. __$index will be removed on save
-    item.extension = item.extension.map((e, i) => ({...e, __$index: i}));
+    item.extension = item.extension.map((e, i) => ({ ...e, __$index: i }));
 
     item.extension.forEach((extension) => {
       if (extension.url === this.VARIABLE_EXTENSION && extension.valueExpression) {
@@ -455,8 +453,9 @@ export class ExpressionEditorService {
         const extensionVariableType = this.getVariableTypeFromExtension(extension);
         const extensionLanguage = this.getExtensionLanguage(extension, extensionVariableType);
 
-        switch(extensionLanguage) {
+        switch (extensionLanguage) {
           case this.LANGUAGE_FHIRPATH:
+          {
             const fhirPathVarToAdd = this.processVariable(
               extension.valueExpression.name,
               extension.valueExpression.expression,
@@ -468,7 +467,9 @@ export class ExpressionEditorService {
             }
             variables.push(fhirPathVarToAdd);
             break;
+          }
           case this.LANGUAGE_FHIR_QUERY:
+          {
             const queryVarToAdd = this.processQueryVariable(
               extension.valueExpression.name,
               extension.valueExpression.expression,
@@ -479,6 +480,7 @@ export class ExpressionEditorService {
             }
             variables.push(queryVarToAdd);
             break;
+          }
         }
       } else {
         nonVariableExtensions.push(extension);
@@ -586,7 +588,7 @@ export class ExpressionEditorService {
         expressionUri = '';
       }
 
-      this.variables.forEach((variable, index) => {
+      this.variables.forEach((variable) => {
         if (variable.type === "expression" || variable.type === "query" || variable.type === "queryObservation") {
           variable.expression = this.decodeQueryURIExpression(variable.expression);
         }
@@ -601,7 +603,7 @@ export class ExpressionEditorService {
 
       // tslint:disable-next-line:forin
       for (const key in this.linkIdToQuestion) {
-        if (!this.linkIdToQuestion.hasOwnProperty(key)) {
+        if (!Object.prototype.hasOwnProperty.call(this.linkIdToQuestion, key)) {
           return;
         }
         const e = this.linkIdToQuestion[key];
@@ -690,7 +692,7 @@ export class ExpressionEditorService {
    * Get and remove the simple syntax if available. If not return null
    * @param expression
    */
-  extractSimpleSyntax(expression): string|null {
+  extractSimpleSyntax(expression): string | null {
     if (expression.valueExpression && expression.valueExpression.extension) {
       const customExtension = expression.valueExpression.extension.find((e) => {
         return e.url === ExpressionEditorService.SIMPLE_SYNTAX_EXTENSION;
@@ -710,7 +712,7 @@ export class ExpressionEditorService {
    * @param items - FHIR questionnaire item array
    * @param linkId - linkId of question where to extract expression
    */
-  extractExpression(expressionUri, items, linkId): object|null {
+  extractExpression(expressionUri, items, linkId): object | null {
     for (const item of items) {
       if (item.linkId === linkId && item.extension) {
         const extensionIndex = item.extension.findIndex((e) => {
@@ -751,7 +753,7 @@ export class ExpressionEditorService {
     const simpleExtension = extensions && extensions.find(e => e.url === ExpressionEditorService.SIMPLE_SYNTAX_EXTENSION);
 
     if ((variableType === 'question' && (matches !== null || expression === '')) ||
-       (!variableType && matches !== null)) {
+      (!variableType && matches !== null)) {
 
       let linkId: string;
       let factor: string;
@@ -773,7 +775,7 @@ export class ExpressionEditorService {
         // We might be able to do unit conversion
         const sourceUnits = this.getQuestionUnits(linkId);
 
-        if (UNIT_CONVERSION.hasOwnProperty(sourceUnits)) {
+        if (Object.prototype.hasOwnProperty.call(UNIT_CONVERSION, sourceUnits)) {
           const conversions = UNIT_CONVERSION[sourceUnits];
           const conversion = conversions.find((e) => {
             return e.factor.toString() === factor;
@@ -817,7 +819,7 @@ export class ExpressionEditorService {
    * @param index - Original order in extension list
    * @return Returns a Query Observation or null
    */
-  getQueryObservationFromExpression(name, expression, index?:number) : Variable {
+  getQueryObservationFromExpression(name, expression, index?: number): Variable {
     const queryObservation = this.processQueryVariable(name, expression, index);
     return (queryObservation.type === "queryObservation") ? queryObservation : null;
   }
@@ -942,7 +944,7 @@ export class ExpressionEditorService {
         url: this.VARIABLE_EXTENSION,
         valueExpression: {
           name: e.label,
-          language: (e.type.indexOf('query') > -1 )? this.LANGUAGE_FHIR_QUERY : this.LANGUAGE_FHIRPATH,
+          language: (e.type.indexOf('query') > -1) ? this.LANGUAGE_FHIR_QUERY : this.LANGUAGE_FHIRPATH,
           expression: (e.type === 'expression' || e.type === 'query' || e.type === 'queryObservation') ?
             this.encodeQueryURIExpression(e.expression) : e.expression,
           extension: [{
@@ -955,8 +957,8 @@ export class ExpressionEditorService {
       if (e.type === 'simple') {
         // @ts-ignore
         variable.valueExpression.extension.push({
-            url: ExpressionEditorService.SIMPLE_SYNTAX_EXTENSION,
-            valueString: e.simple
+          url: ExpressionEditorService.SIMPLE_SYNTAX_EXTENSION,
+          valueString: e.simple
         });
       }
 
@@ -978,7 +980,7 @@ export class ExpressionEditorService {
       }
     });
     if (this.syntaxType === 'simple' || simpleExpression) {
-      if (finalExpression && finalExpression.hasOwnProperty('valueExpression') && finalExpression.valueExpression) {
+      if (finalExpression && Object.prototype.hasOwnProperty.call(finalExpression, 'valueExpression') && finalExpression.valueExpression) {
         if (simpleExpression) {
           if (!finalExpression.valueExpression.extension) {
             finalExpression.valueExpression.extension = [];
@@ -987,7 +989,7 @@ export class ExpressionEditorService {
         } else {
           // remove Simple Syntax extension
           if ('extension' in finalExpression.valueExpression) {
-            const idx = finalExpression.valueExpression.extension.findIndex( ext => ext.url === ExpressionEditorService.SIMPLE_SYNTAX_EXTENSION);
+            const idx = finalExpression.valueExpression.extension.findIndex(ext => ext.url === ExpressionEditorService.SIMPLE_SYNTAX_EXTENSION);
             if (idx !== -1) {
               finalExpression.valueExpression.extension.splice(idx, 1);
               if (finalExpression.valueExpression.extension.length === 0) {
@@ -1018,7 +1020,7 @@ export class ExpressionEditorService {
       if (fhir?.extension) {
         patientLaunchContext = fhir.extension.find((extension) => {
           if (extension.url === this.LAUNCH_CONTEXT_URI &&
-              Array.isArray(extension.extension)) {
+            Array.isArray(extension.extension)) {
             const patientName = extension.extension.find((subExtension) => {
               return subExtension.url === 'name' && subExtension.valueId === 'patient';
             });
@@ -1080,7 +1082,7 @@ export class ExpressionEditorService {
    */
   private findOrAddExtension(extension, uri, type, value): void {
     if (extension instanceof Array) {
-      const index = extension.findIndex((e) =>  e.url === uri);
+      const index = extension.findIndex((e) => e.url === uri);
       const extensionToAdd = {
         url: uri,
         ['value' + type]: value
@@ -1113,12 +1115,10 @@ export class ExpressionEditorService {
    * @param linkId - link id of the total score item
    * @return Array of score item link ids
    */
-  getScoreItemIds(items, linkId: string): Array<string> {
+  getScoreItemIds(items, linkId: string): string[] {
     let scoreItemIds = [];
 
-    for (let i = 0; i < items.length; i++) {
-      const item = items[i];
-
+    for (const item of items) {
       // Repeating items are currently not supported
       if (item.repeats) {
         continue;
@@ -1157,17 +1157,15 @@ export class ExpressionEditorService {
    *         - itemQuery - query to select the item
    *         - answerOptionQuery - query to select a sub-item answer from the answer of the main item.
    */
-  composeItemsWhereConditionExpressions(items, linkId: string): Array<WhereConditionExpression> {
+  composeItemsWhereConditionExpressions(items, linkId: string): WhereConditionExpression[] {
     const expressions = [];
-    for (let i = 0; i < items.length; i++) {
-      const item = items[i];
-
+    for (const item of items) {
       if (item.linkId === linkId) {
         // Do not consider items at or below the linkId context required
         break;
       } else if (this.itemHasScore(item)) {
         if (this.itemLinkIdsForCalculation && this.itemLinkIdsForCalculation.length > 0 &&
-            this.itemLinkIdsForCalculation.includes(item.linkId)) {
+          this.itemLinkIdsForCalculation.includes(item.linkId)) {
 
           const expression = {
             "itemQuery": ".item.where(linkId = '" + item.linkId + "')",
@@ -1206,7 +1204,7 @@ export class ExpressionEditorService {
    * @param linkId - link id of the total score item
    * @return Array of scoring expressions
    */
-  composeScoringItemsExpressions(items, linkId: string): Array<string> {
+  composeScoringItemsExpressions(items, linkId: string): string[] {
     // Retrieve itmes where expressions
     const itemExpressions = this.composeItemsWhereConditionExpressions(items, linkId);
     const scoreExpressions = itemExpressions.map((e, i) => {
@@ -1317,7 +1315,7 @@ export class ExpressionEditorService {
               if (extension.valueExpression && extension.valueExpression.extension &&
                 extension.valueExpression.extension.length > 0) {
                 const tmp = this.getScoreExpressionExtension(extension.valueExpression.extension);
-                if (tmp && tmp !== undefined && tmp.hasOwnProperty('valueString')) {
+                if (tmp?.valueString !== undefined) {
                   resultLinkIds = JSON.parse(tmp.valueString);
                   break;
                 }
@@ -1478,7 +1476,7 @@ export class ExpressionEditorService {
       }
 
       // Remove __$index
-      item.extension = item.extension.map(({__$index, ...other}) => other);
+      item.extension = item.extension.map(({ __$index, ...other }) => other);
     }
   }
 
@@ -1493,7 +1491,7 @@ export class ExpressionEditorService {
    * @return expression based on matching criteria
    */
   updateValueOrScoreExpression(linkId: string, itemHasScore: boolean, convertible: boolean, unit: string,
-                         toUnit: string, expression: string): string {
+                               toUnit: string, expression: string): string {
     if (itemHasScore) {
       return `%questionnaire.item.where(linkId = '${linkId}').answerOption` +
         `.where(valueCoding.code=%resource.item.where(linkId = '${linkId}').answer.valueCoding.code).extension` +
@@ -1520,13 +1518,12 @@ export class ExpressionEditorService {
    *         - foundLinkId : a flag to indicate whether the given linkId has been found
    *         - scoreItems : array of scoring items
    */
-  getScoreItems(items, linkId: string = this.linkIdContext, level: number = 0 ): Scoring {
+  getScoreItems(items, linkId: string = this.linkIdContext, level = 0): Scoring {
     const sItems = copy(items);
     let foundLinkId = false;
     let scoreItems = [];
 
-    for (let i = 0; i < sItems.length; i++) {
-      const item = sItems[i];
+    for (const item of sItems) {
       // Repeating items are currently not supported
       if (item.repeats) {
         continue;
@@ -1544,13 +1541,13 @@ export class ExpressionEditorService {
 
       // Work with nested items
       if (item.item) {
-        let childScoreItem = this.getScoreItems(item.item, linkId, level+1);
+        const childScoreItem = this.getScoreItems(item.item, linkId, level + 1);
 
         foundLinkId = childScoreItem.foundLinkId;
         const childScoreItems = childScoreItem.scoreItems;
 
         if (childScoreItems && childScoreItems.length > 0) {
-          let childHasScore = childScoreItems.length > 0;
+          const childHasScore = childScoreItems.length > 0;
           item.item = childScoreItems;
 
           let parentHasScore = false;
@@ -1579,7 +1576,7 @@ export class ExpressionEditorService {
       }
     }
 
-    return {foundLinkId, scoreItems};
+    return { foundLinkId, scoreItems };
   }
 
   /**
@@ -1636,10 +1633,10 @@ export class ExpressionEditorService {
     const scoreExtension = item.extension.find((extension) => extension.url === this.CALCULATED_EXPRESSION_URI);
     if (scoreExtension && scoreExtension.valueExpression) {
       const newScoringExtension = (scoreExtension.valueExpression.extension &&
-                  scoreExtension.valueExpression.extension.some((ext) =>
-                    ext.url === ExpressionEditorService.SCORE_EXPRESSION_EXTENSION_LINKIDS
-                  )
-                );
+        scoreExtension.valueExpression.extension.some((ext) =>
+          ext.url === ExpressionEditorService.SCORE_EXPRESSION_EXTENSION_LINKIDS
+        )
+      );
       return !newScoringExtension;
     }
 
@@ -1710,15 +1707,15 @@ export class ExpressionEditorService {
    * @param expressionUri - Expression to process
    * @return true if the scoring calculation prompt should not be displayed
    */
-  shouldCalculateScoreForItem(questionnaire, linkIdContext:string, expressionUri: string): boolean {
+  shouldCalculateScoreForItem(questionnaire, linkIdContext: string, expressionUri: string): boolean {
     // Should only calculate if the Output Expression is calculatedExpression
     const hasCalculatedOutputExpression = this.isCalculatedExpression(expressionUri);
 
     let shouldCalculateScore = false;
 
     if (hasCalculatedOutputExpression &&
-        this.hasCalculatedScoringItems(questionnaire.item, linkIdContext) &&
-        !this.hasStandardCalculatedExpression(questionnaire, linkIdContext))
+      this.hasCalculatedScoringItems(questionnaire.item, linkIdContext) &&
+      !this.hasStandardCalculatedExpression(questionnaire, linkIdContext))
       shouldCalculateScore = true;
 
     this.doNotAskToCalculateScore = !shouldCalculateScore;
@@ -1733,7 +1730,7 @@ export class ExpressionEditorService {
   private getDecodeURI(str) {
     try {
       return decodeURIComponent(str);
-    } catch(e) {
+    } catch (e) {
       return str;
     }
   }
@@ -1785,10 +1782,10 @@ export class ExpressionEditorService {
    * @param expression - FHIR query expression
    * @returns Returns an object if all specified keys are present, otherwise null
    */
-  decodeFHIRQueryObservationURIExpression(expression: string): { [key: string]: string } | null {
-    const decodedParams: { [key: string]: string } = {};
+  decodeFHIRQueryObservationURIExpression(expression: string): Record<string, string> | null {
+    const decodedParams: Record<string, string> = {};
     const resourceArr = expression.split("?");
-    let queryString = resourceArr[0];
+    const queryString = resourceArr[0];
 
     if (queryString !== "Observation")
       return null;
@@ -1816,7 +1813,7 @@ export class ExpressionEditorService {
    * decodeFHIRQueryObservationURIExpression function returns null,
    * resulting in an empty array being returned.
    */
-  getFHIRQueryObservationMatches(expression: string ): string[] {
+  getFHIRQueryObservationMatches(expression: string): string[] {
     const obs = [];
     const decodedParams = this.decodeFHIRQueryObservationURIExpression(expression);
 
@@ -1847,7 +1844,7 @@ export class ExpressionEditorService {
    *         False if double braces are found to be nested within each other
    */
   isValidDoubleBracesSyntax(paramValue: string): boolean {
-    let not_done = true;
+    const not_done = true;
     let indexLoc = 0;
     while (not_done) {
       const openDblBracesIdx = paramValue.indexOf("{{", indexLoc);
@@ -1896,7 +1893,7 @@ export class ExpressionEditorService {
     if (openDblBracesCount === 0 && closeDblBracesCount === 0) {
       return encodeURIComponent(paramValue);
     } else if (openDblBracesCount === 1 && closeDblBracesCount === 1 &&
-               paramValue.startsWith("{{") && paramValue.endsWith("}}")) {
+      paramValue.startsWith("{{") && paramValue.endsWith("}}")) {
       return paramValue;
     } else if (openDblBracesCount !== closeDblBracesCount) {
       // if the number of open and close are not equal, we are just going to return as is
@@ -1967,15 +1964,15 @@ export class ExpressionEditorService {
    * @param result - result of the validation.  Null if there is no error or object containing the
    *                 validation error, error message, and aria error message.
    */
-  notifyValidationResult(param:ValidationParam, result: any ): void {
+  notifyValidationResult(param: ValidationParam, result: any): void {
     if (param.section === SectionTypes.ItemVariables) {
       // In the Item Variables Section, there are 2 fields: name and expression
       if (this.itemVariablesErrors.length > 0) {
-        const tmpItemVariableError = {...this.itemVariablesErrors[param.index]};
+        const tmpItemVariableError = { ...this.itemVariablesErrors[param.index] };
 
         if (param.field === "expression") {
           tmpItemVariableError[param.field] = {
-            type: (result && result.hasOwnProperty('invalidExpressionWarning')) ? "warning" : "error",
+            type: (result && Object.prototype.hasOwnProperty.call(result, 'invalidExpressionWarning')) ? "warning" : "error",
             status: (result) ? true : false
           };
         } else {
@@ -1986,15 +1983,15 @@ export class ExpressionEditorService {
 
     } else if (param.section === SectionTypes.OutputExpression) {
       if (param.field === "expression") {
-        this.outputExpressionError = (result && !result.hasOwnProperty('invalidExpressionWarning')) ? true : false;
-        this.outputExpressionWarning = (result && result.hasOwnProperty('invalidExpressionWarning')) ? true : false;
+        this.outputExpressionError = (result && !Object.prototype.hasOwnProperty.call(result, 'invalidExpressionWarning')) ? true : false;
+        this.outputExpressionWarning = (result && Object.prototype.hasOwnProperty.call(result, 'invalidExpressionWarning')) ? true : false;
         this.caseStatementError = false;
         this.caseStatementWarning = false;
       } else if (param.field === "case") {
         this.outputExpressionError = false;
         this.outputExpressionWarning = false;
-        this.caseStatementError = (result && result.hasOwnProperty('CaseStatementError')) ? result.CaseStatementError : false;
-        this.caseStatementWarning = (result && result.hasOwnProperty('CaseStatementWarning')) ? result.CaseStatementWarning : false;
+        this.caseStatementError = (result && Object.prototype.hasOwnProperty.call(result, 'CaseStatementError')) ? result.CaseStatementError : false;
+        this.caseStatementWarning = (result && Object.prototype.hasOwnProperty.call(result, 'CaseStatementWarning')) ? result.CaseStatementWarning : false;
       }
     }
 
@@ -2046,12 +2043,12 @@ export class ExpressionEditorService {
    */
   getValidationResult(): ValidationResult {
     return {
-      "hasError" : this.hasValidationErrors(),
+      "hasError": this.hasValidationErrors(),
       "errorInItemVariables": this.itemVariablesErrors.some(
         item => (item?.name === true || (item?.expression.type === "error" && item?.expression.status === true) || item?.timeInterval === true)),
       "errorInOutputExpression": this.outputExpressionError,
       "errorInOutputCaseStatement": this.caseStatementError,
-      "hasWarning" : this.hasValidationWarning(),
+      "hasWarning": this.hasValidationWarning(),
       "warningInItemVariables": this.itemVariablesErrors.some(
         item => (item?.expression.type === "warning" && item?.expression.status === true)),
       "warningInOutputExpression": this.outputExpressionWarning,

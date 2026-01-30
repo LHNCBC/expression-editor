@@ -110,6 +110,10 @@ button#cancel-changes {
   margin-left: 10px;
 }
 
+button:hover {
+  cursor: pointer;
+}
+
 button-div {
   text-align: center;
 }
@@ -195,4 +199,8 @@ textarea.field-error {
   position: absolute;
   white-space: nowrap;
   width: 1px;
+}
+
+.final-expression-title {
+  padding-left: 15px;
 }
