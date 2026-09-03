@@ -120,6 +120,10 @@ export class ExpressionEditorService {
   static FHIR_QUERY_OBS_FIELDS = ['code', 'date', 'patient', '_sort', '_count'];
   static APP_NAME = "Expression Editor";
 
+  private static ALLOCATED_ID_VARIABLE_TYPE = 'Allocated ID';
+  private static EXTRACTION_CONTEXT_VARIABLE_TYPE = 'Extraction context';
+  private static ALLOCATED_ID_VALIDATION_VALUE = 'urn:uuid:00000000-0000-4000-8000-000000000000';
+
   static ENVIRONMENT_VARIABLES = ['resource', 'rootResource', 'sct', 'loinc', 'vs-', 'ext-', 'context', 'questionnaire', 'qitem'];
   static COMMON_LAUNCH_CONTEXT_VARIABLES = ['patient', 'encounter', 'practitioner', 'organization', 'user', 'relatedPerson'];
 
@@ -162,12 +166,21 @@ export class ExpressionEditorService {
   private INITIAL_EXPRESSION_URI = 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression';
   private CALCULATED_EXPRESSION_URI = 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression';
   private LAUNCH_CONTEXT_URI = 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-launchContext';
+  private EXTRACT_ALLOCATE_ID_URI = 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-extractAllocateId';
+  private EXTRACTION_EXPRESSION_URIS = new Set([
+    'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-definitionExtract',
+    'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-definitionExtractValue',
+    'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-itemExtractionContext',
+    'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-templateExtractContext',
+    'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-templateExtractValue'
+  ]);
 
   private ANSWER_EXPRESSION_URI = "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-answerExpression";
   private ENABLEWHEN_EXPRESSION_URI = "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-enableWhenExpression";
 
   private linkIdToQuestion = {};
   private fhir;
+  private extractionMode = false;
   scoreCalculation = false;
 
   private itemVariablesErrors: ItemVariableError[] = [];
@@ -189,6 +202,7 @@ export class ExpressionEditorService {
   resetVariables(): void {
     this.variables = [];
     this.uneditableVariables = [];
+    this.extractionMode = false;
   }
 
   /**
@@ -283,28 +297,41 @@ export class ExpressionEditorService {
 
   /**
    * Get the list of uneditable variables based on the FHIR Questionnaire:
-   * Launch context + variables outside not on the current item scope
+   * In ordinary expression mode, returns launch context and inherited
+   * Questionnaire variables. In extraction mode, returns the SDC extraction
+   * context variables and allocated IDs in scope.
    * @param questionnaire - FHIR Questionnaire
    * @param linkIdContext - Context to use for final expression
    * @param launchContextOnly - Only show the launch context related extensions (default: false)
+   * @param extractionMode - Use the SDC extraction expression context (default: current editor mode)
    */
-  getUneditableVariables(questionnaire, linkIdContext, launchContextOnly = false): UneditableVariable[] {
-    const uneditableVariables = [];
+  getUneditableVariables(
+    questionnaire,
+    linkIdContext,
+    launchContextOnly = false,
+    extractionMode = this.extractionMode
+  ): UneditableVariable[] {
+    const uneditableVariables = extractionMode ? this.getExtractionContextVariables(linkIdContext) : [];
 
     if (Array.isArray(questionnaire.extension)) {
       const variables = questionnaire.extension.reduce((accumulator, extension) => {
-        if (extension.url === this.LAUNCH_CONTEXT_URI && extension.extension) {
+        if (!extractionMode && extension.url === this.LAUNCH_CONTEXT_URI && extension.extension) {
           accumulator.push({
             name: extension.extension.find((e) => e.url === 'name').valueId,
             type: extension.extension.filter((e) => e.url === 'type')?.map((e) => e.valueCode).join('|'),
             description: extension.extension.find((e) => e.url === 'description')?.valueString
           });
-        } else if (this.isVariable(extension) && !launchContextOnly) {
+        } else if (!extractionMode && this.isVariable(extension) && !launchContextOnly) {
           accumulator.push({
             name: extension.valueExpression.name,
             type: 'Variable',
             description: extension.valueExpression.expression,  // Might want to show simplified form
           });
+        } else if (extractionMode) {
+          const allocatedId = this.getAllocatedIdVariable(extension);
+          if (allocatedId) {
+            accumulator.push(allocatedId);
+          }
         }
         return accumulator;
       }, []);
@@ -319,20 +346,79 @@ export class ExpressionEditorService {
         ancestors.forEach(currentItem => {
           if (currentItem.extension instanceof Array) {
             currentItem.extension.forEach((extension) => {
-              if (this.isVariable(extension)) {
+              if (!extractionMode && this.isVariable(extension)) {
                 uneditableVariables.push({
                   name: extension.valueExpression.name,
                   type: 'Item variable',
                   description: extension.valueExpression.expression,  // Might want to show simplified form
                 });
+              } else if (extractionMode) {
+                const allocatedId = this.getAllocatedIdVariable(extension);
+                if (allocatedId) {
+                  uneditableVariables.push(allocatedId);
+                }
               }
             });
           }
         });
       }
+
+      if (extractionMode) {
+        // allocateId is in scope on the item that declares it as well as its
+        // descendants.
+        const currentItem = this.findItemById(questionnaire.item, linkIdContext);
+        if (currentItem?.extension instanceof Array) {
+          currentItem.extension.forEach(extension => {
+            const allocatedId = this.getAllocatedIdVariable(extension);
+            if (allocatedId) {
+              uneditableVariables.push(allocatedId);
+            }
+          });
+        }
+      }
     }
 
     return uneditableVariables;
+  }
+
+  /**
+   * Variables defined by SDC for expressions evaluated during $extract.
+   */
+  private getExtractionContextVariables(linkIdContext): UneditableVariable[] {
+    const variables: UneditableVariable[] = [
+      {
+        name: 'resource',
+        type: ExpressionEditorService.EXTRACTION_CONTEXT_VARIABLE_TYPE,
+        description: 'Root QuestionnaireResponse'
+      },
+      {
+        name: 'context',
+        type: ExpressionEditorService.EXTRACTION_CONTEXT_VARIABLE_TYPE,
+        description: linkIdContext ? 'Current QuestionnaireResponse.item' : 'Root QuestionnaireResponse'
+      },
+      {
+        name: 'questionnaire',
+        type: ExpressionEditorService.EXTRACTION_CONTEXT_VARIABLE_TYPE,
+        description: 'Questionnaire being processed'
+      }
+    ];
+
+    if (linkIdContext) {
+      variables.push({
+        name: 'qitem',
+        type: ExpressionEditorService.EXTRACTION_CONTEXT_VARIABLE_TYPE,
+        description: 'Current Questionnaire.item'
+      });
+    }
+
+    return variables;
+  }
+
+  /**
+   * Return whether an expression extension is evaluated during SDC extraction.
+   */
+  isExtractionExpression(expressionUri: string): boolean {
+    return this.EXTRACTION_EXPRESSION_URIS.has(expressionUri);
   }
 
   /**
@@ -371,6 +457,24 @@ export class ExpressionEditorService {
     return extension.url === this.VARIABLE_EXTENSION && extension.valueExpression &&
       (extension.valueExpression.language === this.LANGUAGE_FHIRPATH ||
         extension.valueExpression.language === this.LANGUAGE_FHIR_QUERY);
+  }
+
+  /**
+   * Convert an SDC extractAllocateId extension to an uneditable variable.
+   * valueString is the current profile type; valueId is retained for
+   * compatibility with Questionnaires based on earlier examples.
+   */
+  private getAllocatedIdVariable(extension): UneditableVariable | null {
+    if (extension?.url !== this.EXTRACT_ALLOCATE_ID_URI) {
+      return null;
+    }
+
+    const name = extension.valueString ?? extension.valueId;
+    return typeof name === 'string' && name.length > 0 ? {
+      name,
+      type: ExpressionEditorService.ALLOCATED_ID_VARIABLE_TYPE,
+      description: 'UUID allocated during extraction'
+    } : null;
   }
 
   /**
@@ -557,6 +661,7 @@ export class ExpressionEditorService {
    */
   import(expressionUri: string, questionnaire, linkIdContext): boolean {
     this.linkIdContext = linkIdContext;
+    this.extractionMode = this.isExtractionExpression(expressionUri);
     this.fhir = copy(questionnaire);
     const loadSuccess = this.fhir.resourceType === 'Questionnaire';
 
@@ -2104,14 +2209,33 @@ export class ExpressionEditorService {
   getContextVariableNamesForExpressionValidation(): any {
     const names = this.getVariableNames();
 
-    const contextVariables = names.reduce((acc, key) => {
+    const contextVariables: any = names.reduce((acc, key) => {
       acc[key] = 1;
       return acc;
     }, {});
 
-    ExpressionEditorService.ENVIRONMENT_VARIABLES.forEach(envVar => {
-      contextVariables[envVar] = 1;
-    });
+    // allocateId variables contain urn:uuid strings at extraction time. Using
+    // a string placeholder here allows valid string operations to be checked
+    // without treating the allocated ID as a number.
+    this.uneditableVariables
+      .filter(variable => variable.type === ExpressionEditorService.ALLOCATED_ID_VARIABLE_TYPE)
+      .forEach(variable => {
+        contextVariables[variable.name] = ExpressionEditorService.ALLOCATED_ID_VALIDATION_VALUE;
+      });
+
+    if (this.extractionMode) {
+      contextVariables.resource = {resourceType: 'QuestionnaireResponse', item: []};
+      contextVariables.context = this.linkIdContext ?
+        {linkId: this.linkIdContext, answer: [], item: []} : contextVariables.resource;
+      contextVariables.questionnaire = {resourceType: 'Questionnaire', item: []};
+      if (this.linkIdContext) {
+        contextVariables.qitem = {linkId: this.linkIdContext, type: 'string', item: []};
+      }
+    } else {
+      ExpressionEditorService.ENVIRONMENT_VARIABLES.forEach(envVar => {
+        contextVariables[envVar] = 1;
+      });
+    }
 
     return contextVariables;
   }

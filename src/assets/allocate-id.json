@@ -1,0 +1,85 @@
+{
+  "resourceType": "Questionnaire",
+  "id": "allocate-id-scope-demo",
+  "url": "http://example.org/fhir/Questionnaire/allocate-id-scope-demo",
+  "version": "1.0.0",
+  "name": "AllocateIdScopeDemo",
+  "title": "SDC allocateId Scope Demo",
+  "status": "draft",
+  "subjectType": [
+    "Patient"
+  ],
+  "extension": [
+    {
+      "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-extractAllocateId",
+      "valueString": "newQuestionnaireUuid"
+    }
+  ],
+  "item": [
+    {
+      "linkId": "patient-group",
+      "text": "Patients (repeating group)",
+      "type": "group",
+      "repeats": true,
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-extractAllocateId",
+          "valueString": "newPatientUuid"
+        }
+      ],
+      "item": [
+        {
+          "linkId": "/39156-5",
+          "text": "Allocated ID expression (select this item)",
+          "type": "string",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-extractAllocateId",
+              "valueString": "newObservationUuid"
+            },
+            {
+              "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-itemExtractionContext",
+              "valueExpression": {
+                "language": "text/fhirpath",
+                "expression": "%resource.contained.where(id = %newQuestionnaireUuid.substring(9) or id = %newPatientUuid.substring(9) or id = %newObservationUuid.substring(9))"
+              }
+            }
+          ]
+        },
+        {
+          "linkId": "first-name",
+          "text": "First name",
+          "type": "string"
+        },
+        {
+          "linkId": "last-name",
+          "text": "Last name",
+          "type": "string"
+        },
+        {
+          "linkId": "birth-date",
+          "text": "Birth date",
+          "type": "date"
+        }
+      ]
+    },
+    {
+      "linkId": "encounter-group",
+      "text": "Encounter (sibling scope)",
+      "type": "group",
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-extractAllocateId",
+          "valueString": "newEncounterUuid"
+        }
+      ],
+      "item": [
+        {
+          "linkId": "encounter-reason",
+          "text": "Encounter reason",
+          "type": "string"
+        }
+      ]
+    }
+  ]
+}

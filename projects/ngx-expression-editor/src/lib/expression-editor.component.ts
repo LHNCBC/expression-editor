@@ -92,6 +92,7 @@ export class ExpressionEditorComponent implements OnInit, OnChanges, OnDestroy {
   openExpressionEditorTooltip;
 
   expressionType;
+  isExtractionExpression = false;
 
   // Flag to track if export is pending after validation
   isExportPending = false;
@@ -351,6 +352,7 @@ export class ExpressionEditorComponent implements OnInit, OnChanges, OnDestroy {
 
     this.resetVariablesOnQuestionnaireChange();
     this.expressionType = this.variableService.getExpressionType(this.expressionUri);
+    this.isExtractionExpression = this.variableService.isExtractionExpression(this.expressionUri);
     this.reload();
   }
 

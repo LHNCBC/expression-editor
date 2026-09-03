@@ -4,6 +4,7 @@ import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { ExpressionEditorComponent } from './expression-editor.component';
 import { ValidationResult } from './variable';
 import { ENVIRONMENT_TOKEN } from './environment-token';
+import allocateIdQuestionnaire from '../../../../src/assets/allocate-id.json';
 
 describe('ExpressionEditorComponent', () => {
   let component: ExpressionEditorComponent;
@@ -32,6 +33,21 @@ describe('ExpressionEditorComponent', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  it('should accept an output expression that references scoped allocateId variables', async () => {
+    fixture.componentRef.setInput('fhirQuestionnaire', allocateIdQuestionnaire);
+    fixture.componentRef.setInput('itemLinkId', '/39156-5');
+    fixture.componentRef.setInput(
+      'expressionUri',
+      'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-itemExtractionContext'
+    );
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(component.expRef.control.value).toContain('%newQuestionnaireUuid');
+    expect(component.expRef.control.errors).toBeNull();
   });
 
   it('should return empty aria message if there is no error in the validation result', () => {

@@ -9,7 +9,7 @@
         (keydown.enter)="toggle()"
         (keydown.space)="toggle()">
       <span class="arrow" [class.expanded]="isSectionExpanded">›</span>
-      Variables in Scope for This Item ({{uneditableVariables.length}})
+      {{isExtractionExpression ? 'Expression Context Variables' : 'Variables in Scope for This Item'}} ({{uneditableVariables.length}})
     </h2>
 
     @if(isSectionExpanded) {

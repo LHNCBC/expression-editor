@@ -29,6 +29,7 @@ export class AppComponent implements OnInit, OnDestroy {
   openExpressionEditorTooltip = `Open the ${this.appName}`;
 
   calculatedExpression = 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression';
+  extractionExpression = 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-itemExtractionContext';
   originalLinkId = '/39156-5';
   expressionTypes = [
     {
@@ -55,6 +56,10 @@ export class AppComponent implements OnInit, OnDestroy {
     {
       name: 'Initial Expression',
       uri: 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression'
+    },
+    {
+      name: 'Item Extraction Context (legacy)',
+      uri: 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-itemExtractionContext'
     }
   ];
 
@@ -117,7 +122,8 @@ export class AppComponent implements OnInit, OnDestroy {
     } else {
       this.liveAnnouncer.announce(this.formAppearedAnnouncement);
       this.linkId = this.originalLinkId;
-      this.expressionUri = this.calculatedExpression;
+      this.expressionUri = this.questionnaire === 'allocate-id' ?
+        this.extractionExpression : this.calculatedExpression;
 
       this.http.get(`./${this.questionnaire}.json`)
         .subscribe(data => {

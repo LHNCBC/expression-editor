@@ -10,6 +10,7 @@ import { UneditableVariable } from '../variable';
 export class UneditableVariablesComponent implements OnInit, OnDestroy {
   @Input() lhcStyle: SimpleStyle = {};
   @Input() isSectionExpanded = true;
+  @Input() isExtractionExpression = false;
 
   uneditableVariables: UneditableVariable[];
   uneditableVariablesSubscription;

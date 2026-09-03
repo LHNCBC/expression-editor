@@ -5,6 +5,7 @@ import bmi from '../../../../src/assets/bmi.json';
 import phq9 from '../../../../src/assets/phq9.json';
 import phq9_group from '../../../../src/assets/phq9_group.json';
 import phq9_preselected from '../../../../src/assets/phq9_preselected.json';
+import allocateIdQuestionnaire from '../../../../src/assets/allocate-id.json';
 
 // This file is not used in the demo. It is solely utilized for testing the
 // getSelectedLinkIdsForScoring() function, specifically to validate the scenario where the
@@ -652,6 +653,148 @@ describe('ExpressionEditorService', () => {
     expect(output.length).toEqual(2);
     expect(output[0].linkId).toEqual('root');
     expect(output[1].linkId).toEqual('nested');
+  });
+
+  describe('extractAllocateId variables', () => {
+    const allocateIdUrl =
+      'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-extractAllocateId';
+    const extractionExpressionUri =
+      'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-itemExtractionContext';
+    const variableUrl = 'http://hl7.org/fhir/StructureDefinition/variable';
+    const variable = (name: string) => ({
+      url: variableUrl,
+      valueExpression: {
+        name,
+        language: 'text/fhirpath',
+        expression: '1'
+      }
+    });
+    const allocateId = (name: string, valueType: 'valueId' | 'valueString' = 'valueString') => ({
+      url: allocateIdUrl,
+      [valueType]: name
+    });
+
+    const questionnaire = {
+      resourceType: 'Questionnaire',
+      extension: [
+        allocateId('questionnaireUuid'),
+        variable('questionnaireVariable')
+      ],
+      item: [{
+        linkId: 'parent',
+        type: 'group',
+        extension: [
+          allocateId('parentUuid'),
+          variable('parentVariable')
+        ],
+        item: [{
+          linkId: 'target',
+          type: 'string',
+          extension: [
+            allocateId('targetUuid', 'valueId'),
+            variable('editableTargetVariable')
+          ]
+        }, {
+          linkId: 'sibling',
+          type: 'string',
+          extension: [allocateId('siblingUuid')]
+        }]
+      }]
+    };
+
+    it('should show only extraction context and scoped allocated IDs in extraction mode', () => {
+      const variables = service.getUneditableVariables(questionnaire, 'target', false, true);
+
+      expect(variables).toEqual([
+        {
+          name: 'resource',
+          type: 'Extraction context',
+          description: 'Root QuestionnaireResponse'
+        },
+        {
+          name: 'context',
+          type: 'Extraction context',
+          description: 'Current QuestionnaireResponse.item'
+        },
+        {
+          name: 'questionnaire',
+          type: 'Extraction context',
+          description: 'Questionnaire being processed'
+        },
+        {
+          name: 'qitem',
+          type: 'Extraction context',
+          description: 'Current Questionnaire.item'
+        },
+        {
+          name: 'questionnaireUuid',
+          type: 'Allocated ID',
+          description: 'UUID allocated during extraction'
+        },
+        {
+          name: 'parentUuid',
+          type: 'Allocated ID',
+          description: 'UUID allocated during extraction'
+        },
+        {
+          name: 'targetUuid',
+          type: 'Allocated ID',
+          description: 'UUID allocated during extraction'
+        }
+      ]);
+    });
+
+    it('should exclude allocated IDs from ordinary expression mode', () => {
+      const variables = service.getUneditableVariables(questionnaire, 'target');
+
+      expect(variables.map(variable => variable.name)).toEqual([
+        'questionnaireVariable',
+        'parentVariable'
+      ]);
+    });
+
+    it('should make allocated IDs available to FHIRPath expression validation', () => {
+      service.import(extractionExpressionUri, questionnaire, 'target');
+
+      const validationVariables = service.getContextVariableNamesForExpressionValidation();
+      expect(validationVariables.questionnaireUuid).toEqual(jasmine.any(String));
+      expect(validationVariables.parentUuid).toEqual(jasmine.any(String));
+      expect(validationVariables.targetUuid).toEqual(jasmine.any(String));
+      expect(validationVariables.siblingUuid).toBeUndefined();
+      expect(validationVariables.resource.resourceType).toBe('QuestionnaireResponse');
+      expect(validationVariables.context.linkId).toBe('target');
+      expect(validationVariables.questionnaire.resourceType).toBe('Questionnaire');
+      expect(validationVariables.qitem.linkId).toBe('target');
+      expect(validationVariables.rootResource).toBeUndefined();
+    });
+
+    it('should expose the root extraction context without qitem', () => {
+      const variables = service.getUneditableVariables(questionnaire, undefined, false, true);
+
+      expect(variables).toContain(jasmine.objectContaining({name: 'resource'}));
+      expect(variables).toContain(jasmine.objectContaining({name: 'context'}));
+      expect(variables).toContain(jasmine.objectContaining({name: 'questionnaire'}));
+      expect(variables).toContain(jasmine.objectContaining({name: 'questionnaireUuid'}));
+      expect(variables).not.toContain(jasmine.objectContaining({name: 'qitem'}));
+      expect(variables).not.toContain(jasmine.objectContaining({name: 'questionnaireVariable'}));
+    });
+
+    it('should load the allocateId demo Questionnaire with its scoped variables', () => {
+      service.import(extractionExpressionUri, allocateIdQuestionnaire, '/39156-5');
+
+      expect(service.uneditableVariables.map(variable => variable.name)).toEqual([
+        'resource',
+        'context',
+        'questionnaire',
+        'qitem',
+        'newQuestionnaireUuid',
+        'newPatientUuid',
+        'newObservationUuid'
+      ]);
+      expect(service.finalExpression).toContain('%newQuestionnaireUuid');
+      expect(service.finalExpression).toContain('%newPatientUuid');
+      expect(service.finalExpression).toContain('%newObservationUuid');
+    });
   });
 
   describe('isValidDoubleBracesSyntax', () => {
