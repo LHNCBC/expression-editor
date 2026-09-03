@@ -18,6 +18,29 @@ export class UneditableVariablesComponent implements OnInit, OnDestroy {
   private variableService = inject(ExpressionEditorService);
 
   /**
+   * Split extraction variables into read-only sections without mixing ordinary
+   * Questionnaire variables with IDs allocated by the extraction process.
+   */
+  get variableSections(): Array<{title: string; variables: UneditableVariable[]}> {
+    const variables = this.uneditableVariables ?? [];
+
+    if (!this.isExtractionExpression) {
+      return variables.length ? [{
+        title: 'Variables in Scope for This Item',
+        variables
+      }] : [];
+    }
+
+    return [{
+      title: 'Allocated ID Variables',
+      variables: variables.filter(variable => variable.type === 'Allocated ID')
+    }, {
+      title: 'Variables in Scope',
+      variables: variables.filter(variable => variable.type !== 'Allocated ID')
+    }].filter(section => section.variables.length > 0);
+  }
+
+  /**
    * Angular lifecycle hook called when the component is initialized
    */
   ngOnInit(): void {

@@ -38,11 +38,8 @@
               "valueString": "newObservationUuid"
             },
             {
-              "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-itemExtractionContext",
-              "valueExpression": {
-                "language": "text/fhirpath",
-                "expression": "%resource.contained.where(id = %newQuestionnaireUuid.substring(9) or id = %newPatientUuid.substring(9) or id = %newObservationUuid.substring(9))"
-              }
+              "url": "urn:formbuilder:template-extract-expression:fullUrl",
+              "valueString": "%resource.contained.where(id = %newQuestionnaireUuid.substring(9) or id = %newPatientUuid.substring(9) or id = %newObservationUuid.substring(9))"
             }
           ]
         },

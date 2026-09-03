@@ -1,6 +1,12 @@
 import { ChangeDetectorRef, Component, EventEmitter, inject, Input, OnChanges, OnDestroy, OnInit, Output, ViewChild, ViewEncapsulation } from '@angular/core';
 
-import { ExpressionEditorService, SimpleStyle, DisplaySectionControl } from './expression-editor.service';
+import {
+  DisplaySectionControl,
+  ExpressionContext,
+  ExpressionEditorService,
+  ExpressionValueType,
+  SimpleStyle
+} from './expression-editor.service';
 import { LiveAnnouncer } from '@angular/cdk/a11y';
 import { ValidationResult } from './variable';
 import { ENVIRONMENT_TOKEN } from './environment-token';
@@ -50,6 +56,9 @@ export class ExpressionEditorComponent implements OnInit, OnChanges, OnDestroy {
   @Input() userExpressionChoices = null;
   @Input() expressionLabel = 'Final Expression';
   @Input() expressionUri = '';
+  @Input() expressionContext: ExpressionContext = 'standard';
+  @Input() expressionValueType: ExpressionValueType = 'valueExpression';
+  @Input() itemVariablesReadOnly = false;
   @Input() lhcStyle: SimpleStyle = {};
   @Input() display: DisplaySectionControl = {};
   @Output() save = new EventEmitter<object>();
@@ -92,7 +101,6 @@ export class ExpressionEditorComponent implements OnInit, OnChanges, OnDestroy {
   openExpressionEditorTooltip;
 
   expressionType;
-  isExtractionExpression = false;
 
   // Flag to track if export is pending after validation
   isExportPending = false;
@@ -352,7 +360,6 @@ export class ExpressionEditorComponent implements OnInit, OnChanges, OnDestroy {
 
     this.resetVariablesOnQuestionnaireChange();
     this.expressionType = this.variableService.getExpressionType(this.expressionUri);
-    this.isExtractionExpression = this.variableService.isExtractionExpression(this.expressionUri);
     this.reload();
   }
 
@@ -362,7 +369,14 @@ export class ExpressionEditorComponent implements OnInit, OnChanges, OnDestroy {
   reload(): void {
     if (this.fhirQuestionnaire instanceof Object) {
       this.variableService.doNotAskToCalculateScore = this.doNotAskToCalculateScore;
-      this.loadError = !this.variableService.import(this.expressionUri, this.fhirQuestionnaire, this.itemLinkId);
+      this.loadError = !this.variableService.import(
+        this.expressionUri,
+        this.fhirQuestionnaire,
+        this.itemLinkId,
+        this.expressionContext,
+        this.expressionValueType,
+        this.itemVariablesReadOnly
+      );
       if (this.loadError) {
         this.liveAnnouncer.announce(this.errorLoading);
       }
@@ -410,7 +424,9 @@ export class ExpressionEditorComponent implements OnInit, OnChanges, OnDestroy {
     setTimeout(() => {
       if (!this.validationError) {
         const finalExpression = this.finalExpressionExtension;
-        if (finalExpression?.valueExpression) {
+        if (this.expressionValueType === 'valueString' && finalExpression) {
+          finalExpression.valueString = this.finalExpression;
+        } else if (finalExpression?.valueExpression) {
           finalExpression.valueExpression.expression = this.finalExpression;
         }
 

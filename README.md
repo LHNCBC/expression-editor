@@ -22,11 +22,20 @@ object.
   The callback passes in the new version of the FHIR Questionnaire the user
   entered as a parameter.
 * `expressionUri` - By default the widget modifies the calculatedExpression.
-  You can specify a different expression URL here. Only valueExpression
-  extensions are currently supported. If the FHIRPath expression is to be 
+  You can specify any expression URI here; it is preserved unchanged in the
+  result. If the FHIRPath expression is to be
   stored at the Questionnaire root level, the Output Expression section is
   omitted because the Expression Editor only supports adding variables at the root level;
   as a result for this case the `expressionUri` is not needed.
+* `expressionContext` - Controls the variables available to the expression.
+  Use `standard` (the default) for ordinary expressions or `extraction` to make
+  in-scope SDC `extractAllocateId` variables available.
+* `expressionValueType` - Controls how the output expression is stored. Use
+  `valueExpression` (the default) for the FHIR Expression datatype or
+  `valueString` for string-backed extraction expressions.
+* `itemVariablesReadOnly` - When `true`, variables declared on the current item
+  are shown with the other read-only variables in scope instead of in the
+  editable Item Variables section. Defaults to `false`.
 * `expressionLabel` - Heading name to use to show user when entering the
   expression.
 * `titleName` - Main widget heading shown to the user.

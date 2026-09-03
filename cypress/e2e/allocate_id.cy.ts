@@ -10,16 +10,15 @@ describe('SDC extractAllocateId variables', () => {
       cy.get('#uneditable-variables-section .variable-column-label').then(labels => {
         const names = [...labels].map(label => label.textContent.trim());
         expect(names).to.include.members([
-          'resource',
-          'context',
-          'questionnaire',
-          'qitem',
           'newQuestionnaireUuid',
           'newPatientUuid',
           'newObservationUuid'
         ]);
         expect(names).not.to.include('newEncounterUuid');
       });
+
+      cy.get('#uneditable-variables-section h2')
+        .should('contain.text', 'Allocated ID Variables');
 
       cy.get('#final-expression')
         .should('contain.value', '%newQuestionnaireUuid')

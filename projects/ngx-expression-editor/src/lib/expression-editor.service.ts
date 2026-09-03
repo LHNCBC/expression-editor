@@ -32,6 +32,9 @@ export interface DisplaySectionControl {
   outputExpressionSection?: boolean;
 }
 
+export type ExpressionContext = 'standard' | 'extraction';
+export type ExpressionValueType = 'valueExpression' | 'valueString';
+
 export enum DialogTypes {
   Confirmation = "confirmation",
   Help = "help"
@@ -121,7 +124,6 @@ export class ExpressionEditorService {
   static APP_NAME = "Expression Editor";
 
   private static ALLOCATED_ID_VARIABLE_TYPE = 'Allocated ID';
-  private static EXTRACTION_CONTEXT_VARIABLE_TYPE = 'Extraction context';
   private static ALLOCATED_ID_VALIDATION_VALUE = 'urn:uuid:00000000-0000-4000-8000-000000000000';
 
   static ENVIRONMENT_VARIABLES = ['resource', 'rootResource', 'sct', 'loinc', 'vs-', 'ext-', 'context', 'questionnaire', 'qitem'];
@@ -167,13 +169,6 @@ export class ExpressionEditorService {
   private CALCULATED_EXPRESSION_URI = 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression';
   private LAUNCH_CONTEXT_URI = 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-launchContext';
   private EXTRACT_ALLOCATE_ID_URI = 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-extractAllocateId';
-  private EXTRACTION_EXPRESSION_URIS = new Set([
-    'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-definitionExtract',
-    'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-definitionExtractValue',
-    'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-itemExtractionContext',
-    'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-templateExtractContext',
-    'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-templateExtractValue'
-  ]);
 
   private ANSWER_EXPRESSION_URI = "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-answerExpression";
   private ENABLEWHEN_EXPRESSION_URI = "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-enableWhenExpression";
@@ -181,6 +176,7 @@ export class ExpressionEditorService {
   private linkIdToQuestion = {};
   private fhir;
   private extractionMode = false;
+  private itemVariablesReadOnly = false;
   scoreCalculation = false;
 
   private itemVariablesErrors: ItemVariableError[] = [];
@@ -203,6 +199,7 @@ export class ExpressionEditorService {
     this.variables = [];
     this.uneditableVariables = [];
     this.extractionMode = false;
+    this.itemVariablesReadOnly = false;
   }
 
   /**
@@ -298,20 +295,23 @@ export class ExpressionEditorService {
   /**
    * Get the list of uneditable variables based on the FHIR Questionnaire:
    * In ordinary expression mode, returns launch context and inherited
-   * Questionnaire variables. In extraction mode, returns the SDC extraction
-   * context variables and allocated IDs in scope.
+   * Questionnaire variables. In extraction mode, returns ordinary variables
+   * and allocated IDs in scope. Standard SDC extraction context variables
+   * remain available to validation but are not displayed in this list.
    * @param questionnaire - FHIR Questionnaire
    * @param linkIdContext - Context to use for final expression
    * @param launchContextOnly - Only show the launch context related extensions (default: false)
    * @param extractionMode - Use the SDC extraction expression context (default: current editor mode)
+   * @param itemVariablesReadOnly - Treat variables on the current item as read-only
    */
   getUneditableVariables(
     questionnaire,
     linkIdContext,
     launchContextOnly = false,
-    extractionMode = this.extractionMode
+    extractionMode = this.extractionMode,
+    itemVariablesReadOnly = this.itemVariablesReadOnly
   ): UneditableVariable[] {
-    const uneditableVariables = extractionMode ? this.getExtractionContextVariables(linkIdContext) : [];
+    const uneditableVariables = [];
 
     if (Array.isArray(questionnaire.extension)) {
       const variables = questionnaire.extension.reduce((accumulator, extension) => {
@@ -326,6 +326,12 @@ export class ExpressionEditorService {
             name: extension.valueExpression.name,
             type: 'Variable',
             description: extension.valueExpression.expression,  // Might want to show simplified form
+          });
+        } else if (extractionMode && this.isVariable(extension)) {
+          accumulator.push({
+            name: extension.valueExpression.name,
+            type: 'Variable',
+            description: extension.valueExpression.expression
           });
         } else if (extractionMode) {
           const allocatedId = this.getAllocatedIdVariable(extension);
@@ -352,6 +358,12 @@ export class ExpressionEditorService {
                   type: 'Item variable',
                   description: extension.valueExpression.expression,  // Might want to show simplified form
                 });
+              } else if (extractionMode && this.isVariable(extension)) {
+                uneditableVariables.push({
+                  name: extension.valueExpression.name,
+                  type: 'Item variable',
+                  description: extension.valueExpression.expression
+                });
               } else if (extractionMode) {
                 const allocatedId = this.getAllocatedIdVariable(extension);
                 if (allocatedId) {
@@ -363,15 +375,23 @@ export class ExpressionEditorService {
         });
       }
 
-      if (extractionMode) {
-        // allocateId is in scope on the item that declares it as well as its
-        // descendants.
+      if (linkIdContext && (extractionMode || itemVariablesReadOnly)) {
+        // allocateId and read-only variables are in scope on the item that
+        // declares them as well as its descendants.
         const currentItem = this.findItemById(questionnaire.item, linkIdContext);
         if (currentItem?.extension instanceof Array) {
           currentItem.extension.forEach(extension => {
-            const allocatedId = this.getAllocatedIdVariable(extension);
-            if (allocatedId) {
-              uneditableVariables.push(allocatedId);
+            if (itemVariablesReadOnly && this.isVariable(extension)) {
+              uneditableVariables.push({
+                name: extension.valueExpression.name,
+                type: 'Item variable',
+                description: extension.valueExpression.expression
+              });
+            } else if (extractionMode) {
+              const allocatedId = this.getAllocatedIdVariable(extension);
+              if (allocatedId) {
+                uneditableVariables.push(allocatedId);
+              }
             }
           });
         }
@@ -379,46 +399,6 @@ export class ExpressionEditorService {
     }
 
     return uneditableVariables;
-  }
-
-  /**
-   * Variables defined by SDC for expressions evaluated during $extract.
-   */
-  private getExtractionContextVariables(linkIdContext): UneditableVariable[] {
-    const variables: UneditableVariable[] = [
-      {
-        name: 'resource',
-        type: ExpressionEditorService.EXTRACTION_CONTEXT_VARIABLE_TYPE,
-        description: 'Root QuestionnaireResponse'
-      },
-      {
-        name: 'context',
-        type: ExpressionEditorService.EXTRACTION_CONTEXT_VARIABLE_TYPE,
-        description: linkIdContext ? 'Current QuestionnaireResponse.item' : 'Root QuestionnaireResponse'
-      },
-      {
-        name: 'questionnaire',
-        type: ExpressionEditorService.EXTRACTION_CONTEXT_VARIABLE_TYPE,
-        description: 'Questionnaire being processed'
-      }
-    ];
-
-    if (linkIdContext) {
-      variables.push({
-        name: 'qitem',
-        type: ExpressionEditorService.EXTRACTION_CONTEXT_VARIABLE_TYPE,
-        description: 'Current Questionnaire.item'
-      });
-    }
-
-    return variables;
-  }
-
-  /**
-   * Return whether an expression extension is evaluated during SDC extraction.
-   */
-  isExtractionExpression(expressionUri: string): boolean {
-    return this.EXTRACTION_EXPRESSION_URIS.has(expressionUri);
   }
 
   /**
@@ -486,23 +466,24 @@ export class ExpressionEditorService {
   extractVariablesFromItems(items, linkIdContext): Variable[] {
     // Look at the item fhirpath related extensions to populate the editable variables
 
-    const item = items.find((e) => e.linkId === linkIdContext && e.extension);
-    if (item) {
-      return this.extractVariablesFromExtensions(item);
-    } else {
-      if (items.item && items.item.length) {
-        for (const searchItem of items.item) {
-          if (searchItem.item) {
-            const ret = this.extractVariablesFromItems(searchItem.item, linkIdContext);
-            if (ret.length) {
-              return ret;
-            }
-          }
-        }
-      }
-
+    if (!Array.isArray(items)) {
       return [];
     }
+
+    for (const item of items) {
+      if (item.linkId === linkIdContext) {
+        return Array.isArray(item.extension) ? this.extractVariablesFromExtensions(item) : [];
+      }
+
+      if (Array.isArray(item.item)) {
+        const variables = this.extractVariablesFromItems(item.item, linkIdContext);
+        if (variables.length) {
+          return variables;
+        }
+      }
+    }
+
+    return [];
   }
 
   /**
@@ -657,11 +638,22 @@ export class ExpressionEditorService {
    *  to extract and modify
    * @param questionnaire - FHIR Questionnaire
    * @param linkIdContext - Context to use for final expression
+   * @param expressionContext - Evaluation context for the expression
+   * @param expressionValueType - FHIR value property used to store the expression
+   * @param itemVariablesReadOnly - Treat variables declared on the current item as read-only
    * @return true if load was successful
    */
-  import(expressionUri: string, questionnaire, linkIdContext): boolean {
+  import(
+    expressionUri: string,
+    questionnaire,
+    linkIdContext,
+    expressionContext: ExpressionContext = 'standard',
+    expressionValueType: ExpressionValueType = 'valueExpression',
+    itemVariablesReadOnly = false
+  ): boolean {
     this.linkIdContext = linkIdContext;
-    this.extractionMode = this.isExtractionExpression(expressionUri);
+    this.extractionMode = expressionContext === 'extraction';
+    this.itemVariablesReadOnly = itemVariablesReadOnly;
     this.fhir = copy(questionnaire);
     const loadSuccess = this.fhir.resourceType === 'Questionnaire';
 
@@ -684,10 +676,11 @@ export class ExpressionEditorService {
 
       if (linkIdContext) {
         this.uneditableVariables = this.getUneditableVariables(this.fhir, linkIdContext);
-        this.variables = this.extractVariablesFromItems(this.fhir.item, linkIdContext);
+        this.variables = this.itemVariablesReadOnly ? [] :
+          this.extractVariablesFromItems(this.fhir.item, linkIdContext);
       } else {
         this.uneditableVariables = this.getUneditableVariables(this.fhir, linkIdContext, true);
-        this.variables = this.extractTopLevelVariables(this.fhir);
+        this.variables = this.itemVariablesReadOnly ? [] : this.extractTopLevelVariables(this.fhir);
 
         // Since we don't have a target item the output expression does not make sense so hide it.
         expressionUri = '';
@@ -728,16 +721,22 @@ export class ExpressionEditorService {
       this.questionsChange.next(this.questions);
 
       if (expressionUri) {
-        const expression = this.extractExpression(expressionUri, this.fhir.item, linkIdContext);
+        const expression = this.extractExpression(
+          expressionUri,
+          this.fhir.item,
+          linkIdContext,
+          expressionValueType
+        );
 
         if (expression !== null) {
-          // @ts-ignore
-          this.finalExpression = expression.valueExpression.expression;
+          this.finalExpression = expressionValueType === 'valueString' ?
+            expression.valueString : expression.valueExpression.expression;
           this.finalExpressionExtension = expression;
 
           this.caseStatements = this.finalExpression.match(CASE_REGEX) !== null;
 
-          const simpleSyntax = this.extractSimpleSyntax(expression);
+          const simpleSyntax = expressionValueType === 'valueExpression' ?
+            this.extractSimpleSyntax(expression) : null;
 
           if (simpleSyntax === null && this.finalExpression !== '') {
             this.syntaxType = 'fhirpath';
@@ -753,7 +752,10 @@ export class ExpressionEditorService {
           this.syntaxType = 'fhirpath';
           this.simpleExpression = '';
           this.finalExpression = '';
-          this.finalExpressionExtension = {
+          this.finalExpressionExtension = expressionValueType === 'valueString' ? {
+            url: expressionUri,
+            valueString: this.finalExpression
+          } : {
             url: expressionUri,
             valueExpression: {
               language: 'text/fhirpath',
@@ -816,13 +818,25 @@ export class ExpressionEditorService {
    * @param expressionUri - Expression extension URL
    * @param items - FHIR questionnaire item array
    * @param linkId - linkId of question where to extract expression
+   * @param expressionValueType - FHIR value property used to store the expression
    */
-  extractExpression(expressionUri, items, linkId): object | null {
+  extractExpression(
+    expressionUri,
+    items,
+    linkId,
+    expressionValueType: ExpressionValueType = 'valueExpression'
+  ): any | null {
     for (const item of items) {
       if (item.linkId === linkId && item.extension) {
         const extensionIndex = item.extension.findIndex((e) => {
-          return e.url === expressionUri && e.valueExpression.language === this.LANGUAGE_FHIRPATH &&
-            e.valueExpression.expression;
+          if (e.url !== expressionUri) {
+            return false;
+          }
+
+          return expressionValueType === 'valueString' ?
+            typeof e.valueString === 'string' :
+            e.valueExpression?.language === this.LANGUAGE_FHIRPATH &&
+              typeof e.valueExpression.expression === 'string';
         });
         if (extensionIndex !== -1) {
           const finalExpression = item.extension[extensionIndex];
@@ -831,7 +845,7 @@ export class ExpressionEditorService {
           return finalExpression;
         }
       } else if (item.item) {
-        const expression = this.extractExpression(expressionUri, item.item, linkId);
+        const expression = this.extractExpression(expressionUri, item.item, linkId, expressionValueType);
         if (expression !== null)
           return expression;
       }
@@ -1042,6 +1056,14 @@ export class ExpressionEditorService {
     // Copy the fhir object, so we can export more than once
     // (if we add our data the second export will have duplicates)
     const fhir = copy(this.fhir);
+
+    // Preserve the caller-provided extension URL without interpreting it. The
+    // embedding application owns the meaning and eventual FHIR placement of
+    // custom expression extensions.
+    if (finalExpression) {
+      finalExpression = copy(finalExpression);
+      finalExpression.url = url;
+    }
 
     const variablesToAdd = this.variables.map((e) => {
       const variable = {

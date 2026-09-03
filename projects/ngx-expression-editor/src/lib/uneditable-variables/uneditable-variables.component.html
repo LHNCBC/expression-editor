@@ -1,4 +1,4 @@
-@if (uneditableVariables.length) {
+@for (section of variableSections; track section.title) {
   <div>
     <h2 [style]="lhcStyle.h2"
         class="section-header"
@@ -9,7 +9,7 @@
         (keydown.enter)="toggle()"
         (keydown.space)="toggle()">
       <span class="arrow" [class.expanded]="isSectionExpanded">›</span>
-      {{isExtractionExpression ? 'Expression Context Variables' : 'Variables in Scope for This Item'}} ({{uneditableVariables.length}})
+      {{section.title}} ({{section.variables.length}})
     </h2>
 
     @if(isSectionExpanded) {
@@ -19,7 +19,7 @@
           <div class="variable-column-type">Variable Type</div>
           <div class="variable-column-details">Description/Expression</div>
         </div>
-        @for (variable of uneditableVariables; track variable) {
+        @for (variable of section.variables; track variable) {
           <div class="variable-row">
             <div class="variable-column-label">{{variable.name}}</div>
             <div class="variable-column-type">{{variable.type}}</div>

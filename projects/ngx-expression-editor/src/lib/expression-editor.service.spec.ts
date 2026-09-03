@@ -659,7 +659,7 @@ describe('ExpressionEditorService', () => {
     const allocateIdUrl =
       'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-extractAllocateId';
     const extractionExpressionUri =
-      'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-itemExtractionContext';
+      'urn:formbuilder:template-extract-expression:fullUrl';
     const variableUrl = 'http://hl7.org/fhir/StructureDefinition/variable';
     const variable = (name: string) => ({
       url: variableUrl,
@@ -702,34 +702,19 @@ describe('ExpressionEditorService', () => {
       }]
     };
 
-    it('should show only extraction context and scoped allocated IDs in extraction mode', () => {
-      const variables = service.getUneditableVariables(questionnaire, 'target', false, true);
+    it('should show only scoped allocated IDs in extraction mode', () => {
+      const variables = service.getUneditableVariables(questionnaire, 'target', false, true, true);
 
       expect(variables).toEqual([
-        {
-          name: 'resource',
-          type: 'Extraction context',
-          description: 'Root QuestionnaireResponse'
-        },
-        {
-          name: 'context',
-          type: 'Extraction context',
-          description: 'Current QuestionnaireResponse.item'
-        },
-        {
-          name: 'questionnaire',
-          type: 'Extraction context',
-          description: 'Questionnaire being processed'
-        },
-        {
-          name: 'qitem',
-          type: 'Extraction context',
-          description: 'Current Questionnaire.item'
-        },
         {
           name: 'questionnaireUuid',
           type: 'Allocated ID',
           description: 'UUID allocated during extraction'
+        },
+        {
+          name: 'questionnaireVariable',
+          type: 'Variable',
+          description: '1'
         },
         {
           name: 'parentUuid',
@@ -737,9 +722,19 @@ describe('ExpressionEditorService', () => {
           description: 'UUID allocated during extraction'
         },
         {
+          name: 'parentVariable',
+          type: 'Item variable',
+          description: '1'
+        },
+        {
           name: 'targetUuid',
           type: 'Allocated ID',
           description: 'UUID allocated during extraction'
+        },
+        {
+          name: 'editableTargetVariable',
+          type: 'Item variable',
+          description: '1'
         }
       ]);
     });
@@ -754,39 +749,66 @@ describe('ExpressionEditorService', () => {
     });
 
     it('should make allocated IDs available to FHIRPath expression validation', () => {
-      service.import(extractionExpressionUri, questionnaire, 'target');
+      service.import(extractionExpressionUri, questionnaire, 'target', 'extraction', 'valueString', true);
 
       const validationVariables = service.getContextVariableNamesForExpressionValidation();
       expect(validationVariables.questionnaireUuid).toEqual(jasmine.any(String));
       expect(validationVariables.parentUuid).toEqual(jasmine.any(String));
       expect(validationVariables.targetUuid).toEqual(jasmine.any(String));
+      expect(validationVariables.editableTargetVariable).toBeDefined();
       expect(validationVariables.siblingUuid).toBeUndefined();
       expect(validationVariables.resource.resourceType).toBe('QuestionnaireResponse');
       expect(validationVariables.context.linkId).toBe('target');
       expect(validationVariables.questionnaire.resourceType).toBe('Questionnaire');
       expect(validationVariables.qitem.linkId).toBe('target');
       expect(validationVariables.rootResource).toBeUndefined();
+      expect(service.variables).toEqual([]);
+      expect(service.uneditableVariables).toContain(jasmine.objectContaining({
+        name: 'editableTargetVariable',
+        type: 'Item variable'
+      }));
     });
 
-    it('should expose the root extraction context without qitem', () => {
+    it('should keep current-item variables editable unless read-only mode is requested', () => {
+      service.import(extractionExpressionUri, questionnaire, 'target', 'extraction', 'valueString');
+
+      expect(service.variables.map(variable => variable.label)).toEqual(['editableTargetVariable']);
+      expect(service.uneditableVariables).not.toContain(jasmine.objectContaining({
+        name: 'editableTargetVariable'
+      }));
+      expect(service.uneditableVariables).toContain(jasmine.objectContaining({
+        name: 'parentVariable',
+        type: 'Item variable'
+      }));
+    });
+
+    it('should expose Questionnaire-level allocated IDs and variables at the root', () => {
       const variables = service.getUneditableVariables(questionnaire, undefined, false, true);
 
-      expect(variables).toContain(jasmine.objectContaining({name: 'resource'}));
-      expect(variables).toContain(jasmine.objectContaining({name: 'context'}));
-      expect(variables).toContain(jasmine.objectContaining({name: 'questionnaire'}));
-      expect(variables).toContain(jasmine.objectContaining({name: 'questionnaireUuid'}));
-      expect(variables).not.toContain(jasmine.objectContaining({name: 'qitem'}));
-      expect(variables).not.toContain(jasmine.objectContaining({name: 'questionnaireVariable'}));
+      expect(variables).toEqual([
+        {
+          name: 'questionnaireUuid',
+          type: 'Allocated ID',
+          description: 'UUID allocated during extraction'
+        },
+        {
+          name: 'questionnaireVariable',
+          type: 'Variable',
+          description: '1'
+        }
+      ]);
     });
 
     it('should load the allocateId demo Questionnaire with its scoped variables', () => {
-      service.import(extractionExpressionUri, allocateIdQuestionnaire, '/39156-5');
+      service.import(
+        extractionExpressionUri,
+        allocateIdQuestionnaire,
+        '/39156-5',
+        'extraction',
+        'valueString'
+      );
 
       expect(service.uneditableVariables.map(variable => variable.name)).toEqual([
-        'resource',
-        'context',
-        'questionnaire',
-        'qitem',
         'newQuestionnaireUuid',
         'newPatientUuid',
         'newObservationUuid'
@@ -794,6 +816,35 @@ describe('ExpressionEditorService', () => {
       expect(service.finalExpression).toContain('%newQuestionnaireUuid');
       expect(service.finalExpression).toContain('%newPatientUuid');
       expect(service.finalExpression).toContain('%newObservationUuid');
+    });
+
+    it('should import and return valueString with an arbitrary expression URI', () => {
+      const expressionUri = 'https://example.org/form-builder/expression/fullUrl';
+      const questionnaireWithExpression = copy(questionnaire);
+      questionnaireWithExpression.item[0].item[0].extension.push({
+        url: expressionUri,
+        valueString: '%questionnaireUuid'
+      });
+
+      service.import(
+        expressionUri,
+        questionnaireWithExpression,
+        'target',
+        'extraction',
+        'valueString'
+      );
+
+      expect(service.finalExpression).toBe('%questionnaireUuid');
+      service.finalExpressionExtension.valueString = '%parentUuid';
+
+      const saved: any = service.export(expressionUri, service.finalExpressionExtension);
+      const savedExpression = saved.item[0].item[0].extension.find(extension =>
+        extension.url === expressionUri
+      );
+      expect(savedExpression).toEqual({
+        url: expressionUri,
+        valueString: '%parentUuid'
+      });
     });
   });
 

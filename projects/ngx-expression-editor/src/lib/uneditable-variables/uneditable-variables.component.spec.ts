@@ -36,16 +36,26 @@ describe('UneditableVariablesComponent', () => {
       .toContain('Variables in Scope for This Item (1)');
   });
 
-  it('should use the expression context title for an extraction expression', () => {
+  it('should separate allocated IDs and ordinary variables for an extraction expression', () => {
     component.isExtractionExpression = true;
-    component.uneditableVariables = [{
-      name: 'resource',
-      type: 'Extraction context',
-      description: 'Root QuestionnaireResponse'
-    }];
+    component.uneditableVariables = [
+      {
+        name: 'newPatientUuid',
+        type: 'Allocated ID',
+        description: 'UUID allocated during extraction'
+      },
+      {
+        name: 'a',
+        type: 'Item variable',
+        description: '1'
+      }
+    ];
     fixture.detectChanges();
 
-    expect(fixture.nativeElement.querySelector('h2').textContent)
-      .toContain('Expression Context Variables (1)');
+    const headings = [...fixture.nativeElement.querySelectorAll('h2')]
+      .map((heading: HTMLElement) => heading.textContent);
+    expect(headings.length).toBe(2);
+    expect(headings[0]).toContain('Allocated ID Variables (1)');
+    expect(headings[1]).toContain('Variables in Scope (1)');
   });
 });

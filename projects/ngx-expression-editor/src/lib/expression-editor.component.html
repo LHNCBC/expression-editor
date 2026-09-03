@@ -58,13 +58,13 @@
           <section id="uneditable-variables-section" class="mb-3">
             <lhc-uneditable-variables
               [lhcStyle]="defaultLhcStyle"
-              [isExtractionExpression]="isExtractionExpression"
+              [isExtractionExpression]="expressionContext === 'extraction'"
               [isSectionExpanded]="display.uneditableVariablesSectionExpanded">
             </lhc-uneditable-variables>
           </section>
         }
 
-        @if (display.itemVariablesSection) {
+        @if (display.itemVariablesSection && !itemVariablesReadOnly) {
           <section id="variables-section" class="mb-3">
             <lhc-variables
               [variableLevel]="itemLinkId ? 'item' : 'form'"

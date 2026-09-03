@@ -35,19 +35,35 @@ describe('ExpressionEditorComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should accept an output expression that references scoped allocateId variables', async () => {
+  it('should accept and return a valueString expression with scoped allocateId variables', async () => {
     fixture.componentRef.setInput('fhirQuestionnaire', allocateIdQuestionnaire);
     fixture.componentRef.setInput('itemLinkId', '/39156-5');
     fixture.componentRef.setInput(
       'expressionUri',
-      'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-itemExtractionContext'
+      'urn:formbuilder:template-extract-expression:fullUrl'
     );
+    fixture.componentRef.setInput('expressionContext', 'extraction');
+    fixture.componentRef.setInput('expressionValueType', 'valueString');
     fixture.detectChanges();
     await fixture.whenStable();
     fixture.detectChanges();
 
     expect(component.expRef.control.value).toContain('%newQuestionnaireUuid');
     expect(component.expRef.control.errors).toBeNull();
+
+    let savedQuestionnaire;
+    component.save.subscribe(questionnaire => savedQuestionnaire = questionnaire);
+    component.finalExpression = '%newPatientUuid';
+    component.export();
+    await new Promise(resolve => setTimeout(resolve, 150));
+
+    const savedExpression = savedQuestionnaire.item[0].item[0].extension.find(extension =>
+      extension.url === 'urn:formbuilder:template-extract-expression:fullUrl'
+    );
+    expect(savedExpression).toEqual({
+      url: 'urn:formbuilder:template-extract-expression:fullUrl',
+      valueString: '%newPatientUuid'
+    });
   });
 
   it('should return empty aria message if there is no error in the validation result', () => {

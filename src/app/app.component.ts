@@ -7,8 +7,22 @@ import { environment } from '../environments/environment';
 import { Title } from '@angular/platform-browser';
 import { ActivatedRoute } from '@angular/router';
 import { createDisplayOption } from '../assets/js/common-utils.js';
-import { ExpressionEditorComponent } from 'ngx-expression-editor';
+import {
+  ExpressionContext,
+  ExpressionEditorComponent,
+  ExpressionValueType
+} from 'ngx-expression-editor';
 import { FormsModule } from '@angular/forms';
+
+interface ExpressionTypeOption {
+  name: string;
+  uri: string;
+  selected?: boolean;
+  userExpressionChoices?: Array<{ name: string; uri: string }>;
+  expressionContext?: ExpressionContext;
+  expressionValueType?: ExpressionValueType;
+  itemVariablesReadOnly?: boolean;
+}
 
 @Component({
   selector: 'app-root',
@@ -29,9 +43,9 @@ export class AppComponent implements OnInit, OnDestroy {
   openExpressionEditorTooltip = `Open the ${this.appName}`;
 
   calculatedExpression = 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression';
-  extractionExpression = 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-itemExtractionContext';
+  extractionExpression = 'urn:formbuilder:template-extract-expression:fullUrl';
   originalLinkId = '/39156-5';
-  expressionTypes = [
+  expressionTypes: ExpressionTypeOption[] = [
     {
       name: 'Answer Expression',
       uri: 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-answerExpression'
@@ -58,8 +72,11 @@ export class AppComponent implements OnInit, OnDestroy {
       uri: 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression'
     },
     {
-      name: 'Item Extraction Context (legacy)',
-      uri: 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-itemExtractionContext'
+      name: 'Template Extraction fullUrl',
+      uri: 'urn:formbuilder:template-extract-expression:fullUrl',
+      expressionContext: 'extraction',
+      expressionValueType: 'valueString',
+      itemVariablesReadOnly: true
     }
   ];
 
@@ -70,6 +87,9 @@ export class AppComponent implements OnInit, OnDestroy {
   rootLevel = false;
   defaultItemText;
   expressionUri = this.calculatedExpression;
+  expressionContext: ExpressionContext = 'standard';
+  expressionValueType: ExpressionValueType = 'valueExpression';
+  itemVariablesReadOnly = false;
   userExpressionChoices = null;
   customExpressionUri = false;
   fhirQuestionnaire = null;
@@ -122,8 +142,11 @@ export class AppComponent implements OnInit, OnDestroy {
     } else {
       this.liveAnnouncer.announce(this.formAppearedAnnouncement);
       this.linkId = this.originalLinkId;
-      this.expressionUri = this.questionnaire === 'allocate-id' ?
-        this.extractionExpression : this.calculatedExpression;
+      const isExtractionExample = this.questionnaire === 'allocate-id';
+      this.expressionUri = isExtractionExample ? this.extractionExpression : this.calculatedExpression;
+      this.expressionContext = isExtractionExample ? 'extraction' : 'standard';
+      this.expressionValueType = isExtractionExample ? 'valueString' : 'valueExpression';
+      this.itemVariablesReadOnly = isExtractionExample;
 
       this.http.get(`./${this.questionnaire}.json`)
         .subscribe(data => {
@@ -320,15 +343,24 @@ export class AppComponent implements OnInit, OnDestroy {
     if (newValue === '') {
       this.customExpressionUri = false;
       this.expressionUri = newValue;
+      this.expressionContext = 'standard';
+      this.expressionValueType = 'valueExpression';
+      this.itemVariablesReadOnly = false;
     } else if (newValue === 'custom') {
       this.userExpressionChoices = null;
       this.customExpressionUri = true;
       this.expressionUri = '';
+      this.expressionContext = 'standard';
+      this.expressionValueType = 'valueExpression';
+      this.itemVariablesReadOnly = false;
     } else {
       const currentExpression = this.expressionTypes[newValue];
       this.userExpressionChoices = currentExpression.userExpressionChoices;
       this.customExpressionUri = false;
       this.expressionUri = currentExpression.uri;
+      this.expressionContext = currentExpression.expressionContext ?? 'standard';
+      this.expressionValueType = currentExpression.expressionValueType ?? 'valueExpression';
+      this.itemVariablesReadOnly = currentExpression.itemVariablesReadOnly ?? false;
     }
   }
 
