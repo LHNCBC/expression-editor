@@ -139,6 +139,10 @@ export class AppComponent implements OnInit, OnDestroy {
       this.file = '';
       this.linkId = '';
       this.rootLevel = true;
+      this.expressionUri = this.calculatedExpression;
+      this.expressionContext = 'standard';
+      this.expressionValueType = 'valueExpression';
+      this.itemVariablesReadOnly = false;
     } else {
       this.liveAnnouncer.announce(this.formAppearedAnnouncement);
       this.linkId = this.originalLinkId;
