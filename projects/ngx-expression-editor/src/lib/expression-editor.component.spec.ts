@@ -5,6 +5,7 @@ import { ExpressionEditorComponent } from './expression-editor.component';
 import { ValidationResult } from './variable';
 import { ENVIRONMENT_TOKEN } from './environment-token';
 import allocateIdQuestionnaire from '../../../../src/assets/allocate-id.json';
+import bmi from '../../../../src/assets/bmi.json';
 
 describe('ExpressionEditorComponent', () => {
   let component: ExpressionEditorComponent;
@@ -64,6 +65,30 @@ describe('ExpressionEditorComponent', () => {
       url: 'urn:formbuilder:template-extract-expression:fullUrl',
       valueString: '%newPatientUuid'
     });
+  });
+
+  it('should export the expression URL selected in the editor', async () => {
+    const calculatedExpressionUri =
+      'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression';
+    const initialExpressionUri =
+      'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression';
+    fixture.componentRef.setInput('fhirQuestionnaire', bmi);
+    fixture.componentRef.setInput('itemLinkId', '/39156-5');
+    fixture.componentRef.setInput('expressionUri', calculatedExpressionUri);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    component.finalExpressionExtension.url = initialExpressionUri;
+    let savedQuestionnaire;
+    component.save.subscribe(questionnaire => savedQuestionnaire = questionnaire);
+    component.export();
+    await new Promise(resolve => setTimeout(resolve, 150));
+
+    const savedExpression = savedQuestionnaire.item[3].extension.find(extension =>
+      extension.url === initialExpressionUri
+    );
+    expect(savedExpression).toBeDefined();
   });
 
   it('should return empty aria message if there is no error in the validation result', () => {

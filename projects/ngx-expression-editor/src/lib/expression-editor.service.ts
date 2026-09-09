@@ -226,6 +226,12 @@ export class ExpressionEditorService {
    * Create a new variable
    */
   addVariable(): void {
+    // Ordinary Questionnaire variables are not part of the restricted SDC
+    // $extract expression context.
+    if (this.extractionMode) {
+      return;
+    }
+
     let variableNamesFromItems = [];
     if (!this.linkIdContext && (this.fhir?.item?.length ?? 0) > 0) {
       variableNamesFromItems = this.getVariableNamesFromItems();
@@ -295,9 +301,9 @@ export class ExpressionEditorService {
   /**
    * Get the list of uneditable variables based on the FHIR Questionnaire:
    * In ordinary expression mode, returns launch context and inherited
-   * Questionnaire variables. In extraction mode, returns ordinary variables
-   * and allocated IDs in scope. Standard SDC extraction context variables
-   * remain available to validation but are not displayed in this list.
+   * Questionnaire variables. In extraction mode, returns only allocated IDs
+   * in scope. Standard SDC extraction context variables remain available to
+   * validation but are not displayed in this list.
    * @param questionnaire - FHIR Questionnaire
    * @param linkIdContext - Context to use for final expression
    * @param launchContextOnly - Only show the launch context related extensions (default: false)
@@ -327,12 +333,6 @@ export class ExpressionEditorService {
             type: 'Variable',
             description: extension.valueExpression.expression,  // Might want to show simplified form
           });
-        } else if (extractionMode && this.isVariable(extension)) {
-          accumulator.push({
-            name: extension.valueExpression.name,
-            type: 'Variable',
-            description: extension.valueExpression.expression
-          });
         } else if (extractionMode) {
           const allocatedId = this.getAllocatedIdVariable(extension);
           if (allocatedId) {
@@ -358,12 +358,6 @@ export class ExpressionEditorService {
                   type: 'Item variable',
                   description: extension.valueExpression.expression,  // Might want to show simplified form
                 });
-              } else if (extractionMode && this.isVariable(extension)) {
-                uneditableVariables.push({
-                  name: extension.valueExpression.name,
-                  type: 'Item variable',
-                  description: extension.valueExpression.expression
-                });
               } else if (extractionMode) {
                 const allocatedId = this.getAllocatedIdVariable(extension);
                 if (allocatedId) {
@@ -381,7 +375,7 @@ export class ExpressionEditorService {
         const currentItem = this.findItemById(questionnaire.item, linkIdContext);
         if (currentItem?.extension instanceof Array) {
           currentItem.extension.forEach(extension => {
-            if (itemVariablesReadOnly && this.isVariable(extension)) {
+            if (!extractionMode && itemVariablesReadOnly && this.isVariable(extension)) {
               uneditableVariables.push({
                 name: extension.valueExpression.name,
                 type: 'Item variable',
@@ -676,11 +670,16 @@ export class ExpressionEditorService {
 
       if (linkIdContext) {
         this.uneditableVariables = this.getUneditableVariables(this.fhir, linkIdContext);
-        this.variables = this.itemVariablesReadOnly ? [] :
+        // SDC $extract expressions have a restricted variable environment:
+        // %resource, %context, %questionnaire, %qitem, and in-scope variables
+        // created by extractAllocateId. Ordinary Questionnaire variable
+        // extensions are therefore neither displayed nor validated here.
+        this.variables = (this.extractionMode || this.itemVariablesReadOnly) ? [] :
           this.extractVariablesFromItems(this.fhir.item, linkIdContext);
       } else {
         this.uneditableVariables = this.getUneditableVariables(this.fhir, linkIdContext, true);
-        this.variables = this.itemVariablesReadOnly ? [] : this.extractTopLevelVariables(this.fhir);
+        this.variables = (this.extractionMode || this.itemVariablesReadOnly) ? [] :
+          this.extractTopLevelVariables(this.fhir);
 
         // Since we don't have a target item the output expression does not make sense so hide it.
         expressionUri = '';
@@ -2229,7 +2228,7 @@ export class ExpressionEditorService {
    * @return object with context variable names and environment variable names as keys
    */
   getContextVariableNamesForExpressionValidation(): any {
-    const names = this.getVariableNames();
+    const names = this.extractionMode ? [] : this.getVariableNames();
 
     const contextVariables: any = names.reduce((acc, key) => {
       acc[key] = 1;

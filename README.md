@@ -33,9 +33,11 @@ object.
 * `expressionValueType` - Controls how the output expression is stored. Use
   `valueExpression` (the default) for the FHIR Expression datatype or
   `valueString` for string-backed extraction expressions.
-* `itemVariablesReadOnly` - When `true`, variables declared on the current item
-  are shown with the other read-only variables in scope instead of in the
-  editable Item Variables section. Defaults to `false`.
+* `itemVariablesReadOnly` - In the standard expression context, when `true`,
+  variables declared on the current item are shown with the other read-only
+  variables in scope instead of in the editable Item Variables section.
+  Defaults to `false`. Extraction expressions exclude ordinary Questionnaire
+  variables regardless of this setting.
 * `expressionLabel` - Heading name to use to show user when entering the
   expression.
 * `titleName` - Main widget heading shown to the user.

@@ -64,7 +64,7 @@
           </section>
         }
 
-        @if (display.itemVariablesSection && !itemVariablesReadOnly) {
+        @if (display.itemVariablesSection && expressionContext !== 'extraction' && !itemVariablesReadOnly) {
           <section id="variables-section" class="mb-3">
             <lhc-variables
               [variableLevel]="itemLinkId ? 'item' : 'form'"

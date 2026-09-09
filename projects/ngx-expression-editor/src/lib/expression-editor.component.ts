@@ -430,7 +430,8 @@ export class ExpressionEditorComponent implements OnInit, OnChanges, OnDestroy {
           finalExpression.valueExpression.expression = this.finalExpression;
         }
 
-        const exportResult = this.variableService.export(this.expressionUri, finalExpression, (this.expressionSyntax === 'simple') ? this.simpleExpression : "");
+        const outputExpressionUri = finalExpression?.url ?? this.expressionUri;
+        const exportResult = this.variableService.export(outputExpressionUri, finalExpression, (this.expressionSyntax === 'simple') ? this.simpleExpression : "");
         if (exportResult) {
           this.save.emit(exportResult);
           this.calculateSum = false;

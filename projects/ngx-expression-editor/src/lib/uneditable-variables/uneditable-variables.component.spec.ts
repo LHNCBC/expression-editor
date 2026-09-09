@@ -36,7 +36,7 @@ describe('UneditableVariablesComponent', () => {
       .toContain('Variables in Scope for This Item (1)');
   });
 
-  it('should separate allocated IDs and ordinary variables for an extraction expression', () => {
+  it('should display only allocated IDs for an extraction expression', () => {
     component.isExtractionExpression = true;
     component.uneditableVariables = [
       {
@@ -54,8 +54,11 @@ describe('UneditableVariablesComponent', () => {
 
     const headings = [...fixture.nativeElement.querySelectorAll('h2')]
       .map((heading: HTMLElement) => heading.textContent);
-    expect(headings.length).toBe(2);
+    const labels = [...fixture.nativeElement.querySelectorAll('.variable-column-label')]
+      .map((label: HTMLElement) => label.textContent.trim());
+    expect(headings.length).toBe(1);
     expect(headings[0]).toContain('Allocated ID Variables (1)');
-    expect(headings[1]).toContain('Variables in Scope (1)');
+    expect(labels).toContain('newPatientUuid');
+    expect(labels).not.toContain('a');
   });
 });

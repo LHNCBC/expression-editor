@@ -712,29 +712,14 @@ describe('ExpressionEditorService', () => {
           description: 'UUID allocated during extraction'
         },
         {
-          name: 'questionnaireVariable',
-          type: 'Variable',
-          description: '1'
-        },
-        {
           name: 'parentUuid',
           type: 'Allocated ID',
           description: 'UUID allocated during extraction'
         },
         {
-          name: 'parentVariable',
-          type: 'Item variable',
-          description: '1'
-        },
-        {
           name: 'targetUuid',
           type: 'Allocated ID',
           description: 'UUID allocated during extraction'
-        },
-        {
-          name: 'editableTargetVariable',
-          type: 'Item variable',
-          description: '1'
         }
       ]);
     });
@@ -755,7 +740,9 @@ describe('ExpressionEditorService', () => {
       expect(validationVariables.questionnaireUuid).toEqual(jasmine.any(String));
       expect(validationVariables.parentUuid).toEqual(jasmine.any(String));
       expect(validationVariables.targetUuid).toEqual(jasmine.any(String));
-      expect(validationVariables.editableTargetVariable).toBeDefined();
+      expect(validationVariables.questionnaireVariable).toBeUndefined();
+      expect(validationVariables.parentVariable).toBeUndefined();
+      expect(validationVariables.editableTargetVariable).toBeUndefined();
       expect(validationVariables.siblingUuid).toBeUndefined();
       expect(validationVariables.resource.resourceType).toBe('QuestionnaireResponse');
       expect(validationVariables.context.linkId).toBe('target');
@@ -763,23 +750,25 @@ describe('ExpressionEditorService', () => {
       expect(validationVariables.qitem.linkId).toBe('target');
       expect(validationVariables.rootResource).toBeUndefined();
       expect(service.variables).toEqual([]);
-      expect(service.uneditableVariables).toContain(jasmine.objectContaining({
-        name: 'editableTargetVariable',
-        type: 'Item variable'
-      }));
+      expect(service.uneditableVariables.map(variable => variable.name)).toEqual([
+        'questionnaireUuid',
+        'parentUuid',
+        'targetUuid'
+      ]);
+
+      service.addVariable();
+      expect(service.variables).toEqual([]);
     });
 
-    it('should keep current-item variables editable unless read-only mode is requested', () => {
+    it('should exclude ordinary variables from extraction mode regardless of read-only mode', () => {
       service.import(extractionExpressionUri, questionnaire, 'target', 'extraction', 'valueString');
 
-      expect(service.variables.map(variable => variable.label)).toEqual(['editableTargetVariable']);
-      expect(service.uneditableVariables).not.toContain(jasmine.objectContaining({
-        name: 'editableTargetVariable'
-      }));
-      expect(service.uneditableVariables).toContain(jasmine.objectContaining({
-        name: 'parentVariable',
-        type: 'Item variable'
-      }));
+      expect(service.variables).toEqual([]);
+      expect(service.uneditableVariables.map(variable => variable.name)).toEqual([
+        'questionnaireUuid',
+        'parentUuid',
+        'targetUuid'
+      ]);
     });
 
     it('should expose Questionnaire-level allocated IDs and variables at the root', () => {
@@ -790,11 +779,6 @@ describe('ExpressionEditorService', () => {
           name: 'questionnaireUuid',
           type: 'Allocated ID',
           description: 'UUID allocated during extraction'
-        },
-        {
-          name: 'questionnaireVariable',
-          type: 'Variable',
-          description: '1'
         }
       ]);
     });

@@ -34,9 +34,6 @@ export class UneditableVariablesComponent implements OnInit, OnDestroy {
     return [{
       title: 'Allocated ID Variables',
       variables: variables.filter(variable => variable.type === 'Allocated ID')
-    }, {
-      title: 'Variables in Scope',
-      variables: variables.filter(variable => variable.type !== 'Allocated ID')
     }].filter(section => section.variables.length > 0);
   }
 

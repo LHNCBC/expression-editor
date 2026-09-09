@@ -1196,7 +1196,7 @@ describe(Cypress.env("appName"), () => {
       });
 
       it('should display the output when the Save(export) button is clicked', () => {
-        cy.get('select#questionnaire-select > option').should('have.length', 10);
+        cy.get('select#questionnaire-select > option').should('have.length', 11);
         // Select BMI Calculation
         cy.intercept('/bmi.json').as('bmi');
         cy.get('select#questionnaire-select').select('bmi').should('have.value', 'bmi');
@@ -1822,7 +1822,7 @@ describe(Cypress.env("appName"), () => {
       });
 
       it('should be able to review selected items', () => {
-        cy.get('select#questionnaire-select > option').should('have.length', 10);
+        cy.get('select#questionnaire-select > option').should('have.length', 11);
         // Select PHQ9 (no FHIRPath)
         cy.intercept('/phq9.json').as('phq9');
         cy.get('select#questionnaire-select').select(6).should('have.value', 'phq9');

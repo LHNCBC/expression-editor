@@ -8,7 +8,7 @@ This project follows [Semantic Versioning](http://semver.org/).
 - Added `expressionContext` and `expressionValueType` inputs with backward-compatible defaults.
 - Added support for importing and exporting string-backed FHIRPath expressions with arbitrary extension URIs.
 - Added the `itemVariablesReadOnly` input for displaying current-item variables without allowing them to be modified.
-- Added separate displays for allocated IDs and other read-only variables available to extraction expressions.
+- Added a dedicated display for allocated ID variables available to extraction expressions.
 
 ### Fixed
 - Fixed discovery of variables declared on nested Questionnaire items.
