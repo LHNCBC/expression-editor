@@ -97,7 +97,7 @@ describe('ExpressionEditorComponent', () => {
             valueReference: { reference: '#patTemplate' }
           }, {
             url: 'fullUrl',
-            valueString: '%NewPatientId'
+            valueString: ''
           }]
         }]
       }]
@@ -116,6 +116,8 @@ describe('ExpressionEditorComponent', () => {
       .toContain('Allocated ID Variables (1)');
     expect(editor.querySelector('.variable-row .variable-column-label').textContent.trim())
       .toBe('NewPatientId123');
+    expect(component.expressionSyntax).toBe('fhirpath');
+    expect(editor.querySelector('#output-expression-type').value).toBe('fhirpath');
     expect(component.isExtractionExpression).toBeTrue();
   });
 

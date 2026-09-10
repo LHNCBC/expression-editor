@@ -788,7 +788,8 @@ export class ExpressionEditorService {
           const simpleSyntax = expressionValueType === 'valueExpression' ?
             this.extractSimpleSyntax(expression) : null;
 
-          if (simpleSyntax === null && this.finalExpression !== '') {
+          if (expressionValueType === 'valueString' ||
+            (simpleSyntax === null && this.finalExpression !== '')) {
             this.syntaxType = 'fhirpath';
             this.needsAdvancedInterface = true;
             this.simpleExpression = '';
