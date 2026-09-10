@@ -56,7 +56,7 @@ export class ExpressionEditorComponent implements OnInit, OnChanges, OnDestroy {
   @Input() userExpressionChoices = null;
   @Input() expressionLabel = 'Final Expression';
   @Input() expressionUri = '';
-  @Input() expressionContext: ExpressionContext = 'standard';
+  @Input() expressionContext?: ExpressionContext;
   @Input() expressionValueType: ExpressionValueType = 'valueExpression';
   @Input() itemVariablesReadOnly = false;
   @Input() lhcStyle: SimpleStyle = {};
@@ -101,6 +101,7 @@ export class ExpressionEditorComponent implements OnInit, OnChanges, OnDestroy {
   openExpressionEditorTooltip;
 
   expressionType;
+  resolvedExpressionContext: ExpressionContext = 'standard';
 
   // Flag to track if export is pending after validation
   isExportPending = false;
@@ -377,6 +378,7 @@ export class ExpressionEditorComponent implements OnInit, OnChanges, OnDestroy {
         this.expressionValueType,
         this.itemVariablesReadOnly
       );
+      this.resolvedExpressionContext = this.variableService.getExpressionContext();
       if (this.loadError) {
         this.liveAnnouncer.announce(this.errorLoading);
       }

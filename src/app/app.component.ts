@@ -74,7 +74,6 @@ export class AppComponent implements OnInit, OnDestroy {
     {
       name: 'Template Extraction fullUrl',
       uri: 'fullUrl',
-      expressionContext: 'extraction',
       expressionValueType: 'valueString',
       itemVariablesReadOnly: true
     }
@@ -87,7 +86,7 @@ export class AppComponent implements OnInit, OnDestroy {
   rootLevel = false;
   defaultItemText;
   expressionUri = this.calculatedExpression;
-  expressionContext: ExpressionContext = 'standard';
+  expressionContext?: ExpressionContext;
   expressionValueType: ExpressionValueType = 'valueExpression';
   itemVariablesReadOnly = false;
   userExpressionChoices = null;
@@ -148,7 +147,7 @@ export class AppComponent implements OnInit, OnDestroy {
       this.linkId = this.originalLinkId;
       const isExtractionExample = this.questionnaire === 'allocate-id';
       this.expressionUri = isExtractionExample ? this.extractionExpression : this.calculatedExpression;
-      this.expressionContext = isExtractionExample ? 'extraction' : 'standard';
+      this.expressionContext = undefined;
       this.expressionValueType = isExtractionExample ? 'valueString' : 'valueExpression';
       this.itemVariablesReadOnly = isExtractionExample;
 
@@ -362,7 +361,7 @@ export class AppComponent implements OnInit, OnDestroy {
       this.userExpressionChoices = currentExpression.userExpressionChoices;
       this.customExpressionUri = false;
       this.expressionUri = currentExpression.uri;
-      this.expressionContext = currentExpression.expressionContext ?? 'standard';
+      this.expressionContext = currentExpression.expressionContext;
       this.expressionValueType = currentExpression.expressionValueType ?? 'valueExpression';
       this.itemVariablesReadOnly = currentExpression.itemVariablesReadOnly ?? false;
     }

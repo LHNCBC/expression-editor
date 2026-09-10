@@ -82,6 +82,7 @@ interface ExpressionExtensionMatch {
   extension: FhirExtension;
   index: number;
   parentPath: number[];
+  ancestorUrls: string[];
 }
 
 interface ExpressionExtensionLocation {
@@ -200,6 +201,13 @@ export class ExpressionEditorService {
     'ifMatch',
     'ifNoneExist'
   ]);
+  private EXTRACTION_EXPRESSION_URIS = new Set([
+    'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-definitionExtract',
+    'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-definitionExtractValue',
+    'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-itemExtractionContext',
+    'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-templateExtractContext',
+    'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-templateExtractValue'
+  ]);
   private ANSWER_EXPRESSION_URI = "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-answerExpression";
   private ENABLEWHEN_EXPRESSION_URI = "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-enableWhenExpression";
 
@@ -232,6 +240,13 @@ export class ExpressionEditorService {
     this.extractionMode = false;
     this.itemVariablesReadOnly = false;
     this.finalExpressionLocation = null;
+  }
+
+  /**
+   * Return the expression context resolved during the most recent import.
+   */
+  getExpressionContext(): ExpressionContext {
+    return this.extractionMode ? 'extraction' : 'standard';
   }
 
   /**
@@ -673,15 +688,21 @@ export class ExpressionEditorService {
     expressionUri: string,
     questionnaire,
     linkIdContext,
-    expressionContext: ExpressionContext = 'standard',
+    expressionContext?: ExpressionContext,
     expressionValueType: ExpressionValueType = 'valueExpression',
     itemVariablesReadOnly = false
   ): boolean {
     this.linkIdContext = linkIdContext;
-    this.extractionMode = expressionContext === 'extraction';
     this.itemVariablesReadOnly = itemVariablesReadOnly;
     this.finalExpressionLocation = null;
     this.fhir = copy(questionnaire);
+    const inferredContext = this.inferExpressionContext(
+      expressionUri,
+      this.fhir.item,
+      linkIdContext,
+      expressionValueType
+    );
+    this.extractionMode = (expressionContext ?? inferredContext) === 'extraction';
     const loadSuccess = this.fhir.resourceType === 'Questionnaire';
 
     // this.linkIdContext is not set at the questionnaire level.
@@ -893,7 +914,44 @@ export class ExpressionEditorService {
   }
 
   /**
-   * Find an expression extension at any extension depth.
+   * Infer whether a recognized expression extension is evaluated during SDC
+   * extraction. Unknown extension URLs retain the standard context unless the
+   * caller supplies an explicit context override.
+   */
+  private inferExpressionContext(
+    expressionUri: string,
+    items,
+    linkId: string,
+    expressionValueType: ExpressionValueType
+  ): ExpressionContext {
+    if (!Array.isArray(items) || !linkId) {
+      return this.EXTRACTION_EXPRESSION_URIS.has(expressionUri) ? 'extraction' : 'standard';
+    }
+
+    const item = this.findItemById(items, linkId);
+    const match = item?.extension ? this.findExpressionExtension(
+      item.extension,
+      expressionUri,
+      expressionValueType
+    ) : null;
+
+    if (match && this.isExtractionExpressionMatch(match)) {
+      return 'extraction';
+    }
+
+    if (this.EXTRACTION_EXPRESSION_URIS.has(expressionUri) ||
+      (this.TEMPLATE_EXTRACT_BUNDLE_EXPRESSION_URIS.has(expressionUri) &&
+        this.findMissingExpressionLocation(item?.extension, expressionUri))) {
+      return 'extraction';
+    }
+
+    return 'standard';
+  }
+
+  /**
+   * Find an expression extension at any extension depth. When the same leaf URL
+   * occurs more than once, prefer a candidate whose full path identifies a
+   * recognized extraction expression.
    */
   private findExpressionExtension(
     extensions,
@@ -906,10 +964,11 @@ export class ExpressionEditorService {
       expressionUri,
       expressionValueType,
       [],
+      [],
       matches
     );
 
-    return matches[0] ?? null;
+    return matches.find(match => this.isExtractionExpressionMatch(match)) ?? matches[0] ?? null;
   }
 
   private collectExpressionExtensionMatches(
@@ -917,6 +976,7 @@ export class ExpressionEditorService {
     expressionUri: string,
     expressionValueType: ExpressionValueType,
     parentPath: number[],
+    ancestorUrls: string[],
     matches: ExpressionExtensionMatch[]
   ): void {
     if (!Array.isArray(extensions)) {
@@ -930,7 +990,7 @@ export class ExpressionEditorService {
           typeof extension.valueExpression.expression === 'string';
 
       if (extension.url === expressionUri && hasExpectedValue) {
-        matches.push({ extension, index, parentPath });
+        matches.push({ extension, index, parentPath, ancestorUrls });
       }
 
       if (Array.isArray(extension.extension)) {
@@ -939,10 +999,16 @@ export class ExpressionEditorService {
           expressionUri,
           expressionValueType,
           parentPath.concat(index),
+          ancestorUrls.concat(extension.url),
           matches
         );
       }
     });
+  }
+
+  private isExtractionExpressionMatch(match: ExpressionExtensionMatch): boolean {
+    return this.EXTRACTION_EXPRESSION_URIS.has(match.extension.url) ||
+      match.ancestorUrls.includes(this.TEMPLATE_EXTRACT_URI);
   }
 
   private findMissingExpressionLocation(

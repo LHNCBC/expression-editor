@@ -43,7 +43,6 @@ describe('ExpressionEditorComponent', () => {
       'expressionUri',
       'fullUrl'
     );
-    fixture.componentRef.setInput('expressionContext', 'extraction');
     fixture.componentRef.setInput('expressionValueType', 'valueString');
     fixture.detectChanges();
     await fixture.whenStable();
@@ -79,6 +78,45 @@ describe('ExpressionEditorComponent', () => {
     expect(savedQuestionnaire.item[0].item[0].extension.some(extension =>
       extension.url === 'fullUrl'
     )).toBeFalse();
+    expect(component.resolvedExpressionContext).toBe('extraction');
+  });
+
+  it('should display a Questionnaire-level allocated ID for Form Builder inputs', async () => {
+    const questionnaire = {
+      resourceType: 'Questionnaire',
+      extension: [{
+        url: 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-extractAllocateId',
+        valueString: 'NewPatientId123'
+      }],
+      item: [{
+        linkId: 'patient',
+        extension: [{
+          url: 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-templateExtract',
+          extension: [{
+            url: 'template',
+            valueReference: { reference: '#patTemplate' }
+          }, {
+            url: 'fullUrl',
+            valueString: '%NewPatientId'
+          }]
+        }]
+      }]
+    };
+    fixture.componentRef.setInput('fhirQuestionnaire', questionnaire);
+    fixture.componentRef.setInput('itemLinkId', 'patient');
+    fixture.componentRef.setInput('expressionUri', 'fullUrl');
+    fixture.componentRef.setInput('expressionValueType', 'valueString');
+    fixture.componentRef.setInput('itemVariablesReadOnly', true);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const editor = fixture.nativeElement.shadowRoot;
+    expect(editor.querySelector('#uneditable-variables-section h2').textContent)
+      .toContain('Allocated ID Variables (1)');
+    expect(editor.querySelector('.variable-row .variable-column-label').textContent.trim())
+      .toBe('NewPatientId123');
+    expect(component.resolvedExpressionContext).toBe('extraction');
   });
 
   it('should export the expression URL selected in the editor', async () => {

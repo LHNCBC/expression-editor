@@ -5,6 +5,7 @@ This project follows [Semantic Versioning](http://semver.org/).
 ## Unreleased
 ### Fixed
 - Preserved nested expression extension placement when importing and exporting, including the template extraction `fullUrl`, `resourceId`, `ifNoneMatch`, `ifModifiedSince`, `ifMatch`, and `ifNoneExist` sub-extensions.
+- Inferred extraction context from recognized SDC extension paths while retaining an optional override for custom extraction expressions.
 
 ## [5.1.0] 2026-09-03
 ### Added

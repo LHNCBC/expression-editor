@@ -691,7 +691,14 @@ describe('ExpressionEditorService', () => {
           type: 'string',
           extension: [
             allocateId('targetUuid', 'valueId'),
-            variable('editableTargetVariable')
+            variable('editableTargetVariable'),
+            {
+              url: 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-templateExtract',
+              extension: [{
+                url: 'template',
+                valueReference: { reference: '#targetTemplate' }
+              }]
+            }
           ]
         }, {
           linkId: 'sibling',
@@ -733,7 +740,7 @@ describe('ExpressionEditorService', () => {
     });
 
     it('should make allocated IDs available to FHIRPath expression validation', () => {
-      service.import(extractionExpressionUri, questionnaire, 'target', 'extraction', 'valueString', true);
+      service.import(extractionExpressionUri, questionnaire, 'target', undefined, 'valueString', true);
 
       const validationVariables = service.getContextVariableNamesForExpressionValidation();
       expect(validationVariables.questionnaireUuid).toEqual(jasmine.any(String));
@@ -760,7 +767,7 @@ describe('ExpressionEditorService', () => {
     });
 
     it('should exclude ordinary variables from extraction mode regardless of read-only mode', () => {
-      service.import(extractionExpressionUri, questionnaire, 'target', 'extraction', 'valueString');
+      service.import(extractionExpressionUri, questionnaire, 'target', undefined, 'valueString');
 
       expect(service.variables).toEqual([]);
       expect(service.uneditableVariables.map(variable => variable.name)).toEqual([
@@ -787,7 +794,7 @@ describe('ExpressionEditorService', () => {
         extractionExpressionUri,
         allocateIdQuestionnaire,
         '/39156-5',
-        'extraction',
+        undefined,
         'valueString'
       );
 
@@ -799,6 +806,7 @@ describe('ExpressionEditorService', () => {
       expect(service.finalExpression).toContain('%newQuestionnaireUuid');
       expect(service.finalExpression).toContain('%newPatientUuid');
       expect(service.finalExpression).toContain('%newObservationUuid');
+      expect(service.getExpressionContext()).toBe('extraction');
     });
 
     it('should update templateExtract fullUrl in place', () => {
@@ -806,7 +814,7 @@ describe('ExpressionEditorService', () => {
         extractionExpressionUri,
         allocateIdQuestionnaire,
         '/39156-5',
-        'extraction',
+        undefined,
         'valueString'
       );
       service.finalExpressionExtension.valueString = '%newPatientUuid';
@@ -845,7 +853,7 @@ describe('ExpressionEditorService', () => {
           expressionUri,
           allocateIdQuestionnaire,
           '/39156-5',
-          'extraction',
+          undefined,
           'valueString'
         );
         service.finalExpressionExtension.valueString = `%${expressionUri}Value`;
@@ -862,7 +870,18 @@ describe('ExpressionEditorService', () => {
           valueString: `%${expressionUri}Value`
         });
         expect(targetItem.extension.some(extension => extension.url === expressionUri)).toBeFalse();
+        expect(service.getExpressionContext()).toBe('extraction');
       });
+    });
+
+    it('should default an unknown expression URI to the standard context', () => {
+      service.import(
+        'https://example.org/form-builder/expression/custom',
+        questionnaire,
+        'target'
+      );
+
+      expect(service.getExpressionContext()).toBe('standard');
     });
 
     it('should import and return valueString with an arbitrary expression URI', () => {
