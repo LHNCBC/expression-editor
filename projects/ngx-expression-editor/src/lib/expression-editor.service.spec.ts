@@ -740,7 +740,7 @@ describe('ExpressionEditorService', () => {
     });
 
     it('should make allocated IDs available to FHIRPath expression validation', () => {
-      service.import(extractionExpressionUri, questionnaire, 'target', undefined, 'valueString', true);
+      service.import(extractionExpressionUri, questionnaire, 'target', 'valueString', true);
 
       const validationVariables = service.getContextVariableNamesForExpressionValidation();
       expect(validationVariables.questionnaireUuid).toEqual(jasmine.any(String));
@@ -767,7 +767,7 @@ describe('ExpressionEditorService', () => {
     });
 
     it('should exclude ordinary variables from extraction mode regardless of read-only mode', () => {
-      service.import(extractionExpressionUri, questionnaire, 'target', undefined, 'valueString');
+      service.import(extractionExpressionUri, questionnaire, 'target', 'valueString');
 
       expect(service.variables).toEqual([]);
       expect(service.uneditableVariables.map(variable => variable.name)).toEqual([
@@ -794,7 +794,6 @@ describe('ExpressionEditorService', () => {
         extractionExpressionUri,
         allocateIdQuestionnaire,
         '/39156-5',
-        undefined,
         'valueString'
       );
 
@@ -806,7 +805,7 @@ describe('ExpressionEditorService', () => {
       expect(service.finalExpression).toContain('%newQuestionnaireUuid');
       expect(service.finalExpression).toContain('%newPatientUuid');
       expect(service.finalExpression).toContain('%newObservationUuid');
-      expect(service.getExpressionContext()).toBe('extraction');
+      expect(service.isExtractionExpression()).toBeTrue();
     });
 
     it('should update templateExtract fullUrl in place', () => {
@@ -814,7 +813,6 @@ describe('ExpressionEditorService', () => {
         extractionExpressionUri,
         allocateIdQuestionnaire,
         '/39156-5',
-        undefined,
         'valueString'
       );
       service.finalExpressionExtension.valueString = '%newPatientUuid';
@@ -853,7 +851,6 @@ describe('ExpressionEditorService', () => {
           expressionUri,
           allocateIdQuestionnaire,
           '/39156-5',
-          undefined,
           'valueString'
         );
         service.finalExpressionExtension.valueString = `%${expressionUri}Value`;
@@ -870,18 +867,18 @@ describe('ExpressionEditorService', () => {
           valueString: `%${expressionUri}Value`
         });
         expect(targetItem.extension.some(extension => extension.url === expressionUri)).toBeFalse();
-        expect(service.getExpressionContext()).toBe('extraction');
+        expect(service.isExtractionExpression()).toBeTrue();
       });
     });
 
-    it('should default an unknown expression URI to the standard context', () => {
+    it('should not classify an unknown expression URI as an extraction expression', () => {
       service.import(
         'https://example.org/form-builder/expression/custom',
         questionnaire,
         'target'
       );
 
-      expect(service.getExpressionContext()).toBe('standard');
+      expect(service.isExtractionExpression()).toBeFalse();
     });
 
     it('should import and return valueString with an arbitrary expression URI', () => {
@@ -896,7 +893,6 @@ describe('ExpressionEditorService', () => {
         expressionUri,
         questionnaireWithExpression,
         'target',
-        'extraction',
         'valueString'
       );
 

@@ -29,10 +29,6 @@ object.
   Expression section is omitted because the Expression Editor only supports
   adding variables at the root level; as a result for this case the
   `expressionUri` is not needed.
-* `expressionContext` - Optional override controlling the variables available
-  to the expression. Recognized SDC extraction extension paths are inferred as
-  `extraction`; unknown extension paths default to `standard`. Set this input
-  explicitly for custom extraction expressions that cannot be inferred.
 * `expressionValueType` - Controls how the output expression is stored. Use
   `valueExpression` (the default) for the FHIR Expression datatype or
   `valueString` for string-backed extraction expressions.

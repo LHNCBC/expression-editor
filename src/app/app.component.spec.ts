@@ -43,14 +43,12 @@ describe('AppComponent', () => {
     const app = fixture.componentInstance;
     app.questionnaire = 'upload';
     app.expressionUri = app.extractionExpression;
-    app.expressionContext = 'extraction';
     app.expressionValueType = 'valueString';
     app.itemVariablesReadOnly = true;
 
     app.onChange();
 
     expect(app.expressionUri).toBe(app.calculatedExpression);
-    expect(app.expressionContext).toBe('standard');
     expect(app.expressionValueType).toBe('valueExpression');
     expect(app.itemVariablesReadOnly).toBeFalse();
   });

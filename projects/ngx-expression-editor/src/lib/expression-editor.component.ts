@@ -2,7 +2,6 @@ import { ChangeDetectorRef, Component, EventEmitter, inject, Input, OnChanges, O
 
 import {
   DisplaySectionControl,
-  ExpressionContext,
   ExpressionEditorService,
   ExpressionValueType,
   SimpleStyle
@@ -56,7 +55,6 @@ export class ExpressionEditorComponent implements OnInit, OnChanges, OnDestroy {
   @Input() userExpressionChoices = null;
   @Input() expressionLabel = 'Final Expression';
   @Input() expressionUri = '';
-  @Input() expressionContext?: ExpressionContext;
   @Input() expressionValueType: ExpressionValueType = 'valueExpression';
   @Input() itemVariablesReadOnly = false;
   @Input() lhcStyle: SimpleStyle = {};
@@ -101,7 +99,7 @@ export class ExpressionEditorComponent implements OnInit, OnChanges, OnDestroy {
   openExpressionEditorTooltip;
 
   expressionType;
-  resolvedExpressionContext: ExpressionContext = 'standard';
+  isExtractionExpression = false;
 
   // Flag to track if export is pending after validation
   isExportPending = false;
@@ -374,11 +372,10 @@ export class ExpressionEditorComponent implements OnInit, OnChanges, OnDestroy {
         this.expressionUri,
         this.fhirQuestionnaire,
         this.itemLinkId,
-        this.expressionContext,
         this.expressionValueType,
         this.itemVariablesReadOnly
       );
-      this.resolvedExpressionContext = this.variableService.getExpressionContext();
+      this.isExtractionExpression = this.variableService.isExtractionExpression();
       if (this.loadError) {
         this.liveAnnouncer.announce(this.errorLoading);
       }

@@ -32,7 +32,6 @@ export interface DisplaySectionControl {
   outputExpressionSection?: boolean;
 }
 
-export type ExpressionContext = 'standard' | 'extraction';
 export type ExpressionValueType = 'valueExpression' | 'valueString';
 
 export enum DialogTypes {
@@ -208,6 +207,7 @@ export class ExpressionEditorService {
     'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-templateExtractContext',
     'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-templateExtractValue'
   ]);
+
   private ANSWER_EXPRESSION_URI = "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-answerExpression";
   private ENABLEWHEN_EXPRESSION_URI = "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-enableWhenExpression";
 
@@ -243,10 +243,10 @@ export class ExpressionEditorService {
   }
 
   /**
-   * Return the expression context resolved during the most recent import.
+   * Return whether the current output expression is evaluated during extraction.
    */
-  getExpressionContext(): ExpressionContext {
-    return this.extractionMode ? 'extraction' : 'standard';
+  isExtractionExpression(): boolean {
+    return this.extractionMode;
   }
 
   /**
@@ -353,7 +353,6 @@ export class ExpressionEditorService {
    * validation but are not displayed in this list.
    * @param questionnaire - FHIR Questionnaire
    * @param linkIdContext - Context to use for final expression
-   * @param expressionContext - Evaluation context for the expression
    * @param launchContextOnly - Only show the launch context related extensions (default: false)
    * @param extractionMode - Use the SDC extraction expression context (default: current editor mode)
    * @param itemVariablesReadOnly - Treat variables on the current item as read-only
@@ -688,7 +687,6 @@ export class ExpressionEditorService {
     expressionUri: string,
     questionnaire,
     linkIdContext,
-    expressionContext?: ExpressionContext,
     expressionValueType: ExpressionValueType = 'valueExpression',
     itemVariablesReadOnly = false
   ): boolean {
@@ -696,13 +694,12 @@ export class ExpressionEditorService {
     this.itemVariablesReadOnly = itemVariablesReadOnly;
     this.finalExpressionLocation = null;
     this.fhir = copy(questionnaire);
-    const inferredContext = this.inferExpressionContext(
+    this.extractionMode = this.inferExtractionMode(
       expressionUri,
       this.fhir.item,
       linkIdContext,
       expressionValueType
     );
-    this.extractionMode = (expressionContext ?? inferredContext) === 'extraction';
     const loadSuccess = this.fhir.resourceType === 'Questionnaire';
 
     // this.linkIdContext is not set at the questionnaire level.
@@ -902,7 +899,6 @@ export class ExpressionEditorService {
           item.extension,
           expressionUri
         );
-
       } else if (item.item) {
         const expression = this.extractExpression(expressionUri, item.item, linkId, expressionValueType);
         if (expression !== null)
@@ -915,17 +911,16 @@ export class ExpressionEditorService {
 
   /**
    * Infer whether a recognized expression extension is evaluated during SDC
-   * extraction. Unknown extension URLs retain the standard context unless the
-   * caller supplies an explicit context override.
+   * extraction. Unknown extension paths retain standard expression behavior.
    */
-  private inferExpressionContext(
+  private inferExtractionMode(
     expressionUri: string,
     items,
     linkId: string,
     expressionValueType: ExpressionValueType
-  ): ExpressionContext {
+  ): boolean {
     if (!Array.isArray(items) || !linkId) {
-      return this.EXTRACTION_EXPRESSION_URIS.has(expressionUri) ? 'extraction' : 'standard';
+      return this.EXTRACTION_EXPRESSION_URIS.has(expressionUri);
     }
 
     const item = this.findItemById(items, linkId);
@@ -936,16 +931,16 @@ export class ExpressionEditorService {
     ) : null;
 
     if (match && this.isExtractionExpressionMatch(match)) {
-      return 'extraction';
+      return true;
     }
 
     if (this.EXTRACTION_EXPRESSION_URIS.has(expressionUri) ||
       (this.TEMPLATE_EXTRACT_BUNDLE_EXPRESSION_URIS.has(expressionUri) &&
         this.findMissingExpressionLocation(item?.extension, expressionUri))) {
-      return 'extraction';
+      return true;
     }
 
-    return 'standard';
+    return false;
   }
 
   /**

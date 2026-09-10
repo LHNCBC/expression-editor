@@ -78,7 +78,7 @@ describe('ExpressionEditorComponent', () => {
     expect(savedQuestionnaire.item[0].item[0].extension.some(extension =>
       extension.url === 'fullUrl'
     )).toBeFalse();
-    expect(component.resolvedExpressionContext).toBe('extraction');
+    expect(component.isExtractionExpression).toBeTrue();
   });
 
   it('should display a Questionnaire-level allocated ID for Form Builder inputs', async () => {
@@ -116,7 +116,7 @@ describe('ExpressionEditorComponent', () => {
       .toContain('Allocated ID Variables (1)');
     expect(editor.querySelector('.variable-row .variable-column-label').textContent.trim())
       .toBe('NewPatientId123');
-    expect(component.resolvedExpressionContext).toBe('extraction');
+    expect(component.isExtractionExpression).toBeTrue();
   });
 
   it('should export the expression URL selected in the editor', async () => {
