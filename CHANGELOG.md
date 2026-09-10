@@ -2,6 +2,10 @@
 
 This project follows [Semantic Versioning](http://semver.org/).
 
+## Unreleased
+### Fixed
+- Preserved nested expression extension placement when importing and exporting, including template extraction `fullUrl` sub-extensions.
+
 ## [5.1.0] 2026-09-03
 ### Added
 - Added extraction expression context support, including scoped SDC `extractAllocateId` variables.

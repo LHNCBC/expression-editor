@@ -658,8 +658,7 @@ describe('ExpressionEditorService', () => {
   describe('extractAllocateId variables', () => {
     const allocateIdUrl =
       'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-extractAllocateId';
-    const extractionExpressionUri =
-      'urn:formbuilder:template-extract-expression:fullUrl';
+    const extractionExpressionUri = 'fullUrl';
     const variableUrl = 'http://hl7.org/fhir/StructureDefinition/variable';
     const variable = (name: string) => ({
       url: variableUrl,
@@ -800,6 +799,38 @@ describe('ExpressionEditorService', () => {
       expect(service.finalExpression).toContain('%newQuestionnaireUuid');
       expect(service.finalExpression).toContain('%newPatientUuid');
       expect(service.finalExpression).toContain('%newObservationUuid');
+    });
+
+    it('should update templateExtract fullUrl in place', () => {
+      service.import(
+        extractionExpressionUri,
+        allocateIdQuestionnaire,
+        '/39156-5',
+        'extraction',
+        'valueString'
+      );
+      service.finalExpressionExtension.valueString = '%newPatientUuid';
+
+      const saved = service.export(extractionExpressionUri, service.finalExpressionExtension) as {
+        item: {
+          item: {
+            extension: {
+              url: string;
+              extension?: { url: string; valueString?: string }[];
+            }[];
+          }[];
+        }[];
+      };
+      const targetItem = saved.item[0].item[0];
+      const templateExtract = targetItem.extension.find(extension =>
+        extension.url === 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-templateExtract'
+      );
+
+      expect(templateExtract.extension?.find(extension => extension.url === 'fullUrl')).toEqual({
+        url: 'fullUrl',
+        valueString: '%newPatientUuid'
+      });
+      expect(targetItem.extension.some(extension => extension.url === 'fullUrl')).toBeFalse();
     });
 
     it('should import and return valueString with an arbitrary expression URI', () => {

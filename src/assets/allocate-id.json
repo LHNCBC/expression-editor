@@ -38,8 +38,19 @@
               "valueString": "newObservationUuid"
             },
             {
-              "url": "urn:formbuilder:template-extract-expression:fullUrl",
-              "valueString": "%resource.contained.where(id = %newQuestionnaireUuid.substring(9) or id = %newPatientUuid.substring(9) or id = %newObservationUuid.substring(9))"
+              "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-templateExtract",
+              "extension": [
+                {
+                  "url": "template",
+                  "valueReference": {
+                    "reference": "#PatientTemplate"
+                  }
+                },
+                {
+                  "url": "fullUrl",
+                  "valueString": "%resource.contained.where(id = %newQuestionnaireUuid.substring(9) or id = %newPatientUuid.substring(9) or id = %newObservationUuid.substring(9))"
+                }
+              ]
             }
           ]
         },

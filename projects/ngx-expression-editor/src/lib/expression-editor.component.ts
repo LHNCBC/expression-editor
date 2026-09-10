@@ -364,7 +364,7 @@ export class ExpressionEditorComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   /**
-   * Re-import fhir and context and show the form
+   * Re-import the Questionnaire and show the form
    */
   reload(): void {
     if (this.fhirQuestionnaire instanceof Object) {

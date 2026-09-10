@@ -67,6 +67,28 @@ interface Scoring {
   scoreItems: any[];
 }
 
+interface FhirExtension {
+  url?: string;
+  extension?: FhirExtension[];
+  valueString?: string;
+  valueExpression?: {
+    language?: string;
+    expression?: string;
+  };
+  [property: string]: unknown;
+}
+
+interface ExpressionExtensionMatch {
+  extension: FhirExtension;
+  index: number;
+  parentPath: number[];
+}
+
+interface ExpressionExtensionLocation {
+  index: number;
+  parentPath: number[];
+}
+
 class ItemVariableError {
   name: boolean;
   expression: { type: string, status: boolean };
@@ -169,7 +191,6 @@ export class ExpressionEditorService {
   private CALCULATED_EXPRESSION_URI = 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression';
   private LAUNCH_CONTEXT_URI = 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-launchContext';
   private EXTRACT_ALLOCATE_ID_URI = 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-extractAllocateId';
-
   private ANSWER_EXPRESSION_URI = "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-answerExpression";
   private ENABLEWHEN_EXPRESSION_URI = "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-enableWhenExpression";
 
@@ -177,6 +198,7 @@ export class ExpressionEditorService {
   private fhir;
   private extractionMode = false;
   private itemVariablesReadOnly = false;
+  private finalExpressionLocation: ExpressionExtensionLocation | null = null;
   scoreCalculation = false;
 
   private itemVariablesErrors: ItemVariableError[] = [];
@@ -200,6 +222,7 @@ export class ExpressionEditorService {
     this.uneditableVariables = [];
     this.extractionMode = false;
     this.itemVariablesReadOnly = false;
+    this.finalExpressionLocation = null;
   }
 
   /**
@@ -306,6 +329,7 @@ export class ExpressionEditorService {
    * validation but are not displayed in this list.
    * @param questionnaire - FHIR Questionnaire
    * @param linkIdContext - Context to use for final expression
+   * @param expressionContext - Evaluation context for the expression
    * @param launchContextOnly - Only show the launch context related extensions (default: false)
    * @param extractionMode - Use the SDC extraction expression context (default: current editor mode)
    * @param itemVariablesReadOnly - Treat variables on the current item as read-only
@@ -632,7 +656,6 @@ export class ExpressionEditorService {
    *  to extract and modify
    * @param questionnaire - FHIR Questionnaire
    * @param linkIdContext - Context to use for final expression
-   * @param expressionContext - Evaluation context for the expression
    * @param expressionValueType - FHIR value property used to store the expression
    * @param itemVariablesReadOnly - Treat variables declared on the current item as read-only
    * @return true if load was successful
@@ -648,6 +671,7 @@ export class ExpressionEditorService {
     this.linkIdContext = linkIdContext;
     this.extractionMode = expressionContext === 'extraction';
     this.itemVariablesReadOnly = itemVariablesReadOnly;
+    this.finalExpressionLocation = null;
     this.fhir = copy(questionnaire);
     const loadSuccess = this.fhir.resourceType === 'Questionnaire';
 
@@ -827,22 +851,23 @@ export class ExpressionEditorService {
   ): any | null {
     for (const item of items) {
       if (item.linkId === linkId && item.extension) {
-        const extensionIndex = item.extension.findIndex((e) => {
-          if (e.url !== expressionUri) {
-            return false;
-          }
-
-          return expressionValueType === 'valueString' ?
-            typeof e.valueString === 'string' :
-            e.valueExpression?.language === this.LANGUAGE_FHIRPATH &&
-              typeof e.valueExpression.expression === 'string';
-        });
-        if (extensionIndex !== -1) {
-          const finalExpression = item.extension[extensionIndex];
-          item.extension.splice(extensionIndex, 1);
+        const match = this.findExpressionExtension(
+          item.extension,
+          expressionUri,
+          expressionValueType
+        );
+        if (match) {
+          const container = this.getExtensionContainer(item.extension, match.parentPath);
+          const finalExpression = match.extension;
+          container.splice(match.index, 1);
+          this.finalExpressionLocation = {
+            index: match.index,
+            parentPath: match.parentPath
+          };
 
           return finalExpression;
         }
+
       } else if (item.item) {
         const expression = this.extractExpression(expressionUri, item.item, linkId, expressionValueType);
         if (expression !== null)
@@ -851,6 +876,70 @@ export class ExpressionEditorService {
     }
 
     return null;
+  }
+
+  /**
+   * Find an expression extension at any extension depth.
+   */
+  private findExpressionExtension(
+    extensions,
+    expressionUri: string,
+    expressionValueType: ExpressionValueType
+  ): ExpressionExtensionMatch | null {
+    const matches: ExpressionExtensionMatch[] = [];
+    this.collectExpressionExtensionMatches(
+      extensions,
+      expressionUri,
+      expressionValueType,
+      [],
+      matches
+    );
+
+    return matches[0] ?? null;
+  }
+
+  private collectExpressionExtensionMatches(
+    extensions,
+    expressionUri: string,
+    expressionValueType: ExpressionValueType,
+    parentPath: number[],
+    matches: ExpressionExtensionMatch[]
+  ): void {
+    if (!Array.isArray(extensions)) {
+      return;
+    }
+
+    extensions.forEach((extension, index) => {
+      const hasExpectedValue = expressionValueType === 'valueString' ?
+        typeof extension.valueString === 'string' :
+        extension.valueExpression?.language === this.LANGUAGE_FHIRPATH &&
+          typeof extension.valueExpression.expression === 'string';
+
+      if (extension.url === expressionUri && hasExpectedValue) {
+        matches.push({ extension, index, parentPath });
+      }
+
+      if (Array.isArray(extension.extension)) {
+        this.collectExpressionExtensionMatches(
+          extension.extension,
+          expressionUri,
+          expressionValueType,
+          parentPath.concat(index),
+          matches
+        );
+      }
+    });
+  }
+
+  private getExtensionContainer(extensions, parentPath: number[]): FhirExtension[] {
+    let container: FhirExtension[] = extensions;
+    parentPath.forEach(index => {
+      if (!Array.isArray(container[index].extension)) {
+        container[index].extension = [];
+      }
+      container = container[index].extension;
+    });
+    return container;
   }
 
   /**
@@ -1128,8 +1217,27 @@ export class ExpressionEditorService {
     }
 
     if (this.linkIdContext !== undefined && this.linkIdContext !== null && this.linkIdContext !== '') {
-      // Treat the final expression as an added variable since it needs to go after the variables added
-      this.insertExtensions(fhir, fhir.item, this.linkIdContext, variablesPresentInitially, variablesAdded.concat(finalExpression));
+      const nestedExpression = finalExpression && this.finalExpressionLocation?.parentPath.length > 0;
+      if (nestedExpression) {
+        const item = this.findItemById(fhir.item, this.linkIdContext);
+        const container = this.getExtensionContainer(item.extension, this.finalExpressionLocation.parentPath);
+        container.splice(
+          Math.min(this.finalExpressionLocation.index, container.length),
+          0,
+          finalExpression
+        );
+      }
+
+      // Top-level output expressions are inserted after the editable variables,
+      // while nested expressions are restored to their original parent.
+      const topLevelExpression = nestedExpression ? [] : [finalExpression];
+      this.insertExtensions(
+        fhir,
+        fhir.item,
+        this.linkIdContext,
+        variablesPresentInitially,
+        variablesAdded.concat(topLevelExpression.filter(Boolean))
+      );
     } else {
       this.insertExtensions(fhir, fhir.item, this.linkIdContext, variablesPresentInitially, variablesAdded);
     }

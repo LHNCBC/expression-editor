@@ -43,7 +43,7 @@ export class AppComponent implements OnInit, OnDestroy {
   openExpressionEditorTooltip = `Open the ${this.appName}`;
 
   calculatedExpression = 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression';
-  extractionExpression = 'urn:formbuilder:template-extract-expression:fullUrl';
+  extractionExpression = 'fullUrl';
   originalLinkId = '/39156-5';
   expressionTypes: ExpressionTypeOption[] = [
     {
@@ -73,7 +73,7 @@ export class AppComponent implements OnInit, OnDestroy {
     },
     {
       name: 'Template Extraction fullUrl',
-      uri: 'urn:formbuilder:template-extract-expression:fullUrl',
+      uri: 'fullUrl',
       expressionContext: 'extraction',
       expressionValueType: 'valueString',
       itemVariablesReadOnly: true

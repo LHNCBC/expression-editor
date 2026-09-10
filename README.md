@@ -23,10 +23,12 @@ object.
   entered as a parameter.
 * `expressionUri` - By default the widget modifies the calculatedExpression.
   You can specify any expression URI here; it is preserved unchanged in the
-  result. If the FHIRPath expression is to be
-  stored at the Questionnaire root level, the Output Expression section is
-  omitted because the Expression Editor only supports adding variables at the root level;
-  as a result for this case the `expressionUri` is not needed.
+  result. The selected item's extensions and sub-extensions are searched, and
+  an existing expression is saved back to its original parent. If the FHIRPath
+  expression is to be stored at the Questionnaire root level, the Output
+  Expression section is omitted because the Expression Editor only supports
+  adding variables at the root level; as a result for this case the
+  `expressionUri` is not needed.
 * `expressionContext` - Controls the variables available to the expression.
   Use `standard` (the default) for ordinary expressions or `extraction` to make
   in-scope SDC `extractAllocateId` variables available.

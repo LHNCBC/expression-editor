@@ -41,7 +41,7 @@ describe('ExpressionEditorComponent', () => {
     fixture.componentRef.setInput('itemLinkId', '/39156-5');
     fixture.componentRef.setInput(
       'expressionUri',
-      'urn:formbuilder:template-extract-expression:fullUrl'
+      'fullUrl'
     );
     fixture.componentRef.setInput('expressionContext', 'extraction');
     fixture.componentRef.setInput('expressionValueType', 'valueString');
@@ -51,6 +51,16 @@ describe('ExpressionEditorComponent', () => {
 
     expect(component.expRef.control.value).toContain('%newQuestionnaireUuid');
     expect(component.expRef.control.errors).toBeNull();
+    const allocatedIdHeading = fixture.nativeElement.shadowRoot.querySelector(
+      '#uneditable-variables-section h2'
+    );
+    const allocatedIdLabels = [...fixture.nativeElement.shadowRoot.querySelectorAll(
+      '#uneditable-variables-section .variable-column-label'
+    )].map((label: HTMLElement) => label.textContent.trim());
+    expect(allocatedIdHeading.textContent).toContain('Allocated ID Variables (3)');
+    expect(allocatedIdLabels).toContain('newQuestionnaireUuid');
+    expect(allocatedIdLabels).toContain('newPatientUuid');
+    expect(allocatedIdLabels).toContain('newObservationUuid');
 
     let savedQuestionnaire;
     component.save.subscribe(questionnaire => savedQuestionnaire = questionnaire);
@@ -58,13 +68,17 @@ describe('ExpressionEditorComponent', () => {
     component.export();
     await new Promise(resolve => setTimeout(resolve, 150));
 
-    const savedExpression = savedQuestionnaire.item[0].item[0].extension.find(extension =>
-      extension.url === 'urn:formbuilder:template-extract-expression:fullUrl'
+    const templateExtract = savedQuestionnaire.item[0].item[0].extension.find(extension =>
+      extension.url === 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-templateExtract'
     );
+    const savedExpression = templateExtract.extension.find(extension => extension.url === 'fullUrl');
     expect(savedExpression).toEqual({
-      url: 'urn:formbuilder:template-extract-expression:fullUrl',
+      url: 'fullUrl',
       valueString: '%newPatientUuid'
     });
+    expect(savedQuestionnaire.item[0].item[0].extension.some(extension =>
+      extension.url === 'fullUrl'
+    )).toBeFalse();
   });
 
   it('should export the expression URL selected in the editor', async () => {
