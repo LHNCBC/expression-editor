@@ -833,6 +833,38 @@ describe('ExpressionEditorService', () => {
       expect(targetItem.extension.some(extension => extension.url === 'fullUrl')).toBeFalse();
     });
 
+    [
+      'resourceId',
+      'ifNoneMatch',
+      'ifModifiedSince',
+      'ifMatch',
+      'ifNoneExist'
+    ].forEach(expressionUri => {
+      it(`should add a missing ${expressionUri} inside templateExtract`, () => {
+        service.import(
+          expressionUri,
+          allocateIdQuestionnaire,
+          '/39156-5',
+          'extraction',
+          'valueString'
+        );
+        service.finalExpressionExtension.valueString = `%${expressionUri}Value`;
+
+        const saved: any = service.export(expressionUri, service.finalExpressionExtension);
+        const targetItem = saved.item[0].item[0];
+        const templateExtract = targetItem.extension.find(extension =>
+          extension.url ===
+            'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-templateExtract'
+        );
+
+        expect(templateExtract.extension.find(extension => extension.url === expressionUri)).toEqual({
+          url: expressionUri,
+          valueString: `%${expressionUri}Value`
+        });
+        expect(targetItem.extension.some(extension => extension.url === expressionUri)).toBeFalse();
+      });
+    });
+
     it('should import and return valueString with an arbitrary expression URI', () => {
       const expressionUri = 'https://example.org/form-builder/expression/fullUrl';
       const questionnaireWithExpression = copy(questionnaire);

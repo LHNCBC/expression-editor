@@ -191,6 +191,15 @@ export class ExpressionEditorService {
   private CALCULATED_EXPRESSION_URI = 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression';
   private LAUNCH_CONTEXT_URI = 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-launchContext';
   private EXTRACT_ALLOCATE_ID_URI = 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-extractAllocateId';
+  private TEMPLATE_EXTRACT_URI = 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-templateExtract';
+  private TEMPLATE_EXTRACT_BUNDLE_EXPRESSION_URIS = new Set([
+    'fullUrl',
+    'resourceId',
+    'ifNoneMatch',
+    'ifModifiedSince',
+    'ifMatch',
+    'ifNoneExist'
+  ]);
   private ANSWER_EXPRESSION_URI = "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-answerExpression";
   private ENABLEWHEN_EXPRESSION_URI = "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-enableWhenExpression";
 
@@ -868,6 +877,11 @@ export class ExpressionEditorService {
           return finalExpression;
         }
 
+        this.finalExpressionLocation = this.findMissingExpressionLocation(
+          item.extension,
+          expressionUri
+        );
+
       } else if (item.item) {
         const expression = this.extractExpression(expressionUri, item.item, linkId, expressionValueType);
         if (expression !== null)
@@ -929,6 +943,36 @@ export class ExpressionEditorService {
         );
       }
     });
+  }
+
+  private findMissingExpressionLocation(
+    extensions,
+    expressionUri: string
+  ): ExpressionExtensionLocation | null {
+    if (!this.TEMPLATE_EXTRACT_BUNDLE_EXPRESSION_URIS.has(expressionUri) ||
+      !Array.isArray(extensions)) {
+      return null;
+    }
+
+    for (let index = 0; index < extensions.length; index++) {
+      const extension = extensions[index];
+      if (extension.url === this.TEMPLATE_EXTRACT_URI) {
+        return {
+          index: Array.isArray(extension.extension) ? extension.extension.length : 0,
+          parentPath: [index]
+        };
+      }
+
+      const nestedLocation = this.findMissingExpressionLocation(extension.extension, expressionUri);
+      if (nestedLocation) {
+        return {
+          index: nestedLocation.index,
+          parentPath: [index].concat(nestedLocation.parentPath)
+        };
+      }
+    }
+
+    return null;
   }
 
   private getExtensionContainer(extensions, parentPath: number[]): FhirExtension[] {
