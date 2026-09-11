@@ -32,6 +32,7 @@ interface ExpressionTypeOption {
 export class AppComponent implements OnInit, OnDestroy {
   @ViewChild('autoComplete', {static: false}) autoCompleteElement: ElementRef;
   autoComplete;
+  private removeQuestionSelectionObserver: (() => void) | null = null;
   appName = ('appName' in environment) ? environment.appName : '';
   appTitle = ('appTitle' in environment) ? environment.appTitle : '';
 
@@ -43,7 +44,9 @@ export class AppComponent implements OnInit, OnDestroy {
   calculatedExpression = 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression';
   extractionExpression = 'fullUrl';
   originalLinkId = '/39156-5';
-  expressionTypes: ExpressionTypeOption[] = [
+  private readonly templateExtractUri =
+    'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-templateExtract';
+  private readonly standardExpressionTypes: ExpressionTypeOption[] = [
     {
       name: 'Answer Expression',
       uri: 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-answerExpression'
@@ -68,14 +71,27 @@ export class AppComponent implements OnInit, OnDestroy {
     {
       name: 'Initial Expression',
       uri: 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression'
-    },
-    {
-      name: 'Template Extraction fullUrl',
-      uri: 'fullUrl',
-      expressionValueType: 'valueString',
-      itemVariablesReadOnly: true
     }
   ];
+  private readonly templateExtractionExpressionTypes: ExpressionTypeOption[] = [
+    'fullUrl',
+    'resourceId',
+    'ifNoneMatch',
+    'ifModifiedSince',
+    'ifMatch',
+    'ifNoneExist'
+  ].map(uri => ({
+    name: `Template Extraction ${uri}`,
+    uri,
+    expressionValueType: 'valueString',
+    itemVariablesReadOnly: true
+  }));
+
+  get expressionTypes(): ExpressionTypeOption[] {
+    return this.selectedItemHasTemplateExtract() ?
+      this.standardExpressionTypes.concat(this.templateExtractionExpressionTypes) :
+      this.standardExpressionTypes;
+  }
 
   display = {};
   fhirPreview: string;
@@ -251,6 +267,8 @@ export class AppComponent implements OnInit, OnDestroy {
    * Generate the autocomplete list
    */
   composeAutocomplete(): void {
+    this.destroyAutocomplete();
+
     const keys = this.linkIds.map(e => e.text);
     const vals = this.linkIds.map(v => v.linkId);
 
@@ -264,17 +282,77 @@ export class AppComponent implements OnInit, OnDestroy {
     this.autoComplete = new Def.Autocompleter.Prefetch(
       this.autoCompleteElement.nativeElement, keys, opts);
 
-    Def.Autocompleter.Event.observeListSelections('question', (res) => {
-      if (((res.input_method === "clicked" || res.input_method === "arrows" ) && res.val_typed_in !== res.final_val && res?.item_code) ||
-          (res.input_method === "typed")) {
-        this.linkId = res.item_code;
+    this.removeQuestionSelectionObserver =
+      Def.Autocompleter.Event.observeListSelections('question', (res) => {
+        if (((res.input_method === "clicked" || res.input_method === "arrows" ) && res.val_typed_in !== res.final_val && res?.item_code) ||
+            (res.input_method === "typed")) {
+          this.linkId = res.item_code;
 
-        if (res.input_method === "typed" && !res.item_code)
-          this.rootLevel = true;
-        else
-          this.rootLevel = false;
+          if (res.input_method === "typed" && !res.item_code)
+            this.rootLevel = true;
+          else
+            this.rootLevel = false;
+
+          this.resetTemplateExtractionSelectionIfUnavailable();
+        }
+      });
+  }
+
+  private destroyAutocomplete(): void {
+    this.removeQuestionSelectionObserver?.();
+    this.removeQuestionSelectionObserver = null;
+
+    if (this.autoComplete !== undefined && this.autoComplete !== null) {
+      this.autoComplete.destroy();
+      this.autoComplete = null;
+    }
+  }
+
+  /**
+   * Whether the selected item contains an SDC templateExtract extension.
+   */
+  private selectedItemHasTemplateExtract(): boolean {
+    if (!this.linkId || !Array.isArray(this.fhirQuestionnaire?.item)) {
+      return false;
+    }
+
+    const item = this.findItemByLinkId(this.fhirQuestionnaire.item, this.linkId);
+    return this.extensionsContainUrl(item?.extension, this.templateExtractUri);
+  }
+
+  private findItemByLinkId(items, linkId: string) {
+    for (const item of items) {
+      if (item.linkId === linkId) {
+        return item;
       }
-    });
+
+      if (Array.isArray(item.item)) {
+        const nestedItem = this.findItemByLinkId(item.item, linkId);
+        if (nestedItem) {
+          return nestedItem;
+        }
+      }
+    }
+
+    return null;
+  }
+
+  private extensionsContainUrl(extensions, url: string): boolean {
+    return Array.isArray(extensions) && extensions.some(extension =>
+      extension.url === url || this.extensionsContainUrl(extension.extension, url)
+    );
+  }
+
+  private resetTemplateExtractionSelectionIfUnavailable(): void {
+    const isTemplateExtractionSelection = this.templateExtractionExpressionTypes.some(option =>
+      option.uri === this.expressionUri
+    );
+
+    if (isTemplateExtractionSelection && !this.selectedItemHasTemplateExtract()) {
+      this.expressionUri = this.calculatedExpression;
+      this.expressionValueType = 'valueExpression';
+      this.itemVariablesReadOnly = false;
+    }
   }
 
 
@@ -363,9 +441,7 @@ export class AppComponent implements OnInit, OnDestroy {
    * Angular lifecycle hook
    */
   ngOnDestroy(): void {
-    if (this.autoComplete !== undefined) {
-      this.autoComplete.destroy();
-    }
+    this.destroyAutocomplete();
   }
 
   /**
