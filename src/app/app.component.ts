@@ -42,7 +42,6 @@ export class AppComponent implements OnInit, OnDestroy {
   openExpressionEditorTooltip = `Open the ${this.appName}`;
 
   calculatedExpression = 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression';
-  extractionExpression = 'fullUrl';
   originalLinkId = '/39156-5';
   private readonly templateExtractUri =
     'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-templateExtract';
@@ -156,11 +155,12 @@ export class AppComponent implements OnInit, OnDestroy {
       this.itemVariablesReadOnly = false;
     } else {
       this.liveAnnouncer.announce(this.formAppearedAnnouncement);
-      this.linkId = this.originalLinkId;
-      const isExtractionExample = this.questionnaire === 'allocate-id';
-      this.expressionUri = isExtractionExample ? this.extractionExpression : this.calculatedExpression;
-      this.expressionValueType = isExtractionExample ? 'valueString' : 'valueExpression';
-      this.itemVariablesReadOnly = isExtractionExample;
+      const configureOutputExpression = this.questionnaire === 'template-extraction';
+      this.linkId = configureOutputExpression ? '' : this.originalLinkId;
+      this.rootLevel = configureOutputExpression;
+      this.expressionUri = this.calculatedExpression;
+      this.expressionValueType = 'valueExpression';
+      this.itemVariablesReadOnly = false;
 
       this.http.get(`./${this.questionnaire}.json`)
         .subscribe(data => {
@@ -172,7 +172,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
             this.defaultItemText = this.linkIds.find((item) => {
               return item.linkId === this.linkId;
-            }).text.trim();
+            })?.text.trim() ?? '';
 
             this.composeAutocomplete();
 
@@ -191,7 +191,7 @@ export class AppComponent implements OnInit, OnDestroy {
       this.autoComplete.setFieldToListValue('');
     } else {
       if (this.questionnaire !== '' && this.questionnaire !== 'upload') {
-        this.linkId = this.originalLinkId;
+        this.linkId = this.questionnaire === 'template-extraction' ? '' : this.originalLinkId;
         this.autoComplete.setFieldToListValue(this.defaultItemText);
       }
     }

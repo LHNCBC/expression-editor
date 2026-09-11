@@ -5,7 +5,7 @@ import bmi from '../../../../src/assets/bmi.json';
 import phq9 from '../../../../src/assets/phq9.json';
 import phq9_group from '../../../../src/assets/phq9_group.json';
 import phq9_preselected from '../../../../src/assets/phq9_preselected.json';
-import allocateIdQuestionnaire from '../../../../src/assets/allocate-id.json';
+import allocateIdQuestionnaire from '../testing/fixtures/allocate-id.json';
 
 // This file is not used in the demo. It is solely utilized for testing the
 // getSelectedLinkIdsForScoring() function, specifically to validate the scenario where the

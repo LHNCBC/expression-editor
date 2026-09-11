@@ -43,12 +43,26 @@ describe('AppComponent', () => {
     const fixture = TestBed.createComponent(AppComponent);
     const app = fixture.componentInstance;
     app.questionnaire = 'upload';
-    app.expressionUri = app.extractionExpression;
+    app.expressionUri = 'fullUrl';
     app.expressionValueType = 'valueString';
     app.itemVariablesReadOnly = true;
 
     app.onChange();
 
+    expect(app.expressionUri).toBe(app.calculatedExpression);
+    expect(app.expressionValueType).toBe('valueExpression');
+    expect(app.itemVariablesReadOnly).toBeFalse();
+  });
+
+  it('should configure the template extraction demo like an uploaded questionnaire', () => {
+    const fixture = TestBed.createComponent(AppComponent);
+    const app = fixture.componentInstance;
+    app.questionnaire = 'template-extraction';
+
+    app.onChange();
+
+    expect(app.rootLevel).toBeTrue();
+    expect(app.linkId).toBe('');
     expect(app.expressionUri).toBe(app.calculatedExpression);
     expect(app.expressionValueType).toBe('valueExpression');
     expect(app.itemVariablesReadOnly).toBeFalse();
@@ -91,6 +105,43 @@ describe('AppComponent', () => {
     expect(templateExtractionOptions.every(option =>
       option.expressionValueType === 'valueString' && option.itemVariablesReadOnly
     )).toBeTrue();
+  });
+
+  it('should show the output selector after a template demo question is selected', () => {
+    const fixture = TestBed.createComponent(AppComponent);
+    const app = fixture.componentInstance;
+    fixture.detectChanges();
+    app.questionnaire = 'template-extraction';
+    app.fhirQuestionnaire = {
+      resourceType: 'Questionnaire',
+      item: [{
+        linkId: 'template-item',
+        extension: [{
+          url: 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-templateExtract'
+        }]
+      }, {
+        linkId: 'ordinary-item'
+      }]
+    };
+
+    app.linkId = '';
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('#expression-entry')).toBeNull();
+
+    app.linkId = 'template-item';
+    fixture.detectChanges();
+    let outputExpressionOptions = [...fixture.nativeElement.querySelectorAll(
+      '#expression-entry option'
+    )].map((option: HTMLOptionElement) => option.textContent.trim());
+    expect(outputExpressionOptions).toContain('Template Extraction fullUrl');
+
+    app.linkId = 'ordinary-item';
+    fixture.detectChanges();
+    outputExpressionOptions = [...fixture.nativeElement.querySelectorAll(
+      '#expression-entry option'
+    )].map((option: HTMLOptionElement) => option.textContent.trim());
+    expect(outputExpressionOptions.length).toBeGreaterThan(0);
+    expect(outputExpressionOptions.some(option => option.startsWith('Template Extraction'))).toBeFalse();
   });
 
   it('should configure a contextual template extraction selection as valueString', () => {

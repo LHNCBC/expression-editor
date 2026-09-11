@@ -4,7 +4,7 @@ import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { ExpressionEditorComponent } from './expression-editor.component';
 import { ValidationResult } from './variable';
 import { ENVIRONMENT_TOKEN } from './environment-token';
-import allocateIdQuestionnaire from '../../../../src/assets/allocate-id.json';
+import allocateIdQuestionnaire from '../testing/fixtures/allocate-id.json';
 import bmi from '../../../../src/assets/bmi.json';
 
 describe('ExpressionEditorComponent', () => {
