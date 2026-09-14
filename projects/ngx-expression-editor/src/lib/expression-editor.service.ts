@@ -191,7 +191,16 @@ export class ExpressionEditorService {
   private CALCULATED_EXPRESSION_URI = 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression';
   private LAUNCH_CONTEXT_URI = 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-launchContext';
   private EXTRACT_ALLOCATE_ID_URI = 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-extractAllocateId';
+  private DEFINITION_EXTRACT_URI = 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-definitionExtract';
+  private DEFINITION_EXTRACT_VALUE_URI = 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-definitionExtractValue';
   private TEMPLATE_EXTRACT_URI = 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-templateExtract';
+  private DEFINITION_EXTRACT_BUNDLE_EXPRESSION_URIS = new Set([
+    'fullUrl',
+    'ifNoneMatch',
+    'ifModifiedSince',
+    'ifMatch',
+    'ifNoneExist'
+  ]);
   private TEMPLATE_EXTRACT_BUNDLE_EXPRESSION_URIS = new Set([
     'fullUrl',
     'resourceId',
@@ -1056,8 +1065,14 @@ export class ExpressionEditorService {
   }
 
   private isExtractionExpressionMatch(match: ExpressionExtensionMatch): boolean {
+    const parentUrl = match.ancestorUrls[match.ancestorUrls.length - 1];
+
     return this.EXTRACTION_EXPRESSION_URIS.has(match.extension.url) ||
-      match.ancestorUrls.includes(this.TEMPLATE_EXTRACT_URI);
+      (parentUrl === this.TEMPLATE_EXTRACT_URI &&
+        this.TEMPLATE_EXTRACT_BUNDLE_EXPRESSION_URIS.has(match.extension.url)) ||
+      (parentUrl === this.DEFINITION_EXTRACT_URI &&
+        this.DEFINITION_EXTRACT_BUNDLE_EXPRESSION_URIS.has(match.extension.url)) ||
+      (parentUrl === this.DEFINITION_EXTRACT_VALUE_URI && match.extension.url === 'expression');
   }
 
   private findMissingExpressionLocation(

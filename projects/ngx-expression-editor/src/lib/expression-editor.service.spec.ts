@@ -1109,6 +1109,77 @@ describe('ExpressionEditorService', () => {
         valueString: '%parentUuid'
       });
     });
+
+    it('should use extraction variable scope for definitionExtract fullUrl', () => {
+      const definitionExtractQuestionnaire = {
+        resourceType: 'Questionnaire',
+        extension: [
+          allocateId('NewId'),
+          variable('ordinaryVariable')
+        ],
+        item: [{
+          linkId: 'target',
+          type: 'string',
+          extension: [{
+            url: 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-definitionExtract',
+            extension: [{
+              url: 'definition',
+              valueCanonical: 'http://hl7.org/fhir/StructureDefinition/Patient'
+            }, {
+              url: 'fullUrl',
+              valueString: '%NewId'
+            }]
+          }]
+        }]
+      };
+
+      service.import('fullUrl', definitionExtractQuestionnaire, 'target', 'valueString');
+
+      const validationVariables = service.getContextVariableNamesForExpressionValidation();
+      expect(service.isExtractionExpression()).toBeTrue();
+      expect(service.finalExpression).toBe('%NewId');
+      expect(service.variables).toEqual([]);
+      expect(service.uneditableVariables.map(variable => variable.name)).toEqual(['NewId']);
+      expect(validationVariables.NewId).toEqual(jasmine.any(String));
+      expect(validationVariables.ordinaryVariable).toBeUndefined();
+    });
+
+    it('should use extraction variable scope for definitionExtractValue expression', () => {
+      const definitionExtractValueQuestionnaire = {
+        resourceType: 'Questionnaire',
+        extension: [
+          allocateId('NewId'),
+          variable('ordinaryVariable')
+        ],
+        item: [{
+          linkId: 'target',
+          type: 'string',
+          extension: [{
+            url: 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-definitionExtractValue',
+            extension: [{
+              url: 'definition',
+              valueUri: 'http://hl7.org/fhir/StructureDefinition/Patient#Patient.id'
+            }, {
+              url: 'expression',
+              valueExpression: {
+                language: 'text/fhirpath',
+                expression: '%NewId'
+              }
+            }]
+          }]
+        }]
+      };
+
+      service.import('expression', definitionExtractValueQuestionnaire, 'target');
+
+      const validationVariables = service.getContextVariableNamesForExpressionValidation();
+      expect(service.isExtractionExpression()).toBeTrue();
+      expect(service.finalExpression).toBe('%NewId');
+      expect(service.variables).toEqual([]);
+      expect(service.uneditableVariables.map(variable => variable.name)).toEqual(['NewId']);
+      expect(validationVariables.NewId).toEqual(jasmine.any(String));
+      expect(validationVariables.ordinaryVariable).toBeUndefined();
+    });
   });
 
   describe('isValidDoubleBracesSyntax', () => {
