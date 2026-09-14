@@ -2,11 +2,6 @@
 
 This project follows [Semantic Versioning](http://semver.org/).
 
-## Unreleased
-### Fixed
-- Preserved nested expression extension placement when importing and exporting, including the template extraction `fullUrl`, `resourceId`, `ifNoneMatch`, `ifModifiedSince`, `ifMatch`, and `ifNoneExist` sub-extensions.
-- Removed the `expressionContext` input and inferred extraction behavior from recognized SDC extension paths.
-
 ## [5.1.0] 2026-09-03
 ### Added
 - Added extraction expression context support, including scoped SDC `extractAllocateId` variables.
@@ -17,6 +12,8 @@ This project follows [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 - Fixed discovery of variables declared on nested Questionnaire items.
+- Preserved nested expression extension placement when importing and exporting, including the template extraction `fullUrl`, `resourceId`, `ifNoneMatch`, `ifModifiedSince`, `ifMatch`, and `ifNoneExist` sub-extensions.
+- Removed the `expressionContext` input and inferred extraction behavior from recognized SDC extension paths.
 
 ## [5.0.7] 2026-04-27
 ### Fixed
