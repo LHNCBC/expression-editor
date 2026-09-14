@@ -17,9 +17,18 @@ interface ExpressionTypeOption {
   name: string;
   uri: string;
   selected?: boolean;
-  userExpressionChoices?: Array<{ name: string; uri: string }>;
+  userExpressionChoices?: { name: string; uri: string }[];
   expressionValueType?: ExpressionValueType;
+  expressionParentIndex?: number;
   itemVariablesReadOnly?: boolean;
+}
+
+interface TemplateExtractExtension {
+  url?: string;
+  extension?: {
+    url?: string;
+    valueReference?: { reference?: string };
+  }[];
 }
 
 @Component({
@@ -87,9 +96,26 @@ export class AppComponent implements OnInit, OnDestroy {
   }));
 
   get expressionTypes(): ExpressionTypeOption[] {
-    return this.selectedItemHasTemplateExtract() ?
-      this.standardExpressionTypes.concat(this.templateExtractionExpressionTypes) :
-      this.standardExpressionTypes;
+    const templateExtracts = this.getSelectedItemTemplateExtracts();
+    const templateOptions: ExpressionTypeOption[] = [];
+
+    templateExtracts.forEach(({ extension, index }, templateIndex) => {
+      const templateReference = extension.extension?.find(child =>
+        child.url === 'template'
+      )?.valueReference?.reference;
+      const suffix = templateExtracts.length > 1 ?
+        ` — ${templateReference ?? `template ${templateIndex + 1}`}` : '';
+
+      this.templateExtractionExpressionTypes.forEach(option => {
+        templateOptions.push({
+          ...option,
+          name: `${option.name}${suffix}`,
+          expressionParentIndex: index
+        });
+      });
+    });
+
+    return this.standardExpressionTypes.concat(templateOptions);
   }
 
   display = {};
@@ -100,6 +126,7 @@ export class AppComponent implements OnInit, OnDestroy {
   defaultItemText;
   expressionUri = this.calculatedExpression;
   expressionValueType: ExpressionValueType = 'valueExpression';
+  expressionParentIndex: number | null = null;
   itemVariablesReadOnly = false;
   userExpressionChoices = null;
   customExpressionUri = false;
@@ -143,6 +170,7 @@ export class AppComponent implements OnInit, OnDestroy {
     this.error = '';
     this.doNotAskToCalculateScore = false;
     this.rootLevel = false;
+    this.expressionParentIndex = null;
 
     if (this.questionnaire === '' || this.questionnaire === 'upload') {
       this.liveAnnouncer.announce(`Additional settings must be entered below to load the ${this.appName}.`);
@@ -186,6 +214,7 @@ export class AppComponent implements OnInit, OnDestroy {
    * Toggle between Root/Item section
    */
   toggleRootLevel(): void {
+    this.expressionParentIndex = null;
     if (this.rootLevel) {
       this.linkId = '';
       this.autoComplete.setFieldToListValue('');
@@ -233,6 +262,7 @@ export class AppComponent implements OnInit, OnDestroy {
         if (typeof e.target.result === 'string') {
           this.doNotAskToCalculateScore = false;
           this.linkId = '';
+          this.expressionParentIndex = null;
           try {
             this.fhirQuestionnaire = JSON.parse(e.target.result);
             this.error = '';
@@ -287,6 +317,7 @@ export class AppComponent implements OnInit, OnDestroy {
         if (((res.input_method === "clicked" || res.input_method === "arrows" ) && res.val_typed_in !== res.final_val && res?.item_code) ||
             (res.input_method === "typed")) {
           this.linkId = res.item_code;
+          this.expressionParentIndex = null;
 
           if (res.input_method === "typed" && !res.item_code)
             this.rootLevel = true;
@@ -312,12 +343,22 @@ export class AppComponent implements OnInit, OnDestroy {
    * Whether the selected item contains an SDC templateExtract extension.
    */
   private selectedItemHasTemplateExtract(): boolean {
+    return this.getSelectedItemTemplateExtracts().length > 0;
+  }
+
+  private getSelectedItemTemplateExtracts(): { extension: TemplateExtractExtension; index: number }[] {
     if (!this.linkId || !Array.isArray(this.fhirQuestionnaire?.item)) {
-      return false;
+      return [];
     }
 
     const item = this.findItemByLinkId(this.fhirQuestionnaire.item, this.linkId);
-    return this.extensionsContainUrl(item?.extension, this.templateExtractUri);
+    if (!Array.isArray(item?.extension)) {
+      return [];
+    }
+
+    return item.extension
+      .map((extension, index) => ({ extension, index }))
+      .filter(({ extension }) => extension.url === this.templateExtractUri);
   }
 
   private findItemByLinkId(items, linkId: string) {
@@ -337,20 +378,16 @@ export class AppComponent implements OnInit, OnDestroy {
     return null;
   }
 
-  private extensionsContainUrl(extensions, url: string): boolean {
-    return Array.isArray(extensions) && extensions.some(extension =>
-      extension.url === url || this.extensionsContainUrl(extension.extension, url)
-    );
-  }
-
   private resetTemplateExtractionSelectionIfUnavailable(): void {
     const isTemplateExtractionSelection = this.templateExtractionExpressionTypes.some(option =>
       option.uri === this.expressionUri
     );
 
-    if (isTemplateExtractionSelection && !this.selectedItemHasTemplateExtract()) {
+    if (isTemplateExtractionSelection &&
+      (!this.selectedItemHasTemplateExtract() || this.expressionParentIndex === null)) {
       this.expressionUri = this.calculatedExpression;
       this.expressionValueType = 'valueExpression';
+      this.expressionParentIndex = null;
       this.itemVariablesReadOnly = false;
     }
   }
@@ -420,12 +457,14 @@ export class AppComponent implements OnInit, OnDestroy {
       this.customExpressionUri = false;
       this.expressionUri = newValue;
       this.expressionValueType = 'valueExpression';
+      this.expressionParentIndex = null;
       this.itemVariablesReadOnly = false;
     } else if (newValue === 'custom') {
       this.userExpressionChoices = null;
       this.customExpressionUri = true;
       this.expressionUri = '';
       this.expressionValueType = 'valueExpression';
+      this.expressionParentIndex = null;
       this.itemVariablesReadOnly = false;
     } else {
       const currentExpression = this.expressionTypes[newValue];
@@ -433,6 +472,7 @@ export class AppComponent implements OnInit, OnDestroy {
       this.customExpressionUri = false;
       this.expressionUri = currentExpression.uri;
       this.expressionValueType = currentExpression.expressionValueType ?? 'valueExpression';
+      this.expressionParentIndex = currentExpression.expressionParentIndex ?? null;
       this.itemVariablesReadOnly = currentExpression.itemVariablesReadOnly ?? false;
     }
   }

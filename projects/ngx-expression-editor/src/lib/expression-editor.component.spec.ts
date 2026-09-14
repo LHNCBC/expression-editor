@@ -81,6 +81,49 @@ describe('ExpressionEditorComponent', () => {
     expect(component.isExtractionExpression).toBeTrue();
   });
 
+  it('should edit the templateExtract selected by expressionParentIndex', async () => {
+    const templateExtractUrl =
+      'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-templateExtract';
+    const questionnaire = {
+      resourceType: 'Questionnaire',
+      item: [{
+        linkId: 'patient',
+        extension: ['patient', 'observation'].map((name, index) => ({
+          url: templateExtractUrl,
+          extension: [{
+            url: 'template',
+            valueReference: { reference: `#${name}Template` }
+          }, {
+            url: 'fullUrl',
+            valueString: index === 0 ? '%resource.id' : '%context.linkId'
+          }]
+        }))
+      }]
+    };
+    fixture.componentRef.setInput('fhirQuestionnaire', questionnaire);
+    fixture.componentRef.setInput('itemLinkId', 'patient');
+    fixture.componentRef.setInput('expressionUri', 'fullUrl');
+    fixture.componentRef.setInput('expressionValueType', 'valueString');
+    fixture.componentRef.setInput('expressionParentIndex', 1);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(component.finalExpression).toBe('%context.linkId');
+
+    let savedQuestionnaire;
+    component.save.subscribe(questionnaireResult => savedQuestionnaire = questionnaireResult);
+    component.finalExpression = '%questionnaire.id';
+    component.export();
+    await new Promise(resolve => setTimeout(resolve, 150));
+
+    const templates = savedQuestionnaire.item[0].extension;
+    expect(templates[0].extension.find(extension => extension.url === 'fullUrl').valueString)
+      .toBe('%resource.id');
+    expect(templates[1].extension.find(extension => extension.url === 'fullUrl').valueString)
+      .toBe('%questionnaire.id');
+  });
+
   it('should display a Questionnaire-level allocated ID for Form Builder inputs', async () => {
     const questionnaire = {
       resourceType: 'Questionnaire',

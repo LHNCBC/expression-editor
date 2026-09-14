@@ -32,6 +32,10 @@ object.
 * `expressionValueType` - Controls how the output expression is stored. Use
   `valueExpression` (the default) for the FHIR Expression datatype or
   `valueString` for string-backed extraction expressions.
+* `expressionParentIndex` - Optional index in the selected item's `extension`
+  array of the `templateExtract` extension that owns the output expression. It
+  is only needed for `templateExtract` fields when the selected item contains
+  multiple `templateExtract` extensions.
 * `itemVariablesReadOnly` - In the standard expression context, when `true`,
   variables declared on the current item are shown with the other read-only
   variables in scope instead of in the editable Item Variables section.

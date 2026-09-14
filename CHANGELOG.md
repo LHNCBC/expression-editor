@@ -13,6 +13,7 @@ This project follows [Semantic Versioning](http://semver.org/).
 ### Fixed
 - Fixed discovery of variables declared on nested Questionnaire items.
 - Preserved nested expression extension placement when importing and exporting, including the template extraction `fullUrl`, `resourceId`, `ifNoneMatch`, `ifModifiedSince`, `ifMatch`, and `ifNoneExist` sub-extensions.
+- Added safe targeting of bundle fields when an item contains multiple `templateExtract` extensions.
 - Removed the `expressionContext` input and inferred extraction behavior from recognized SDC extension paths.
 
 ## [5.0.7] 2026-04-27

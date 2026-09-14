@@ -839,6 +839,169 @@ describe('ExpressionEditorService', () => {
       expect(targetItem.extension.some(extension => extension.url === 'fullUrl')).toBeFalse();
     });
 
+    it('should update fullUrl in the selected templateExtract extension', () => {
+      const templateExtractUrl =
+        'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-templateExtract';
+      const questionnaireWithMultipleTemplates = {
+        resourceType: 'Questionnaire',
+        item: [{
+          linkId: 'target',
+          extension: [{
+            url: templateExtractUrl,
+            extension: [{
+              url: 'template',
+              valueReference: { reference: '#patientTemplate' }
+            }, {
+              url: 'fullUrl',
+              valueString: '%patientUuid'
+            }]
+          }, {
+            url: templateExtractUrl,
+            extension: [{
+              url: 'template',
+              valueReference: { reference: '#observationTemplate' }
+            }, {
+              url: 'fullUrl',
+              valueString: '%observationUuid'
+            }]
+          }]
+        }]
+      };
+
+      const imported = service.import(
+        'fullUrl',
+        questionnaireWithMultipleTemplates,
+        'target',
+        'valueString',
+        false,
+        1
+      );
+      expect(imported).toBeTrue();
+      expect(service.finalExpression).toBe('%observationUuid');
+
+      service.finalExpressionExtension.valueString = '%updatedObservationUuid';
+      const saved = service.export('fullUrl', service.finalExpressionExtension) as {
+        item: { extension: { extension: { url: string; valueString?: string }[] }[] }[];
+      };
+      const templates = saved.item[0].extension;
+
+      expect(templates[0].extension.find(extension => extension.url === 'fullUrl').valueString)
+        .toBe('%patientUuid');
+      expect(templates[1].extension.find(extension => extension.url === 'fullUrl').valueString)
+        .toBe('%updatedObservationUuid');
+    });
+
+    it('should add a missing field to the selected templateExtract extension', () => {
+      const templateExtractUrl =
+        'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-templateExtract';
+      const questionnaireWithMultipleTemplates = {
+        resourceType: 'Questionnaire',
+        item: [{
+          linkId: 'target',
+          extension: [{
+            url: templateExtractUrl,
+            extension: [{
+              url: 'template',
+              valueReference: { reference: '#patientTemplate' }
+            }]
+          }, {
+            url: templateExtractUrl,
+            extension: [{
+              url: 'template',
+              valueReference: { reference: '#observationTemplate' }
+            }]
+          }]
+        }]
+      };
+
+      const imported = service.import(
+        'resourceId',
+        questionnaireWithMultipleTemplates,
+        'target',
+        'valueString',
+        false,
+        1
+      );
+      expect(imported).toBeTrue();
+
+      service.finalExpressionExtension.valueString = '%observationId';
+      const saved = service.export('resourceId', service.finalExpressionExtension) as {
+        item: { extension: { extension: { url: string; valueString?: string }[] }[] }[];
+      };
+      const templates = saved.item[0].extension;
+
+      expect(templates[0].extension.some(extension => extension.url === 'resourceId')).toBeFalse();
+      expect(templates[1].extension.find(extension => extension.url === 'resourceId')).toEqual({
+        url: 'resourceId',
+        valueString: '%observationId'
+      });
+    });
+
+    it('should reject an ambiguous templateExtract expression target', () => {
+      const templateExtractUrl =
+        'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-templateExtract';
+      const questionnaireWithMultipleFullUrls = {
+        resourceType: 'Questionnaire',
+        item: [{
+          linkId: 'target',
+          extension: ['%patientUuid', '%observationUuid'].map((valueString, index) => ({
+            url: templateExtractUrl,
+            extension: [{
+              url: 'template',
+              valueReference: { reference: `#template${index}` }
+            }, {
+              url: 'fullUrl',
+              valueString
+            }]
+          }))
+        }]
+      };
+
+      expect(service.import(
+        'fullUrl',
+        questionnaireWithMultipleFullUrls,
+        'target',
+        'valueString'
+      )).toBeFalse();
+      expect(service.export('fullUrl', { url: 'fullUrl', valueString: '%changed' })).toBeUndefined();
+    });
+
+    it('should reject a missing field with multiple possible templateExtract parents', () => {
+      const templateExtractUrl =
+        'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-templateExtract';
+      const questionnaireWithMultipleTemplates = {
+        resourceType: 'Questionnaire',
+        item: [{
+          linkId: 'target',
+          extension: ['#patientTemplate', '#observationTemplate'].map(reference => ({
+            url: templateExtractUrl,
+            extension: [{ url: 'template', valueReference: { reference } }]
+          }))
+        }]
+      };
+
+      expect(service.import(
+        'resourceId',
+        questionnaireWithMultipleTemplates,
+        'target',
+        'valueString'
+      )).toBeFalse();
+      expect(service.export('resourceId', { url: 'resourceId', valueString: '%resourceId' }))
+        .toBeUndefined();
+    });
+
+    it('should reject an invalid templateExtract parent index', () => {
+      expect(service.import(
+        'fullUrl',
+        allocateIdQuestionnaire,
+        '/39156-5',
+        'valueString',
+        false,
+        99
+      )).toBeFalse();
+      expect(service.export('fullUrl', { url: 'fullUrl', valueString: '%changed' })).toBeUndefined();
+    });
+
     [
       'resourceId',
       'ifNoneMatch',

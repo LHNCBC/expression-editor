@@ -67,7 +67,7 @@
     <div id="expression-entry">
       <select (change)="expressionChange($event)">
         <option value="">None</option>
-        @for (expressionType of expressionTypes; track expressionType; let i = $index) {
+        @for (expressionType of expressionTypes; track $index; let i = $index) {
           <option [value]="i" [selected]="expressionType.selected">
             {{expressionType.name}}
           </option>
@@ -103,6 +103,7 @@
     [expressionLabel]="'Output Expression'"
     [expressionUri]="linkId ? expressionUri : ''"
     [expressionValueType]="expressionValueType"
+    [expressionParentIndex]="expressionParentIndex"
     [itemVariablesReadOnly]="itemVariablesReadOnly"
     [userExpressionChoices]=userExpressionChoices
     [lhcStyle]="{

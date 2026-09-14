@@ -215,6 +215,8 @@ export class ExpressionEditorService {
   private fhir;
   private extractionMode = false;
   private itemVariablesReadOnly = false;
+  private expressionParentIndex: number | null = null;
+  private expressionTargetError = false;
   private finalExpressionLocation: ExpressionExtensionLocation | null = null;
   scoreCalculation = false;
 
@@ -239,6 +241,8 @@ export class ExpressionEditorService {
     this.uneditableVariables = [];
     this.extractionMode = false;
     this.itemVariablesReadOnly = false;
+    this.expressionParentIndex = null;
+    this.expressionTargetError = false;
     this.finalExpressionLocation = null;
   }
 
@@ -681,6 +685,10 @@ export class ExpressionEditorService {
    * @param linkIdContext - Context to use for final expression
    * @param expressionValueType - FHIR value property used to store the expression
    * @param itemVariablesReadOnly - Treat variables declared on the current item as read-only
+   * @param expressionParentIndex - Optional index in the selected item's extension
+   *  array of the templateExtract extension that owns expressionUri. This is only
+   *  needed for templateExtract fields when an item has multiple templateExtract
+   *  extensions.
    * @return true if load was successful
    */
   import(
@@ -688,10 +696,13 @@ export class ExpressionEditorService {
     questionnaire,
     linkIdContext,
     expressionValueType: ExpressionValueType = 'valueExpression',
-    itemVariablesReadOnly = false
+    itemVariablesReadOnly = false,
+    expressionParentIndex: number | null = null
   ): boolean {
     this.linkIdContext = linkIdContext;
     this.itemVariablesReadOnly = itemVariablesReadOnly;
+    this.expressionParentIndex = expressionParentIndex;
+    this.expressionTargetError = false;
     this.finalExpressionLocation = null;
     this.fhir = copy(questionnaire);
     this.extractionMode = this.inferExtractionMode(
@@ -819,7 +830,7 @@ export class ExpressionEditorService {
       }
     }
 
-    return loadSuccess;
+    return loadSuccess && !this.expressionTargetError;
   }
 
   /**
@@ -945,9 +956,9 @@ export class ExpressionEditorService {
   }
 
   /**
-   * Find an expression extension at any extension depth. When the same leaf URL
-   * occurs more than once, prefer a candidate whose full path identifies a
-   * recognized extraction expression.
+   * Find an expression extension at any extension depth. A supplied templateExtract
+   * parent index restricts the search to that parent. Without an index, duplicate
+   * templateExtract field matches are treated as ambiguous.
    */
   private findExpressionExtension(
     extensions,
@@ -955,6 +966,31 @@ export class ExpressionEditorService {
     expressionValueType: ExpressionValueType
   ): ExpressionExtensionMatch | null {
     const matches: ExpressionExtensionMatch[] = [];
+
+    if (this.TEMPLATE_EXTRACT_BUNDLE_EXPRESSION_URIS.has(expressionUri) &&
+      this.expressionParentIndex !== null) {
+      const parent = this.getSelectedTemplateExtractParent(extensions);
+      if (!parent) {
+        return null;
+      }
+
+      this.collectExpressionExtensionMatches(
+        parent.extension.extension,
+        expressionUri,
+        expressionValueType,
+        parent.parentPath,
+        [this.TEMPLATE_EXTRACT_URI],
+        matches
+      );
+
+      if (matches.length > 1) {
+        this.expressionTargetError = true;
+        return null;
+      }
+
+      return matches[0] ?? null;
+    }
+
     this.collectExpressionExtensionMatches(
       extensions,
       expressionUri,
@@ -963,6 +999,18 @@ export class ExpressionEditorService {
       [],
       matches
     );
+
+    if (this.TEMPLATE_EXTRACT_BUNDLE_EXPRESSION_URIS.has(expressionUri)) {
+      const extractionMatches = matches.filter(match => this.isExtractionExpressionMatch(match));
+      if (extractionMatches.length > 1) {
+        this.expressionTargetError = true;
+        return null;
+      }
+
+      if (extractionMatches.length === 1) {
+        return extractionMatches[0];
+      }
+    }
 
     return matches.find(match => this.isExtractionExpressionMatch(match)) ?? matches[0] ?? null;
   }
@@ -1012,29 +1060,67 @@ export class ExpressionEditorService {
     expressionUri: string
   ): ExpressionExtensionLocation | null {
     if (!this.TEMPLATE_EXTRACT_BUNDLE_EXPRESSION_URIS.has(expressionUri) ||
-      !Array.isArray(extensions)) {
+      !Array.isArray(extensions) || this.expressionTargetError) {
       return null;
     }
 
-    for (let index = 0; index < extensions.length; index++) {
-      const extension = extensions[index];
-      if (extension.url === this.TEMPLATE_EXTRACT_URI) {
-        return {
-          index: Array.isArray(extension.extension) ? extension.extension.length : 0,
-          parentPath: [index]
-        };
-      }
-
-      const nestedLocation = this.findMissingExpressionLocation(extension.extension, expressionUri);
-      if (nestedLocation) {
-        return {
-          index: nestedLocation.index,
-          parentPath: [index].concat(nestedLocation.parentPath)
-        };
-      }
+    if (this.expressionParentIndex !== null) {
+      const parent = this.getSelectedTemplateExtractParent(extensions);
+      return parent ? {
+        index: Array.isArray(parent.extension.extension) ? parent.extension.extension.length : 0,
+        parentPath: parent.parentPath
+      } : null;
     }
 
-    return null;
+    const parentLocations: { extension: FhirExtension; parentPath: number[] }[] = [];
+    this.collectTemplateExtractParents(extensions, [], parentLocations);
+    if (parentLocations.length > 1) {
+      this.expressionTargetError = true;
+      return null;
+    }
+
+    const parent = parentLocations[0];
+    return parent ? {
+      index: Array.isArray(parent.extension.extension) ? parent.extension.extension.length : 0,
+      parentPath: parent.parentPath
+    } : null;
+  }
+
+  private getSelectedTemplateExtractParent(
+    extensions: FhirExtension[]
+  ): { extension: FhirExtension; parentPath: number[] } | null {
+    const parentIndex = this.expressionParentIndex;
+    if (typeof parentIndex !== 'number' || !Number.isInteger(parentIndex) || parentIndex < 0) {
+      this.expressionTargetError = true;
+      return null;
+    }
+
+    const extension = extensions[parentIndex];
+    if (extension?.url !== this.TEMPLATE_EXTRACT_URI) {
+      this.expressionTargetError = true;
+      return null;
+    }
+
+    return { extension, parentPath: [parentIndex] };
+  }
+
+  private collectTemplateExtractParents(
+    extensions: FhirExtension[],
+    parentPath: number[],
+    matches: { extension: FhirExtension; parentPath: number[] }[]
+  ): void {
+    if (!Array.isArray(extensions)) {
+      return;
+    }
+
+    extensions.forEach((extension, index) => {
+      const extensionPath = parentPath.concat(index);
+      if (extension.url === this.TEMPLATE_EXTRACT_URI) {
+        matches.push({ extension, parentPath: extensionPath });
+      } else if (Array.isArray(extension.extension)) {
+        this.collectTemplateExtractParents(extension.extension, extensionPath, matches);
+      }
+    });
   }
 
   private getExtensionContainer(extensions, parentPath: number[]): FhirExtension[] {
@@ -1242,6 +1328,10 @@ export class ExpressionEditorService {
    *                           as a 'simple-syntax' extension within the output expression.
    */
   export(url: string, finalExpression, simpleExpression = ''): object {
+    if (this.expressionTargetError) {
+      return;
+    }
+
     // Check to see if there are any errors from the validation
     const validationResult = this.getValidationResult();
     if (validationResult.hasError)

@@ -103,8 +103,59 @@ describe('AppComponent', () => {
       'ifNoneExist'
     ]);
     expect(templateExtractionOptions.every(option =>
-      option.expressionValueType === 'valueString' && option.itemVariablesReadOnly
+      option.expressionValueType === 'valueString' && option.itemVariablesReadOnly &&
+      option.expressionParentIndex === 0
     )).toBeTrue();
+  });
+
+  it('should identify the parent for fields from multiple templateExtract extensions', () => {
+    const fixture = TestBed.createComponent(AppComponent);
+    const app = fixture.componentInstance;
+    const templateExtractUrl =
+      'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-templateExtract';
+    app.fhirQuestionnaire = {
+      resourceType: 'Questionnaire',
+      item: [{
+        linkId: 'template-item',
+        extension: [{
+          url: 'https://example.org/unrelated'
+        }, {
+          url: templateExtractUrl,
+          extension: [{
+            url: 'template',
+            valueReference: { reference: '#patient-template' }
+          }]
+        }, {
+          url: templateExtractUrl,
+          extension: [{
+            url: 'template',
+            valueReference: { reference: '#observation-template' }
+          }]
+        }]
+      }]
+    };
+    app.linkId = 'template-item';
+
+    const templateOptions = app.expressionTypes.filter(option =>
+      option.name.startsWith('Template Extraction')
+    );
+    expect(templateOptions.length).toBe(12);
+    expect(templateOptions.filter(option => option.expressionParentIndex === 1).length).toBe(6);
+    expect(templateOptions.filter(option => option.expressionParentIndex === 2).length).toBe(6);
+    expect(templateOptions.map(option => option.name)).toContain(
+      'Template Extraction fullUrl — #patient-template'
+    );
+    expect(templateOptions.map(option => option.name)).toContain(
+      'Template Extraction fullUrl — #observation-template'
+    );
+
+    const secondResourceIdIndex = app.expressionTypes.findIndex(option =>
+      option.uri === 'resourceId' && option.expressionParentIndex === 2
+    );
+    app.expressionChange({ target: { value: `${secondResourceIdIndex}` } });
+
+    expect(app.expressionUri).toBe('resourceId');
+    expect(app.expressionParentIndex).toBe(2);
   });
 
   it('should show the output selector after a template demo question is selected', () => {

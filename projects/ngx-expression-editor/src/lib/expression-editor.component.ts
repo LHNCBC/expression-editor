@@ -56,6 +56,12 @@ export class ExpressionEditorComponent implements OnInit, OnChanges, OnDestroy {
   @Input() expressionLabel = 'Final Expression';
   @Input() expressionUri = '';
   @Input() expressionValueType: ExpressionValueType = 'valueExpression';
+  /**
+   * Optional index in the selected item's extension array of the templateExtract
+   * extension that owns expressionUri. This is only needed for templateExtract
+   * fields when an item has multiple templateExtract extensions.
+   */
+  @Input() expressionParentIndex: number | null = null;
   @Input() itemVariablesReadOnly = false;
   @Input() lhcStyle: SimpleStyle = {};
   @Input() display: DisplaySectionControl = {};
@@ -373,7 +379,8 @@ export class ExpressionEditorComponent implements OnInit, OnChanges, OnDestroy {
         this.fhirQuestionnaire,
         this.itemLinkId,
         this.expressionValueType,
-        this.itemVariablesReadOnly
+        this.itemVariablesReadOnly,
+        this.expressionParentIndex
       );
       this.isExtractionExpression = this.variableService.isExtractionExpression();
       if (this.loadError) {
