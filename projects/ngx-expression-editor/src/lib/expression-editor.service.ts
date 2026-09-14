@@ -611,6 +611,11 @@ export class ExpressionEditorService {
             variables.push(queryVarToAdd);
             break;
           }
+          default:
+            // Leave variables with unsupported expression languages unchanged.
+            // The editor cannot rebuild them after extracting them for editing.
+            nonVariableExtensions.push(extension);
+            break;
         }
       } else {
         nonVariableExtensions.push(extension);

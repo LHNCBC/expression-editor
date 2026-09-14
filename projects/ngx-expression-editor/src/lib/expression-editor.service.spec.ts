@@ -127,6 +127,44 @@ describe('ExpressionEditorService', () => {
     expect(saved.item[BMI_INDEX].extension[saved.item[BMI_INDEX].extension.length - 3]).toEqual(TEST_EXTENSION);
   });
 
+  it('should preserve unsupported variables on a nested item when saving an expression', () => {
+    const unsupportedVariable = {
+      url: 'http://hl7.org/fhir/StructureDefinition/variable',
+      valueExpression: {
+        name: 'cqlVariable',
+        language: 'text/cql-expression',
+        expression: '[Observation]'
+      }
+    };
+    const questionnaire = {
+      resourceType: 'Questionnaire',
+      item: [{
+        linkId: 'group',
+        type: 'group',
+        item: [{
+          linkId: 'nested-target',
+          type: 'string',
+          extension: [unsupportedVariable, {
+            url: EXPRESSION_URI,
+            valueExpression: {
+              language: 'text/fhirpath',
+              expression: '%resource'
+            }
+          }]
+        }]
+      }]
+    };
+
+    service.import(EXPRESSION_URI, questionnaire, 'nested-target');
+    const saved: any = service.export(EXPRESSION_URI, service.finalExpressionExtension);
+    const savedUnsupportedVariable = saved.item[0].item[0].extension.find(extension =>
+      extension.url === unsupportedVariable.url
+    );
+
+    expect(service.variables).toEqual([]);
+    expect(savedUnsupportedVariable).toEqual(unsupportedVariable);
+  });
+
   it('should be able to add and remove scores', () => {
 
     service.import('http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression',
