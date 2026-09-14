@@ -164,6 +164,66 @@ describe('ExpressionEditorComponent', () => {
     expect(component.isExtractionExpression).toBeTrue();
   });
 
+  [
+    {
+      name: 'a missing templateExtract field',
+      questionnaire: {
+        resourceType: 'Questionnaire',
+        item: [{
+          linkId: 'patient',
+          type: 'group',
+          extension: [{
+            url: 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-templateExtract',
+            extension: [{
+              url: 'template',
+              valueReference: { reference: '#patientTemplate' }
+            }]
+          }]
+        }]
+      },
+      expressionUri: 'resourceId',
+      expressionValueType: 'valueString' as const
+    },
+    {
+      name: 'a missing initial expression',
+      questionnaire: {
+        resourceType: 'Questionnaire',
+        item: [{
+          linkId: 'patient',
+          type: 'group'
+        }]
+      },
+      expressionUri:
+        'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression',
+      expressionValueType: 'valueExpression' as const
+    }
+  ].forEach(testCase => {
+    it(`should validate ${testCase.name} before saving when no variables exist`, async () => {
+      fixture.componentRef.setInput('fhirQuestionnaire', testCase.questionnaire);
+      fixture.componentRef.setInput('itemLinkId', 'patient');
+      fixture.componentRef.setInput('expressionUri', testCase.expressionUri);
+      fixture.componentRef.setInput('expressionValueType', testCase.expressionValueType);
+      fixture.detectChanges();
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      expect(component.variables).toEqual([]);
+      expect(component.finalExpression).toBe('');
+      expect(component.expRef.control.dirty).toBeFalse();
+
+      let savedQuestionnaire;
+      component.save.subscribe(questionnaire => savedQuestionnaire = questionnaire);
+      const saveButton = fixture.nativeElement.shadowRoot.querySelector('#export');
+      saveButton.click();
+      await new Promise(resolve => setTimeout(resolve, 150));
+      fixture.detectChanges();
+
+      expect(savedQuestionnaire).toBeUndefined();
+      expect(component.validationError).toBeTrue();
+      expect(component.expRef.control.errors?.expressionRequiredError).toBeTrue();
+    });
+  });
+
   it('should export the expression URL selected in the editor', async () => {
     const calculatedExpressionUri =
       'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression';

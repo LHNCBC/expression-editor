@@ -411,7 +411,12 @@ export class ExpressionEditorComponent implements OnInit, OnChanges, OnDestroy {
    * Pre-export function: triggers validation and sets export pending flag
    */
   preExport(): void {
-    if (this.display.itemVariablesSection && this.variables.length > 0) {
+    const hasOutputExpression = Boolean(
+      this.display.outputExpressionSection && this.expressionUri && this.itemLinkId
+    );
+    const hasVariablesToValidate = this.display.itemVariablesSection && this.variables.length > 0;
+
+    if (hasOutputExpression || hasVariablesToValidate) {
       this.isExportPending = true;
       // Trigger validation
       this.variableService.notifyValidationCheck();
