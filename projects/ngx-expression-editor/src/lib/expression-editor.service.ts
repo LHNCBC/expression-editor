@@ -286,8 +286,9 @@ export class ExpressionEditorService {
    * Create a new variable
    */
   addVariable(): void {
-    // Ordinary Questionnaire variables are not part of the restricted SDC
-    // $extract expression context.
+    // The SDC $extract FHIRPath scope is limited to %resource, %context,
+    // %questionnaire, %qitem, and extractAllocateId variables.
+    // See: https://build.fhir.org/ig/HL7/sdc/en/expressions.html#extract
     if (this.extractionMode) {
       return;
     }
