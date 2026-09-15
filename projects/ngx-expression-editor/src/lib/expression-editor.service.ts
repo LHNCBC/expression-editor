@@ -146,7 +146,9 @@ export class ExpressionEditorService {
   static APP_NAME = "Expression Editor";
 
   private static ALLOCATED_ID_VARIABLE_TYPE = 'Allocated ID';
-  private static ALLOCATED_ID_VALIDATION_VALUE = 'urn:uuid:00000000-0000-4000-8000-000000000000';
+  // Representative string used only while evaluating FHIRPath for validation.
+  // It is never exported or used as an ID by the extraction process.
+  private static ALLOCATED_ID_VALIDATION_PLACEHOLDER = 'urn:uuid:00000000-0000-4000-8000-000000000000';
 
   static ENVIRONMENT_VARIABLES = ['resource', 'rootResource', 'sct', 'loinc', 'vs-', 'ext-', 'context', 'questionnaire', 'qitem'];
   static COMMON_LAUNCH_CONTEXT_VARIABLES = ['patient', 'encounter', 'practitioner', 'organization', 'user', 'relatedPerson'];
@@ -2566,7 +2568,7 @@ export class ExpressionEditorService {
     this.uneditableVariables
       .filter(variable => variable.type === ExpressionEditorService.ALLOCATED_ID_VARIABLE_TYPE)
       .forEach(variable => {
-        contextVariables[variable.name] = ExpressionEditorService.ALLOCATED_ID_VALIDATION_VALUE;
+        contextVariables[variable.name] = ExpressionEditorService.ALLOCATED_ID_VALIDATION_PLACEHOLDER;
       });
 
     if (this.extractionMode) {
