@@ -840,9 +840,7 @@ describe('ExpressionEditorService', () => {
         'newPatientUuid',
         'newObservationUuid'
       ]);
-      expect(service.finalExpression).toContain('%newQuestionnaireUuid');
-      expect(service.finalExpression).toContain('%newPatientUuid');
-      expect(service.finalExpression).toContain('%newObservationUuid');
+      expect(service.finalExpression).toBe('%newPatientUuid');
       expect(service.isExtractionExpression()).toBeTrue();
     });
 

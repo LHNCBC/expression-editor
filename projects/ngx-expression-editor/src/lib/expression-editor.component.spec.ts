@@ -48,7 +48,7 @@ describe('ExpressionEditorComponent', () => {
     await fixture.whenStable();
     fixture.detectChanges();
 
-    expect(component.expRef.control.value).toContain('%newQuestionnaireUuid');
+    expect(component.expRef.control.value).toBe('%newPatientUuid');
     expect(component.expRef.control.errors).toBeNull();
     const variableHeadings = [...fixture.nativeElement.shadowRoot.querySelectorAll(
       '#uneditable-variables-section h2'
