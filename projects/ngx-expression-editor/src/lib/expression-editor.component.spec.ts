@@ -50,13 +50,22 @@ describe('ExpressionEditorComponent', () => {
 
     expect(component.expRef.control.value).toContain('%newQuestionnaireUuid');
     expect(component.expRef.control.errors).toBeNull();
-    const allocatedIdHeading = fixture.nativeElement.shadowRoot.querySelector(
+    const variableHeadings = [...fixture.nativeElement.shadowRoot.querySelectorAll(
       '#uneditable-variables-section h2'
+    )];
+    const extractionContextHeading = variableHeadings.find((heading: HTMLElement) =>
+      heading.textContent.includes('Extraction Context Variables')
+    );
+    const allocatedIdHeading = variableHeadings.find((heading: HTMLElement) =>
+      heading.textContent.includes('Allocated ID Variables')
     );
     const allocatedIdLabels = [...fixture.nativeElement.shadowRoot.querySelectorAll(
       '#uneditable-variables-section .variable-column-label'
     )].map((label: HTMLElement) => label.textContent.trim());
+    expect(extractionContextHeading.textContent).toContain('Extraction Context Variables (4)');
+    expect(extractionContextHeading.getAttribute('aria-expanded')).toBe('false');
     expect(allocatedIdHeading.textContent).toContain('Allocated ID Variables (3)');
+    expect(allocatedIdHeading.getAttribute('aria-expanded')).toBe('true');
     expect(allocatedIdLabels).toContain('newQuestionnaireUuid');
     expect(allocatedIdLabels).toContain('newPatientUuid');
     expect(allocatedIdLabels).toContain('newObservationUuid');
@@ -79,6 +88,41 @@ describe('ExpressionEditorComponent', () => {
       extension.url === 'fullUrl'
     )).toBeFalse();
     expect(component.isExtractionExpression).toBeTrue();
+  });
+
+  ['patient', 'encounter'].forEach(launchContextVariable => {
+    it(`should reject %${launchContextVariable} during extraction and block saving`, async () => {
+      fixture.componentRef.setInput('fhirQuestionnaire', allocateIdQuestionnaire);
+      fixture.componentRef.setInput('itemLinkId', '/39156-5');
+      fixture.componentRef.setInput('expressionUri', 'fullUrl');
+      fixture.componentRef.setInput('expressionValueType', 'valueString');
+      fixture.detectChanges();
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      const expressionInput = fixture.nativeElement.shadowRoot.querySelector('#final-expression');
+      expressionInput.value = `%${launchContextVariable}.id`;
+      expressionInput.dispatchEvent(new Event('input'));
+      expressionInput.dispatchEvent(new Event('blur'));
+      fixture.detectChanges();
+      await fixture.whenStable();
+      await new Promise(resolve => setTimeout(resolve, 150));
+
+      expect(component.expRef.control.errors?.invalidExpressionError).toBeTrue();
+      expect(component.expRef.control.errors?.invalidExpressionWarning).toBeUndefined();
+      expect(component.expRef.control.errors?.message).toBe(
+        `%${launchContextVariable} is not available in an extraction expression. ` +
+        'Use an allocated ID or an extraction-context variable instead.'
+      );
+
+      let savedQuestionnaire;
+      component.save.subscribe(questionnaire => savedQuestionnaire = questionnaire);
+      component.preExport();
+      await new Promise(resolve => setTimeout(resolve, 250));
+
+      expect(component.validationError).toBeTrue();
+      expect(savedQuestionnaire).toBeUndefined();
+    });
   });
 
   it('should edit the templateExtract selected by expressionParentIndex', async () => {
@@ -155,9 +199,12 @@ describe('ExpressionEditorComponent', () => {
     fixture.detectChanges();
 
     const editor = fixture.nativeElement.shadowRoot;
-    expect(editor.querySelector('#uneditable-variables-section h2').textContent)
+    const allocatedIdSection = [...editor.querySelectorAll('#uneditable-variables-section h2')]
+      .find((heading: HTMLElement) => heading.textContent.includes('Allocated ID Variables'))
+      .parentElement;
+    expect(allocatedIdSection.querySelector('h2').textContent)
       .toContain('Allocated ID Variables (1)');
-    expect(editor.querySelector('.variable-row .variable-column-label').textContent.trim())
+    expect(allocatedIdSection.querySelector('.variable-row .variable-column-label').textContent.trim())
       .toBe('NewPatientId123');
     expect(component.expressionSyntax).toBe('fhirpath');
     expect(editor.querySelector('#output-expression-type').value).toBe('fhirpath');

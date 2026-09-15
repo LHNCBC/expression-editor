@@ -1,6 +1,7 @@
 import 'zone.js/testing';
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { CaseStatementsComponent } from './case-statements.component';
+import { ExpressionEditorService } from '../expression-editor.service';
 
 describe('CaseStatementsComponent', () => {
   let component: CaseStatementsComponent;
@@ -65,5 +66,34 @@ describe('CaseStatementsComponent', () => {
   it('should not parse non-iif expressions', () => {
     expect(component.parseIif('%bmi', 0)).toBeFalse();
     expect(component.parseIif('%bmi * iif(true, 1, 0)', 0)).toBeFalse();
+  });
+
+  it('should reject launch context fallback when validating extraction cases', () => {
+    const service = TestBed.inject(ExpressionEditorService);
+    spyOn(service, 'isExtractionExpression').and.returnValue(true);
+    component.syntax = 'fhirpath';
+    component.outputExpressions = true;
+
+    const result = component.transformIfSimple('condition', '%patient.id', false, false, null);
+
+    expect(result).toBe(
+      '%patient is not available in an extraction expression. ' +
+      'Use an allocated ID or an extraction-context variable instead.'
+    );
+    expect(component.composeErrorResultObject('condition', result)).toEqual({
+      invalidCaseStatementError: true,
+      message: result,
+      ariaMessage: result
+    });
+  });
+
+  it('should preserve launch context warnings for ordinary cases', () => {
+    const service = TestBed.inject(ExpressionEditorService);
+    spyOn(service, 'isExtractionExpression').and.returnValue(false);
+    component.syntax = 'fhirpath';
+    component.outputExpressions = true;
+
+    expect(component.transformIfSimple('condition', '%patient.id', false, false, null))
+      .toBe(ExpressionEditorService.EXP_LAUNCH_CONTEXT_ERR_MSG);
   });
 });

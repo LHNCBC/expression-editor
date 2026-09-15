@@ -248,7 +248,13 @@ export class CaseStatementsComponent implements OnInit, OnChanges, OnDestroy, Af
    */
   composeErrorResultObject(key: string, result: string): ValidationError {
     let errorObj = null;
-    if (result === ExpressionEditorService.EXP_NOT_VALID_ERR_MSG) {
+    if (constants.isExtractionContextVariableError(result)) {
+      errorObj = {
+        "invalidCaseStatementError": true,
+        "message": result,
+        "ariaMessage": result
+      };
+    } else if (result === ExpressionEditorService.EXP_NOT_VALID_ERR_MSG) {
       const notValidAriaMessage = (key !== 'default case') ?
         `One of the ${key}s in the Output Expression section is no longer valid.` :
         `The ${key} in the Output Expression section is no longer valid.`;
@@ -551,7 +557,8 @@ export class CaseStatementsComponent implements OnInit, OnChanges, OnDestroy, Af
     this.cases[level].error = {};
     this.cases[level].warning = {};
 
-    if (condition === ExpressionEditorService.EXP_NOT_VALID_ERR_MSG) {
+    if (condition === ExpressionEditorService.EXP_NOT_VALID_ERR_MSG ||
+        constants.isExtractionContextVariableError(condition)) {
       this.cases[level].error['condition'] = condition;
     } else if (condition === ExpressionEditorService.EXP_LAUNCH_CONTEXT_ERR_MSG) {
       this.cases[level].warning['condition'] = condition;
@@ -559,7 +566,8 @@ export class CaseStatementsComponent implements OnInit, OnChanges, OnDestroy, Af
       this.cases[level].error['condition'] = ExpressionEditorService.EXP_REQUIRED_ERR_MSG;
     }
 
-    if (output === ExpressionEditorService.EXP_NOT_VALID_ERR_MSG) {
+    if (output === ExpressionEditorService.EXP_NOT_VALID_ERR_MSG ||
+        constants.isExtractionContextVariableError(output)) {
       this.cases[level].error['output'] = output;
     } else if (output === ExpressionEditorService.EXP_LAUNCH_CONTEXT_ERR_MSG) {
       this.cases[level].warning['output'] = output;
@@ -567,7 +575,8 @@ export class CaseStatementsComponent implements OnInit, OnChanges, OnDestroy, Af
       this.cases[level].error['output'] = ExpressionEditorService.EXP_REQUIRED_ERR_MSG;
     }
 
-    if (defaultCase === ExpressionEditorService.EXP_NOT_VALID_ERR_MSG) {
+    if (defaultCase === ExpressionEditorService.EXP_NOT_VALID_ERR_MSG ||
+        constants.isExtractionContextVariableError(defaultCase)) {
       this.defaultCaseError = defaultCase;
       this.defaultCaseWarning = '';
     } else if (defaultCase === ExpressionEditorService.EXP_LAUNCH_CONTEXT_ERR_MSG) {
@@ -709,6 +718,13 @@ export class CaseStatementsComponent implements OnInit, OnChanges, OnDestroy, Af
 
           return processedExpression;
         } catch (e) {
+          if (this.expressionEditorService.isExtractionExpression()) {
+            const variableName = constants.getUndefinedEnvironmentVariableName(e.message);
+            return ExpressionEditorService.COMMON_LAUNCH_CONTEXT_VARIABLES.includes(variableName) ?
+              constants.getExtractionContextVariableError(variableName) :
+              ExpressionEditorService.EXP_NOT_VALID_ERR_MSG;
+          }
+
           try {
             const launchContext = this.expressionEditorService.getCommonLaunchContext();
             const result = fhirpath.evaluate({}, processedExpression, launchContext);

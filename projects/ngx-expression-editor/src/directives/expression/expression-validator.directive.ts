@@ -22,16 +22,22 @@ export class ExpressionValidatorDirective implements Validator {
       return null;
     }
 
+    const allowLaunchContextFallback = !this.expressionEditorService.isExtractionExpression();
     if (this.lhcExpressionValidatorParams.type === 'fhirpath' ) {
       const variableNames = this.expressionEditorService.getContextVariableNamesForExpressionValidation();
       this.lhcExpressionValidatorParams['variableNames'] = JSON.stringify(variableNames);
 
-      const launchContext = this.expressionEditorService.getCommonLaunchContext();
+      const launchContext = allowLaunchContextFallback ?
+        this.expressionEditorService.getCommonLaunchContext() : {};
       this.lhcExpressionValidatorParams['launchContext'] = JSON.stringify(launchContext);
     }
 
     // the result is either null or error object
-    const result = expressionValidator(this.lhcExpressionValidatorParams)(control);
+    const result = expressionValidator(
+      this.lhcExpressionValidatorParams,
+      allowLaunchContextFallback,
+      ExpressionEditorService.COMMON_LAUNCH_CONTEXT_VARIABLES
+    )(control);
 
     this.expressionEditorService.notifyValidationResult(this.lhcExpressionValidatorParams, result);
 

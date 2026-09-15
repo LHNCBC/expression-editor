@@ -4,15 +4,15 @@
         class="section-header"
         role="button"
         tabindex="0"
-        [attr.aria-expanded]="isSectionExpanded"
-        (click)="toggle()"
-        (keydown.enter)="toggle()"
-        (keydown.space)="toggle()">
-      <span class="arrow" [class.expanded]="isSectionExpanded">›</span>
+        [attr.aria-expanded]="isExpanded(section.title)"
+        (click)="toggle(section.title)"
+        (keydown.enter)="toggle(section.title)"
+        (keydown.space)="toggle(section.title)">
+      <span class="arrow" [class.expanded]="isExpanded(section.title)">›</span>
       {{section.title}} ({{section.variables.length}})
     </h2>
 
-    @if(isSectionExpanded) {
+    @if(isExpanded(section.title)) {
       <div class="container">
         <div class="variable-header">
           <div class="variable-column-label">Label</div>
