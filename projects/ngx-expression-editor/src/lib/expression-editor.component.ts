@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, EventEmitter, inject, Input, OnChanges, OnDestroy, OnInit, Output, ViewChild, ViewEncapsulation } from '@angular/core';
+import { ChangeDetectorRef, Component, EventEmitter, inject, Input, numberAttribute, OnChanges, OnDestroy, OnInit, Output, ViewChild, ViewEncapsulation } from '@angular/core';
 
 import {
   DisplaySectionControl,
@@ -61,7 +61,7 @@ export class ExpressionEditorComponent implements OnInit, OnChanges, OnDestroy {
    * extension that owns expressionUri. This is only needed for templateExtract
    * fields when an item has multiple templateExtract extensions.
    */
-  @Input() expressionParentIndex: number | null = null;
+  @Input({ transform: numberAttribute }) expressionParentIndex: number | null = null;
   @Input() itemVariablesReadOnly = false;
   @Input() lhcStyle: SimpleStyle = {};
   @Input() display: DisplaySectionControl = {};

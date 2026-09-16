@@ -125,7 +125,7 @@ describe('ExpressionEditorComponent', () => {
     });
   });
 
-  it('should edit the templateExtract selected by expressionParentIndex', async () => {
+  it('should coerce an expressionParentIndex attribute and edit the selected templateExtract', async () => {
     const templateExtractUrl =
       'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-templateExtract';
     const questionnaire = {
@@ -148,11 +148,12 @@ describe('ExpressionEditorComponent', () => {
     fixture.componentRef.setInput('itemLinkId', 'patient');
     fixture.componentRef.setInput('expressionUri', 'fullUrl');
     fixture.componentRef.setInput('expressionValueType', 'valueString');
-    fixture.componentRef.setInput('expressionParentIndex', 1);
+    fixture.componentRef.setInput('expressionParentIndex', '1');
     fixture.detectChanges();
     await fixture.whenStable();
     fixture.detectChanges();
 
+    expect(component.expressionParentIndex).toBe(1);
     expect(component.finalExpression).toBe('%context.linkId');
 
     let savedQuestionnaire;
