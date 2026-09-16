@@ -5,7 +5,7 @@ This project follows [Semantic Versioning](http://semver.org/).
 ## [5.1.0] 2026-09-03
 ### Added
 - Added extraction expression context support, including scoped SDC `extractAllocateId` variables.
-- Added `expressionContext` and `expressionValueType` inputs with backward-compatible defaults.
+- Added the `expressionValueType` inputs with a backward-compatible defaults.
 - Added support for importing and exporting string-backed FHIRPath expressions with arbitrary extension URIs.
 - Added the `itemVariablesReadOnly` input for displaying current-item variables without allowing them to be modified.
 - Added a dedicated display for allocated ID variables available to extraction expressions.
@@ -15,7 +15,7 @@ This project follows [Semantic Versioning](http://semver.org/).
 - Preserved nested expression extension placement when importing and exporting, including the template extraction `fullUrl`, `resourceId`, `ifNoneMatch`, `ifModifiedSince`, `ifMatch`, and `ifNoneExist` sub-extensions.
 - Added safe targeting of bundle fields when an item contains multiple `templateExtract` extensions.
 - Prevented blank Output Expressions from being saved when no variables are present.
-- Removed the `expressionContext` input and inferred extraction behavior from recognized SDC extension paths.
+- Inferred extraction behavior from recognized SDC extension paths.
 
 ## [5.0.7] 2026-04-27
 ### Fixed
