@@ -90,8 +90,16 @@ describe('ExpressionEditorComponent', () => {
     expect(component.isExtractionExpression).toBeTrue();
   });
 
-  ['patient', 'encounter'].forEach(launchContextVariable => {
-    it(`should reject %${launchContextVariable} during extraction and block saving`, async () => {
+  [
+    { variable: 'patient', expression: '%patient.id' },
+    { variable: 'encounter', expression: '%encounter.id' },
+    {
+      variable: 'patient',
+      expression: "iif(%context.answer.exists(), %patient.id, 'no-answer')"
+    },
+    { variable: 'patient', expression: '%context.answer.select(%patient.id)' }
+  ].forEach(({ variable, expression }) => {
+    it(`should reject ${expression} during extraction and block saving`, async () => {
       fixture.componentRef.setInput('fhirQuestionnaire', allocateIdQuestionnaire);
       fixture.componentRef.setInput('itemLinkId', '/39156-5');
       fixture.componentRef.setInput('expressionUri', 'fullUrl');
@@ -101,7 +109,7 @@ describe('ExpressionEditorComponent', () => {
       fixture.detectChanges();
 
       const expressionInput = fixture.nativeElement.shadowRoot.querySelector('#final-expression');
-      expressionInput.value = `%${launchContextVariable}.id`;
+      expressionInput.value = expression;
       expressionInput.dispatchEvent(new Event('input'));
       expressionInput.dispatchEvent(new Event('blur'));
       fixture.detectChanges();
@@ -111,7 +119,7 @@ describe('ExpressionEditorComponent', () => {
       expect(component.expRef.control.errors?.invalidExpressionError).toBeTrue();
       expect(component.expRef.control.errors?.invalidExpressionWarning).toBeUndefined();
       expect(component.expRef.control.errors?.message).toBe(
-        `%${launchContextVariable} is not available in an extraction expression. ` +
+        `%${variable} is not available in an extraction expression. ` +
         'Use an allocated ID or an extraction-context variable instead.'
       );
 

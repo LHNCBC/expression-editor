@@ -3,6 +3,7 @@ import { ValidationError, ValidationParam, FieldTypes, SectionTypes } from '../l
 import * as fhirpath from 'fhirpath';
 import { EasyPathExpressionsPipe } from '../lib/easy-path-expressions.pipe';
 import * as constants from "../lib/validation";
+import { findUnavailableEnvironmentVariable } from './fhirpathVariableValidator';
 
 /**
  * Get the error message for the given type and field.
@@ -116,9 +117,22 @@ export function expressionValidator(
     } else if ((control.value && control.dirty) || (control.value && !control.dirty)) {
       if (param.type === "fhirpath") {
         try {
+          const variableNames = JSON.parse(param.variableNames);
+          if (!allowLaunchContextFallback) {
+            const unavailableVariableName = findUnavailableEnvironmentVariable(
+              control.value,
+              Object.keys(variableNames)
+            );
+            if (unavailableVariableName !== null) {
+              return launchContextVariableNames.includes(unavailableVariableName) ?
+                getExtractionContextVariableErrorObject(unavailableVariableName) :
+                getInvalidExpressionErrorObject(true);
+            }
+          }
+
           // Use fhirpath.js to evaluate the expression.  If exception is thrown, then returns
           // the invalidExpressionError
-          fhirpath.evaluate({}, control.value, JSON.parse(param.variableNames));
+          fhirpath.evaluate({}, control.value, variableNames);
 
         } catch(e) {
           const variableName = constants.getUndefinedEnvironmentVariableName(e.message);

@@ -10,6 +10,7 @@ import * as fhirpath from 'fhirpath';
 import * as constants from "../validation";
 import { SyntaxPreviewComponent } from '../syntax-preview/syntax-preview.component';
 import { CommonModule } from '@angular/common';
+import { findUnavailableEnvironmentVariable } from '../../validators/fhirpathVariableValidator';
 
 @Component({
   selector: 'lhc-case-statements',
@@ -61,7 +62,8 @@ export class CaseStatementsComponent implements OnInit, OnChanges, OnDestroy, Af
   private changeDetectorRef = inject(ChangeDetectorRef);
 
   /**
-   * Angular lifecycle hook for initialization
+   * Initializes case statements and subscribes to save-time validation requests.
+   * @returns No value.
    */
   ngOnInit(): void {
     if (this.syntax === 'fhirpath' && this.expression !== undefined) {
@@ -97,14 +99,16 @@ export class CaseStatementsComponent implements OnInit, OnChanges, OnDestroy, Af
   }
 
   /**
-   * Angular lifecycle hook called before the component is destroyed
+   * Unsubscribes from save-time validation before the component is destroyed.
+   * @returns No value.
    */
   ngOnDestroy(): void {
     this.performValidationSubscription.unsubscribe();
   }
 
   /**
-   * Perform check on any Case statement errors
+   * Runs initial case-statement validation after the component view is initialized.
+   * @returns No value.
    */
   ngAfterViewInit() {
     this.changeDetectorRef.detectChanges();
@@ -114,6 +118,7 @@ export class CaseStatementsComponent implements OnInit, OnChanges, OnDestroy, Af
   /**
    * Parses the Easy Path expression and populates the case editor. Toggles "use
    * expressions" off if output is only strings.
+   * @returns No value.
    */
   parseSimpleCases(): void {
     this.parseIif(this.simpleExpression, 0);
@@ -138,21 +143,27 @@ export class CaseStatementsComponent implements OnInit, OnChanges, OnDestroy, Af
   }
 
   /**
-   * Checks if the expression is a string
+   * Checks whether an expression is enclosed in single quotes.
+   * @param expression - Expression to inspect.
+   * @returns True when the expression is a quoted string; otherwise false.
    */
   isString(expression: string): boolean {
     return this.STRING_REGEX.test(expression);
   }
 
   /**
-   * Removes surrounding quotes
+   * Removes surrounding single quotes from an expression.
+   * @param expression - Quoted expression to unwrap.
+   * @returns The expression without its surrounding quotes.
    */
   removeQuotes(expression: string): string {
     return expression.match(this.STRING_REGEX)[1];
   }
 
   /**
-   * Angular lifecycle hook for changes
+   * Updates the case editor when component inputs change.
+   * @param changes - Angular input changes keyed by input name.
+   * @returns No value.
    */
   ngOnChanges(changes): void {
     if (changes.syntax && this.syntax === 'simple') {
@@ -199,7 +210,8 @@ export class CaseStatementsComponent implements OnInit, OnChanges, OnDestroy, Af
   }
 
   /**
-   * Called when adding a new case
+   * Adds a new empty case statement.
+   * @returns No value.
    */
   onAdd(): void {
     this.cases.push({ condition: '', simpleCondition: '', output: '', simpleOutput: '' });
@@ -210,6 +222,7 @@ export class CaseStatementsComponent implements OnInit, OnChanges, OnDestroy, Af
   /**
    * Remove the case at an index
    * @param i - index to remove
+   * @returns No value.
    */
   onRemove(i): void {
     this.cases.splice(i, 1);
@@ -217,7 +230,9 @@ export class CaseStatementsComponent implements OnInit, OnChanges, OnDestroy, Af
   }
 
   /**
-   * Angular lifecycle hook for changes
+   * Rebuilds and validates the case expression after an editor change.
+   * @param shouldResetSimple - Whether to discard the stored Easy Path case representation.
+   * @returns No value.
    */
   onChange(shouldResetSimple = true): void {
     // Clear the stored simpleCaseObject if there is changes to the fhirpath expression
@@ -244,7 +259,7 @@ export class CaseStatementsComponent implements OnInit, OnChanges, OnDestroy, Af
    * Compose the error result object based on the results: 'Not Valid', 'Required' or null
    * @param key - Section of the case statement: 'condition', 'output', or 'default case'
    * @param result - 'Not Valid' or 'Required'
-   * @return ValidationError object or null if there is no error
+   * @returns ValidationError object or null if there is no error
    */
   composeErrorResultObject(key: string, result: string): ValidationError {
     let errorObj = null;
@@ -286,7 +301,7 @@ export class CaseStatementsComponent implements OnInit, OnChanges, OnDestroy, Af
    * @param element - the case element
    * @param index - case statement index
    * @param type - case element type: 'condition' or 'output'
-   * @return CaseStatementValidationResult - object containing hasError and hasWarning keys.
+   * @returns Object containing hasError and hasWarning keys.
    */
   setElementError(element: any, index: number, type: string): CaseStatementValidationResult {
     let hasError = false;
@@ -321,7 +336,7 @@ export class CaseStatementsComponent implements OnInit, OnChanges, OnDestroy, Af
    * Loop through case statement elements of the given type and check for validation errors.
    * @param caseElements - QueryList of elements to check for validation errors
    * @param type - case element type: 'condition' or 'output'
-   * @return CaseStatementValidationResult - object containing hasError and hasWarning keys.
+   * @returns Object containing hasError and hasWarning keys.
    */
   checkAndUpdateCaseErrors(caseElements: any, type: string): CaseStatementValidationResult {
     let result = { hasError: false, hasWarning: false };
@@ -349,6 +364,7 @@ export class CaseStatementsComponent implements OnInit, OnChanges, OnDestroy, Af
   /**
    * Create the ARIA error message to inform screen reader users of errors in the
    * Case Statements under the Output Expression section.
+   * @returns No value.
    */
   composeAriaErrorMessage(): void {
     if (this.caseAriaErrorMessages.length > 1) {
@@ -364,7 +380,7 @@ export class CaseStatementsComponent implements OnInit, OnChanges, OnDestroy, Af
 
   /**
    * Check for validation errors on the default case
-   * @return true if the default case contains error.
+   * @returns Object indicating whether the default case has an error or warning.
    */
   checkAndUpdateDefaultCaseError(): CaseStatementValidationResult {
     let result = null;
@@ -411,6 +427,7 @@ export class CaseStatementsComponent implements OnInit, OnChanges, OnDestroy, Af
    * Based on the validation result on the Case Statements, updates error status
    * for each of the elements in the Case Statements (case conditions, case outputs,
    * and default case) and notify the Expression Editor component on the status.
+   * @returns No value.
    */
   updateCaseStatementsErrors(): void {
     const param = {
@@ -456,8 +473,9 @@ export class CaseStatementsComponent implements OnInit, OnChanges, OnDestroy, Af
   };
 
   /**
-   * Create the ARIA error message to inform screen reader users of errors in the
+   * Create the ARIA warning message to inform screen reader users of warnings in the
    * Case Statements under the Output Expression section.
+   * @returns No value.
    */
   composeAriaWarningMessage(): void {
     if (this.caseAriaWarningMessages.length > 1)
@@ -471,6 +489,7 @@ export class CaseStatementsComponent implements OnInit, OnChanges, OnDestroy, Af
    * Parse iif expression at specified level. Top level is 0
    * @param expression - expression to parse
    * @param level - depth or level of expression nesting
+   * @returns True when the expression is a valid iif structure; otherwise false.
    */
   parseIif(expression: string, level: number): boolean {
     // If expressions don't start with iif( and end with ) they cannot be parsed
@@ -545,13 +564,13 @@ export class CaseStatementsComponent implements OnInit, OnChanges, OnDestroy, Af
   }
 
   /**
-   * Check results from calling transformIfSimple() on ctransformIfSimplease statement condition, output, and default case
-   * and set the error if any. If the result from the transformation is blank, then the error is now set
-   * to 'Required'.
+   * Checks transformIfSimple() results for the case condition, output, and default
+   * case and records any errors. Blank transformation results are marked as required.
    * @param level - case statement index row
    * @param condition - transformation result for the case statement condition
    * @param output - transformation result for the case statement output
    * @param defaultCase - transformation result for the case statement default case
+   * @returns No value.
    */
   setCaseStatementsErrors(level: number, condition: string, output: string, defaultCase: string): void {
     this.cases[level].error = {};
@@ -593,6 +612,7 @@ export class CaseStatementsComponent implements OnInit, OnChanges, OnDestroy, Af
   /**
    * Get an iif expression given a nesting level
    * @param level - nesting level
+   * @returns The composed FHIRPath iif expression.
    */
   getIif(level: number): string {
     const isSimple = this.syntax === 'simple';
@@ -651,6 +671,7 @@ export class CaseStatementsComponent implements OnInit, OnChanges, OnDestroy, Af
   /**
    * Get an Easy Path iif expression given a nesting level
    * @param level - nesting level
+   * @returns The composed Easy Path iif expression.
    */
   getSimpleIif(level: number): string {
     const isSimple = this.syntax === 'simple';
@@ -675,7 +696,7 @@ export class CaseStatementsComponent implements OnInit, OnChanges, OnDestroy, Af
    * @param isOutput - True if processing the Case output or default case.
    * @param isBothExpressionsEmpty - True if both the FHIRPath expression and Easy Path expression are empty, otherwise false.
    * @param ref - ngModel reference to a specific input field.
-   * @return FHIRPath Expression
+   * @returns The transformed FHIRPath expression or a validation-status message.
    */
   transformIfSimple(caseType: string, expression: string, isOutput: boolean, isBothExpressionsEmpty: boolean, ref: NgModel): string {
     if (expression === undefined) {
@@ -714,6 +735,19 @@ export class CaseStatementsComponent implements OnInit, OnChanges, OnDestroy, Af
         }
         try {
           const variableNames = this.expressionEditorService.getContextVariableNamesForExpressionValidation();
+          if (this.expressionEditorService.isExtractionExpression()) {
+            const unavailableVariableName = findUnavailableEnvironmentVariable(
+              processedExpression,
+              Object.keys(variableNames)
+            );
+            if (unavailableVariableName !== null) {
+              return ExpressionEditorService.COMMON_LAUNCH_CONTEXT_VARIABLES
+                .includes(unavailableVariableName) ?
+                constants.getExtractionContextVariableError(unavailableVariableName) :
+                ExpressionEditorService.EXP_NOT_VALID_ERR_MSG;
+            }
+          }
+
           const result = fhirpath.evaluate({}, processedExpression, variableNames);
 
           return processedExpression;
@@ -755,6 +789,7 @@ export class CaseStatementsComponent implements OnInit, OnChanges, OnDestroy, Af
   /**
    * Drag and drop rearrange of variable order
    * @param event - drag and drop event
+   * @returns No value.
    */
   drop(event: CdkDragDrop<Variable[]>): void {
     moveItemInArray(this.cases, event.previousIndex, event.currentIndex);

@@ -87,6 +87,28 @@ describe('CaseStatementsComponent', () => {
     });
   });
 
+  [
+    "iif(%context.answer.exists(), %patient.id, 'no-answer')",
+    '%context.answer.select(%patient.id)'
+  ].forEach(expression => {
+    it(`should reject conditional launch context references in extraction cases: ${expression}`, () => {
+      const service = TestBed.inject(ExpressionEditorService);
+      spyOn(service, 'isExtractionExpression').and.returnValue(true);
+      spyOn(service, 'getContextVariableNamesForExpressionValidation').and.returnValue({
+        context: { answer: [] }
+      });
+      component.syntax = 'fhirpath';
+      component.outputExpressions = true;
+
+      const result = component.transformIfSimple('condition', expression, false, false, null);
+
+      expect(result).toBe(
+        '%patient is not available in an extraction expression. ' +
+        'Use an allocated ID or an extraction-context variable instead.'
+      );
+    });
+  });
+
   it('should preserve launch context warnings for ordinary cases', () => {
     const service = TestBed.inject(ExpressionEditorService);
     spyOn(service, 'isExtractionExpression').and.returnValue(false);
