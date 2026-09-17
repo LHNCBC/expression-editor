@@ -23,19 +23,18 @@ object.
   entered as a parameter.
 * `expressionUri` - By default the widget modifies the calculatedExpression.
   You can specify any expression URI here; it is preserved unchanged in the
-  result. The selected item's extensions and sub-extensions are searched, and
-  an existing expression is saved back to its original parent. If the FHIRPath
-  expression is to be stored at the Questionnaire root level, the Output
-  Expression section is omitted because the Expression Editor only supports
-  adding variables at the root level; as a result for this case the
-  `expressionUri` is not needed.
+  result. The target Questionnaire or item's extensions and sub-extensions are
+  searched, and an existing expression is saved back to its original parent.
+  At the Questionnaire root, the Output Expression section is available for a
+  recognized SDC extraction expression; otherwise root mode edits Questionnaire
+  variables and `expressionUri` is not needed.
 * `expressionValueType` - Controls how the output expression is stored. Use
   `valueExpression` (the default) for the FHIR Expression datatype or
   `valueString` for string-backed extraction expressions.
-* `expressionParentIndex` - Optional index in the selected item's `extension`
-  array of the `templateExtract` extension that owns the output expression. It
-  is only needed for `templateExtract` fields when the selected item contains
-  multiple `templateExtract` extensions.
+* `expressionParentIndex` - Optional index in the target Questionnaire or item's
+  `extension` array of the `templateExtract` extension that owns the output
+  expression. It is only needed for `templateExtract` fields when that target
+  contains multiple `templateExtract` extensions.
 * `itemVariablesReadOnly` - In the standard expression context, when `true`,
   variables declared on the current item are shown with the other read-only
   variables in scope instead of in the editable Item Variables section.

@@ -827,6 +827,133 @@ describe('ExpressionEditorService', () => {
       ]);
     });
 
+    it('should add a missing fullUrl to a Questionnaire-level templateExtract', () => {
+      const rootQuestionnaire = {
+        resourceType: 'Questionnaire',
+        extension: [
+          variable('givenName'),
+          variable('familyName'),
+          variable('birthDate'),
+          {
+            url: 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-templateExtract',
+            extension: [{
+              url: 'template',
+              valueReference: { reference: '#patientTemplate' }
+            }]
+          }
+        ],
+        item: [{ linkId: 'given', type: 'string' }]
+      };
+
+      expect(service.import('fullUrl', rootQuestionnaire, '', 'valueString')).toBeTrue();
+      expect(service.isExtractionExpression()).toBeTrue();
+      expect(service.variables).toEqual([]);
+      expect(service.uneditableVariables).toEqual([]);
+      expect(service.getContextVariableNamesForExpressionValidation().givenName).toBeUndefined();
+
+      service.finalExpressionExtension.valueString = '%resource.id';
+      const saved = service.export('fullUrl', service.finalExpressionExtension) as {
+        extension: {
+          url: string;
+          extension?: { url: string; valueString?: string }[];
+        }[];
+      };
+      const templateExtract = saved.extension.find(extension =>
+        extension.url ===
+          'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-templateExtract'
+      );
+
+      expect(templateExtract.extension.find(extension => extension.url === 'fullUrl')).toEqual({
+        url: 'fullUrl',
+        valueString: '%resource.id'
+      });
+      expect(saved.extension.some(extension => extension.url === 'fullUrl')).toBeFalse();
+    });
+
+    it('should use expressionParentIndex for Questionnaire-level templateExtract fields', () => {
+      const templateExtractUrl =
+        'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-templateExtract';
+      const rootQuestionnaire = {
+        resourceType: 'Questionnaire',
+        extension: ['#patientTemplate', '#observationTemplate'].map(reference => ({
+          url: templateExtractUrl,
+          extension: [{ url: 'template', valueReference: { reference } }]
+        })),
+        item: []
+      };
+
+      expect(service.import(
+        'resourceId',
+        rootQuestionnaire,
+        '',
+        'valueString',
+        false,
+        1
+      )).toBeTrue();
+
+      service.finalExpressionExtension.valueString = '%resource.id';
+      const saved = service.export('resourceId', service.finalExpressionExtension) as {
+        extension: {
+          extension: { url: string; valueString?: string }[];
+        }[];
+      };
+
+      expect(saved.extension[0].extension.some(extension => extension.url === 'resourceId'))
+        .toBeFalse();
+      expect(saved.extension[1].extension.find(extension => extension.url === 'resourceId'))
+        .toEqual({ url: 'resourceId', valueString: '%resource.id' });
+    });
+
+    it('should reject an ambiguous Questionnaire-level templateExtract target', () => {
+      const templateExtractUrl =
+        'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-templateExtract';
+      const rootQuestionnaire = {
+        resourceType: 'Questionnaire',
+        extension: ['#patientTemplate', '#observationTemplate'].map(reference => ({
+          url: templateExtractUrl,
+          extension: [{ url: 'template', valueReference: { reference } }]
+        })),
+        item: []
+      };
+
+      expect(service.import(
+        'resourceId',
+        rootQuestionnaire,
+        '',
+        'valueString'
+      )).toBeFalse();
+      expect(service.export(
+        'resourceId',
+        { url: 'resourceId', valueString: '%resource.id' }
+      )).toBeUndefined();
+    });
+
+    it('should reject an unknown field targeted at a templateExtract parent', () => {
+      expect(service.import(
+        'fullUrl2',
+        questionnaire,
+        'target',
+        'valueString',
+        false,
+        2
+      )).toBeFalse();
+      expect(service.isExtractionExpression()).toBeFalse();
+    });
+
+    it('should keep an unknown field in ordinary expression mode without a template parent target', () => {
+      expect(service.import(
+        'fullUrl2',
+        questionnaire,
+        'target',
+        'valueString'
+      )).toBeTrue();
+      expect(service.isExtractionExpression()).toBeFalse();
+      expect(service.uneditableVariables.map(variable => variable.name)).toEqual([
+        'questionnaireVariable',
+        'parentVariable'
+      ]);
+    });
+
     it('should load the allocateId demo Questionnaire with its scoped variables', () => {
       service.import(
         extractionExpressionUri,

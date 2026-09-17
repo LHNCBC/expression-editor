@@ -1,0 +1,74 @@
+{
+  "resourceType": "Questionnaire",
+  "id": "template-extraction-root-missing-fullurl",
+  "status": "active",
+  "extension": [
+    {
+      "url": "http://hl7.org/fhir/StructureDefinition/variable",
+      "valueExpression": {
+        "name": "givenName",
+        "language": "text/fhirpath",
+        "expression": "%resource.item.where(linkId='given').answer.value.first()"
+      }
+    },
+    {
+      "url": "http://hl7.org/fhir/StructureDefinition/variable",
+      "valueExpression": {
+        "name": "familyName",
+        "language": "text/fhirpath",
+        "expression": "%resource.item.where(linkId='family').answer.value.first()"
+      }
+    },
+    {
+      "url": "http://hl7.org/fhir/StructureDefinition/variable",
+      "valueExpression": {
+        "name": "birthDate",
+        "language": "text/fhirpath",
+        "expression": "%resource.item.where(linkId='dob').answer.value.first()"
+      }
+    },
+    {
+      "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-templateExtract",
+      "extension": [
+        {
+          "url": "template",
+          "valueReference": {
+            "reference": "#patient-template"
+          }
+        }
+      ]
+    }
+  ],
+  "contained": [
+    {
+      "resourceType": "Patient",
+      "id": "patient-template",
+      "name": [
+        {
+          "given": [
+            "placeholder"
+          ],
+          "family": "placeholder"
+        }
+      ],
+      "birthDate": "1900-01-01"
+    }
+  ],
+  "item": [
+    {
+      "linkId": "given",
+      "text": "Given name",
+      "type": "string"
+    },
+    {
+      "linkId": "family",
+      "text": "Family name",
+      "type": "string"
+    },
+    {
+      "linkId": "dob",
+      "text": "Date of birth",
+      "type": "date"
+    }
+  ]
+}

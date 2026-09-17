@@ -177,6 +177,24 @@ describe('ExpressionEditorComponent', () => {
       .toBe('%questionnaire.id');
   });
 
+  it('should treat a null expressionParentIndex as omitted for an ordinary expression', async () => {
+    fixture.componentRef.setInput('fhirQuestionnaire', bmi);
+    fixture.componentRef.setInput('itemLinkId', '/39156-5');
+    fixture.componentRef.setInput(
+      'expressionUri',
+      'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression'
+    );
+    fixture.componentRef.setInput('expressionParentIndex', null);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(component.expressionParentIndex).toBeNull();
+    expect(component.loadError).toBeFalse();
+    expect(fixture.nativeElement.shadowRoot.querySelector('#expression-editor-base-dialog'))
+      .not.toBeNull();
+  });
+
   it('should display a Questionnaire-level allocated ID for Form Builder inputs', async () => {
     const questionnaire = {
       resourceType: 'Questionnaire',
@@ -218,6 +236,71 @@ describe('ExpressionEditorComponent', () => {
     expect(component.expressionSyntax).toBe('fhirpath');
     expect(editor.querySelector('#output-expression-type').value).toBe('fhirpath');
     expect(component.isExtractionExpression).toBeTrue();
+  });
+
+  it('should edit a missing Questionnaire-level templateExtract field in extraction mode', async () => {
+    const variableUrl = 'http://hl7.org/fhir/StructureDefinition/variable';
+    const questionnaire = {
+      resourceType: 'Questionnaire',
+      extension: [
+        ...['givenName', 'familyName', 'birthDate'].map(name => ({
+          url: variableUrl,
+          valueExpression: {
+            name,
+            language: 'text/fhirpath',
+            expression: `'${name}'`
+          }
+        })),
+        {
+          url: 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-templateExtract',
+          extension: [{
+            url: 'template',
+            valueReference: { reference: '#patientTemplate' }
+          }]
+        }
+      ],
+      item: [{ linkId: 'given', type: 'string' }]
+    };
+    fixture.componentRef.setInput('fhirQuestionnaire', questionnaire);
+    fixture.componentRef.setInput('itemLinkId', '');
+    fixture.componentRef.setInput('expressionUri', 'fullUrl');
+    fixture.componentRef.setInput('expressionValueType', 'valueString');
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const editor = fixture.nativeElement.shadowRoot;
+    expect(component.isExtractionExpression).toBeTrue();
+    expect(editor.querySelector('#final-expression-section')).not.toBeNull();
+    expect(component.variables).toEqual([]);
+    const variableLabels = [...editor.querySelectorAll(
+      '#uneditable-variables-section .variable-column-label'
+    )].map((label: HTMLElement) => label.textContent.trim());
+    expect(variableLabels).not.toContain('givenName');
+    expect(variableLabels).not.toContain('familyName');
+    expect(variableLabels).not.toContain('birthDate');
+
+    const expressionInput = editor.querySelector('#final-expression');
+    expressionInput.value = '%resource.id';
+    expressionInput.dispatchEvent(new Event('input'));
+    expressionInput.dispatchEvent(new Event('blur'));
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    let savedQuestionnaire;
+    component.save.subscribe(questionnaireResult => savedQuestionnaire = questionnaireResult);
+    component.preExport();
+    await new Promise(resolve => setTimeout(resolve, 250));
+
+    const templateExtract = savedQuestionnaire.extension.find(extension =>
+      extension.url ===
+        'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-templateExtract'
+    );
+    expect(templateExtract.extension.find(extension => extension.url === 'fullUrl')).toEqual({
+      url: 'fullUrl',
+      valueString: '%resource.id'
+    });
+    expect(savedQuestionnaire.extension.some(extension => extension.url === 'fullUrl')).toBeFalse();
   });
 
   [

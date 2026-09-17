@@ -29,6 +29,17 @@ interface AppEnvironment {
   appName?: string;
 }
 
+/**
+ * Converts a populated HTML attribute to a number while preserving an omitted
+ * optional input as null.
+ *
+ * @param value - The Angular input or HTML attribute value.
+ * @returns null when no value was supplied; otherwise Angular's numeric coercion result.
+ */
+function optionalNumberAttribute(value: unknown): number | null {
+  return value === null || value === undefined || value === '' ? null : numberAttribute(value);
+}
+
 @Component({
   // tslint:disable-next-line:component-selector
   selector: 'lhc-expression-editor',
@@ -57,11 +68,11 @@ export class ExpressionEditorComponent implements OnInit, OnChanges, OnDestroy {
   @Input() expressionUri = '';
   @Input() expressionValueType: ExpressionValueType = 'valueExpression';
   /**
-   * Optional index in the selected item's extension array of the templateExtract
-   * extension that owns expressionUri. This is only needed for templateExtract
-   * fields when an item has multiple templateExtract extensions.
+   * Optional index in the target Questionnaire or item's extension array of the
+   * templateExtract extension that owns expressionUri. This is only needed for
+   * templateExtract fields when the target has multiple templateExtract extensions.
    */
-  @Input({ transform: numberAttribute }) expressionParentIndex: number | null = null;
+  @Input({ transform: optionalNumberAttribute }) expressionParentIndex: number | null = null;
   @Input() itemVariablesReadOnly = false;
   @Input() lhcStyle: SimpleStyle = {};
   @Input() display: DisplaySectionControl = {};
@@ -106,6 +117,7 @@ export class ExpressionEditorComponent implements OnInit, OnChanges, OnDestroy {
 
   expressionType;
   isExtractionExpression = false;
+  rootOutputExpressionTarget = false;
 
   // Flag to track if export is pending after validation
   isExportPending = false;
@@ -383,6 +395,7 @@ export class ExpressionEditorComponent implements OnInit, OnChanges, OnDestroy {
         this.expressionParentIndex
       );
       this.isExtractionExpression = this.variableService.isExtractionExpression();
+      this.rootOutputExpressionTarget = this.variableService.hasOutputExpressionTarget();
       if (this.loadError) {
         this.liveAnnouncer.announce(this.errorLoading);
       }
@@ -412,7 +425,8 @@ export class ExpressionEditorComponent implements OnInit, OnChanges, OnDestroy {
    */
   preExport(): void {
     const hasOutputExpression = Boolean(
-      this.display.outputExpressionSection && this.expressionUri && this.itemLinkId
+      this.display.outputExpressionSection && this.expressionUri &&
+      (this.itemLinkId || this.rootOutputExpressionTarget)
     );
     const hasVariablesToValidate = this.display.itemVariablesSection && this.variables.length > 0;
 

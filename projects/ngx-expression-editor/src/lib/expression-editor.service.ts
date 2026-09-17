@@ -265,6 +265,16 @@ export class ExpressionEditorService {
   }
 
   /**
+   * Whether import resolved a safe location for an output expression.
+   * This distinguishes supported Questionnaire-root extraction fields from
+   * root variable-editing mode.
+   * @return true when an existing or missing output expression has a resolved target
+   */
+  hasOutputExpressionTarget(): boolean {
+    return this.finalExpressionLocation !== null;
+  }
+
+  /**
    * Extract all variable names from the variable extensions of a list of items.
    * @returns - An array of variable names.
    */
@@ -702,10 +712,10 @@ export class ExpressionEditorService {
    * @param linkIdContext - Context to use for final expression
    * @param expressionValueType - FHIR value property used to store the expression
    * @param itemVariablesReadOnly - Treat variables declared on the current item as read-only
-   * @param expressionParentIndex - Optional index in the selected item's extension
-   *  array of the templateExtract extension that owns expressionUri. This is only
-   *  needed for templateExtract fields when an item has multiple templateExtract
-   *  extensions.
+   * @param expressionParentIndex - Optional index in the target Questionnaire or
+   *  item's extension array of the templateExtract extension that owns
+   *  expressionUri. This is only needed for templateExtract fields when the
+   *  target has multiple templateExtract extensions.
    * @return true if load was successful
    */
   import(
@@ -724,7 +734,7 @@ export class ExpressionEditorService {
     this.fhir = copy(questionnaire);
     this.extractionMode = this.inferExtractionMode(
       expressionUri,
-      this.fhir.item,
+      this.fhir,
       linkIdContext,
       expressionValueType
     );
@@ -760,8 +770,12 @@ export class ExpressionEditorService {
         this.variables = (this.extractionMode || this.itemVariablesReadOnly) ? [] :
           this.extractTopLevelVariables(this.fhir);
 
-        // Since we don't have a target item the output expression does not make sense so hide it.
-        expressionUri = '';
+        // Root-level output expressions are supported only when their location
+        // identifies a recognized SDC extraction expression. Otherwise root
+        // mode remains dedicated to editing Questionnaire variables.
+        if (!this.extractionMode) {
+          expressionUri = '';
+        }
       }
 
       this.variables.forEach((variable) => {
@@ -799,12 +813,18 @@ export class ExpressionEditorService {
       this.questionsChange.next(this.questions);
 
       if (expressionUri) {
-        const expression = this.extractExpression(
-          expressionUri,
-          this.fhir.item,
-          linkIdContext,
-          expressionValueType
-        );
+        const expression = linkIdContext ?
+          this.extractExpression(
+            expressionUri,
+            this.fhir.item,
+            linkIdContext,
+            expressionValueType
+          ) :
+          this.extractExpressionFromExtensions(
+            expressionUri,
+            this.fhir.extension,
+            expressionValueType
+          );
 
         if (expression !== null) {
           this.finalExpression = expressionValueType === 'valueString' ?
@@ -907,26 +927,10 @@ export class ExpressionEditorService {
   ): any | null {
     for (const item of items) {
       if (item.linkId === linkId && item.extension) {
-        const match = this.findExpressionExtension(
-          item.extension,
+        return this.extractExpressionFromExtensions(
           expressionUri,
-          expressionValueType
-        );
-        if (match) {
-          const container = this.getExtensionContainer(item.extension, match.parentPath);
-          const finalExpression = match.extension;
-          container.splice(match.index, 1);
-          this.finalExpressionLocation = {
-            index: match.index,
-            parentPath: match.parentPath
-          };
-
-          return finalExpression;
-        }
-
-        this.finalExpressionLocation = this.findMissingExpressionLocation(
           item.extension,
-          expressionUri
+          expressionValueType
         );
       } else if (item.item) {
         const expression = this.extractExpression(expressionUri, item.item, linkId, expressionValueType);
@@ -939,22 +943,67 @@ export class ExpressionEditorService {
   }
 
   /**
+   * Get and remove an output expression from an extension array, preserving its
+   * location so an edited or newly created expression can be restored there.
+   * @param expressionUri - Expression extension URL
+   * @param extensions - Extension array owned by the target Questionnaire or item
+   * @param expressionValueType - FHIR value property used to store the expression
+   * @return The extracted expression, or null when the requested field is missing
+   */
+  private extractExpressionFromExtensions(
+    expressionUri: string,
+    extensions: FhirExtension[],
+    expressionValueType: ExpressionValueType
+  ): FhirExtension | null {
+    if (!Array.isArray(extensions)) {
+      return null;
+    }
+
+    const match = this.findExpressionExtension(
+      extensions,
+      expressionUri,
+      expressionValueType
+    );
+    if (match) {
+      const container = this.getExtensionContainer(extensions, match.parentPath);
+      const finalExpression = match.extension;
+      container.splice(match.index, 1);
+      this.finalExpressionLocation = {
+        index: match.index,
+        parentPath: match.parentPath
+      };
+
+      return finalExpression;
+    }
+
+    this.finalExpressionLocation = this.findMissingExpressionLocation(
+      extensions,
+      expressionUri
+    );
+    return null;
+  }
+
+  /**
    * Infer whether a recognized expression extension is evaluated during SDC
    * extraction. Unknown extension paths retain standard expression behavior.
    */
   private inferExtractionMode(
     expressionUri: string,
-    items,
+    questionnaire,
     linkId: string,
     expressionValueType: ExpressionValueType
   ): boolean {
-    if (!Array.isArray(items) || !linkId) {
-      return this.EXTRACTION_EXPRESSION_URIS.has(expressionUri);
+    if (this.expressionParentIndex !== null &&
+      !this.TEMPLATE_EXTRACT_BUNDLE_EXPRESSION_URIS.has(expressionUri)) {
+      this.expressionTargetError = true;
+      return false;
     }
 
-    const item = this.findItemById(items, linkId);
-    const match = item?.extension ? this.findExpressionExtension(
-      item.extension,
+    const item = linkId && Array.isArray(questionnaire?.item) ?
+      this.findItemById(questionnaire.item, linkId) : null;
+    const extensions = linkId ? item?.extension : questionnaire?.extension;
+    const match = Array.isArray(extensions) ? this.findExpressionExtension(
+      extensions,
       expressionUri,
       expressionValueType
     ) : null;
@@ -965,7 +1014,7 @@ export class ExpressionEditorService {
 
     if (this.EXTRACTION_EXPRESSION_URIS.has(expressionUri) ||
       (this.TEMPLATE_EXTRACT_BUNDLE_EXPRESSION_URIS.has(expressionUri) &&
-        this.findMissingExpressionLocation(item?.extension, expressionUri))) {
+        this.findMissingExpressionLocation(extensions, expressionUri))) {
       return true;
     }
 
@@ -1458,6 +1507,20 @@ export class ExpressionEditorService {
         variablesAdded.concat(topLevelExpression.filter(Boolean))
       );
     } else {
+      if (finalExpression && this.finalExpressionLocation) {
+        if (!Array.isArray(fhir.extension)) {
+          fhir.extension = [];
+        }
+        const container = this.getExtensionContainer(
+          fhir.extension,
+          this.finalExpressionLocation.parentPath
+        );
+        container.splice(
+          Math.min(this.finalExpressionLocation.index, container.length),
+          0,
+          finalExpression
+        );
+      }
       this.insertExtensions(fhir, fhir.item, this.linkIdContext, variablesPresentInitially, variablesAdded);
     }
 

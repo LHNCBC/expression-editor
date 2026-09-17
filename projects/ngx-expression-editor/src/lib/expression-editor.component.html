@@ -77,7 +77,7 @@
           </section>
         }
 
-        @if (display.outputExpressionSection && expressionUri && itemLinkId) {
+        @if (display.outputExpressionSection && expressionUri && (itemLinkId || rootOutputExpressionTarget)) {
           <section id="final-expression-section" class="mb-3">
             <h2 [style]="defaultLhcStyle.h2" class="final-expression-title">{{expressionLabel}}</h2>
 
