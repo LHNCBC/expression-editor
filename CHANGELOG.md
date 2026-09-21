@@ -5,7 +5,7 @@ This project follows [Semantic Versioning](http://semver.org/).
 ## [5.1.0] 2026-09-03
 ### Added
 - Added extraction expression context support, including scoped SDC `extractAllocateId` variables.
-- Added the `expressionValueType` inputs with a backward-compatible defaults.
+- Added the `expressionValueType` input, defaulting to `valueExpression` for backward compatibility.
 - Added support for importing and exporting string-backed FHIRPath expressions with arbitrary extension URIs.
 - Added the `itemVariablesReadOnly` input for displaying current-item variables without allowing them to be modified.
 - Added a dedicated display for allocated ID variables available to extraction expressions.
