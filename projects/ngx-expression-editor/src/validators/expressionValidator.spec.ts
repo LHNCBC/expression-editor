@@ -108,6 +108,26 @@ describe('expressionValidator', () => {
     expect(result).toBeNull();
   });
 
+  it('should allow the intrinsic %ucum variable during extraction', () => {
+    const control = new FormControl(
+      "iif(%context.answer.valueQuantity.system = %ucum, 'ucum', 'other')"
+    );
+    const extractionValidationParam = {
+      ...validationParam,
+      variableNames: JSON.stringify({
+        context: {
+          answer: [{
+            valueQuantity: { system: 'http://unitsofmeasure.org' }
+          }]
+        }
+      })
+    };
+
+    const result = expressionValidator(extractionValidationParam, false, ['patient'])(control);
+
+    expect(result).toBeNull();
+  });
+
   it('should not treat a conditional defineVariable as available in another branch', () => {
     const control = new FormControl(
       "iif(%context.answer.exists(), %patient.id, %context.defineVariable('patient'))"

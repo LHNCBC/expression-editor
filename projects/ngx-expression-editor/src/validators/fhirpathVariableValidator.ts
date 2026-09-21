@@ -7,6 +7,10 @@ interface FhirPathAstNode {
   children?: FhirPathAstNode[];
 }
 
+// Environment variables supplied intrinsically by the FHIRPath evaluator do
+// not need to be provided by the Questionnaire expression context.
+const FHIRPATH_INTRINSIC_VARIABLE_NAMES = ['ucum'];
+
 /**
  * Finds the first environment variable that is not available to an expression.
  * Parsing the expression prevents variable-like text in string literals from
@@ -27,7 +31,10 @@ export function findUnavailableEnvironmentVariable(
     return null;
   }
 
-  const availableNames = new Set(availableVariableNames);
+  const availableNames = new Set([
+    ...FHIRPATH_INTRINSIC_VARIABLE_NAMES,
+    ...availableVariableNames
+  ]);
   return findFirstUnavailableVariable(ast, availableNames);
 }
 

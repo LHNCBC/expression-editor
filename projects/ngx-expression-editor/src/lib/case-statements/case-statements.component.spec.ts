@@ -149,6 +149,26 @@ describe('CaseStatementsComponent', () => {
       .toBe("'%encounter.id'");
   });
 
+  [true, false].forEach(outputExpressions => {
+    it(`should allow %ucum in extraction case conditions when outputExpressions is ${outputExpressions}`, () => {
+      const service = TestBed.inject(ExpressionEditorService);
+      spyOn(service, 'isExtractionExpression').and.returnValue(true);
+      spyOn(service, 'getContextVariableNamesForExpressionValidation').and.returnValue({
+        context: {
+          answer: [{
+            valueQuantity: { system: 'http://unitsofmeasure.org' }
+          }]
+        }
+      });
+      component.syntax = 'fhirpath';
+      component.outputExpressions = outputExpressions;
+      const expression = "iif(%context.answer.valueQuantity.system = %ucum, 'ucum', 'other')";
+
+      expect(component.transformIfSimple('condition', expression, false, false, null))
+        .toBe(expression);
+    });
+  });
+
   it('should preserve launch context warnings for ordinary cases', () => {
     const service = TestBed.inject(ExpressionEditorService);
     spyOn(service, 'isExtractionExpression').and.returnValue(false);
