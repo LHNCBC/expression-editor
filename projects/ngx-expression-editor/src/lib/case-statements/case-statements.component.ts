@@ -725,8 +725,9 @@ export class CaseStatementsComponent implements OnInit, OnChanges, OnDestroy, Af
 
       return this.pipe.transform(processedExpression, this.expressionEditorService.variables.map(e => e.label));
     } else {
-      // Calling fhirpath.evaluate only on Case condition.
-      if (this.outputExpressions) {
+      // Conditions are always FHIRPath expressions. The outputExpressions option
+      // controls only whether output and default values are expressions or strings.
+      if (!isOutput || this.outputExpressions) {
         if (!processedExpression) {
           if (ref && ref?.control?.dirty) {
             return ExpressionEditorService.EXP_REQUIRED_ERR_MSG;

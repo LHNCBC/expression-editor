@@ -109,6 +109,46 @@ describe('CaseStatementsComponent', () => {
     });
   });
 
+  [
+    '%patient.id.exists()',
+    'iif(%context.answer.exists(), %patient.id.exists(), false)'
+  ].forEach(condition => {
+    it(`should block extraction cases with string outputs and a forbidden condition: ${condition}`, () => {
+      const service = TestBed.inject(ExpressionEditorService);
+      spyOn(service, 'isExtractionExpression').and.returnValue(true);
+      spyOn(service, 'getContextVariableNamesForExpressionValidation').and.returnValue({
+        context: { answer: [] }
+      });
+      component.syntax = 'fhirpath';
+      component.outputExpressions = false;
+      component.cases = [{ condition, output: 'yes' }];
+      component.defaultCase = 'no';
+      fixture.detectChanges();
+
+      component.onChange();
+
+      expect(component.cases[0].error.condition).toBe(
+        '%patient is not available in an extraction expression. ' +
+        'Use an allocated ID or an extraction-context variable instead.'
+      );
+      expect(component.hasError).toBeTrue();
+      expect(service.getValidationResult().errorInOutputCaseStatement).toBeTrue();
+    });
+  });
+
+  it('should treat output and default values as strings when output expressions are disabled', () => {
+    const service = TestBed.inject(ExpressionEditorService);
+    spyOn(service, 'isExtractionExpression').and.returnValue(true);
+    component.syntax = 'fhirpath';
+    component.outputExpressions = false;
+
+    expect(component.transformIfSimple('condition', 'true', false, false, null)).toBe('true');
+    expect(component.transformIfSimple('output', '%patient.id', true, false, null))
+      .toBe("'%patient.id'");
+    expect(component.transformIfSimple('default', '%encounter.id', true, false, null))
+      .toBe("'%encounter.id'");
+  });
+
   it('should preserve launch context warnings for ordinary cases', () => {
     const service = TestBed.inject(ExpressionEditorService);
     spyOn(service, 'isExtractionExpression').and.returnValue(false);
