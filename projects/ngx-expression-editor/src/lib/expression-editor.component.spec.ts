@@ -177,6 +177,66 @@ describe('ExpressionEditorComponent', () => {
       .toBe('%questionnaire.id');
   });
 
+  it('should report an expression target error for an invalid expressionParentIndex', async () => {
+    fixture.componentRef.setInput('fhirQuestionnaire', allocateIdQuestionnaire);
+    fixture.componentRef.setInput('itemLinkId', '/39156-5');
+    fixture.componentRef.setInput('expressionUri', 'fullUrl');
+    fixture.componentRef.setInput('expressionValueType', 'valueString');
+    fixture.componentRef.setInput('expressionParentIndex', 99);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(component.loadError).toBeTrue();
+    expect(component.errorLoading).toBe(
+      'Could not determine which expression to edit; the expression target is invalid, missing, or ambiguous.'
+    );
+  });
+
+  it('should report an expression target error for a duplicate field in the selected parent', async () => {
+    const templateExtractUrl =
+      'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-templateExtract';
+    fixture.componentRef.setInput('fhirQuestionnaire', {
+      resourceType: 'Questionnaire',
+      item: [{
+        linkId: 'patient',
+        extension: [{
+          url: templateExtractUrl,
+          extension: [{
+            url: 'template',
+            valueReference: { reference: '#patientTemplate' }
+          }, {
+            url: 'fullUrl',
+            valueString: '%first'
+          }, {
+            url: 'fullUrl',
+            valueString: '%second'
+          }]
+        }]
+      }]
+    });
+    fixture.componentRef.setInput('itemLinkId', 'patient');
+    fixture.componentRef.setInput('expressionUri', 'fullUrl');
+    fixture.componentRef.setInput('expressionValueType', 'valueString');
+    fixture.componentRef.setInput('expressionParentIndex', 0);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(component.loadError).toBeTrue();
+    expect(component.errorLoading).toContain('Could not determine which expression to edit');
+  });
+
+  it('should keep the Questionnaire load error for a non-Questionnaire resource', async () => {
+    fixture.componentRef.setInput('fhirQuestionnaire', { resourceType: 'Patient' });
+    fixture.componentRef.setInput('itemLinkId', 'patient');
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(component.loadError).toBeTrue();
+    expect(component.errorLoading).toBe(
+      'Could not detect a FHIR Questionnaire; please try a different file.'
+    );
+  });
+
   it('should treat a null expressionParentIndex as omitted for an ordinary expression', async () => {
     fixture.componentRef.setInput('fhirQuestionnaire', bmi);
     fixture.componentRef.setInput('itemLinkId', '/39156-5');

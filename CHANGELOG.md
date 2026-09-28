@@ -16,6 +16,7 @@ This project follows [Semantic Versioning](http://semver.org/).
 - Added safe targeting of bundle fields when an item contains multiple `templateExtract` extensions.
 - Added missing `definitionExtract` bundle fields inside their `definitionExtract` extension instead of on the item, and allowed `expressionParentIndex` to select a `definitionExtract` extension.
 - Prevented blank Output Expressions from being saved when no variables are present.
+- Reported an invalid, missing, or ambiguous expression target separately from a non-Questionnaire input.
 - Inferred extraction behavior from recognized SDC extension paths.
 
 ## [5.0.7] 2026-04-27

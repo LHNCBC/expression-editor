@@ -85,6 +85,9 @@ export class ExpressionEditorComponent implements OnInit, OnChanges, OnDestroy {
   appName = '';
   noErrorMessage = "There are no more errors on the page.";
   errorLoading = 'Could not detect a FHIR Questionnaire; please try a different file.';
+  private readonly questionnaireLoadError = this.errorLoading;
+  private readonly expressionTargetLoadError =
+    'Could not determine which expression to edit; the expression target is invalid, missing, or ambiguous.';
   expressionSyntax: string;
   simpleExpression: string;
   finalExpression: string;
@@ -398,6 +401,8 @@ export class ExpressionEditorComponent implements OnInit, OnChanges, OnDestroy {
       this.isExtractionExpression = this.variableService.isExtractionExpression();
       this.rootOutputExpressionTarget = this.variableService.hasOutputExpressionTarget();
       if (this.loadError) {
+        this.errorLoading = this.variableService.hasExpressionTargetError() ?
+          this.expressionTargetLoadError : this.questionnaireLoadError;
         this.liveAnnouncer.announce(this.errorLoading);
       }
       this.disableInterfaceToggle = this.variableService.needsAdvancedInterface;

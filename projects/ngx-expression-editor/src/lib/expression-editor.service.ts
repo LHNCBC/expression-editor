@@ -279,6 +279,15 @@ export class ExpressionEditorService {
   }
 
   /**
+   * Whether import failed because the requested expression target is invalid,
+   * missing, or ambiguous, rather than because the input is not a Questionnaire.
+   * @return true when the last import rejected the expression target
+   */
+  hasExpressionTargetError(): boolean {
+    return this.expressionTargetError;
+  }
+
+  /**
    * Extract all variable names from the variable extensions of a list of items.
    * @returns - An array of variable names.
    */
