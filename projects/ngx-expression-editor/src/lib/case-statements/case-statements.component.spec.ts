@@ -169,6 +169,17 @@ describe('CaseStatementsComponent', () => {
     });
   });
 
+  it('should allow %factory in extraction case outputs when expressions are enabled', () => {
+    const service = TestBed.inject(ExpressionEditorService);
+    spyOn(service, 'isExtractionExpression').and.returnValue(true);
+    component.syntax = 'fhirpath';
+    component.outputExpressions = true;
+    const expression = "%factory.Coding('http://loinc.org', '8302-2')";
+
+    expect(component.transformIfSimple('output', expression, true, false, null))
+      .toBe(expression);
+  });
+
   it('should preserve launch context warnings for ordinary cases', () => {
     const service = TestBed.inject(ExpressionEditorService);
     spyOn(service, 'isExtractionExpression').and.returnValue(false);

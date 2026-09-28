@@ -128,6 +128,16 @@ describe('expressionValidator', () => {
     expect(result).toBeNull();
   });
 
+  it('should allow the intrinsic %factory variable during extraction', () => {
+    const control = new FormControl(
+      "%factory.Coding('http://loinc.org', '8302-2')"
+    );
+
+    const result = expressionValidator(validationParam, false, ['patient'])(control);
+
+    expect(result).toBeNull();
+  });
+
   it('should not treat a conditional defineVariable as available in another branch', () => {
     const control = new FormControl(
       "iif(%context.answer.exists(), %patient.id, %context.defineVariable('patient'))"

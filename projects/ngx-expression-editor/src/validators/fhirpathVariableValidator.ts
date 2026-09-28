@@ -9,7 +9,7 @@ interface FhirPathAstNode {
 
 // Environment variables supplied intrinsically by the FHIRPath evaluator do
 // not need to be provided by the Questionnaire expression context.
-const FHIRPATH_INTRINSIC_VARIABLE_NAMES = ['ucum'];
+const FHIRPATH_INTRINSIC_VARIABLE_NAMES = ['factory', 'ucum'];
 
 /**
  * Finds the first environment variable that is not available to an expression.
