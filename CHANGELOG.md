@@ -4,20 +4,17 @@ This project follows [Semantic Versioning](http://semver.org/).
 
 ## [5.1.0] 2026-09-03
 ### Added
-- Added extraction expression context support, including scoped SDC `extractAllocateId` variables.
+- Added support for editing SDC template and definition extraction expressions, including scoped `extractAllocateId` variables, string-backed values, nested extraction fields, and selection among multiple extraction extensions.
 - Added the `expressionValueType` input, defaulting to `valueExpression` for backward compatibility.
 - Added support for importing and exporting string-backed FHIRPath expressions with arbitrary extension URIs.
+- Added the `expressionParentIndex` input for selecting the owning extraction extension when more than one is present.
 - Added the `itemVariablesReadOnly` input for displaying current-item variables without allowing them to be modified.
-- Added a dedicated display for allocated ID variables available to extraction expressions.
+- Added dedicated displays for extraction-context and allocated ID variables available to extraction expressions.
 
 ### Fixed
 - Fixed discovery of variables declared on nested Questionnaire items.
-- Preserved nested expression extension placement when importing and exporting, including the template extraction `fullUrl`, `resourceId`, `ifNoneMatch`, `ifModifiedSince`, `ifMatch`, and `ifNoneExist` sub-extensions.
-- Added safe targeting of bundle fields when an item contains multiple `templateExtract` extensions.
-- Added missing `definitionExtract` bundle fields inside their `definitionExtract` extension instead of on the item, and allowed `expressionParentIndex` to select a `definitionExtract` extension.
 - Prevented blank Output Expressions from being saved when no variables are present.
-- Reported an invalid, missing, or ambiguous expression target separately from a non-Questionnaire input.
-- Inferred extraction behavior from recognized SDC extension paths.
+- Validated case-statement conditions when outputs are configured as strings.
 
 ## [5.0.7] 2026-04-27
 ### Fixed
