@@ -69,8 +69,9 @@ export class ExpressionEditorComponent implements OnInit, OnChanges, OnDestroy {
   @Input() expressionValueType: ExpressionValueType = 'valueExpression';
   /**
    * Optional index in the target Questionnaire or item's extension array of the
-   * templateExtract extension that owns expressionUri. This is only needed for
-   * templateExtract fields when the target has multiple templateExtract extensions.
+   * definitionExtract or templateExtract extension that owns expressionUri. This
+   * is only needed for bundle fields when the target has more than one extract
+   * extension.
    */
   @Input({ transform: optionalNumberAttribute }) expressionParentIndex: number | null = null;
   @Input() itemVariablesReadOnly = false;

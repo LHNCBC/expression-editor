@@ -211,6 +211,10 @@ export class ExpressionEditorService {
     'ifMatch',
     'ifNoneExist'
   ]);
+  private EXTRACT_BUNDLE_EXPRESSION_URIS = new Map<string, Set<string>>([
+    [this.DEFINITION_EXTRACT_URI, this.DEFINITION_EXTRACT_BUNDLE_EXPRESSION_URIS],
+    [this.TEMPLATE_EXTRACT_URI, this.TEMPLATE_EXTRACT_BUNDLE_EXPRESSION_URIS]
+  ]);
   private EXTRACTION_EXPRESSION_URIS = new Set([
     'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-definitionExtract',
     'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-definitionExtractValue',
@@ -713,9 +717,9 @@ export class ExpressionEditorService {
    * @param expressionValueType - FHIR value property used to store the expression
    * @param itemVariablesReadOnly - Treat variables declared on the current item as read-only
    * @param expressionParentIndex - Optional index in the target Questionnaire or
-   *  item's extension array of the templateExtract extension that owns
-   *  expressionUri. This is only needed for templateExtract fields when the
-   *  target has multiple templateExtract extensions.
+   *  item's extension array of the definitionExtract or templateExtract
+   *  extension that owns expressionUri. This is only needed for bundle fields
+   *  when the target has more than one extract extension.
    * @return true if load was successful
    */
   import(
@@ -994,7 +998,7 @@ export class ExpressionEditorService {
     expressionValueType: ExpressionValueType
   ): boolean {
     if (this.expressionParentIndex !== null &&
-      !this.TEMPLATE_EXTRACT_BUNDLE_EXPRESSION_URIS.has(expressionUri)) {
+      !this.isExtractBundleExpressionUri(expressionUri)) {
       this.expressionTargetError = true;
       return false;
     }
@@ -1013,7 +1017,7 @@ export class ExpressionEditorService {
     }
 
     if (this.EXTRACTION_EXPRESSION_URIS.has(expressionUri) ||
-      (this.TEMPLATE_EXTRACT_BUNDLE_EXPRESSION_URIS.has(expressionUri) &&
+      (this.isExtractBundleExpressionUri(expressionUri) &&
         this.findMissingExpressionLocation(extensions, expressionUri))) {
       return true;
     }
@@ -1022,9 +1026,9 @@ export class ExpressionEditorService {
   }
 
   /**
-   * Find an expression extension at any extension depth. A supplied templateExtract
+   * Find an expression extension at any extension depth. A supplied extract
    * parent index restricts the search to that parent. Without an index, duplicate
-   * templateExtract field matches are treated as ambiguous.
+   * extract bundle field matches are treated as ambiguous.
    */
   private findExpressionExtension(
     extensions,
@@ -1033,9 +1037,9 @@ export class ExpressionEditorService {
   ): ExpressionExtensionMatch | null {
     const matches: ExpressionExtensionMatch[] = [];
 
-    if (this.TEMPLATE_EXTRACT_BUNDLE_EXPRESSION_URIS.has(expressionUri) &&
+    if (this.isExtractBundleExpressionUri(expressionUri) &&
       this.expressionParentIndex !== null) {
-      const parent = this.getSelectedTemplateExtractParent(extensions);
+      const parent = this.getSelectedExtractParent(extensions, expressionUri);
       if (!parent) {
         return null;
       }
@@ -1045,7 +1049,7 @@ export class ExpressionEditorService {
         expressionUri,
         expressionValueType,
         parent.parentPath,
-        [this.TEMPLATE_EXTRACT_URI],
+        [parent.extension.url],
         matches
       );
 
@@ -1066,7 +1070,7 @@ export class ExpressionEditorService {
       matches
     );
 
-    if (this.TEMPLATE_EXTRACT_BUNDLE_EXPRESSION_URIS.has(expressionUri)) {
+    if (this.isExtractBundleExpressionUri(expressionUri)) {
       const extractionMatches = matches.filter(match => this.isExtractionExpressionMatch(match));
       if (extractionMatches.length > 1) {
         this.expressionTargetError = true;
@@ -1131,35 +1135,35 @@ export class ExpressionEditorService {
     extensions,
     expressionUri: string
   ): ExpressionExtensionLocation | null {
-    if (!this.TEMPLATE_EXTRACT_BUNDLE_EXPRESSION_URIS.has(expressionUri) ||
-      !Array.isArray(extensions) || this.expressionTargetError) {
+    if (!this.isExtractBundleExpressionUri(expressionUri) || this.expressionTargetError) {
       return null;
     }
 
+    let parent: { extension: FhirExtension; parentPath: number[] } | null;
     if (this.expressionParentIndex !== null) {
-      const parent = this.getSelectedTemplateExtractParent(extensions);
-      return parent ? {
-        index: Array.isArray(parent.extension.extension) ? parent.extension.extension.length : 0,
-        parentPath: parent.parentPath
-      } : null;
+      parent = this.getSelectedExtractParent(extensions, expressionUri);
+    } else {
+      // A bundle field has no meaning outside an extract extension, and more
+      // than one candidate parent requires expressionParentIndex.
+      const parentLocations: { extension: FhirExtension; parentPath: number[] }[] = [];
+      this.collectExtractParents(extensions, [], parentLocations);
+      parent = parentLocations.length === 1 &&
+        this.isExtractBundleField(parentLocations[0].extension.url, expressionUri) ?
+        parentLocations[0] : null;
+      if (!parent) {
+        this.expressionTargetError = true;
+      }
     }
 
-    const parentLocations: { extension: FhirExtension; parentPath: number[] }[] = [];
-    this.collectTemplateExtractParents(extensions, [], parentLocations);
-    if (parentLocations.length > 1) {
-      this.expressionTargetError = true;
-      return null;
-    }
-
-    const parent = parentLocations[0];
     return parent ? {
       index: Array.isArray(parent.extension.extension) ? parent.extension.extension.length : 0,
       parentPath: parent.parentPath
     } : null;
   }
 
-  private getSelectedTemplateExtractParent(
-    extensions: FhirExtension[]
+  private getSelectedExtractParent(
+    extensions: FhirExtension[],
+    expressionUri: string
   ): { extension: FhirExtension; parentPath: number[] } | null {
     const parentIndex = this.expressionParentIndex;
     if (typeof parentIndex !== 'number' || !Number.isInteger(parentIndex) || parentIndex < 0) {
@@ -1167,8 +1171,8 @@ export class ExpressionEditorService {
       return null;
     }
 
-    const extension = extensions[parentIndex];
-    if (extension?.url !== this.TEMPLATE_EXTRACT_URI) {
+    const extension = Array.isArray(extensions) ? extensions[parentIndex] : undefined;
+    if (!this.isExtractBundleField(extension?.url, expressionUri)) {
       this.expressionTargetError = true;
       return null;
     }
@@ -1176,7 +1180,7 @@ export class ExpressionEditorService {
     return { extension, parentPath: [parentIndex] };
   }
 
-  private collectTemplateExtractParents(
+  private collectExtractParents(
     extensions: FhirExtension[],
     parentPath: number[],
     matches: { extension: FhirExtension; parentPath: number[] }[]
@@ -1187,12 +1191,29 @@ export class ExpressionEditorService {
 
     extensions.forEach((extension, index) => {
       const extensionPath = parentPath.concat(index);
-      if (extension.url === this.TEMPLATE_EXTRACT_URI) {
+      if (this.EXTRACT_BUNDLE_EXPRESSION_URIS.has(extension.url)) {
         matches.push({ extension, parentPath: extensionPath });
       } else if (Array.isArray(extension.extension)) {
-        this.collectTemplateExtractParents(extension.extension, extensionPath, matches);
+        this.collectExtractParents(extension.extension, extensionPath, matches);
       }
     });
+  }
+
+  /**
+   * Returns true if expressionUri names a definitionExtract or templateExtract
+   * bundle field.
+   */
+  private isExtractBundleExpressionUri(expressionUri: string): boolean {
+    return Array.from(this.EXTRACT_BUNDLE_EXPRESSION_URIS.values())
+      .some(fields => fields.has(expressionUri));
+  }
+
+  /**
+   * Returns true if expressionUri is a bundle field of the extract extension
+   * identified by parentUrl.
+   */
+  private isExtractBundleField(parentUrl: string | undefined, expressionUri: string): boolean {
+    return this.EXTRACT_BUNDLE_EXPRESSION_URIS.get(parentUrl)?.has(expressionUri) ?? false;
   }
 
   private getExtensionContainer(extensions, parentPath: number[]): FhirExtension[] {

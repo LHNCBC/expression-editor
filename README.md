@@ -32,9 +32,12 @@ object.
   `valueExpression` (the default) for the FHIR Expression datatype or
   `valueString` for string-backed extraction expressions.
 * `expressionParentIndex` - Optional index in the target Questionnaire or item's
-  `extension` array of the `templateExtract` extension that owns the output
-  expression. It is only needed for `templateExtract` fields when that target
-  contains multiple `templateExtract` extensions.
+  `extension` array of the `definitionExtract` or `templateExtract` extension
+  that owns a bundle field such as `fullUrl`. It is only needed when that target
+  contains more than one extract extension. Without it, a missing bundle field
+  is added to the target's only extract extension; the target is rejected if it
+  has no extract extension, more than one, or one that does not define the
+  field (for example, `resourceId` in `definitionExtract`).
 * `itemVariablesReadOnly` - In the standard expression context, when `true`,
   variables declared on the current item are shown with the other read-only
   variables in scope instead of in the editable Item Variables section.

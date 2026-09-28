@@ -1165,6 +1165,176 @@ describe('ExpressionEditorService', () => {
       expect(service.export('fullUrl', { url: 'fullUrl', valueString: '%changed' })).toBeUndefined();
     });
 
+    describe('definitionExtract bundle fields', () => {
+      const definitionExtractUrl =
+        'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-definitionExtract';
+      const templateExtractUrl =
+        'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-templateExtract';
+      const itemControl = {
+        url: 'http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl',
+        valueCodeableConcept: { coding: [{ code: 'text-box' }] }
+      };
+      const definitionExtract = (...fields) => ({
+        url: definitionExtractUrl,
+        extension: [{
+          url: 'definition',
+          valueCanonical: 'http://hl7.org/fhir/StructureDefinition/Patient'
+        }, ...fields]
+      });
+      const templateExtract = (...fields) => ({
+        url: templateExtractUrl,
+        extension: [{
+          url: 'template',
+          valueReference: { reference: '#patientTemplate' }
+        }, ...fields]
+      });
+      const questionnaireWithItemExtensions = (extension?) => ({
+        resourceType: 'Questionnaire',
+        item: [{ linkId: 'target', type: 'string', ...(extension ? { extension } : {}) }]
+      });
+      interface SavedItemExtensions {
+        item: {
+          extension: {
+            url: string;
+            extension?: { url: string; valueString?: string }[];
+          }[];
+        }[];
+      }
+
+      [
+        'fullUrl',
+        'ifNoneMatch',
+        'ifModifiedSince',
+        'ifMatch',
+        'ifNoneExist'
+      ].forEach(expressionUri => {
+        it(`should add a missing ${expressionUri} inside the only definitionExtract`, () => {
+          expect(service.import(
+            expressionUri,
+            questionnaireWithItemExtensions([itemControl, definitionExtract()]),
+            'target',
+            'valueString'
+          )).toBeTrue();
+          expect(service.isExtractionExpression()).toBeTrue();
+
+          service.finalExpressionExtension.valueString = `%${expressionUri}Value`;
+          const saved = service.export(
+            expressionUri,
+            service.finalExpressionExtension
+          ) as SavedItemExtensions;
+          const targetItem = saved.item[0];
+
+          expect(targetItem.extension[1].extension.find(extension => extension.url === expressionUri))
+            .toEqual({ url: expressionUri, valueString: `%${expressionUri}Value` });
+          expect(targetItem.extension.some(extension => extension.url === expressionUri)).toBeFalse();
+        });
+      });
+
+      it('should add a missing field to the definitionExtract selected by expressionParentIndex', () => {
+        expect(service.import(
+          'fullUrl',
+          questionnaireWithItemExtensions([itemControl, templateExtract(), definitionExtract()]),
+          'target',
+          'valueString',
+          false,
+          2
+        )).toBeTrue();
+
+        service.finalExpressionExtension.valueString = '%patientId';
+        const saved = service.export('fullUrl', service.finalExpressionExtension) as SavedItemExtensions;
+        const extensions = saved.item[0].extension;
+
+        expect(extensions[1].extension.some(extension => extension.url === 'fullUrl')).toBeFalse();
+        expect(extensions[2].extension.find(extension => extension.url === 'fullUrl'))
+          .toEqual({ url: 'fullUrl', valueString: '%patientId' });
+      });
+
+      it('should update fullUrl in the definitionExtract selected by expressionParentIndex', () => {
+        expect(service.import(
+          'fullUrl',
+          questionnaireWithItemExtensions([
+            templateExtract({ url: 'fullUrl', valueString: '%templateId' }),
+            definitionExtract({ url: 'fullUrl', valueString: '%definitionId' })
+          ]),
+          'target',
+          'valueString',
+          false,
+          1
+        )).toBeTrue();
+        expect(service.finalExpression).toBe('%definitionId');
+
+        service.finalExpressionExtension.valueString = '%updatedDefinitionId';
+        const saved = service.export('fullUrl', service.finalExpressionExtension) as SavedItemExtensions;
+        const extensions = saved.item[0].extension;
+
+        expect(extensions[0].extension.find(extension => extension.url === 'fullUrl').valueString)
+          .toBe('%templateId');
+        expect(extensions[1].extension.find(extension => extension.url === 'fullUrl').valueString)
+          .toBe('%updatedDefinitionId');
+      });
+
+      it('should reject a missing field when templateExtract and definitionExtract are both present', () => {
+        expect(service.import(
+          'fullUrl',
+          questionnaireWithItemExtensions([templateExtract(), definitionExtract()]),
+          'target',
+          'valueString'
+        )).toBeFalse();
+        expect(service.export('fullUrl', { url: 'fullUrl', valueString: '%id' })).toBeUndefined();
+      });
+
+      it('should reject resourceId for the only definitionExtract', () => {
+        expect(service.import(
+          'resourceId',
+          questionnaireWithItemExtensions([definitionExtract()]),
+          'target',
+          'valueString'
+        )).toBeFalse();
+        expect(service.export('resourceId', { url: 'resourceId', valueString: '%id' }))
+          .toBeUndefined();
+      });
+
+      it('should reject resourceId for a definitionExtract selected by expressionParentIndex', () => {
+        expect(service.import(
+          'resourceId',
+          questionnaireWithItemExtensions([templateExtract(), definitionExtract()]),
+          'target',
+          'valueString',
+          false,
+          1
+        )).toBeFalse();
+        expect(service.export('resourceId', { url: 'resourceId', valueString: '%id' }))
+          .toBeUndefined();
+      });
+
+      it('should reject an expressionParentIndex that does not select an extract extension', () => {
+        expect(service.import(
+          'fullUrl',
+          questionnaireWithItemExtensions([itemControl, definitionExtract()]),
+          'target',
+          'valueString',
+          false,
+          0
+        )).toBeFalse();
+      });
+
+      it('should reject a missing bundle field when the target has no extract extension', () => {
+        expect(service.import(
+          'fullUrl',
+          questionnaireWithItemExtensions([itemControl]),
+          'target',
+          'valueString'
+        )).toBeFalse();
+        expect(service.import(
+          'fullUrl',
+          questionnaireWithItemExtensions(),
+          'target',
+          'valueString'
+        )).toBeFalse();
+        expect(service.export('fullUrl', { url: 'fullUrl', valueString: '%id' })).toBeUndefined();
+      });
+    });
+
     [
       'resourceId',
       'ifNoneMatch',
