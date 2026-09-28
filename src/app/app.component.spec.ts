@@ -217,6 +217,78 @@ describe('AppComponent', () => {
     expect(app.itemVariablesReadOnly).toBeTrue();
   });
 
+  describe('template extraction selection reset', () => {
+    const templateQuestionnaire = {
+      resourceType: 'Questionnaire',
+      item: [{
+        linkId: 'template-item',
+        extension: [{
+          url: 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-templateExtract'
+        }]
+      }, {
+        linkId: 'ordinary-item'
+      }]
+    };
+
+    function selectFullUrl(app: AppComponent): void {
+      app.fhirQuestionnaire = templateQuestionnaire;
+      app.linkId = 'template-item';
+      const fullUrlIndex = app.expressionTypes.findIndex(option => option.uri === 'fullUrl');
+      app.expressionChange({ target: { value: `${fullUrlIndex}` } });
+      expect(app.expressionUri).toBe('fullUrl');
+      expect(app.expressionParentIndex).toBe(0);
+    }
+
+    function expectDefaultSelection(app: AppComponent): void {
+      expect(app.expressionUri).toBe(app.calculatedExpression);
+      expect(app.expressionValueType).toBe('valueExpression');
+      expect(app.expressionParentIndex).toBeNull();
+      expect(app.itemVariablesReadOnly).toBeFalse();
+    }
+
+    it('should reset a template extraction selection when switching to an item without templateExtract', () => {
+      const fixture = TestBed.createComponent(AppComponent);
+      const app = fixture.componentInstance;
+      fixture.detectChanges();
+      app.linkIds = [
+        { linkId: 'template-item', text: 'Template item' },
+        { linkId: 'ordinary-item', text: 'Ordinary item' }
+      ];
+      let onQuestionSelected;
+      spyOn(Def.Autocompleter, 'Prefetch').and.returnValue({ destroy: () => undefined });
+      spyOn(Def.Autocompleter.Event, 'observeListSelections').and.callFake((field, callback) => {
+        onQuestionSelected = callback;
+        return () => undefined;
+      });
+      app.composeAutocomplete();
+      selectFullUrl(app);
+
+      onQuestionSelected({
+        input_method: 'clicked',
+        val_typed_in: '',
+        final_val: 'Ordinary item',
+        item_code: 'ordinary-item'
+      });
+
+      expect(app.linkId).toBe('ordinary-item');
+      expect(app.rootLevel).toBeFalse();
+      expectDefaultSelection(app);
+    });
+
+    it('should reset a template extraction selection when switching to root level', () => {
+      const fixture = TestBed.createComponent(AppComponent);
+      const app = fixture.componentInstance;
+      app.autoComplete = jasmine.createSpyObj('autoComplete', ['setFieldToListValue', 'destroy']);
+      selectFullUrl(app);
+
+      app.rootLevel = true;
+      app.toggleRootLevel();
+
+      expect(app.linkId).toBe('');
+      expectDefaultSelection(app);
+    });
+  });
+
   it('should replace the autocomplete and selection observer when recomposed', () => {
     const fixture = TestBed.createComponent(AppComponent);
     const app = fixture.componentInstance;

@@ -224,6 +224,7 @@ export class AppComponent implements OnInit, OnDestroy {
         this.autoComplete.setFieldToListValue(this.defaultItemText);
       }
     }
+    this.resetTemplateExtractionSelectionIfUnavailable();
 
     this.changeDetectorRef.detectChanges();
   }
