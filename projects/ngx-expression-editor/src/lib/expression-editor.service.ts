@@ -745,13 +745,14 @@ export class ExpressionEditorService {
     this.expressionTargetError = false;
     this.finalExpressionLocation = null;
     this.fhir = copy(questionnaire);
-    this.extractionMode = this.inferExtractionMode(
-      expressionUri,
-      this.fhir,
-      linkIdContext,
-      expressionValueType
-    );
-    const loadSuccess = this.fhir.resourceType === 'Questionnaire';
+    const loadSuccess = this.fhir?.resourceType === 'Questionnaire';
+    this.extractionMode = loadSuccess ?
+      this.inferExtractionMode(
+        expressionUri,
+        this.fhir,
+        linkIdContext,
+        expressionValueType
+      ) : false;
 
     // this.linkIdContext is not set at the questionnaire level.
     if (loadSuccess && ((this.fhir.item && this.fhir.item.length) || !this.linkIdContext)) {

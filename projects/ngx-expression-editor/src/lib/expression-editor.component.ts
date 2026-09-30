@@ -1,6 +1,7 @@
 import { ChangeDetectorRef, Component, EventEmitter, inject, Input, numberAttribute, OnChanges, OnDestroy, OnInit, Output, ViewChild, ViewEncapsulation } from '@angular/core';
 
 import {
+  DialogStyle,
   DisplaySectionControl,
   ExpressionEditorService,
   ExpressionValueType,
@@ -99,6 +100,11 @@ export class ExpressionEditorComponent implements OnInit, OnChanges, OnDestroy {
   caseStatements: boolean;
   disableInterfaceToggle = false;
   loadError = false;
+  readonly expressionEditorDialogStyle: DialogStyle = {
+    dialogContentDiv: {
+      width: 'var(--expression-editor-dialog-width, 90%)'
+    }
+  };
   showCancelConfirmationDialog = false;
   selectItems: boolean;
   hideExpressionEditor = false;
@@ -499,6 +505,11 @@ export class ExpressionEditorComponent implements OnInit, OnChanges, OnDestroy {
    * results in a different beahvior.
    */
   closeDialog(): void {
+    if (this.loadError) {
+      this.closeLoadError();
+      return;
+    }
+
     this.liveAnnouncer.announce("Closing dialog");
     setTimeout(() => {
       if (this.calculateSum && !this.loadError) {
@@ -512,6 +523,16 @@ export class ExpressionEditorComponent implements OnInit, OnChanges, OnDestroy {
         this.showCancelConfirmationDialog = true;
       }
     }, 100);
+  }
+
+  /**
+   * Close an editor that could not load. There are no changes to confirm.
+   */
+  closeLoadError(): void {
+    this.liveAnnouncer.announce("Closing dialog");
+    this.hideExpressionEditor = true;
+    this.showCancelConfirmationDialog = false;
+    this.cancel.emit();
   }
 
   /**

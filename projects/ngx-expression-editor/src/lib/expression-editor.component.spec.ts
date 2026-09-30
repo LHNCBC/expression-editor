@@ -225,16 +225,54 @@ describe('ExpressionEditorComponent', () => {
     expect(component.errorLoading).toContain('Could not determine which expression to edit');
   });
 
-  it('should keep the Questionnaire load error for a non-Questionnaire resource', async () => {
+  it('should prioritize the Questionnaire load error over a bundle-field target error', async () => {
     fixture.componentRef.setInput('fhirQuestionnaire', { resourceType: 'Patient' });
     fixture.componentRef.setInput('itemLinkId', 'patient');
+    fixture.componentRef.setInput('expressionUri', 'fullUrl');
+    fixture.componentRef.setInput('expressionValueType', 'valueString');
     fixture.detectChanges();
     await fixture.whenStable();
+    fixture.detectChanges();
 
     expect(component.loadError).toBeTrue();
     expect(component.errorLoading).toBe(
       'Could not detect a FHIR Questionnaire; please try a different file.'
     );
+    const errorState = fixture.nativeElement.shadowRoot.querySelector('.expression-editor.load-error-state');
+    expect(errorState).not.toBeNull();
+    const visibleError = errorState.querySelector('.load-error-message');
+    expect(visibleError).not.toBeNull();
+    expect(visibleError.textContent.trim()).toBe(component.errorLoading);
+    expect(errorState.querySelector('.load-error-actions')).not.toBeNull();
+    const baseDialog = fixture.nativeElement.shadowRoot.querySelector('lhc-base-dialog');
+    expect(baseDialog).not.toBeNull();
+    expect(baseDialog.style.getPropertyValue('--expression-editor-dialog-width')).toBe('min(36rem, 90%)');
+    expect(baseDialog.querySelector('#expression-editor-base-dialog')).not.toBeNull();
+    const closeButton = fixture.nativeElement.shadowRoot.querySelector('#close-load-error');
+    expect(closeButton).not.toBeNull();
+    expect(closeButton.textContent.trim()).toBe('Close');
+
+    let cancelEmitted = false;
+    component.cancel.subscribe(() => cancelEmitted = true);
+    closeButton.click();
+
+    expect(cancelEmitted).toBeTrue();
+    expect(component.hideExpressionEditor).toBeTrue();
+    expect(component.showCancelConfirmationDialog).toBeFalse();
+  });
+
+  it('should close a load error from the title bar without requesting confirmation', () => {
+    component.loadError = true;
+    component.hideExpressionEditor = false;
+    component.showCancelConfirmationDialog = false;
+    let cancelEmitted = false;
+    component.cancel.subscribe(() => cancelEmitted = true);
+
+    component.closeDialog();
+
+    expect(cancelEmitted).toBeTrue();
+    expect(component.hideExpressionEditor).toBeTrue();
+    expect(component.showCancelConfirmationDialog).toBeFalse();
   });
 
   it('should treat a null expressionParentIndex as omitted for an ordinary expression', async () => {
