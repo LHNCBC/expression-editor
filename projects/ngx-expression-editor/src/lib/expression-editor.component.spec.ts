@@ -261,6 +261,27 @@ describe('ExpressionEditorComponent', () => {
     expect(component.showCancelConfirmationDialog).toBeFalse();
   });
 
+  it('should display a load error for a calculated expression on a non-Questionnaire resource', async () => {
+    fixture.componentRef.setInput('fhirQuestionnaire', { resourceType: 'Patient' });
+    fixture.componentRef.setInput('itemLinkId', 'patient');
+    fixture.componentRef.setInput(
+      'expressionUri',
+      'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression'
+    );
+
+    expect(() => fixture.detectChanges()).not.toThrow();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(component.loadError).toBeTrue();
+    expect(component.errorLoading).toBe(
+      'Could not detect a FHIR Questionnaire; please try a different file.'
+    );
+    const visibleError = fixture.nativeElement.shadowRoot.querySelector('.load-error-message');
+    expect(visibleError).not.toBeNull();
+    expect(visibleError.textContent.trim()).toBe(component.errorLoading);
+  });
+
   it('should close a load error from the title bar without requesting confirmation', () => {
     component.loadError = true;
     component.hideExpressionEditor = false;

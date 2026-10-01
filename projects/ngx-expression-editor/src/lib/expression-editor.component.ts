@@ -415,6 +415,10 @@ export class ExpressionEditorComponent implements OnInit, OnChanges, OnDestroy {
       this.advancedInterface = this.variableService.needsAdvancedInterface;
     }
 
+    if (this.loadError) {
+      return;
+    }
+
     this.caseStatements = this.variableService.caseStatements;
     this.simpleExpression = this.variableService.simpleExpression;
     this.linkIdContext = this.variableService.linkIdContext;
