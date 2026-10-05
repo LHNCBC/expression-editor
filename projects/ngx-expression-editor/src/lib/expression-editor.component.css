@@ -5,6 +5,23 @@
   border-radius: 10px;
 }
 
+.expression-editor.load-error-state {
+  border: 0;
+  padding: 0;
+  margin: 20px 0;
+}
+
+.load-error-message {
+  line-height: 1.5;
+  margin: 0;
+}
+
+.load-error-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 1.25rem;
+}
+
 .toolbar-button {
   height: 2.7rem;
 }

@@ -1,25 +1,25 @@
-@if (uneditableVariables.length) {
+@for (section of variableSections; track section.title) {
   <div>
     <h2 [style]="lhcStyle.h2"
         class="section-header"
         role="button"
         tabindex="0"
-        [attr.aria-expanded]="isSectionExpanded"
-        (click)="toggle()"
-        (keydown.enter)="toggle()"
-        (keydown.space)="toggle()">
-      <span class="arrow" [class.expanded]="isSectionExpanded">›</span>
-      Variables in Scope for This Item ({{uneditableVariables.length}})
+        [attr.aria-expanded]="isExpanded(section.title)"
+        (click)="toggle(section.title)"
+        (keydown.enter)="toggle(section.title)"
+        (keydown.space)="toggle(section.title)">
+      <span class="arrow" [class.expanded]="isExpanded(section.title)">›</span>
+      {{section.title}} ({{section.variables.length}})
     </h2>
 
-    @if(isSectionExpanded) {
+    @if(isExpanded(section.title)) {
       <div class="container">
         <div class="variable-header">
           <div class="variable-column-label">Label</div>
           <div class="variable-column-type">Variable Type</div>
           <div class="variable-column-details">Description/Expression</div>
         </div>
-        @for (variable of uneditableVariables; track variable) {
+        @for (variable of section.variables; track variable) {
           <div class="variable-row">
             <div class="variable-column-label">{{variable.name}}</div>
             <div class="variable-column-type">{{variable.type}}</div>

@@ -15,12 +15,13 @@
       [lhcStyle]="defaultLhcStyle">
     </lhc-select-scoring-items>
   }
-} @else if (!loadError && !hideExpressionEditor) {
+} @else if (!hideExpressionEditor) {
   <lhc-base-dialog
     [name]="'expression-editor'"
     [titleBarLabel]="appName"
     [dialogType]="'expression-editor'"
-    [customDialogStyle]=""
+    [customDialogStyle]="expressionEditorDialogStyle"
+    [style.--expression-editor-dialog-width]="loadError ? 'min(36rem, 90%)' : '90%'"
     [lhcStyle]="defaultLhcStyle"
     (dialogClose)="closeDialog()">
 
@@ -42,9 +43,16 @@
     </lhc-fhirpath-easypath-conversion-confirmation-dialog>
   }
 
-  <div class="expression-editor" [attr.aria-hidden]="showCancelConfirmationDialog || showConfirmDialog ? 'true' : 'false' ">
+  <div class="expression-editor" [class.load-error-state]="loadError"
+       [attr.aria-hidden]="showCancelConfirmationDialog || showConfirmDialog ? 'true' : 'false' ">
     @if (loadError) {
-      <div class="error">{{errorLoading}}</div>
+      <p class="error load-error-message" role="alert">{{errorLoading}}</p>
+      <div class="load-error-actions">
+        <button class="primary" type="button" id="close-load-error"
+                [ngStyle]="defaultLhcStyle.buttonPrimary" (click)="closeLoadError()">
+          Close
+        </button>
+      </div>
     }
     @if (!calculateSum && !loadError) {
       <div>
@@ -58,12 +66,14 @@
           <section id="uneditable-variables-section" class="mb-3">
             <lhc-uneditable-variables
               [lhcStyle]="defaultLhcStyle"
+              [isExtractionExpression]="isExtractionExpression"
+              [hasItemContext]="!!itemLinkId"
               [isSectionExpanded]="display.uneditableVariablesSectionExpanded">
             </lhc-uneditable-variables>
           </section>
         }
 
-        @if (display.itemVariablesSection) {
+        @if (display.itemVariablesSection && !isExtractionExpression && !itemVariablesReadOnly) {
           <section id="variables-section" class="mb-3">
             <lhc-variables
               [variableLevel]="itemLinkId ? 'item' : 'form'"
@@ -75,7 +85,7 @@
           </section>
         }
 
-        @if (display.outputExpressionSection && expressionUri && itemLinkId) {
+        @if (display.outputExpressionSection && expressionUri && (itemLinkId || rootOutputExpressionTarget)) {
           <section id="final-expression-section" class="mb-3">
             <h2 [style]="defaultLhcStyle.h2" class="final-expression-title">{{expressionLabel}}</h2>
 

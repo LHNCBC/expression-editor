@@ -9,6 +9,21 @@ export const INVALID_EXPRESSION_OUTPUT = "The output expression is no longer val
 
 export const INVALID_LAUNCH_CONTEXT = "The expression may contain a launch context variable that might not have been defined.";
 export const INVALID_LAUNCH_CONTEXT_OUTPUT = "The output expression may contain a launch context variable that might not have been defined.";
+export const EXTRACTION_CONTEXT_VARIABLE_UNAVAILABLE =
+  " is not available in an extraction expression. Use an allocated ID or an extraction-context variable instead.";
+
+export function getUndefinedEnvironmentVariableName(errorMessage: string): string {
+  const match = errorMessage?.match(/Attempting to access an undefined environment variable: (\w+)/);
+  return match?.[1] ?? '';
+}
+
+export function getExtractionContextVariableError(variableName: string): string {
+  return `%${variableName}${EXTRACTION_CONTEXT_VARIABLE_UNAVAILABLE}`;
+}
+
+export function isExtractionContextVariableError(message: string): boolean {
+  return message?.endsWith(EXTRACTION_CONTEXT_VARIABLE_UNAVAILABLE) ?? false;
+}
 
 export const INVALID_CASES_EXPRESSION = "Some or all cases in the Output Expression section are no longer valid.";
 

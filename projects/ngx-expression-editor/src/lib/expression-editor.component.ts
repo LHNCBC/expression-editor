@@ -1,6 +1,12 @@
-import { ChangeDetectorRef, Component, EventEmitter, inject, Input, OnChanges, OnDestroy, OnInit, Output, ViewChild, ViewEncapsulation } from '@angular/core';
+import { ChangeDetectorRef, Component, EventEmitter, inject, Input, numberAttribute, OnChanges, OnDestroy, OnInit, Output, ViewChild, ViewEncapsulation } from '@angular/core';
 
-import { ExpressionEditorService, SimpleStyle, DisplaySectionControl } from './expression-editor.service';
+import {
+  DialogStyle,
+  DisplaySectionControl,
+  ExpressionEditorService,
+  ExpressionValueType,
+  SimpleStyle
+} from './expression-editor.service';
 import { LiveAnnouncer } from '@angular/cdk/a11y';
 import { ValidationResult } from './variable';
 import { ENVIRONMENT_TOKEN } from './environment-token';
@@ -22,6 +28,17 @@ import { ExpressionValidatorDirective } from '../directives/expression/expressio
 
 interface AppEnvironment {
   appName?: string;
+}
+
+/**
+ * Converts a populated HTML attribute to a number while preserving an omitted
+ * optional input as null.
+ *
+ * @param value - The Angular input or HTML attribute value.
+ * @returns null when no value was supplied; otherwise Angular's numeric coercion result.
+ */
+function optionalNumberAttribute(value: unknown): number | null {
+  return value === null || value === undefined || value === '' ? null : numberAttribute(value);
 }
 
 @Component({
@@ -50,6 +67,15 @@ export class ExpressionEditorComponent implements OnInit, OnChanges, OnDestroy {
   @Input() userExpressionChoices = null;
   @Input() expressionLabel = 'Final Expression';
   @Input() expressionUri = '';
+  @Input() expressionValueType: ExpressionValueType = 'valueExpression';
+  /**
+   * Optional index in the target Questionnaire or item's extension array of the
+   * definitionExtract or templateExtract extension that owns expressionUri. This
+   * is only needed for bundle fields when the target has more than one extract
+   * extension.
+   */
+  @Input({ transform: optionalNumberAttribute }) expressionParentIndex: number | null = null;
+  @Input() itemVariablesReadOnly = false;
   @Input() lhcStyle: SimpleStyle = {};
   @Input() display: DisplaySectionControl = {};
   @Output() save = new EventEmitter<object>();
@@ -60,6 +86,9 @@ export class ExpressionEditorComponent implements OnInit, OnChanges, OnDestroy {
   appName = '';
   noErrorMessage = "There are no more errors on the page.";
   errorLoading = 'Could not detect a FHIR Questionnaire; please try a different file.';
+  private readonly questionnaireLoadError = this.errorLoading;
+  private readonly expressionTargetLoadError =
+    'Could not determine which expression to edit; the expression target is invalid, missing, or ambiguous.';
   expressionSyntax: string;
   simpleExpression: string;
   finalExpression: string;
@@ -71,6 +100,11 @@ export class ExpressionEditorComponent implements OnInit, OnChanges, OnDestroy {
   caseStatements: boolean;
   disableInterfaceToggle = false;
   loadError = false;
+  readonly expressionEditorDialogStyle: DialogStyle = {
+    dialogContentDiv: {
+      width: 'var(--expression-editor-dialog-width, 90%)'
+    }
+  };
   showCancelConfirmationDialog = false;
   selectItems: boolean;
   hideExpressionEditor = false;
@@ -92,6 +126,8 @@ export class ExpressionEditorComponent implements OnInit, OnChanges, OnDestroy {
   openExpressionEditorTooltip;
 
   expressionType;
+  isExtractionExpression = false;
+  rootOutputExpressionTarget = false;
 
   // Flag to track if export is pending after validation
   isExportPending = false;
@@ -355,17 +391,32 @@ export class ExpressionEditorComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   /**
-   * Re-import fhir and context and show the form
+   * Re-import the Questionnaire and show the form
    */
   reload(): void {
     if (this.fhirQuestionnaire instanceof Object) {
       this.variableService.doNotAskToCalculateScore = this.doNotAskToCalculateScore;
-      this.loadError = !this.variableService.import(this.expressionUri, this.fhirQuestionnaire, this.itemLinkId);
+      this.loadError = !this.variableService.import(
+        this.expressionUri,
+        this.fhirQuestionnaire,
+        this.itemLinkId,
+        this.expressionValueType,
+        this.itemVariablesReadOnly,
+        this.expressionParentIndex
+      );
+      this.isExtractionExpression = this.variableService.isExtractionExpression();
+      this.rootOutputExpressionTarget = this.variableService.hasOutputExpressionTarget();
       if (this.loadError) {
+        this.errorLoading = this.variableService.hasExpressionTargetError() ?
+          this.expressionTargetLoadError : this.questionnaireLoadError;
         this.liveAnnouncer.announce(this.errorLoading);
       }
       this.disableInterfaceToggle = this.variableService.needsAdvancedInterface;
       this.advancedInterface = this.variableService.needsAdvancedInterface;
+    }
+
+    if (this.loadError) {
+      return;
     }
 
     this.caseStatements = this.variableService.caseStatements;
@@ -389,7 +440,13 @@ export class ExpressionEditorComponent implements OnInit, OnChanges, OnDestroy {
    * Pre-export function: triggers validation and sets export pending flag
    */
   preExport(): void {
-    if (this.display.itemVariablesSection && this.variables.length > 0) {
+    const hasOutputExpression = Boolean(
+      this.display.outputExpressionSection && this.expressionUri &&
+      (this.itemLinkId || this.rootOutputExpressionTarget)
+    );
+    const hasVariablesToValidate = this.display.itemVariablesSection && this.variables.length > 0;
+
+    if (hasOutputExpression || hasVariablesToValidate) {
       this.isExportPending = true;
       // Trigger validation
       this.variableService.notifyValidationCheck();
@@ -408,11 +465,14 @@ export class ExpressionEditorComponent implements OnInit, OnChanges, OnDestroy {
     setTimeout(() => {
       if (!this.validationError) {
         const finalExpression = this.finalExpressionExtension;
-        if (finalExpression?.valueExpression) {
+        if (this.expressionValueType === 'valueString' && finalExpression) {
+          finalExpression.valueString = this.finalExpression;
+        } else if (finalExpression?.valueExpression) {
           finalExpression.valueExpression.expression = this.finalExpression;
         }
 
-        const exportResult = this.variableService.export(this.expressionUri, finalExpression, (this.expressionSyntax === 'simple') ? this.simpleExpression : "");
+        const outputExpressionUri = finalExpression?.url ?? this.expressionUri;
+        const exportResult = this.variableService.export(outputExpressionUri, finalExpression, (this.expressionSyntax === 'simple') ? this.simpleExpression : "");
         if (exportResult) {
           this.save.emit(exportResult);
           this.calculateSum = false;
@@ -449,6 +509,11 @@ export class ExpressionEditorComponent implements OnInit, OnChanges, OnDestroy {
    * results in a different beahvior.
    */
   closeDialog(): void {
+    if (this.loadError) {
+      this.closeLoadError();
+      return;
+    }
+
     this.liveAnnouncer.announce("Closing dialog");
     setTimeout(() => {
       if (this.calculateSum && !this.loadError) {
@@ -462,6 +527,16 @@ export class ExpressionEditorComponent implements OnInit, OnChanges, OnDestroy {
         this.showCancelConfirmationDialog = true;
       }
     }, 100);
+  }
+
+  /**
+   * Close an editor that could not load. There are no changes to confirm.
+   */
+  closeLoadError(): void {
+    this.liveAnnouncer.announce("Closing dialog");
+    this.hideExpressionEditor = true;
+    this.showCancelConfirmationDialog = false;
+    this.cancel.emit();
   }
 
   /**

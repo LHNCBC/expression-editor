@@ -7,8 +7,29 @@ import { environment } from '../environments/environment';
 import { Title } from '@angular/platform-browser';
 import { ActivatedRoute } from '@angular/router';
 import { createDisplayOption } from '../assets/js/common-utils.js';
-import { ExpressionEditorComponent } from 'ngx-expression-editor';
+import {
+  ExpressionEditorComponent,
+  ExpressionValueType
+} from 'ngx-expression-editor';
 import { FormsModule } from '@angular/forms';
+
+interface ExpressionTypeOption {
+  name: string;
+  uri: string;
+  selected?: boolean;
+  userExpressionChoices?: { name: string; uri: string }[];
+  expressionValueType?: ExpressionValueType;
+  expressionParentIndex?: number;
+  itemVariablesReadOnly?: boolean;
+}
+
+interface TemplateExtractExtension {
+  url?: string;
+  extension?: {
+    url?: string;
+    valueReference?: { reference?: string };
+  }[];
+}
 
 @Component({
   selector: 'app-root',
@@ -20,6 +41,7 @@ import { FormsModule } from '@angular/forms';
 export class AppComponent implements OnInit, OnDestroy {
   @ViewChild('autoComplete', {static: false}) autoCompleteElement: ElementRef;
   autoComplete;
+  private removeQuestionSelectionObserver: (() => void) | null = null;
   appName = ('appName' in environment) ? environment.appName : '';
   appTitle = ('appTitle' in environment) ? environment.appTitle : '';
 
@@ -30,7 +52,9 @@ export class AppComponent implements OnInit, OnDestroy {
 
   calculatedExpression = 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression';
   originalLinkId = '/39156-5';
-  expressionTypes = [
+  private readonly templateExtractUri =
+    'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-templateExtract';
+  private readonly standardExpressionTypes: ExpressionTypeOption[] = [
     {
       name: 'Answer Expression',
       uri: 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-answerExpression'
@@ -57,6 +81,42 @@ export class AppComponent implements OnInit, OnDestroy {
       uri: 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression'
     }
   ];
+  private readonly templateExtractionExpressionTypes: ExpressionTypeOption[] = [
+    'fullUrl',
+    'resourceId',
+    'ifNoneMatch',
+    'ifModifiedSince',
+    'ifMatch',
+    'ifNoneExist'
+  ].map(uri => ({
+    name: `Template Extraction ${uri}`,
+    uri,
+    expressionValueType: 'valueString',
+    itemVariablesReadOnly: true
+  }));
+
+  get expressionTypes(): ExpressionTypeOption[] {
+    const templateExtracts = this.getSelectedItemTemplateExtracts();
+    const templateOptions: ExpressionTypeOption[] = [];
+
+    templateExtracts.forEach(({ extension, index }, templateIndex) => {
+      const templateReference = extension.extension?.find(child =>
+        child.url === 'template'
+      )?.valueReference?.reference;
+      const suffix = templateExtracts.length > 1 ?
+        ` — ${templateReference ?? `template ${templateIndex + 1}`}` : '';
+
+      this.templateExtractionExpressionTypes.forEach(option => {
+        templateOptions.push({
+          ...option,
+          name: `${option.name}${suffix}`,
+          expressionParentIndex: index
+        });
+      });
+    });
+
+    return this.standardExpressionTypes.concat(templateOptions);
+  }
 
   display = {};
   fhirPreview: string;
@@ -65,6 +125,9 @@ export class AppComponent implements OnInit, OnDestroy {
   rootLevel = false;
   defaultItemText;
   expressionUri = this.calculatedExpression;
+  expressionValueType: ExpressionValueType = 'valueExpression';
+  expressionParentIndex: number | null = null;
+  itemVariablesReadOnly = false;
   userExpressionChoices = null;
   customExpressionUri = false;
   fhirQuestionnaire = null;
@@ -107,6 +170,7 @@ export class AppComponent implements OnInit, OnDestroy {
     this.error = '';
     this.doNotAskToCalculateScore = false;
     this.rootLevel = false;
+    this.expressionParentIndex = null;
 
     if (this.questionnaire === '' || this.questionnaire === 'upload') {
       this.liveAnnouncer.announce(`Additional settings must be entered below to load the ${this.appName}.`);
@@ -114,10 +178,17 @@ export class AppComponent implements OnInit, OnDestroy {
       this.file = '';
       this.linkId = '';
       this.rootLevel = true;
+      this.expressionUri = this.calculatedExpression;
+      this.expressionValueType = 'valueExpression';
+      this.itemVariablesReadOnly = false;
     } else {
       this.liveAnnouncer.announce(this.formAppearedAnnouncement);
-      this.linkId = this.originalLinkId;
+      const configureOutputExpression = this.questionnaire === 'template-extraction';
+      this.linkId = configureOutputExpression ? '' : this.originalLinkId;
+      this.rootLevel = configureOutputExpression;
       this.expressionUri = this.calculatedExpression;
+      this.expressionValueType = 'valueExpression';
+      this.itemVariablesReadOnly = false;
 
       this.http.get(`./${this.questionnaire}.json`)
         .subscribe(data => {
@@ -129,7 +200,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
             this.defaultItemText = this.linkIds.find((item) => {
               return item.linkId === this.linkId;
-            }).text.trim();
+            })?.text.trim() ?? '';
 
             this.composeAutocomplete();
 
@@ -143,15 +214,17 @@ export class AppComponent implements OnInit, OnDestroy {
    * Toggle between Root/Item section
    */
   toggleRootLevel(): void {
+    this.expressionParentIndex = null;
     if (this.rootLevel) {
       this.linkId = '';
       this.autoComplete.setFieldToListValue('');
     } else {
       if (this.questionnaire !== '' && this.questionnaire !== 'upload') {
-        this.linkId = this.originalLinkId;
+        this.linkId = this.questionnaire === 'template-extraction' ? '' : this.originalLinkId;
         this.autoComplete.setFieldToListValue(this.defaultItemText);
       }
     }
+    this.resetTemplateExtractionSelectionIfUnavailable();
 
     this.changeDetectorRef.detectChanges();
   }
@@ -190,6 +263,7 @@ export class AppComponent implements OnInit, OnDestroy {
         if (typeof e.target.result === 'string') {
           this.doNotAskToCalculateScore = false;
           this.linkId = '';
+          this.expressionParentIndex = null;
           try {
             this.fhirQuestionnaire = JSON.parse(e.target.result);
             this.error = '';
@@ -224,6 +298,8 @@ export class AppComponent implements OnInit, OnDestroy {
    * Generate the autocomplete list
    */
   composeAutocomplete(): void {
+    this.destroyAutocomplete();
+
     const keys = this.linkIds.map(e => e.text);
     const vals = this.linkIds.map(v => v.linkId);
 
@@ -237,17 +313,84 @@ export class AppComponent implements OnInit, OnDestroy {
     this.autoComplete = new Def.Autocompleter.Prefetch(
       this.autoCompleteElement.nativeElement, keys, opts);
 
-    Def.Autocompleter.Event.observeListSelections('question', (res) => {
-      if (((res.input_method === "clicked" || res.input_method === "arrows" ) && res.val_typed_in !== res.final_val && res?.item_code) ||
-          (res.input_method === "typed")) {
-        this.linkId = res.item_code;
+    this.removeQuestionSelectionObserver =
+      Def.Autocompleter.Event.observeListSelections('question', (res) => {
+        if (((res.input_method === "clicked" || res.input_method === "arrows" ) && res.val_typed_in !== res.final_val && res?.item_code) ||
+            (res.input_method === "typed")) {
+          this.linkId = res.item_code;
+          this.expressionParentIndex = null;
 
-        if (res.input_method === "typed" && !res.item_code)
-          this.rootLevel = true;
-        else
-          this.rootLevel = false;
+          if (res.input_method === "typed" && !res.item_code)
+            this.rootLevel = true;
+          else
+            this.rootLevel = false;
+
+          this.resetTemplateExtractionSelectionIfUnavailable();
+        }
+      });
+  }
+
+  private destroyAutocomplete(): void {
+    this.removeQuestionSelectionObserver?.();
+    this.removeQuestionSelectionObserver = null;
+
+    if (this.autoComplete !== undefined && this.autoComplete !== null) {
+      this.autoComplete.destroy();
+      this.autoComplete = null;
+    }
+  }
+
+  /**
+   * Whether the selected item contains an SDC templateExtract extension.
+   */
+  private selectedItemHasTemplateExtract(): boolean {
+    return this.getSelectedItemTemplateExtracts().length > 0;
+  }
+
+  private getSelectedItemTemplateExtracts(): { extension: TemplateExtractExtension; index: number }[] {
+    if (!this.linkId || !Array.isArray(this.fhirQuestionnaire?.item)) {
+      return [];
+    }
+
+    const item = this.findItemByLinkId(this.fhirQuestionnaire.item, this.linkId);
+    if (!Array.isArray(item?.extension)) {
+      return [];
+    }
+
+    return item.extension
+      .map((extension, index) => ({ extension, index }))
+      .filter(({ extension }) => extension.url === this.templateExtractUri);
+  }
+
+  private findItemByLinkId(items, linkId: string) {
+    for (const item of items) {
+      if (item.linkId === linkId) {
+        return item;
       }
-    });
+
+      if (Array.isArray(item.item)) {
+        const nestedItem = this.findItemByLinkId(item.item, linkId);
+        if (nestedItem) {
+          return nestedItem;
+        }
+      }
+    }
+
+    return null;
+  }
+
+  private resetTemplateExtractionSelectionIfUnavailable(): void {
+    const isTemplateExtractionSelection = this.templateExtractionExpressionTypes.some(option =>
+      option.uri === this.expressionUri
+    );
+
+    if (isTemplateExtractionSelection &&
+      (!this.selectedItemHasTemplateExtract() || this.expressionParentIndex === null)) {
+      this.expressionUri = this.calculatedExpression;
+      this.expressionValueType = 'valueExpression';
+      this.expressionParentIndex = null;
+      this.itemVariablesReadOnly = false;
+    }
   }
 
 
@@ -314,15 +457,24 @@ export class AppComponent implements OnInit, OnDestroy {
     if (newValue === '') {
       this.customExpressionUri = false;
       this.expressionUri = newValue;
+      this.expressionValueType = 'valueExpression';
+      this.expressionParentIndex = null;
+      this.itemVariablesReadOnly = false;
     } else if (newValue === 'custom') {
       this.userExpressionChoices = null;
       this.customExpressionUri = true;
       this.expressionUri = '';
+      this.expressionValueType = 'valueExpression';
+      this.expressionParentIndex = null;
+      this.itemVariablesReadOnly = false;
     } else {
       const currentExpression = this.expressionTypes[newValue];
       this.userExpressionChoices = currentExpression.userExpressionChoices;
       this.customExpressionUri = false;
       this.expressionUri = currentExpression.uri;
+      this.expressionValueType = currentExpression.expressionValueType ?? 'valueExpression';
+      this.expressionParentIndex = currentExpression.expressionParentIndex ?? null;
+      this.itemVariablesReadOnly = currentExpression.itemVariablesReadOnly ?? false;
     }
   }
 
@@ -330,9 +482,7 @@ export class AppComponent implements OnInit, OnDestroy {
    * Angular lifecycle hook
    */
   ngOnDestroy(): void {
-    if (this.autoComplete !== undefined) {
-      this.autoComplete.destroy();
-    }
+    this.destroyAutocomplete();
   }
 
   /**

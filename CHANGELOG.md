@@ -2,6 +2,20 @@
 
 This project follows [Semantic Versioning](http://semver.org/).
 
+## [5.1.0] 2026-09-03
+### Added
+- Added support for editing SDC template and definition extraction expressions, including scoped `extractAllocateId` variables, string-backed values, nested extraction fields, and selection among multiple extraction extensions.
+- Added the `expressionValueType` input, defaulting to `valueExpression` for backward compatibility.
+- Added support for importing and exporting string-backed FHIRPath expressions with arbitrary extension URIs.
+- Added the `expressionParentIndex` input for selecting the owning extraction extension when more than one is present.
+- Added the `itemVariablesReadOnly` input for displaying current-item variables without allowing them to be modified.
+- Added dedicated displays for extraction-context and allocated ID variables available to extraction expressions.
+
+### Fixed
+- Fixed discovery of variables declared on nested Questionnaire items.
+- Prevented blank Output Expressions from being saved when no variables are present.
+- Validated case-statement conditions when outputs are configured as strings.
+
 ## [5.0.7] 2026-04-27
 ### Fixed
 - Fixed a Save error in the Easy Path flow when the Output Expression FHIRPath control is not rendered.

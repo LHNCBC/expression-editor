@@ -10,11 +10,64 @@ import { UneditableVariable } from '../variable';
 export class UneditableVariablesComponent implements OnInit, OnDestroy {
   @Input() lhcStyle: SimpleStyle = {};
   @Input() isSectionExpanded = true;
+  @Input() isExtractionExpression = false;
+  @Input() hasItemContext = false;
 
   uneditableVariables: UneditableVariable[];
   uneditableVariablesSubscription;
 
   private variableService = inject(ExpressionEditorService);
+  private sectionExpansionState = new Map<string, boolean>();
+
+  private readonly extractionContextVariables: UneditableVariable[] = [
+    {
+      name: 'resource',
+      type: 'QuestionnaireResponse',
+      description: 'Root of the QuestionnaireResponse'
+    },
+    {
+      name: 'context',
+      type: 'QuestionnaireResponse context',
+      description: 'Current QuestionnaireResponse item, or the QuestionnaireResponse at the root level'
+    },
+    {
+      name: 'questionnaire',
+      type: 'Questionnaire',
+      description: 'Questionnaire being processed'
+    },
+    {
+      name: 'qitem',
+      type: 'Questionnaire item',
+      description: 'Current item in the Questionnaire'
+    }
+  ];
+
+  /**
+   * Split extraction variables into read-only sections without mixing ordinary
+   * Questionnaire variables with IDs allocated by the extraction process.
+   */
+  get variableSections(): Array<{title: string; variables: UneditableVariable[]}> {
+    const variables = this.uneditableVariables ?? [];
+
+    if (!this.isExtractionExpression) {
+      return variables.length ? [{
+        title: 'Variables in Scope for This Item',
+        variables
+      }] : [];
+    }
+
+    return [
+      {
+        title: 'Extraction Context Variables',
+        variables: this.extractionContextVariables.filter(variable =>
+          variable.name !== 'qitem' || this.hasItemContext)
+      },
+      {
+        title: 'Allocated ID Variables',
+        variables: variables.filter(variable => variable.type === 'Allocated ID')
+      }
+    ].filter(section => section.variables.length > 0);
+  }
 
   /**
    * Angular lifecycle hook called when the component is initialized
@@ -37,7 +90,12 @@ export class UneditableVariablesComponent implements OnInit, OnDestroy {
   /**
    * Toggles the expanded state of the component.
    */
-  toggle() {
-    this.isSectionExpanded = !this.isSectionExpanded;
+  isExpanded(sectionTitle: string): boolean {
+    return this.sectionExpansionState.get(sectionTitle) ??
+      (sectionTitle === 'Extraction Context Variables' ? false : this.isSectionExpanded);
+  }
+
+  toggle(sectionTitle: string) {
+    this.sectionExpansionState.set(sectionTitle, !this.isExpanded(sectionTitle));
   }
 }

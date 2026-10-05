@@ -3,6 +3,7 @@ import { ValidationError, ValidationParam, FieldTypes, SectionTypes } from '../l
 import * as fhirpath from 'fhirpath';
 import { EasyPathExpressionsPipe } from '../lib/easy-path-expressions.pipe';
 import * as constants from "../lib/validation";
+import { findUnavailableEnvironmentVariable } from './fhirpathVariableValidator';
 
 /**
  * Get the error message for the given type and field.
@@ -63,6 +64,15 @@ function getInvalidExpressionErrorObject(invalidVariableName = false): Validatio
   }
 }
 
+function getExtractionContextVariableErrorObject(variableName: string): ValidationError {
+  const message = constants.getExtractionContextVariableError(variableName);
+  return {
+    'invalidExpressionError': true,
+    message,
+    'ariaMessage': message
+  };
+}
+
 /**
  * Replaces a placeholder in the given message with the specified new variable name.
  *
@@ -90,20 +100,48 @@ function getExpressionWarningObject(variableName: string): ValidationError {
  * Validates the expression for empty or invalid expression.
  * @param param - ValidationParam object that contains must contain at least the section and field
  *                information.
+ * @param allowLaunchContextFallback - Whether an expression that fails primary validation may be
+ *                                     retried with common launch-context variables.
+ * @param launchContextVariableNames - Complete launch-context names that can receive a specific
+ *                                     extraction-context error.
  * @return A validation function that returns an error object if the validation fails, or null otherwise.
  */
-export function expressionValidator(param: ValidationParam): ValidatorFn {
+export function expressionValidator(
+  param: ValidationParam,
+  allowLaunchContextFallback = true,
+  launchContextVariableNames: string[] = []
+): ValidatorFn {
   return (control:AbstractControl) : ValidationError | null => {
     if (!control.value && control.dirty) {
       return getRequiredErrorObject(param.type, param.field);
     } else if ((control.value && control.dirty) || (control.value && !control.dirty)) {
       if (param.type === "fhirpath") {
         try {
+          const variableNames = JSON.parse(param.variableNames);
+          if (!allowLaunchContextFallback) {
+            const unavailableVariableName = findUnavailableEnvironmentVariable(
+              control.value,
+              Object.keys(variableNames)
+            );
+            if (unavailableVariableName !== null) {
+              return launchContextVariableNames.includes(unavailableVariableName) ?
+                getExtractionContextVariableErrorObject(unavailableVariableName) :
+                getInvalidExpressionErrorObject(true);
+            }
+          }
+
           // Use fhirpath.js to evaluate the expression.  If exception is thrown, then returns
           // the invalidExpressionError
-          fhirpath.evaluate({}, control.value, JSON.parse(param.variableNames));
+          fhirpath.evaluate({}, control.value, variableNames);
 
         } catch(e) {
+          const variableName = constants.getUndefinedEnvironmentVariableName(e.message);
+          if (!allowLaunchContextFallback) {
+            return launchContextVariableNames.includes(variableName) ?
+              getExtractionContextVariableErrorObject(variableName) :
+              getInvalidExpressionErrorObject(true);
+          }
+
           try {
             // Add a check to see if the expression contains a launch context variable that might
             // not have been defined. If that is the case, then return a warning.
@@ -114,14 +152,6 @@ export function expressionValidator(param: ValidationParam): ValidatorFn {
           }
 
           // Attempting to access an undefined environment variable: Patient
-          const errorMessage = e.message;
-          const match = errorMessage.match(/Attempting to access an undefined environment variable: (\w+)/);
-          let variableName = '';
-
-          if (match && match[1]) {
-            variableName = match[1];
-          }
-
           return getExpressionWarningObject(variableName);
         }
       } else if (param.type === "simple") {
